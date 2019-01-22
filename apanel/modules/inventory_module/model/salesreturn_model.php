@@ -40,6 +40,17 @@
 			return $result;
 		}
 
+		public function getTaxRateList() {
+			$result = $this->db->setTable('fintaxcode')
+						->setFields('fstaxcode ind, shortname val')
+						->setWhere("taxtype = 'VAT'")
+						->setOrderBy('fstaxcode')
+						->runSelect()
+						->getResult();
+
+			return $result;
+		}
+
 		public function getSalesReturnPagination($search, $sort, $customer, $filter, $datefilter) {
 
 			$sort = ($sort) ? $sort : 'transactiondate desc';
@@ -69,42 +80,115 @@
 			return $result;
 		}
 
-		public function getSourcePagination() {
+		public function getSalesReturn($fields, $voucherno) {
+			$result = $this->db->setTable('inventory_salesreturn')
+								->setFields($fields)
+								->setWhere("voucherno = '$voucherno'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+			
+			return $result;
+		}
+
+		public function getSalesReturnDetails($fields, $voucherno, $view = true) {
+			if ($view) {
+				$result = $this->db->setTable('inventory_salesreturn_details')
+									->setFields($fields)
+									->setWhere("voucherno = '$voucherno'")
+									->setOrderBy('linenum')
+									->runSelect()
+									->getResult();
+			} else {
+				$sourceno = $this->db->setTable('inventory_salesreturn')
+									->setFields('source_no')
+									->setWhere("voucherno = '$voucherno'")
+									->runSelect()
+									->getRow();
+
+				$sourceno = ($sourceno) ? $sourceno->source_no : '';
+
+				$result1 = $this->db->setTable('inventory_salesreturn_details')
+									->setFields($fields)
+									->setWhere("voucherno = '$voucherno'")
+									->setOrderBy('linenum')
+									->runSelect()
+									->getResult();
+
+				// $result = $this->getSalesReturnDetails($sourceno, $voucherno);
+				// $header = $this->getSalesReturnHeader(array('amount', 'discounttype', 'discountamount'), $sourceno);
+
+				// $checker	= array();
+				// foreach ($result1 as $key => $row) {
+				// 	$checker[$row->linenum] = (object) $row;
+				// }
+
+				// foreach ($result as $key => $row) {
+				// 	$result[$key]->issueqty = (isset($checker[$row->linenum])) ? $checker[$row->linenum]->issueqty : 0;
+				// }
+
+				// $total_amount	= $header->amount;
+				// $total_discount	= 0;
+				// $discountrate	= 0;
+
+
+				// if ($header->discounttype == 'perc') {
+				// 	$total_discount	= $total_amount * $header->discountamount / 100;
+				// 	$discountrate	= $header->discountamount / 100;
+				// } else {
+				// 	$total_discount	= $header->discountamount;
+				// 	$discountrate	= $total_discount / $total_amount;
+				// }
+				
+				// foreach ($result as $key => $row) {
+				// 	$taxamount = $row->unitprice - ($row->unitprice / (1 + $row->taxrate));
+				// 	$discount = ($row->unitprice - $taxamount) * $discountrate;
+				// 	$result[$key]->unitprice = $row->unitprice - $discount;
+				// 	$result[$key]->taxrate = 0;
+				// 	$result[$key]->taxamount = 0;
+				// }
+
+				$result = $result1;
+			}
+			return $result;
+		}
+
+		public function getSourcePagination($source) {
 
 			$sort = 'transactiondate desc';
 			
-			$silist = $this->db->setTable("salesinvoice")
-								->setFields("voucherno, transactiondate, remarks notes, amount")
-								->setWhere('stat="posted"')
-								->setOrderBy($sort)
-								->runSelect()
-								->getResult();
+			if ($source=='Delivery Receipt') {
+				$table 	= 'deliveryreceipt';
+				$fields = 'voucherno, transactiondate, deliverydate, remarks notes, amount';
+				$cond 	= 'stat="Delivered"';
+			}
+			else{
+				$table 	= 'salesinvoice';
+				$fields = 'voucherno, transactiondate, remarks notes, amount';
+				$cond 	= 'stat="posted"';
+			}
 
-			$drlist = $this->db->setTable("deliveryreceipt")
-								
-								->setFields("voucherno, transactiondate, deliverydate, remarks notes, amount")
-								->setWhere('stat="Delivered"')
+			$result = $this->db->setTable($table)
+								->setFields($fields)
+								->setWhere($cond)
 								->setOrderBy($sort)
-								->runSelect()
-								->getResult();
-
-			$result = (object) array_merge( (array)$drlist, (array)$silist);
+								->runPagination();
 
 			return $result;
 		}
 
-		public function getSourceDetails($voucherno) {
+		public function getSourceDetails($fields, $voucherno) {
 
 			$source = substr($voucherno, 0,2);
 
 			if ($source == 'DR') {
 				$table = 'deliveryreceipt_details';
-				$fields = 'itemcode, detailparticular, warehouse, unitprice, issueqty, issueuom, linenum';
+				$fields[15] = 'discountamount';
 			}
 
 			elseif ($source == 'SI') {
 				$table = 'salesinvoice_details';
-				$fields = 'itemcode, detailparticular, warehouse, unitprice, issueqty, issueuom, linenum';
+				$fields[15] = 'discountedamount';
 			}
 
 			$cond = 'voucherno = "'.$voucherno.'"';
@@ -122,15 +206,17 @@
 		}
 
 		public function getSourceHeader($fields, $voucherno) {
-
+ 
 			$source = substr($voucherno, 0,2);
 
 			if ($source == 'DR') {
-				$table = 'deliveryreceipt_details';
+				$table 		= 'deliveryreceipt';
+				$fields[2] 	= 'source_no';
 			}
 
 			elseif ($source == 'SI') {
-				$table = 'salesinvoice_details';
+				$table 		= 'salesinvoice';
+				$fields[2] 	= 'sourceno';
 			}
 
 
@@ -138,14 +224,12 @@
 			$fields = $fields;
 			$cond = 'voucherno = "'.$voucherno.'"';
 
-			$sort = 'linenum desc';
 			
 			$result = $this->db->setTable($table)
 								->setFields($fields)
 								->setWhere($cond)
-								->setOrderBy($sort)
 								->runSelect()
-								->getResult();
+								->getRow();
 
 			return $result;
 		}
@@ -200,48 +284,6 @@
 	
 		
 
-		private function getSourceNo($voucherno) {
-			$result = $this->db->setTable('stock_approval')
-								->setFields(array('source_no'))
-								->setWhere("stocktransferno = '$voucherno'")
-								->setLimit(1)
-								->runSelect()
-								->getRow();
-
-			if ($result) {
-				return $result->source_no;
-			} else {
-				return false;
-			}
-		}
-
-		public function updateStatus($data,$table,$stocktransferno) {
-			$result = $this->db->setTable($table)
-								->setValues($data)
-								->setWhere("stocktransferno = '$stocktransferno'")
-								//->buildUpdate();
-								->runUpdate();
-			//var_dump($this->db->getQuery());	
-			if ($result) {
-				$result = $this->db->setTable('stock_transfer_details')
-								->setValues($data)
-								->setWhere("stocktransferno = '$stocktransferno'")
-								->runUpdate();
-			}
-
-			return $result;
-		}
-
-		public function getStat($voucherno, $table){
-			$result 	=	$this->db->setTable($table)
-									->setFields('stat')
-									->setWhere("stocktransferno = '$voucherno'")
-									->setLimit(1)
-									->runSelect()
-									->getRow();
-			return $result;
-		}
-
 	
 
 		public function getPackingList($customer) 
@@ -256,18 +298,6 @@
 							->setHaving('qtyleft > 0')
 							->runSelect()
 							->getResult();
-
-			return $result;
-		}
-
-		public function load_so_list($customer) 
-		{
-			$result = $this->db->setTable('salesorder s')
-							->setFields('s.voucherno , s.transactiondate , s.netamount')
-							->setWhere("s.stat IN ('open') AND s.customer = '$customer'")
-							->runSelect()
-							->getResult();
-							//var_dump($this->db->getQuery());	
 
 			return $result;
 		}
@@ -352,42 +382,6 @@
 	
 			return $result;
 		}
-	
-		public function getDocumentRequestContent($voucherno) {
-			$result = $this->db->setTable('stock_transfer_details sad')
-								->setFields("itemcode 'Item Code', detailparticular 'Description', qtytoapply 'Quantity', UPPER(uom) 'UOM', price price, amount amount")
-								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')								
-								// ->leftJoin('chartaccount ON 1=1')
-								->setWhere("stocktransferno = '$voucherno'")
-								->runSelect()
-								->getResult();
-			return $result;
-		}
-
-		public function getDocumentApprovalInfo($voucherno) {
-			$result = $this->db->setTable('stock_approval sa')
-								->setFields("sa.transactiondate documentdate, sa.transferdate transferdate, sa.stocktransferno voucherno, w1.description source, w2.description destination, sa.source_no referenceno, sa.reference reference, sa.remarks remarks, sa.approved_by")
-								->leftJoin("warehouse w1 ON w1.warehousecode = sa.source")
-								->leftJoin("warehouse w2 ON w2.warehousecode = sa.destination")
-								->setWhere("sa.stocktransferno = '$voucherno'")
-								->runSelect()
-								->getRow();
-	
-			return $result;
-		}
-	
-		public function getDocumentApprovalContent($voucherno) {
-			$result = $this->db->setTable('stock_approval_details sad')
-								->setFields("sad.itemcode 'Item Code', detailparticular 'Description', qtytransferred 'Quantity', UPPER(uom) 'UOM', happy.serialno 'serialno', happy.engineno 'engineno', happy.chassisno 'chassisno', price price, amount amount")
-								->leftJoin('uom u ON u.uomcode = sad.uom AND u.companycode = sad.companycode')
-								->leftJoin('stock_approval_serialized happy ON happy.stocktransferno = sad.stocktransferno AND happy.itemcode = sad.itemcode AND happy.linenum = sad.linenum')
-								// ->leftJoin('chartaccount ON 1=1')
-								->setWhere("sad.stocktransferno = '$voucherno'")
-								->runSelect()
-								->getResult();
-
-			return $result;
-		}
 
 		public function getReference($code) {
 			$result = $this->db->setTable('wc_reference')
@@ -398,45 +392,6 @@
 						->getResult();
 
 			return $result;
-		}
-
-		public function retrieveSerial($itemcode){
-			$result = $this->db->setTable('items_serialized')
-						->setFields("serialno, chassisno, engineno")
-						->setWhere("itemcode = '$itemcode' AND stat='Available'")
-						->runSelect()
-						->getResult();
-			return $result;
-		}
-
-		public function retrieveApprovedSerial($voucherno, $linenum, $itemcode){
-			$result = $this->db->setTable('stock_approval_serialized')
-						->setFields("serialno, chassisno, engineno")
-						->setWhere("stocktransferno='$voucherno' AND linenum='$linenum' AND itemcode='$itemcode'")
-						->runSelect(false)
-						->getResult();
-			return $result;
-		}
-		
-		public function saveSerializedItems($values){
-			foreach ($values['itemcode'] as $key => $value) {
-				$where = "itemcode='".$values['itemcode'][$key]."' AND serialno='".$values['serialno'][$key]."' AND 
-					chassisno='".$values['chassisno'][$key]."' AND engineno='".$values['engineno'][$key]."'";
-
-				$result = $this->db->setTable('items_serialized')
-									->setValues(array('stat'=>'Not Available'))
-									->setWhere($where)
-									->runUpdate();
-			}
-			
-			if ($result) {
-				$result1 = $this->db->setTable('stock_approval_serialized')
-	                            ->setValuesFromPost($values)
-	                            ->runInsert(false);
-	                            
-			}
-                           
-            return $result1;
 		}
 	}
 ?>

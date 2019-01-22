@@ -6,7 +6,7 @@ class controller extends wc_controller {
 		$this->ui				= new ui();
 		$this->input			= new input();
 		$this->logs				= new log();
-		$this->sales_model		= new salesreturn_model();
+		$this->sr_model		= new salesreturn_model();
 		$this->restrict 		= new sales_restriction_model();
 		$this->financial_model  = $this->checkOutModel('financials_module/financial_model');
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
@@ -17,8 +17,12 @@ class controller extends wc_controller {
 			'source_no',
 			'remarks',
 			'stat',
-			'amount',
-			'reason'
+			'vat_sales',
+			'vat_exempt',
+			'vat_zerorated',
+			'taxamount',
+			'netamount',
+			'discountamount'
 		);
 		$this->fields_header	= array(
 			'header_warehouse'		=> 'warehouse',
@@ -27,7 +31,7 @@ class controller extends wc_controller {
 			//'header_fiscalyear'		=> 'fiscalyear',
 			//'header_period'			=> 'period',
 			'header_discounttype'	=> 'discounttype',
-			'header_discountamount'	=> 'discountamount',
+			'header_discountamount'	=> 'discountedamount',
 			//'header_netamount'		=> 'netamount',
 			'header_taxamount'		=> 'taxamount',
 			//'header_wtaxcode'		=> 'wtaxcode',
@@ -37,6 +41,7 @@ class controller extends wc_controller {
 		$this->fields2			= array(
 			'itemcode',
 			'detailparticular',
+			'warehouse',
 			'linenum',
 			'issueqty',
 			'issueuom',
@@ -47,11 +52,10 @@ class controller extends wc_controller {
 			'taxcode',
 			'taxrate',
 			'taxamount',
-			'detail_amount' => 'amount',
 			'convissueqty',
 			'discounttype',
 			'discountamount',
-			'detail_warehouse' => 'warehouse',
+			'taxcode'
 		);
 		$this->clean_number		= array(
 			'issueqty'
@@ -59,21 +63,22 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title		= 'Return List';
-		$data['customer_list']	= $this->sales_model->getCustomerList();
+		$this->view->title		= 'Sales Return List';
+		$data['customer_list']	= $this->sr_model->getCustomerList();
 		$data['ui']				= $this->ui;
 		$this->view->load('salesreturn/salesreturn_list', $data);
 	}
 
 	public function create() {
 		$this->view->title			= 'Create Sales Return';
-		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
+		$data['reason'] 			= '';
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
-		$data['customer_list']		= $this->sales_model->getCustomerList();
-		$data['warehouse_list']		= $this->sales_model->getWarehouseList();
-		$data["item_list"]			= $this->sales_model->getItemList();
+		$data['customer_list']		= $this->sr_model->getCustomerList();
+		$data['warehouse_list']		= $this->sr_model->getWarehouseList();
+		$data["item_list"]			= $this->sr_model->getItemList();
+		$data['taxrate_list'] 		= $this->sr_model->getTaxRateList();
 		$data['header_values']		= json_encode(array());
 		$data['voucher_details']	= json_encode(array());
 		$data['ajax_task']			= 'ajax_create';
@@ -87,17 +92,18 @@ class controller extends wc_controller {
 	}
 
 	public function edit($voucherno) {
-		$this->view->title			= 'Edit Return';
+		$this->view->title			= 'Edit Sales Return';
 		$this->fields[]				= 'stat';
-		$data						= (array) $this->sales_model->getReturnById($this->fields, $voucherno);
+		$data['ui']					= $this->ui;
+		$data						= (array) $this->sr_model->getSalesReturn($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
-		$data['ui']					= $this->ui;
-		$data['customer_list']		= $this->sales_model->getCustomerList();
-		$data['warehouse_list']		= $this->sales_model->getWarehouseList();
-		$data["item_list"]			= $this->sales_model->getItemList();
-		$data['header_values']		= json_encode($this->sales_model->getReturnById($this->fields_header, $voucherno));
-		$data['voucher_details']	= json_encode($this->sales_model->getReturnDetails($this->fields2, $voucherno, false));
+		$data['customer_list']		= $this->sr_model->getCustomerList();
+		$data['warehouse_list']		= $this->sr_model->getWarehouseList();
+		$data["item_list"]			= $this->sr_model->getItemList();
+		$data['taxrate_list'] 		= $this->sr_model->getTaxRateList();
+		$data['header_values']		= json_encode($this->sr_model->getSalesReturn($this->fields, $voucherno));
+		$data['voucher_details']	= json_encode($this->sr_model->getSalesReturnDetails($this->fields2, $voucherno, false));
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
@@ -112,16 +118,17 @@ class controller extends wc_controller {
 	public function view($voucherno) {
 		$this->view->title			= 'View Return';
 		$this->fields[]				= 'stat';
-		$data						= (array) $this->sales_model->getReturnById($this->fields, $voucherno);
+		$data						= (array) $this->sr_model->getReturnById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
-		$data['customer_list']		= $this->sales_model->getCustomerList();
-		$data['warehouse_list']		= $this->sales_model->getWarehouseList();
-		$data["item_list"]			= $this->sales_model->getItemList();
-		$data['header_values']		= json_encode($this->sales_model->getReturnById($this->fields_header, $voucherno));
-		$data['voucher_details']	= json_encode($this->sales_model->getReturnDetails($this->fields2, $voucherno));
+		$data['customer_list']		= $this->sr_model->getCustomerList();
+		$data['warehouse_list']		= $this->sr_model->getWarehouseList();
+		$data["item_list"]			= $this->sr_model->getItemList();
+		$data['taxrate_list'] 		= $this->sr_model->getTaxRateList();
+		$data['header_values']		= json_encode($this->sr_model->getReturnById($this->fields_header, $voucherno));
+		$data['voucher_details']	= json_encode($this->sr_model->getReturnDetails($this->fields2, $voucherno));
 		$data['show_input']			= false;
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -132,8 +139,8 @@ class controller extends wc_controller {
 	}
 
 	public function print_preview($voucherno) {
-		$documentinfo		= $this->sales_model->getDocumentInfo($voucherno);
-		$customerdetails	= $this->sales_model->getCustomerDetails($documentinfo->partnercode);
+		$documentinfo		= $this->sr_model->getDocumentInfo($voucherno);
+		$customerdetails	= $this->sr_model->getCustomerDetails($documentinfo->partnercode);
 		$documentdetails	= array(
 			'Date'		=> $this->date->dateFormat($documentinfo->documentdate),
 			'SRI #'	=> $voucherno,
@@ -154,7 +161,7 @@ class controller extends wc_controller {
 				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryWidth(array('170', '30'));
 		
-		$documentcontent	= $this->sales_model->getDocumentContent($voucherno);
+		$documentcontent	= $this->sr_model->getDocumentContent($voucherno);
 		$detail_height = 37;
 
 		$total_quantity = 0;
@@ -192,7 +199,7 @@ class controller extends wc_controller {
 		$filter		= $data['filter'];
 		$datefilter	= $data['daterangefilter'];
 
-		$pagination	= $this->sales_model->getSalesReturnPagination($search, $sort, $customer, $filter, $datefilter);
+		$pagination	= $this->sr_model->getSalesReturnPagination($search, $sort, $customer, $filter, $datefilter);
 		$table		= '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -245,8 +252,8 @@ class controller extends wc_controller {
 		$data2						= $this->cleanData($data2);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$seq						= new seqcontrol();
-		$data['voucherno']			= $seq->getValue('R');
-		$result						= $this->sales_model->saveSalesReturn($data, $data2);
+		$data['voucherno']			= $seq->getValue('SR');
+		$result						= $this->sr_model->saveSalesReturn($data, $data2);
 		// if ($result && $this->inventory_model) {
 		// 	$this->inventory_model->prepareInventoryLog('Sales Return', $data['voucherno'])
 		// 							->setDetails($data['customer'])
@@ -280,7 +287,7 @@ class controller extends wc_controller {
 		$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
 								->preparePreviousValues();
 
-		$result						= $this->sales_model->updateReturn($data, $data2, $voucherno);
+		$result						= $this->sr_model->updateReturn($data, $data2, $voucherno);
 		
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->computeValues()
@@ -298,7 +305,7 @@ class controller extends wc_controller {
 	private function ajax_delete() {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
-			$result = $this->sales_model->deleteReturn($delete_id);
+			$result = $this->sr_model->deleteReturn($delete_id);
 		}
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
@@ -314,12 +321,16 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_load_invoice_list() {
-		$pagination	= $this->sales_model->getSourcePagination();
+		$source 	= $this->input->post('source');
+		$pagination	= $this->sr_model->getSourcePagination($source);
+		
 		$table		= '';
-		if (empty($pagination)) {
+		
+		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		foreach ($pagination as $key => $row) {
+		
+		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr data-id="' . $row->voucherno . '">';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
@@ -327,14 +338,16 @@ class controller extends wc_controller {
 			$table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
 			$table .= '</tr>';
 		}
-		$pagination = $table;
+		
+		$pagination->table = $table;
+		
 		return $pagination;
 	}
 
 	private function ajax_load_invoice_details() {
 		$voucherno	= $this->input->post('voucherno');
-		$details	= $this->sales_model->getSourceDetails($voucherno);
-		$header		= $this->sales_model->getSourceHeader($this->fields_header, $voucherno);
+		$details	= $this->sr_model->getSourceDetails($this->fields2, $voucherno);
+		$header		= $this->sr_model->getSourceHeader($this->fields, $voucherno);
 		$table		= '';
 		$success	= true;
 		if (empty($details)) {

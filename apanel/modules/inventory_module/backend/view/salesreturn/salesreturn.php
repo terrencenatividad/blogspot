@@ -10,7 +10,7 @@
 							<?php // if ($show_input && $ajax_task != 'ajax_edit'): ?>
 							<?php if ($show_input): ?>
 								<div class="form-group">
-									<label for="voucherno" class="control-label col-md-4">Return No.</label>
+									<label for="voucherno" class="control-label col-md-4">Sales Return No.</label>
 									<div class="col-md-8">
 										<input type="text" class="form-control" readonly value="<?= (empty($voucherno)) ? ' - Auto Generated -' : $voucherno ?>">
 									</div>
@@ -80,7 +80,7 @@
 									->draw($show_input);
 							?>
 						</div>
-						<div class="col-md-6">
+						<!-- <div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
 									->setLabel('Return Type ')
@@ -94,7 +94,7 @@
 									// ->addHidden(($ajax_task != 'ajax_create'))
 									->draw($show_input);
 							?>
-						</div>
+						</div> -->
 					</div>
 					<div class="row">
 						<div class="col-md-6">
@@ -133,17 +133,19 @@
 						<?php if ($show_input): ?>
 						<th class="text-center" style="width: 20px"><input type="checkbox" class="checkallitem"></th>
 						<?php endif ?>
-						<th class="col-xs-2">Item</th>
+						<th class="col-xs-1">Item</th>
 						<th class="col-xs-2">Description</th>
 						<th class="col-xs-1">Warehouse</th>
 						<th class="col-xs-1 text-right">Defective</th>
 						<th class="col-xs-1 text-right">Replacement</th>
-						<th class="col-xs-<?php echo ($show_input) ? '1' : '2' ?> text-right">Unit Cost</th>
 						<?php if ($show_input): ?>
-						<th class="col-xs-1 text-right">Qty Delivered</th>
+						<th class="col-xs-1 text-center">Qty Delivered</th>
 						<?php endif ?>
-						<th class="col-xs-<?php echo ($show_input) ? '1' : '2' ?> text-right">Qty</th>
-						<th class="col-xs-1">UOM</th>
+						<th class="col-xs-1 text-right">Qty</th>
+						<th class="text-center" style="width: 20px;">UOM</th>
+						<th class="col-xs-1 text-right">Unit Cost</th>
+						<th class="col-xs-1 text-right">Discount</th>
+						<th class="col-xs-1">Tax</th>
 						<th class="col-xs-1 text-right">Amount</th>
 					</tr>
 				</thead>
@@ -190,11 +192,25 @@
 	<div class="modal-content">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title">Sales Return List</h4>
+			<h4 class="modal-title">Source List</h4>
 		</div>
 		<div class="modal-body">
 			<div class="row">
-				<div class="col-md-4 col-md-offset-8">
+				<div class="col-md-4 col-md-offset-4">
+					<?php
+						echo $ui->formField('dropdown')
+								->setLabel('')
+								->setPlaceholder('Select Source Type')
+								->setSplit('', 'col-md-12')
+								->setName('source')
+								->setId('source')
+								->setList(array('1' => 'Delivery Receipt', '2' => 'Sales Invoice'))
+								->setValue('1')
+								// ->addHidden(($ajax_task != 'ajax_create'))
+								->draw($show_input);
+					?>
+				</div>
+				<div class="col-md-4 col-md-offset-">
 					<div class="input-group">
 						<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
 						<div class="input-group-addon">
@@ -309,7 +325,7 @@ function addVoucherDetails(details, index) {
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
 						->setName('txtddefective[]')
-						->setClass('txtddefective')
+						->setClass('txtdefective')
 						->setValue('No')
 						->addHidden()
 						->draw(!$show_input);
@@ -340,17 +356,6 @@ function addVoucherDetails(details, index) {
 			<?php endif ?>
 
 
-			<td class="text-right">
-				<?php
-					echo $ui->formField('text')
-						->setSplit('', 'col-md-12')
-						->setName('unitprice[]')
-						->setClass('unitprice')
-						->setValue('` + addComma(details.unitprice) + `')
-						->addHidden()
-						->draw($show_input);
-				?>
-			</td>
 			<?php if ($show_input): ?>
 			<td class="text-right">
 				<?php
@@ -388,6 +393,32 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
+						->setName('unitprice[]')
+						->setClass('unitprice')
+						->setValue('` + addComma(details.unitprice) + `')
+						->addHidden()
+						->draw($show_input);
+				?>
+			</td>
+			<td>
+				<?php
+					$value = "<span id='temp_view_taxrate_` + index + `'></span>";
+					echo $ui->formField('dropdown')
+						->setPlaceholder('Select Tax Code')
+						->setSplit('', 'col-md-12')
+						->setName('taxrate[]')
+						->setList($taxrate_list)
+						->setValidation('required')
+						->setClass('taxrate')
+						->setValue($value)
+						->addHidden()
+						->draw($show_input);
+				?>
+			</td>
+			<td class="text-right">
+				<?php
+					echo $ui->formField('text')
+						->setSplit('', 'col-md-12')
 						->setName('detail_amount[]')
 						->setClass('amount')
 						->setValue('` + addComma(parseFloat(details.issueqty) * (parseFloat(details.unitprice) || 0).toFixed(2)) + `')
@@ -416,27 +447,45 @@ function addVoucherDetails(details, index) {
 	// 		</td>
 
 	$('#tableList tbody').append(row);
+
 	if (details.itemcode != '') {
 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 	}
 	if (details.warehouse != '') {
 		$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
 	}
+	if (details.taxcode != '') {
+		$('#tableList tbody').find('tr:last .taxrate').val(details.taxcode);
+	}
+
 	try {
 		drawTemplate();
 	} catch(e) {};
+
 	var itemlist = <?= json_encode($item_list) ?>;
+
 	itemlist.forEach(function(item) {
 		if (item.ind == details.itemcode) {
 			$('#temp_view_' + index).html(item.val);
 		}
 	});
+
 	var warehouselist = <?= json_encode($warehouse_list) ?>;
+
 	warehouselist.forEach(function(warehouse) {
 		if (warehouse.ind == details.warehouse) {
 			$('#temp_view_warehouse_' + index).html(warehouse.val);
 		}
 	});
+
+	var taxratelist = <?= json_encode($taxrate_list) ?>;
+
+	taxratelist.forEach(function(tax) {
+		if (tax.ind == details.taxcode) {
+			$('#temp_view_taxrate_' + index).html(tax.val);
+		}
+	});
+
 	$('#tableList tbody').find('tr:last .issueqty').each(function() {
 		if (details.issueqty > 0) {
 			$(this).removeAttr('readonly').val(addComma($(this).attr('data-value')));
@@ -447,7 +496,7 @@ function addVoucherDetails(details, index) {
 		}
 	});
 }
-var voucher_details = <?php echo $voucher_details ?>;
+
 function displayDetails(details) {
 	if (details.length < min_row) {
 		for (var x = details.length; x < min_row; x++) {
@@ -461,16 +510,16 @@ function displayDetails(details) {
 	} else if (min_row == 0) {
 		$('#tableList tbody').append(`
 			<tr>
-				<td colspan="11" class="text-center"><b>Select Sales Invoice/Delivery Receipt No.</b></td>
+				<td colspan="13" class="text-center"><i>Select <b>Sales Invoice/Delivery Receipt</b> No.</i></td>
 			</tr>
 		`);
 	}
+
 	<?php if ($show_input): ?>
 	recomputeAll();
 	<?php endif ?>
 }
-displayDetails(voucher_details);
-var header_values = <?php echo $header_values ?>;
+
 function displayHeader(header) {
 	var inputs = '';
 	for (var key in header) {
@@ -483,8 +532,10 @@ function displayHeader(header) {
 			 ?>`;
 		}
 	}
+	
 	$('#header_values').html(inputs);
 }
+
 function recomputeAll() {
 	if ($('#tableList tbody tr .unitprice').length) {
 		var total_amount = 0;
@@ -500,17 +551,27 @@ function recomputeAll() {
 		$('#tableList tfoot.summary').show();
 	}
 }
+
+var voucher_details = <?php echo $voucher_details ?>;
+displayDetails(voucher_details);
+var header_values = <?php echo $header_values ?>;
 displayHeader(header_values);
+
 </script>
+
 <?php if ($show_input): ?>
 <script>
+
 $('#addNewItem').on('click', function() {
 	addVoucherDetails();
 });
+
 $('#tableList tbody').on('blur recompute', '.issueqty', function(e) {
 	recomputeAll();
 });
+
 <?php // if ($ajax_task == 'ajax_create'): ?>
+
 $('#source_no').on('focus', function() {
 	$('#invoice_tableList tbody').html(`<tr>
 		<td colspan="4" class="text-center">Loading Items</td>
@@ -518,26 +579,37 @@ $('#source_no').on('focus', function() {
 	$('#pagination').html('');
 	getList();
 });
+
 function getList() {
 	ajax.limit = 5;
+	var data = $('#source option:selected').text();
 	$('#invoice_list_modal').modal('show');
+
 	if (ajax_call != '') {
 		ajax_call.abort();
 	}
-	ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_invoice_list', ajax, function(data) {
-		$('#invoice_tableList tbody').html(data);
-		// $('#pagination').html(data.pagination);
-		// if (ajax.page > data.page_limit && data.page_limit > 0) {
-		// 	ajax.page = data.page_limit;
-		// 	getList();
-		// }
+
+	ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_invoice_list', {ajax, source:data}, function(data) {
+		$('#invoice_tableList tbody').html(data.table);
+		$('#pagination').html(data.pagination);
+		if (ajax.page > data.page_limit && data.page_limit > 0) {
+			ajax.page = data.page_limit;
+			getList();
+		}
 	});
 }
+
+$('#source').on('change', function(){
+	ajax.page = 1;
+	getList();
+});
+
 $('#table_search').on('input', function() {
 	ajax.page = 1;
 	ajax.search = $(this).val();
 	getList();
 });
+
 $('#pagination').on('click', 'a', function(e) {
 	e.preventDefault();
 	var li = $(this).closest('li');
@@ -546,29 +618,35 @@ $('#pagination').on('click', 'a', function(e) {
 		getList();
 	}
 });
+
 <?php // endif ?>
+
 $('#customer').on('change', function() {
 	ajax.customer = $(this).val();
 	$('#source_no').val('');
 	$('#tableList tbody').html(`
 		<tr>
-			<td colspan="9" class="text-center"><b>Select Sales Order No.</b></td>
+			<td colspan="11" class="text-center"><b>Select Sales Order No.</b></td>
 		</tr>
 	`);
 });
+
 $('tbody').on('ifUnchecked', '.check_task input[type="checkbox"]', function() {
 	$(this).closest('tr').find('.issueqty').attr('readonly', '').val(0);
 });
+
 $('tbody').on('ifChecked', '.check_task input[type="checkbox"]', function() {
 	var n = $(this).closest('tr').find('.issueqty');
 	n.removeAttr('readonly', '').val(addComma(n.attr('data-value')));
 });
+
 $('#invoice_tableList').on('click', 'tr[data-id]', function() {
 	var so = $(this).attr('data-id');
 	$('#source_no').val(so).trigger('blur');
 	$('#invoice_list_modal').modal('hide');
 	loadSalesDetails();
 });
+
 function loadSalesDetails() {
 	var voucherno = $('#source_no').val();
 	if (voucherno) {

@@ -1348,7 +1348,7 @@
 	$('#tableList').on('click','.import-serial',function(){
 		var itemcode 	= $(this).data('itemcode');
 		var warehouse 	= $('#h_warehouse').val();
-		var link 	=	'<?=MODULE_URL?>get_serial_import/'+itemcode+'/'+warehouse;
+		var link 		=	'<?=MODULE_URL?>get_serial_import/'+itemcode+'/'+warehouse;
 
 		$('#main_item').val(itemcode);
 		$('#import-serial-modal #download-link').attr('href',link);
