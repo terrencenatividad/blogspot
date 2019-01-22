@@ -118,7 +118,8 @@ class item_model extends wc_model {
 			'pa.accountname payable_account',
 			'ia.accountname inventory_account',
 			'rt.value revenuetype',
-			'et.value expensetype'
+			'et.value expensetype',
+			'i.stat'
 		);
 		$result = $this->getItemListQuery($fields, $search, $typeid, $classid, $sort)
 						->leftJoin('itemclass ic2 ON ic2.id = ic.parentid AND ic2.companycode = ic.companycode')

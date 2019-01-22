@@ -250,7 +250,7 @@ class proformaclass extends wc_model
 							->leftJoin('proforma_details dtl ON p.proformacode = dtl.proformacode
 										AND p.companycode = dtl.companycode')
 							->setFields(array("p.proformacode", "p.proformadesc","p.transactiontype",
-									"dtl.accountname", "dtl.accountcodeid"))
+									"dtl.accountname", "dtl.accountcodeid", "p.stat"))
 							->setWhere($addCondition)
 							->setOrderBy($sort)
 							->runSelect()

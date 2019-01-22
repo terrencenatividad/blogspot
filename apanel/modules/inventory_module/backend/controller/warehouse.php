@@ -228,7 +228,7 @@
 			$search = $this->input->post('search');
 			$sort 	= $this->input->post('sort');
 			
-			$header = array("Warehouse Code","Warehouse Name");
+			$header = array("Warehouse Code","Warehouse Name","Status");
 			
 			$csv = '';
 			$csv .= '"' . implode('", "', $header) . '"';
@@ -241,6 +241,7 @@
 
 					$csv .= '"' . $row->warehousecode . '",';
 					$csv .= '"' . $row->description . '",';
+					$csv .= '"' . ucfirst($row->stat) . '"';
 					$csv .= "\n";
 				}
 			}

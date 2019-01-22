@@ -748,7 +748,7 @@
 			$search = $this->input->post("search");
 			$sort 	= $this->input->post('sort');
 
-			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price");
+			$header = array('Price List Code','Price List Name','Description',"Item Code","Adjusted Price", "Status");
 
 			$prev 	= '';
 			$next 	= '';
@@ -778,7 +778,14 @@
 					}
 					
 					$csv .= '"' . $row->itemDtlCode . '",';
+					if( $prev != '' && $prev != $next)
+					{
+					$csv .= '"' . number_format($row->sellPrice,2) . '",';
+					$csv .= '"' . ucfirst($row->stat) . '"';
+					}else{
 					$csv .= '"' . number_format($row->sellPrice,2) . '"';
+					}
+
 					$csv .= "\n";
 
 					$next 	= $prev;
