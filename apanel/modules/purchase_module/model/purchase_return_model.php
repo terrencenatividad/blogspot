@@ -69,6 +69,37 @@ class purchase_return_model extends wc_model {
 		return $result;
 	}
 
+	public function updatePurchaseReturnDetailsSerials($voucherno, $data){
+		
+		$query = $this->db->setTable('purchasereturn_details')
+					->setFields('*')
+					->setWhere("voucherno = '$voucherno'")
+					->runSelect();
+		
+		if ($query) {
+			$number_of_items = sizeof($data['linenumber']);
+			
+			for ($i = 0 ; $i < ($number_of_items) ; $i++){
+				$serialized_flag = $data['item_ident_flag'][$i*2]; 
+				$item_quantity = intval($data['receiptqty'][$i]);
+				$linenum = $data['linenumber'][$i];
+				$itemcode = $data['h_itemcode'][$i];
+				$sn = $data['serialnumbers'][$i];
+				$en = $data['enginenumbers'][$i];
+				$cn = $data['chassisnumbers'][$i];
+				
+				if ($serialized_flag != '0' && $item_quantity > 0) {
+					$result = $this->db->setTable('purchasereturn_details')
+									->setValues(array('serialnumbers'=>"$sn", 'enginenumbers'=>"$en", 'chassisnumbers'=>"$cn"))
+									->setWhere("itemcode = '$itemcode' AND voucherno = '$voucherno'")
+									->runUpdate();
+				}
+			}	
+		}
+
+		return $result;
+	}
+
 	public function deletePurchaseReturn($data) {
 		$ids	= "'" . implode("','", $data) . "'";
 		$result	= $this->db->setTable('purchasereturn')
@@ -367,7 +398,7 @@ class purchase_return_model extends wc_model {
 		}
 		$result1	= $this->db->setTable('items_serialized')
 								->setFields(array('companycode', 'id', 'itemcode', 'serialno', 'engineno', 'chassisno', 'stat'))
-								->setWhere("itemcode = '$itemcode' AND stat = 'Available' AND voucherno = '$voucherno'")
+								->setWhere("itemcode = '$itemcode' AND voucherno = '$voucherno'")
 								->buildSelect();
 		// $sub_query = $this->db->setTable('deliveryreceipt_details')
 		// 						->setFields('serialnumbers')
