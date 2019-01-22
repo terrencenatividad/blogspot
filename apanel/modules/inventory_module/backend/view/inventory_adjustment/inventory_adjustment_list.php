@@ -59,9 +59,8 @@
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
-								->addHeader('Item Code',array('class'=>'col-md-1'),'sort','items.itemcode')
-								->addHeader('Item Name', array('class'=>'col-md-2'),'sort','items.itemname')
-								->addHeader('Brand', array('class'=>'col-md-1'),'sort','b.brandname')
+								->addHeader('Item',array('class'=>'col-md-2'),'sort','items.itemcode')
+								->addHeader('Brand', array('class'=>'col-md-2'),'sort','b.brandname')
 								->addHeader('On Hand Qty', array('class'=>'col-md-1'),'sort','inv.onhandQty')
 								->addHeader('Allocated Qty', array('class'=>'col-md-1'),'sort','inv.allocatedQty')
 								->addHeader('Ordered Qty', array('class'=>'col-md-1'),'sort','inv.orderedQty')
