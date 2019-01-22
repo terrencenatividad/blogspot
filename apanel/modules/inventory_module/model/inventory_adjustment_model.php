@@ -779,4 +779,13 @@ class inventory_adjustment_model extends wc_model {
 							->getRow();
 		return $result;
 	}
+
+	public function check_duplicate($code, $table, $cond) {
+		$result = $this->db->setTable($table)
+						->setFields('COUNT(*) count')
+						->setWhere($cond)
+						->runSelect()
+						->getResult();
+		return $result;
+	}
 }
