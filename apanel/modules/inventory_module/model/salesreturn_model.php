@@ -177,19 +177,7 @@
 			return $result;
 		}
 
-		public function getSourceDetails($fields, $voucherno) {
-
-			$source = substr($voucherno, 0,2);
-
-			if ($source == 'DR') {
-				$table = 'deliveryreceipt_details';
-				$fields[15] = 'discountamount';
-			}
-
-			elseif ($source == 'SI') {
-				$table = 'salesinvoice_details';
-				$fields[15] = 'discountedamount';
-			}
+		public function getSourceDetails($table, $fields, $voucherno) {
 
 			$cond = 'voucherno = "'.$voucherno.'"';
 
@@ -201,27 +189,12 @@
 								->setOrderBy($sort)
 								->runSelect()
 								->getResult();
-
+								$query = $this->db->getQuery();
 			return $result;
 		}
 
-		public function getSourceHeader($fields, $voucherno) {
- 
-			$source = substr($voucherno, 0,2);
+		public function getSourceHeader($table, $fields, $voucherno) {
 
-			if ($source == 'DR') {
-				$table 		= 'deliveryreceipt';
-				$fields[2] 	= 'source_no';
-			}
-
-			elseif ($source == 'SI') {
-				$table 		= 'salesinvoice';
-				$fields[2] 	= 'sourceno';
-			}
-
-
-
-			$fields = $fields;
 			$cond = 'voucherno = "'.$voucherno.'"';
 
 			

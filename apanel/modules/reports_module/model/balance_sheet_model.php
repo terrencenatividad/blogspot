@@ -31,14 +31,28 @@ class balance_sheet_model extends wc_model {
 	}
 
 	public function getMonthly($year = false) {
-		$year	= ($year) ? $year : date('Y');
-		$period	= $this->period;
+		$year			= ($year) ? $year : date('Y');
+		$period			= $this->period;
+		$periods 		= $this->getPeriodList($year);
+		$period_list 	= array();
+		foreach ($periods as $key => $value)
+		{
+			$period_list[] = $value->period;
+		}
 		for ($x = 1; $x <= 12; $x++) {
 			if ($period > 12) {
 				$period = 1;
 				$year++;
 			}
-			${"monthly{$x}"} = $this->getRecords("{$year}-{$period}-01", $this->getMonthEnd("{$year}-{$period}-01"));
+			if(isset($period_list)){
+				if(in_array($period, $period_list)){
+					${"monthly{$x}"} = $this->getRecords("{$year}-{$period}-01", $this->getMonthEnd("{$year}-{$period}-01"));
+				}else{
+					${"monthly{$x}"} = 0;
+				}
+			}else{
+				${"monthly{$x}"} = 0;
+			}
 			$period++;
 		}
 		return $this->buildStructure(array($monthly1, $monthly2, $monthly3, $monthly4, $monthly5, $monthly6, $monthly7, $monthly8, $monthly9, $monthly10, $monthly11, $monthly12));
@@ -47,6 +61,12 @@ class balance_sheet_model extends wc_model {
 	public function getQuarterly($year = false) {
 		$year	= ($year) ? $year : date('Y');
 		$period	= $this->period;
+		$periods = $this->getPeriodList($year);
+		$period_list 	= array();
+		foreach ($periods as $key => $value)
+		{
+			$period_list[] = $value->period;
+		}
 
 		$period_start	= $period;
 		$period_end		= $period_start + 2;
@@ -62,8 +82,18 @@ class balance_sheet_model extends wc_model {
 				$period_end -= 12;
 				$year_end++;
 			}
-			${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
 
+			if(isset($period_list)){
+				if(in_array($period_start, $period_list)){
+					${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
+				}else{
+					${"quarter{$x}"} = 0;
+				}
+			}else{
+				${"quarter{$x}"} = 0;
+			}
+			
+			
 			$period_start += 3;
 			$period_end += 3;
 		}
@@ -98,6 +128,17 @@ class balance_sheet_model extends wc_model {
 		$earnings = $this->getEarnings($start, $end);
 
 		return array_merge($result, $earnings);
+	}
+
+	public function getPeriodList($year) {
+		$result		=  $this->db->setTable('balance_table bal')
+								->setFields("bal.period")
+								->leftJoin('chartaccount coa ON coa.id = bal.accountcode ')
+								->setWhere(" coa.fspresentation = 'BS' AND bal.fiscalyear = '$year' AND bal.period IS NOT NULL AND coa.accountclasscode IN ('OTHCA', 'CUASET', 'ACCREC', 'CASH', 'OTHNCA', 'PPE', 'PREPAID', 'INV', 'VAT', 'OTHCL', 'CULIAB', 'ACCPAY', 'LTP', 'TAX', 'INPVAT', 'NVNTRY', 'NCASET', 'NCLIAB', 'OUTVAT') ")
+								->setGroupBy('bal.period')
+								->runSelect()
+								->getResult();
+		return ($result) ? $result : false;
 	}
 
 	public function getEarnings($start, $end) {

@@ -5,7 +5,7 @@
 				<div class="row">
 					<div class = "col-md-11"></div>
 					<div class = "col-md-1">
-						<div class="form-group">
+						<div class="form-group text-right">
 							<a href="" id="export_csv" download="General Ledger.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 						</div>
 					</div>
@@ -23,7 +23,7 @@
 									->draw(true);
 						?>
 					</div>
-					<div class="col-md-5">
+					<div class="col-md-6">
 						<div class="row">
 							<div class="col-md-6">
 								<?php
@@ -39,15 +39,13 @@
 							<!-- Filter Button Here / Display Items dopdown + CSV-->
 						</div>
 					</div>
-					<div class="col-md-4">
-						<div class="col-md-12">
-							<div class="form-group">
-								<div class="input-group" >
-									<input name="table_search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
-									<div class="input-group-btn" style = "height: 34px;">
-										<!-- <button type="button" class="btn btn-default" id="search-btn" style = "height: 34px;"><i class="fa fa-search"></i></button> -->
-										<button type="button" class="btn btn-default" id="search-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
-									</div>
+					<div class="col-md-3">
+						<div class="form-group">
+							<div class="input-group" >
+								<input name="table_search" id = "search" class="form-control pull-right" placeholder="Search" type="text" style = "height: 34px;">
+								<div class="input-group-btn" style = "height: 34px;">
+									<!-- <button type="button" class="btn btn-default" id="search-btn" style = "height: 34px;"><i class="fa fa-search"></i></button> -->
+									<button type="button" class="btn btn-default" id="search-btn" style = "height: 34px;"><i class="fa fa-search"></i></button>
 								</div>
 							</div>
 						</div>
@@ -56,7 +54,7 @@
 			</div>
 		</form>
 		
-		<table id="tableList" class="table table-striped table-hover  report_table text-right">
+		<table id="tableList" class="table table-striped table-hover  report_table">
 			<thead>
 				<?php
 					echo $ui->loadElement('table')

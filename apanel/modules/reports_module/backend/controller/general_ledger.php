@@ -106,7 +106,7 @@ class controller extends wc_controller {
 				$debit 				= 	$row->debit;
 				$credit 			=	$row->credit;
 				$transtype 			=	$row->transtype;
-				$description  		=	"";
+				$description  		=	$row->detailparticulars;
 				$status 			=	$row->status;
 				$bdebit 			=	0;
 				$bcredit 			=	0;
@@ -155,13 +155,13 @@ class controller extends wc_controller {
 					if ($nextacct != "") {
 
 						$table		.= '<tr>';
-						$table		.= '<td style="text-align:left">';
+						$table		.= '<td>';
 						$table		.= '<strong>Sub Total</strong>';
 						$table		.= '</td>';
-						$table		.= '<td colspan="5">';
+						$table		.= '<td colspan="5" class="text-right">';
 						$table		.= '<strong>'.number_format($totalDebit, 2, '.', ',').'</strong>';
 						$table		.= '</td>';
-						$table		.= '<td>';
+						$table		.= '<td class="text-right">';
 						$table		.= '<strong>'.number_format($totalCredit, 2, '.', ',').'</strong>';
 						$table		.= '</tr>';
 
@@ -170,23 +170,23 @@ class controller extends wc_controller {
 					}	
 					
 					$table		.= '<tr>';
-					$table		.= '<td style="text-align:left">';
+					$table		.= '<td>';
 					$table		.= '<strong>'.$segment5.'</strong>';
 					$table		.= '</td>';
-					$table		.= '<td style="text-align:left">';
+					$table		.= '<td>';
 					$table		.= '<strong>'.$accountname.'</strong>';
 					$table		.= '</td>';
 					$table		.= '<td colspan="9"></td>';
 					$table		.= '</tr>';
 
 					$table		.= '<tr>';
-					$table		.= '<td style="text-align:left">';
+					$table		.= '<td>';
 					$table		.= '<strong>Beginning</strong>';
 					$table		.= '</td>';
-					$table		.= '<td colspan="5">';
+					$table		.= '<td colspan="5" class="text-right">';
 					$table		.= '<strong>'.number_format($bdebit, 2, '.', ',').'</strong>';
 					$table		.= '</td>';
-					$table		.= '<td>';
+					$table		.= '<td class="text-right">';
 					$table		.= '<strong>'.number_format($bcredit, 2, '.', ',').'</strong>';
 					$table		.= '</tr>';
 
@@ -195,13 +195,13 @@ class controller extends wc_controller {
 				}
 
 				$table .= '<tr>';	
-				$table .= '<td style="text-align:left">' . $this->date->dateFormat($date) . '</td>';
-				$table .= '<td style="text-align:left"><a href="'.$link.'" target="_blank">' . $voucherno . '</a></td>' ;
-				$table .= '<td style="text-align:left">' . $partner . '</td>';
+				$table .= '<td>' . $this->date->dateFormat($date) . '</td>';
+				$table .= '<td><a href="'.$link.'" target="_blank">' . $voucherno . '</a></td>' ;
+				$table .= '<td>' . $partner . '</td>';
 				$table .= '<td>' . $description . '</td>';
-				$table .= '<td class="text-left">' . $status . '</td>';
-				$table .= '<td>' . number_format($debit, 2, '.', ',') . '</td>';
-				$table .= '<td>' . number_format($credit, 2, '.', ',') . '</td>';
+				$table .= '<td>' . $status . '</td>';
+				$table .= '<td class="text-right">' . number_format($debit, 2, '.', ',') . '</td>';
+				$table .= '<td class="text-right">' . number_format($credit, 2, '.', ',') . '</td>';
 				$table .= '</tr>';
 				
 				$nextacct 		= $prevacct;
@@ -211,25 +211,25 @@ class controller extends wc_controller {
 			}
 
 			$table		.= '<tr>';
-			$table		.= '<td style="text-align:left">';
+			$table		.= '<td>';
 			$table		.= '<strong>Sub Total</strong>';
 			$table		.= '</td>';
-			$table		.= '<td colspan="5">';
+			$table		.= '<td colspan="5" class="text-right">';
 			$table		.= '<strong>'.number_format($totalDebit, 2, '.', ',').'</strong>';
 			$table		.= '</td>';
-			$table		.= '<td>';
+			$table		.= '<td class="text-right">';
 			$table		.= '<strong>'.number_format($totalCredit, 2, '.', ',').'</strong>';
 			$table		.= '</tr>';
 		}
 
 		$table		.= '<tr class="warning">';
-		$table		.= '<td style="text-align:left">';
+		$table		.= '<td>';
 		$table		.= '<strong>Grand Total</strong>';
 		$table		.= '</td>';
-		$table		.= '<td colspan="5">';
+		$table		.= '<td colspan="5" class="text-right">';
 		$table		.= '<strong>'.number_format($grandDebit, 2, '.', ',').'</strong>';
 		$table		.= '</td>';
-		$table		.= '<td>';
+		$table		.= '<td class="text-right">';
 		$table		.= '<strong>'.number_format($grandCredit, 2, '.', ',').'</strong>';
 		$table		.= '</tr>';
 
@@ -296,7 +296,7 @@ class controller extends wc_controller {
 				$debit 				= 	$row->debit;
 				$credit 			=	$row->credit;
 				$transtype 			=	$row->transtype;
-				$description  		=	"";
+				$description  		=	$row->detailparticulars;
 				$status 			=	$row->status;
 				$bdebit 			=	0;
 				$bcredit 			=	0;
