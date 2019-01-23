@@ -121,7 +121,9 @@ class print_voucher_model extends fpdf {
 		$this->Ln();
 
 		if($this->voucher_status == 'CANCELLED'){
-			$this->SetFont('Arial', '', 12);
+			$this->Ln();
+			$this->SetTextColor(255,0,0);
+			$this->SetFont('Arial', '', 8);
 			$this->Cell(200, $rowheight, 'This voucher has been ' .$this->voucher_status, 0, 0, 'C');
 			$this->Ln();
 			$this->Ln();
