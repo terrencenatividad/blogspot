@@ -35,7 +35,7 @@
 							<div class="col-md-6">
 								<?php
 									echo $ui->formField('dropdown')
-										->setPlaceholder('Filter Vendor')
+										->setPlaceholder('Filter Supplier')
 										->setName('vendor')
 										->setId('vendor')
 										->setList($vendor_list)
