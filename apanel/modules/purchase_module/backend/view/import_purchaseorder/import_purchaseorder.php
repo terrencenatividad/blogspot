@@ -624,7 +624,7 @@
 												<input id = '<?php echo 'taxrate['.$row.']'; ?>' name = '<?php echo 'taxrate['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' value="<?php echo $taxrate;?>" >
 												<input id = '<?php echo 'taxamount['.$row.']'; ?>' name = '<?php echo 'taxamount['.$row.']';?>' maxlength = '20' class = 'col-md-12' type = 'hidden' >
 											</td>
-											<td class = "remove-margin">
+											<td class = "remove-margin text-right">
 												<?php
 												echo $ui->formField('text')
 												->setSplit('', 'col-md-12')
