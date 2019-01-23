@@ -467,7 +467,7 @@ class controller extends wc_controller
 								'si.discounttype as disctype','si.discountamount as discount', 
 								'si.amount as net','si.vat_sales as vat_sales','si.vat_exempt as vat_exempt', 'si.vat_zerorated as vat_zerorated',
 								'si.taxamount as vat','si.vat_zerorated as zerorated',
-								'sourceno', 'pl.voucherno plno', 'dr.source_no sono, dr.s_address s_address');
+								'sourceno', 'pl.voucherno plno', 'dr.source_no sono, dr.s_address s_address', 'si.stat stat');
 		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.sourceno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.source_no AND pl.companycode = dr.companycode";
 		$docinfo_cond 	= "si.voucherno = '$voucherno'"; 
 
@@ -518,6 +518,7 @@ class controller extends wc_controller
 				->setCustomerDetails($customerdetails)
 				->setDocumentDetails($documentdetails)
 				->setShippingDetail($s_address)
+				->setStatDetail($documentinfo->stat)
 				->addTermsAndCondition()
 				->addReceived();
 

@@ -71,6 +71,12 @@ class sales_print_model extends fpdf {
 		if (count($this->document_details) > 5) {
 			$rect_height += ((count($this->document_details) - 5) * $document_detail_height);
 		}
+		if (($this->stat == 'cancelled' || $this->stat == 'Cancelled') && $this->document_type == 'Sales Order') {
+			$this->SetFont("Arial", "B", "11");
+			// $this->setTextColor(255,8,0);
+			$this->Cell(192,6, 'This voucher has been CANCELLED', 0, 1, 'L	');
+		}
+		$this->setTextColor(0,0,0);
 		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
 		$this->SetFont('Arial', 'B', 8);
@@ -237,8 +243,8 @@ class sales_print_model extends fpdf {
 		return $this;
 	}
 
-	public function setRemarksDetail($notes) {
-		$this->notes = $notes;
+	public function setStatDetail($stat) {
+		$this->stat = $stat;
 		return $this;
 	}
 
