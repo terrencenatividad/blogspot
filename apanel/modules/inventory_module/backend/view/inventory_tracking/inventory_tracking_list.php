@@ -12,9 +12,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-md-5">
+					<div class="col-md-6">
 						<div class="row">
-							<div class="col-md-6">
+							<div class="col-md-4">
 								<?php
 									echo $ui->formField('dropdown')
 										->setPlaceholder('Filter Item')
@@ -25,7 +25,7 @@
 										->draw();
 								?>
 							</div>
-							<div class="col-md-6">
+							<div class="col-md-4">
 								<?php
 									echo $ui->formField('dropdown')
 										->setPlaceholder('Filter Warehouse')
@@ -36,9 +36,20 @@
 										->draw();
 								?>
 							</div>
+							<div class="col-md-4">
+								<?php
+									echo $ui->formField('dropdown')
+										->setPlaceholder('Select Brand')
+										->setName('brandcode')
+										->setId('brandcode')
+										->setList($brand_list)
+										->setNone('Filter: All')
+										->draw();
+								?>
+							</div>
 						</div>
 					</div>
-					<div class="col-md-4 text-right">
+					<div class="col-md-3 text-right">
 						<div class="form-group">
 							<?php
 								echo $ui->setElement('button')
@@ -76,6 +87,7 @@
 								->setHeaderClass('info')
 								->addHeader('Date', array('class' => 'col-md-2'), 'sort', 'il.entereddate', 'desc')
 								->addHeader('Item', array('class' => 'col-md-2'), 'sort', 'itemname')
+								->addHeader('Brand', array('class' => 'col-md-1'), 'sort', 'brandname')
 								->addHeader('Warehouse', array('class' => 'col-md-1'), 'sort', 'description')
 								->addHeader('Reference No.', array('class' => 'col-md-1'), 'sort', 'reference')
 								->addHeader('Particulars', array('class' => 'col-md-1'), 'sort', 'partnername')
@@ -118,6 +130,11 @@
 		$('#itemcode').on('change', function() {
 			ajax.page = 1;
 			ajax.itemcode = $(this).val();
+			getList();
+		});
+		$('#brandcode').on('change', function() {
+			ajax.brandcode 	= $(this).val();
+			ajax.page 		= 1;
 			getList();
 		});
 		$('#warehouse').on('change', function() {
