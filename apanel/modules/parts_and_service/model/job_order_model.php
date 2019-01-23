@@ -466,6 +466,7 @@ class job_order_model extends wc_model
 							->leftJoin('warehouse w ON w.warehousecode = jod.warehouse')
 							->setWhere("jod.job_order_no = '$voucherno'")
 							->setOrderBy('linenum')
+							->setGroupBy('jod.linenum')
 							->runSelect()
 							->getResult();
 				}
