@@ -5,7 +5,7 @@
 				<div class="col-md-3">
 					<?php
 					echo $ui->formField('dropdown')
-					->setPlaceholder('Filter Cost Center')
+					->setPlaceholder('Filter Budget Center')
 					->setName('costcenter')
 					->setId('costcenter')
 					->setList($costcenter_list)

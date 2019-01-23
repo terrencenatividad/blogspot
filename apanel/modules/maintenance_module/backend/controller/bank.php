@@ -309,7 +309,7 @@ class controller extends wc_controller
 				if($row->stat == 'open'){
 					$next = $row->nextchequeno;
 					$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
-				}else if($row->stat == 'closed'){
+				} else if($row->stat == 'closed'){
 					$next = '';
 					$check_stat = '<span class="label label-info">'."USED".'</span>';
 				}
@@ -323,29 +323,26 @@ class controller extends wc_controller
 				$show_edit = ($next == $row->firstchequeno) ? 'editcheck' : '';
 				$show_del = ($next == $row->firstchequeno) ? 'deletecheck' : '';
 				$show_cancel = ($row->stat == 'closed') ? '' : 'cancel';
-				$checker = ($check == 'cancel');
 
 				$dropdown = '';
-				if($check == '') {
-					$dropdown = $this->ui->loadElement('check_task')
-										->addOtherTask(
-											'Edit Check Series',
-											'pencil',
-											$show_edit
-										)
-										->addOtherTask(
-											'Delete Check Series',
-											'trash',
-											$show_del
-										)
-										->addOtherTask(
-											'Cancel Check Range',
-											'remove-circle',
-											$show_cancel
-										)
-										->setValue($row->booknumber)
-										->draw();
-				}
+				$dropdown = $this->ui->loadElement('check_task')
+				->addOtherTask(
+					'Edit Check Series',
+					'pencil',
+					$show_edit
+				)
+				->addOtherTask(
+					'Delete Check Series',
+					'trash',
+					$show_del
+				)
+				->addOtherTask(
+					'Cancel Check Range',
+					'remove-circle',
+					$show_cancel
+				)
+				->setValue($row->booknumber)
+				->draw();
 
 				$table .= '<tr>';
 				$table .= ' <td align = "center">' .$dropdown. '</td>';

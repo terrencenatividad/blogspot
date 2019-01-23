@@ -248,6 +248,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('detailparticular[]')
 										->setClass('detailparticular')
+										->setMaxLength(100)
 										->setAttribute($attrreadonly)
 										->setValue($row->detailparticular)
 										->draw($show_input);
@@ -669,6 +670,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular')
+								->setMaxLength(100)
 								->setValue('')
 								->draw($show_input);
 						?>

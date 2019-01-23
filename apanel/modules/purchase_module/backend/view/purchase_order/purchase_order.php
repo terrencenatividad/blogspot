@@ -1515,7 +1515,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction(type, error, warning, checkamount)
+function finalizeTransaction(type, error, warning, checkamount, date_checker)
 {
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -1979,6 +1979,7 @@ $(document).ready(function(){
 			var error = '';
 			var warning = '';
 			var checkamount = '';
+			var date_checker = '';
 			$("#purchase_order_form").on('change blur',function()
 			{
 				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '' || 

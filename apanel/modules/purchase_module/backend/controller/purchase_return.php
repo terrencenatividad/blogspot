@@ -265,8 +265,10 @@ class controller extends wc_controller {
 		$data['voucherno']			= $seq->getValue('PRTN');
 		$serials					= $this->input->post($this->serial_fields);
 		$serials['voucherno']		= $data['source_no'];
-		$results2					= $this->purchase_model->updateSerialData($serials);
 		$result						= $this->purchase_model->savePurchaseReturn($data, $data2);
+		$result2					= $this->purchase_model->updateSerialData($serials);
+		$result3					= $this->purchase_model->updatePurchaseReturnDetailsSerials($data['voucherno'],$serials);
+		$result4					= $this->purchase_model->updatePurchaseReceipt($data, $data2);
 	
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
@@ -444,12 +446,13 @@ class controller extends wc_controller {
 		$table		= '';
 		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
-			if ($curr_serialnumbers == $id) {
-				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id) || in_array($row->id, $current_id)) ? 'checked' : '';
-			}
-			else {
-				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
-			}
+			// if ($curr_serialnumbers == $id) {
+			// 	$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			// }
+			// else {
+			// 	$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
+			// }
+			$checker = ($row->stat == 'Not Available') ? 'checked disabled' : '';
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
 			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
