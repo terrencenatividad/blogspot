@@ -13,9 +13,9 @@
 						</div>
 					</div>-->
 					
-					<div class="col-md-6">
+					<div class="col-md-8">
 						<div class="row">
-							<div class="col-md-5">
+							<div class="col-md-4">
 								<?php
 									echo $ui->formField('dropdown')
 										->setPlaceholder('Select Item')
@@ -26,13 +26,24 @@
 										->draw();
 								?>
 							</div>
-							<div class="col-md-5">
+							<div class="col-md-4">
 								<?php
 									echo $ui->formField('dropdown')
 										->setPlaceholder('Select Warehouse')
 										->setName('warehouse')
 										->setId('warehouse')
 										->setList($warehouse_list)
+										->setNone('Filter: All')
+										->draw();
+								?>
+							</div>
+							<div class="col-md-4">
+								<?php
+									echo $ui->formField('dropdown')
+										->setPlaceholder('Select Brand')
+										->setName('brandcode')
+										->setId('brandcode')
+										->setList($brand_list)
 										->setNone('Filter: All')
 										->draw();
 								?>
@@ -49,7 +60,7 @@
 							</div>
 						</div>
 					</div> -->
-					<div class="col-md-6 text-right">
+					<div class="col-md-4 text-right">
 						<div class="form-group">
 							<a href="" id="export_csv" download="Inventory Inquiry.csv" class="btn btn-info btn-flat"><span class="glyphicon glyphicon-export"></span> CSV</a>
 						</div>
@@ -100,6 +111,7 @@
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
 									->addHeader('Item',array('class' => 'col-md-2'),'sort','itemname')
+									->addHeader('Brand',array('class' => 'col-md-2'),'sort','brandname')
 									->addHeader('Warehouse',array('class' => 'col-md-2'),'sort','w.description')
 									->addHeader('Onhand Qty', array('class' => 'col-md-2'),'sort','SUM(inv.onhandQty)')
 									->addHeader('Ordered Qty', array('class' => 'col-md-2'),'sort','SUM(inv.orderedQty)')
@@ -307,6 +319,11 @@
 			ajax.page = 1;
 			ajax.itemcode = $(this).val();
 			ajax_call.abort();
+			getList();
+		});
+		$('#brandcode').on('change', function() {
+			ajax.brandcode 	= $(this).val();
+			ajax.page 		= 1;
 			getList();
 		});
 		$('#pagination').on('click', 'a', function(e) {
