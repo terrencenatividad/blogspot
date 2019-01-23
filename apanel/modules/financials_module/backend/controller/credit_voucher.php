@@ -146,7 +146,7 @@ class controller extends wc_controller {
 									// ->addEdit($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
 									// ->addDelete($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
 									->addPrint()
-									->addCheckbox($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
+									//->addCheckbox($row->source != 'RV' && $row->stat != 'inactive' && $balance == $row->amount)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
                                     ->draw();
