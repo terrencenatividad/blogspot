@@ -1515,7 +1515,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction(type, error, warning, checkamount)
+function finalizeTransaction(type, error, warning, checkamount, date_checker)
 {
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
