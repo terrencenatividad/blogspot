@@ -263,7 +263,8 @@ class controller extends wc_controller {
 
 		$docheader	= array(
 			'Date' 	=> $this->date->dateFormat($header->transactiondate),
-			'JO #'				=> $header->voucherno
+			'JO #'				=> $header->voucherno,
+			'REF #'				=> $header->reference
 		);
 		$print = new jo_print_model();
 		$print->setDocumentType('Job Order')
@@ -278,13 +279,13 @@ class controller extends wc_controller {
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
-				->setSummaryWidth(array('170', '30'))
-				->setSummaryAlign(array('L','R'));
+				->setSummaryWidth(array('120', '50', '30'))
+				->setSummaryAlign(array('J','R','R'));	
 
 		$detail_height = 37;
 		$total_quantity = 0;
 
-		$notes = $header->notes; 
+		$notes = preg_replace('!\s+!', ' ', $header->notes);
 		foreach ($details as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
@@ -295,11 +296,21 @@ class controller extends wc_controller {
 
 			if (($key + 1) % $detail_height == 0) {
 				
-				$print->drawSummary(array('Total Qty' => $total_quantity));
+				$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
+											array($notes, '', ''),
+											array('', '', ''),
+											array('', '', ''),
+											array('', '', '')
+				));
 				$total_amount = 0;
 			}
 		}
-		$print->drawSummary(array('Total Qty' => $total_quantity));
+		$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
+											array($notes, '', ''),
+											array('', '', ''),
+											array('', '', ''),
+											array('', '', '')
+		));
 		$print->drawPDF('Job Order - ' . $voucherno);
 	}
 	public function payment($id) {

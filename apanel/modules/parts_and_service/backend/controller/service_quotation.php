@@ -483,7 +483,8 @@ class controller extends wc_controller {
 		$docheader	= array(
 			'Date' 	=> $this->date->dateFormat($header->transactiondate),
 			'Target Date' 		=> $this->date->dateFormat($header->targetdate),
-			'SEQ #'				=> $header->voucherno
+			'SEQ #'				=> $header->voucherno,
+			'REF #'				=> $header->reference
 		);
 		$print = new sq_print_model();
 		$print->setDocumentType('Service Quotation')
@@ -502,7 +503,7 @@ class controller extends wc_controller {
 				->setSummaryAlign(array('L','R','R'));
 
 		$detail_height = 37;
-
+		$notes = preg_replace('!\s+!', ' ', $header->notes);
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
 		$vat_zerorated	= 0;
@@ -557,7 +558,7 @@ class controller extends wc_controller {
 		}
 		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 		$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
-					array($notes,'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
 					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
 					array('','Total Sales'		, number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
 					array('','Tax'				, number_format($tax, 2)),
