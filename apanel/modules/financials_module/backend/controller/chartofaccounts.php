@@ -644,7 +644,7 @@ class controller extends wc_controller
 
 		$result = $this->coaclass->fileExport($data_post);
 
-		$header = array("Account Code","Account Name","Account Class","FS Presentation (BS or IS)","Account Type","Parent Account","Account Nature","Status");
+		$header = array("Account Code","Account Name","Account Class","FS Presentation (BS or IS)","Account Type (P[for Parent], C[for Child], or B[for Both)","Parent Account","Account Nature","Status");
 		
 		$csv = '';
 		$csv .= '"' . implode('","', $header) . '"';

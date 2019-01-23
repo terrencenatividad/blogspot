@@ -6,6 +6,7 @@ class controller extends wc_controller {
 		$this->ui				= new ui();
 		$this->input			= new input();
 		$this->inventory_model	= new inventory_inquiry_model();
+		$this->brand_model		= $this->checkoutModel('maintenance_module/brand');
 		$this->item_model		= new item_model();
 		$this->session			= new session();
 		$this->data = array();
@@ -17,6 +18,7 @@ class controller extends wc_controller {
 		$data['ui'] = $this->ui;
 		$data['item_list'] = $this->item_model->getItemDropdownList();
 		$data['warehouse_list'] = $this->inventory_model->getWarehouseList();
+		$data['brand_list'] = $this->brand_model->getBrandDropdownList();
 		$this->view->load('inventory_inquiry/inventory_inquiry_list', $data);
 	}
 	
@@ -29,9 +31,10 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data = $this->input->post(array('itemcode', 'daterangefilter','limit', 'sort', 'warehouse'));
+		$data = $this->input->post(array('itemcode', 'brandcode','daterangefilter','limit', 'sort', 'warehouse'));
 		$limit 		= $data['limit'];
 		$itemcode 	= $data['itemcode'];
+		$brandcode 	= $data['brandcode'];
 		$datefilter	= $data['daterangefilter'];
 		$sort		= $data['sort'];
 		$warehouse	= $data['warehouse'];
@@ -41,7 +44,7 @@ class controller extends wc_controller {
 			$dates[] = date('Y-m-d', strtotime($date));
 		}
 
-		$pagination = $this->inventory_model->getInventoryinquiryList($itemcode, $limit, $sort, $warehouse);
+		$pagination = $this->inventory_model->getInventoryinquiryList($itemcode, $limit, $sort, $warehouse, $brandcode);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -49,6 +52,7 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr>';
 				$table .= '<td>' . $row->itemname . '</td>' ;
+				$table .= '<td>' . $row->brandname . '</td>' ;
 				$table .= '<td>' . $row->des . '</td>';
 				$table .= '<td><a class="clickable" data-id="onhand/'. $row->itemcode . '/' .$row->warehouse . '">' . $row->OHQty . '</a></td>';
 				$table .= '<td><a class="clickable" data-id="order/'. $row->itemcode . '/' .$row->warehouse . '">' . $row->OrderQty . '</a></td>';

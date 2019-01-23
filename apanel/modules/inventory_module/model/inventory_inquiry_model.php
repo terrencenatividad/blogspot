@@ -1,13 +1,16 @@
 <?php
 class inventory_inquiry_model extends wc_model {
 
-	public function getInventoryinquiryList($itemcode, $limit, $sort, $warehouse ) {
+	public function getInventoryinquiryList($itemcode, $limit, $sort, $warehouse, $brandcode) {
 		$condition = '';
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "inv.itemcode = '$itemcode'";
 		}
 		if ($warehouse && $warehouse != 'none') {
 			$condition .= (empty($condition) ? '' : ' AND ') . "inv.warehouse = '$warehouse'";
+		}
+		if ($brandcode && $brandcode != 'none') {
+			$condition .= " b.brandcode = '$brandcode'";
 		}
 		// if ($search){
 		// 	$condition = "(inv.itemcode LIKE '%$search%' OR w.description LIKE '%$search%'  OR SUM(inv.onhandQty) LIKE '%$search%')";
@@ -17,8 +20,9 @@ class inventory_inquiry_model extends wc_model {
 		// }
 		$result = $this->db->setTable("invfile as inv")
 							->innerJoin('items as items ON inv.itemcode = items.itemcode  ') 
-							->setFields("inv.itemcode as itemcode,w.description as des, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,CONCAT(items.itemcode,' - ',items.itemname) as itemname")
+							->setFields("inv.itemcode as itemcode,w.description as des, SUM(inv.onhandQty) as OHQty, inv.warehouse as warehouse , SUM(inv.allocatedQty) as AllocQty, SUM(inv.orderedQty) as OrderQty,SUM(inv.availableQty) as avail,CONCAT(items.itemcode,' - ',items.itemname) as itemname, b.brandname")
 							->leftJoin('warehouse w ON inv.warehouse = w.warehousecode')
+							->leftJoin('brands b ON b.brandcode = items.brandcode')
 							->setWhere($condition)
 							->setGroupBy('inv.warehouse,inv.itemcode')
 							->setOrderBy($sort)
