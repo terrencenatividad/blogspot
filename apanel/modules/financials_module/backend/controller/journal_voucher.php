@@ -118,6 +118,7 @@ class controller extends wc_controller {
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Journal Voucher')
 				->setDocumentInfo($documentinfo)
+				->setVoucherStatus(strtoupper($documentinfo->stat))
 				->setDocumentDetails($documentdetails)
 				->drawPDF('jv_voucher_' . $voucherno);
 	}

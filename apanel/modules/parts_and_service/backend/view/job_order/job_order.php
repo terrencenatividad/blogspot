@@ -73,6 +73,7 @@
 													->setSplit('col-md-4', 'col-md-8')
 													->setName('reference')
 													->setId('reference')
+													->setMaxLength(20)
 													->setValue($reference)
 													->setValidation('required')
 													->draw($show_input);
@@ -114,6 +115,7 @@
 												->setSplit('col-md-2', 'col-md-10')
 												->setName('notes')
 												->setId('notes')
+												->setMaxLength(300)
 												->setValue($notes)
 												->draw($show_input);
 										?>
