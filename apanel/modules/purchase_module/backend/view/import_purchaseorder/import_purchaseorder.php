@@ -2414,6 +2414,23 @@ $(document).ready(function(){
 				}
 			});
 
+			$('#discounttypeModal').on('click','#disc_yes',function()
+			{
+				if($("#purchase_order_form #itemcode\\[1\\]").val() != '' && $("#purchase_order_form #transaction_date").val() != '' && $("#purchase_order_form #due_date").val() != '' && $("#purchase_order_form #vendor").val() != '')
+				{
+					$.post("<?=BASE_URL?>purchase/import_purchaseorder/ajax/save_temp_data",$("#purchase_order_form").serialize())
+					.done(function(data)
+					{	
+						var parse = JSON.stringify(data.msg);
+						var parsed = JSON.parse(parse);
+						error = parsed['error'];
+						warning = parsed['warning'];
+						checkamount = parsed['checkamount'];
+						date_checker = parsed['date_checker'];
+					});
+				}
+			});
+
 			//Final Saving
 			$('#purchase_order_form #btnSave').click(function(){
 
