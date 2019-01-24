@@ -320,32 +320,32 @@ class controller extends wc_controller
 						$check = 'cancel';	
 					}
 				}
-				$show_edit = ($next == $row->firstchequeno) ? 'editcheck' : '';
-				$show_del = ($next == $row->firstchequeno) ? 'deletecheck' : '';
-				$show_cancel = ($row->stat == 'closed') ? '' : 'cancel';
+				$show_button = ($next == $row->firstchequeno);
+				$show_cancel = ($row->stat == 'closed');
 
-				$dropdown = '';
 				$dropdown = $this->ui->loadElement('check_task')
 				->addOtherTask(
 					'Edit Check Series',
 					'pencil',
-					$show_edit
+					$show_button
 				)
 				->addOtherTask(
 					'Delete Check Series',
 					'trash',
-					$show_del
+					$show_button
 				)
 				->addOtherTask(
 					'Cancel Check Range',
 					'remove-circle',
-					$show_cancel
+					!$show_cancel
 				)
 				->setValue($row->booknumber)
 				->draw();
 
+				$check = (!$show_button && $show_cancel) ? '' : $dropdown;
+
 				$table .= '<tr>';
-				$table .= ' <td align = "center">' .$dropdown. '</td>';
+				$table .= ' <td align = "center">' .$check. '</td>';
 				$table .= '<td>' . $row->shortname . '</td>';
 				$table .= '<td>' . $row->accountno . '</td>';
 				$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
