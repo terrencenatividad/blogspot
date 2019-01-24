@@ -4611,6 +4611,7 @@ $(document).ready(function() {
 			$("#payableForm #customer").trigger('blur');
 			$("#payableForm #document_date").trigger('blur');
 			$("#payableForm #due_date").trigger('blur');
+			$("#payableForm #paymentreference").trigger('blur');
 
 			valid 	+= $("#payableForm").find('.form-group.has-error').length;
 			
@@ -4693,6 +4694,7 @@ $(document).ready(function() {
 			$("#payableForm #customer").trigger('blur');
 			$("#payableForm #document_date").trigger('blur');
 			$("#payableForm #due_date").trigger('blur');
+			$("#payableForm #paymentreference").trigger('blur');
 
 			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 
@@ -4744,6 +4746,7 @@ $(document).ready(function() {
 			$("#payableForm #customer").trigger('blur');
 			$("#payableForm #document_date").trigger('blur');
 			$("#payableForm #due_date").trigger('blur');
+			$("#payableForm #paymentreference").trigger('blur');
 
 			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
