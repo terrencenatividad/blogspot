@@ -216,7 +216,7 @@ class job_order_model extends wc_model
 	public function getItemList() {
 		$result = $this->db->setTable('items')
 						->setFields("itemcode ind, CONCAT(itemcode, ' - ', itemname) val")
-						//->setWhere("itemgroup = 'goods'")
+						->setWhere("itemgroup = 'goods'")
 						->runSelect()
 						->getResult();
 
