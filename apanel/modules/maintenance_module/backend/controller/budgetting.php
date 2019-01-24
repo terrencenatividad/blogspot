@@ -396,7 +396,7 @@ class controller extends wc_controller
 			$arr = array('status');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'approved';
-			$result = $this->budgetting->updateSupplementAppove($id, $fields);
+			$result = $this->budgetting->updateSupplementApprove($id, $fields);
 			return $result;
 		}
 
