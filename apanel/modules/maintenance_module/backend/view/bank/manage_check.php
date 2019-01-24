@@ -325,7 +325,10 @@ $('#checkForm').on('click',"#btnSave",function(){
 		$.post('<?=BASE_URL?>maintenance/bank/ajax/<?=$task?>', $('#checkForm').serialize()+ '<?=$ajax_post?>', function(data) {
 			if( data.msg == 'success' )
 			{
+				$('#btnSave').html('Saving...').attr('disabled', 'disabled');
+				setTimeout(function() {
 				 window.location = self.location;
+				},500);
 			}
 		});
 	}
