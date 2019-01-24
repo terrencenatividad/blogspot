@@ -153,6 +153,14 @@ class print_payables_model extends fpdf {
 		$this->Ln();
 		$this->Ln();
 
+		$this->Cell(130, $rowheight, '', 0, 0, 'L');
+		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(30, $rowheight, 'Reference Number', 0, 0, 'L');
+		$this->SetFont('Arial', '', 9);
+		$this->Cell(40, $rowheight, $referenceno, 'B', 0, 'L');
+		$this->Ln();
+		$this->Ln();
+
 		$this->SetFont('Arial', 'B', 9);
 		$this->Cell(30 ,$rowheight, 'Currency Code', 0, 0, 'L');
 		$this->SetFont('Arial', '', 9);
@@ -168,13 +176,6 @@ class print_payables_model extends fpdf {
 
 
 		$this->Ln();
-
-		if ( ! empty($referenceno)) {
-			$this->SetFont('Arial', 'B', 9);
-			$this->Cell(30, $rowheight, 'Reference Number', 0, 0, 'L');
-			$this->SetFont('Arial', '', 9);
-			$this->Cell(40, $rowheight, $referenceno, 'B', 0, 'L');
-		}
 		
 		$this->Cell(60, $rowheight, '', 0, 0, 'L');
 		$this->SetFont('Arial', 'B', 9);

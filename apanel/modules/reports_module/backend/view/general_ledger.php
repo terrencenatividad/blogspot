@@ -54,7 +54,7 @@
 			</div>
 		</form>
 		
-		<table id="tableList" class="table table-striped table-hover  report_table text-right">
+		<table id="tableList" class="table table-striped table-hover  report_table">
 			<thead>
 				<?php
 					echo $ui->loadElement('table')

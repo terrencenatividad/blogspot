@@ -547,7 +547,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 			$docinfo_table  = "salesorder as so";
-			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat', 'so.s_address as s_address', 'so.remarks notes');
+			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat', 'so.s_address as s_address', 'so.remarks notes', 'so.stat as stat');
 			$docinfo_join   = "partners as p ON p.partnercode = so.customer AND p.companycode = so.companycode";
 			$docinfo_cond 	= "so.voucherno = '$voucherno'";
 
@@ -589,7 +589,7 @@ class controller extends wc_controller
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
 				->setShippingDetail($customercode[0]->s_address)
-				->setRemarksDetail($customercode[0]->notes)
+				->setStatDetail($documentinfo->stat)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
 				->addReceived();

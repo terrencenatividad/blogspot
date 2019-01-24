@@ -265,19 +265,35 @@ class controller extends wc_controller {
 		$data['voucherno']			= $seq->getValue('PRTN');
 		$serials					= $this->input->post($this->serial_fields);
 		$serials['voucherno']		= $data['source_no'];
-		$results2					= $this->purchase_model->updateSerialData($serials);
 		$result						= $this->purchase_model->savePurchaseReturn($data, $data2);
-	
-		if ($result && $this->inventory_model) {
-			$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
-									->setDetails($data['vendor'])
-									->computeValues()
-									->logChanges();
+		$result2					= $this->purchase_model->updateSerialData($serials);
+		$result3					= $this->purchase_model->updatePurchaseReturnDetailsSerials($data['voucherno'],$serials);
+		// var_dump($data2);
 
-			$this->inventory_model->setReference($data['voucherno'])
-									->setDetails($data['vendor'])
-									->generateBalanceTable();
+		switch ($data['reason']) {
+			case "1":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "4":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "5":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			default:
+				$result4			= $this->purchase_model->removePurchaseReceiptQtyReturned($data, $data2);
 		}
+		
+		// if ($result && $this->inventory_model) {
+		// 	$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
+		// 							->setDetails($data['vendor'])
+		// 							->computeValues()
+		// 							->logChanges();
+
+		// 	$this->inventory_model->setReference($data['voucherno'])
+		// 							->setDetails($data['vendor'])
+		// 							->generateBalanceTable();
+		// }
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
@@ -292,6 +308,7 @@ class controller extends wc_controller {
 
 	private function ajax_edit() {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
+		$temp_voucherno				= $data['voucherno'];
 		unset($data['voucherno']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$voucherno					= $this->input->post('voucherno_ref');
@@ -300,16 +317,33 @@ class controller extends wc_controller {
 
 		$this->inventory_model->prepareInventoryLog('Purchase Return', $voucherno)
 								->preparePreviousValues();
-
+		$serials					= $this->input->post($this->serial_fields);
+		$serials['voucherno']		= $data['source_no'];
 		$result						= $this->purchase_model->updatePurchaseReturn($data, $data2, $voucherno);
-		
-		if ($result && $this->inventory_model) {
-			$this->inventory_model->computeValues()
-									->setDetails($data['vendor'])
-									->logChanges();
+		$result2					= $this->purchase_model->updateSerialData($serials);
+		$result3					= $this->purchase_model->updatePurchaseReturnDetailsSerials($temp_voucherno,$serials);
 
-			$this->inventory_model->generateBalanceTable();
+		switch ($data['reason']) {
+			case "1":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "4":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "5":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			default:
+				$result4			= $this->purchase_model->removePurchaseReceiptQtyReturned($data, $data2);
 		}
+
+		// if ($result && $this->inventory_model) {
+		// 	$this->inventory_model->computeValues()
+		// 							->setDetails($data['vendor'])
+		// 							->logChanges();
+
+		// 	$this->inventory_model->generateBalanceTable();
+		// }
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -444,12 +478,13 @@ class controller extends wc_controller {
 		$table		= '';
 		$counter = 0;
 		foreach ($pagination->result as $key => $row) {
-			if ($curr_serialnumbers == $id) {
-				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id) || in_array($row->id, $current_id)) ? 'checked' : '';
-			}
-			else {
-				$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
-			}
+			// if ($curr_serialnumbers == $id) {
+			// 	$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id) || in_array($row->id, $current_id)) ? 'checked' : '';
+			// }
+			// else {
+			// 	$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
+			// }
+			$checker = ($row->stat == 'Not Available') ? 'checked disabled' : '';
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
 			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';

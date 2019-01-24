@@ -267,7 +267,17 @@ class controller extends wc_controller
 	}
 
 	public function save_check(){
-		$posted_data 	= $this->input->post($this->fields2);
+		$arrays = array(
+			'bank_id',
+			'booknumber',
+			'firstchequeno',
+			'lastchequeno',
+			'nextchequeno',
+			'stat'
+		);
+		$posted_data 	= $this->input->post($arrays);
+		$posted_data['stat'] = 'open';
+		$posted_data['nextchequeno'] = $posted_data['firstchequeno'];
 		$result  		= $this->bank->insertCheck($posted_data);
 		$firstchequeno 	= $posted_data['firstchequeno'];
 		$lastchequeno	= $posted_data['lastchequeno'];
@@ -309,7 +319,7 @@ class controller extends wc_controller
 				if($row->stat == 'open'){
 					$next = $row->nextchequeno;
 					$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
-				}else if($row->stat == 'closed'){
+				} else if($row->stat == 'closed'){
 					$next = '';
 					$check_stat = '<span class="label label-info">'."USED".'</span>';
 				}
@@ -320,35 +330,32 @@ class controller extends wc_controller
 						$check = 'cancel';	
 					}
 				}
-				$show_edit = ($next == $row->firstchequeno) ? 'editcheck' : '';
-				$show_del = ($next == $row->firstchequeno) ? 'deletecheck' : '';
-				$show_cancel = ($row->stat == 'closed') ? '' : 'cancel';
-				$checker = ($check == 'cancel');
+				$show_button = ($next == $row->firstchequeno);
+				$show_cancel = ($row->stat == 'closed');
 
-				$dropdown = '';
-				if($check == '') {
-					$dropdown = $this->ui->loadElement('check_task')
-										->addOtherTask(
-											'Edit Check Series',
-											'pencil',
-											$show_edit
-										)
-										->addOtherTask(
-											'Delete Check Series',
-											'trash',
-											$show_del
-										)
-										->addOtherTask(
-											'Cancel Check Range',
-											'remove-circle',
-											$show_cancel
-										)
-										->setValue($row->booknumber)
-										->draw();
-				}
+				$dropdown = $this->ui->loadElement('check_task')
+				->addOtherTask(
+					'Edit Check Series',
+					'pencil',
+					$show_button
+				)
+				->addOtherTask(
+					'Delete Check Series',
+					'trash',
+					$show_button
+				)
+				->addOtherTask(
+					'Cancel Check Range',
+					'remove-circle',
+					!$show_cancel
+				)
+				->setValue($row->booknumber)
+				->draw();
+
+				$check = (!$show_button && $show_cancel) ? '' : $dropdown;
 
 				$table .= '<tr>';
-				$table .= ' <td align = "center">' .$dropdown. '</td>';
+				$table .= ' <td align = "center">' .$check. '</td>';
 				$table .= '<td>' . $row->shortname . '</td>';
 				$table .= '<td>' . $row->accountno . '</td>';
 				$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';

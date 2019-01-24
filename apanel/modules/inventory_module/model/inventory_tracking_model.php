@@ -1,8 +1,8 @@
 <?php
 class inventory_tracking_model extends wc_model {
 
-	public function getInventoryTrackingPagination($itemcode, $datefilter, $warehouse, $sort) {
-		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort)
+	public function getInventoryTrackingPagination($itemcode, $datefilter, $warehouse, $sort, $brandcode) {
+		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort, $brandcode)
 						->runPagination();
 		return $result;
 	}
@@ -25,13 +25,16 @@ class inventory_tracking_model extends wc_model {
 		return $result;
 	}
 
-	private function getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort) {
+	private function getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort, $brandcode) {
 		$condition = '';
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "il.itemcode = '$itemcode'";
 		}
 		if ($warehouse && $warehouse != 'none') {
 			$condition .= (empty($condition) ? '' : ' AND ') . "w.warehousecode = '$warehouse'";
+		}
+		if ($brandcode && $brandcode != 'none') {
+			$condition .= " b.brandcode = '$brandcode'";
 		}
 		$datefilter	= explode('-', $datefilter);
 		foreach ($datefilter as $key => $date) {
@@ -45,7 +48,8 @@ class inventory_tracking_model extends wc_model {
 							->innerJoin('warehouse w ON w.warehousecode = il.warehouse AND w.companycode = il.companycode')
 							->leftJoin('partners p ON p.partnercode = il.details AND p.companycode = il.companycode')
 							->leftJoin('wc_users u ON u.username = il.enteredby AND u.companycode = il.companycode')
-							->setFields("il.entereddate, i.itemcode, itemname, description warehouse, reference, IF(p.partnername!='',p.partnername, il.details) partnername, prevqty, quantity, currentqty, activity, CONCAT(firstname, ' ', lastname) name")
+							->leftJoin('brands b ON b.brandcode = i.brandcode')
+							->setFields("il.entereddate, i.itemcode, itemname, description warehouse, reference, IF(p.partnername!='',p.partnername, il.details) partnername, prevqty, quantity, currentqty, activity, CONCAT(firstname, ' ', lastname) name, brandname")
 							->setWhere($condition)
 							->setOrderBy($sort);
 		return $query;

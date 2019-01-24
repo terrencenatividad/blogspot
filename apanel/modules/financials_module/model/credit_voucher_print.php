@@ -29,9 +29,12 @@ class credit_voucher_print extends fpdf {
 
 		$this->SetFont("Arial", "", "10");
 		$this->Cell(42,7, 'Transaction Date:', 0, 0, 'L');
-		$this->Cell(60,7, $this->date->dateFormat($this->header_details->transactiondate), 'B', 1, 'L');
+		$this->Cell(50,7, $this->date->dateFormat($this->header_details->transactiondate), 'B', 1, 'L');
 		$this->Cell(42,7, 'Voucher No:', 0, 0, 'L');
-		$this->Cell(60,7, $this->header_details->voucherno, 'B', 1, 'L');
+		$this->Cell(50,7, $this->header_details->voucherno, 'B', 0, 'L');
+		$this->Cell(8,7, '', '', 0, 'L');
+		$this->Cell(42,7, 'Reference No:', 0, 0, 'L');
+		$this->Cell(50,7, $this->header_details->referenceno, 'B', 1, 'L');
 
 		$this->SetFont("Arial", "BI", "11"); 
 		$this->Cell(192,7, $this->header_details->partnername, 0, 1, 'L');

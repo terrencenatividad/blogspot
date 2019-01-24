@@ -6,6 +6,7 @@ class controller extends wc_controller {
 		$this->ui				= new ui();
 		$this->input			= new input();
 		$this->inventory_model	= new inventory_tracking_model();
+		$this->brand_model		= $this->checkoutModel('maintenance_module/brand');
 		$this->item_model		= new item_model();
 		$this->session			= new session();
 		$this->data = array();
@@ -17,6 +18,7 @@ class controller extends wc_controller {
 		$data['ui']				= $this->ui;
 		$data['item_list']		= $this->item_model->getItemDropdownList();
 		$data['warehouse_list']	= $this->inventory_model->getWarehouseDropdownList();
+		$data['brand_list'] = $this->brand_model->getBrandDropdownList();
 		$this->view->load('inventory_tracking/inventory_tracking_list', $data);
 	}
 
@@ -91,13 +93,14 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data		= $this->input->post(array('itemcode', 'daterangefilter', 'warehouse', 'sort'));
+		$data		= $this->input->post(array('itemcode', 'brandcode', 'daterangefilter', 'warehouse', 'sort'));
 		$sort		= $data['sort'];
 		$itemcode	= $data['itemcode'];
 		$warehouse	= $data['warehouse'];
+		$brandcode 	= $data['brandcode'];
 		$datefilter	= $data['daterangefilter'];
 
-		$pagination = $this->inventory_model->getInventoryTrackingPagination($itemcode, $datefilter, $warehouse, $sort);
+		$pagination = $this->inventory_model->getInventoryTrackingPagination($itemcode, $datefilter, $warehouse, $sort, $brandcode);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -106,8 +109,26 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$table .= '<td>' . $this->date->datetimeFormat($row->entereddate) . '</td>';
 			$table .= '<td>' . $row->itemcode.' - '.$row->itemname . '</td>';
+			$table .= '<td>' . $row->brandname . '</td>';
 			$table .= '<td>' . $row->warehouse . '</td>';
-			$table .= '<td>' . $row->reference . '</td>';
+			if (stripos($row->reference, 'DR') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'sales/delivery_receipt/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'PR') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'purchase/purchase_receipt/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'STA') !== FALSE || stripos( $row->reference, 'ST') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'inventory/stock_transfer/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'PRTN') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'purchase/return/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'SR') !== FALSE || stripos($row->reference, 'R') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'sales/return/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else {
+				$table .= '<td>' . $row->reference . '</td>';
+			}
 			$table .= '<td>' . $row->partnername . '</td>';
 			$table .= '<td>' . (($row->quantity > 0) ? number_format($row->quantity) : '-') . '</td>';
 			$table .= '<td>' . (($row->quantity < 0) ? number_format($row->quantity * -1) : '-') . '</td>';

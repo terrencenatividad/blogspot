@@ -282,7 +282,7 @@ class journal_voucher_model extends wc_model {
 
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('journalvoucher')
-							->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks')
+							->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, stat')
 							->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
 							->setLimit(1)
 							->runSelect()

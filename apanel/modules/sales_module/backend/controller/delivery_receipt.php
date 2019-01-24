@@ -189,6 +189,7 @@ class controller extends wc_controller {
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
 				->setShippingDetail($documentinfo->s_address)
+				->setStatDetail($documentinfo->stat)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
 				->addReceived();
