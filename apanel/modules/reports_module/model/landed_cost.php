@@ -27,7 +27,17 @@ class landed_cost extends wc_model {
 							// echo $this->db->getQuery();
 
 		return $result;
-    }
+	}
+	
+	public function getIPODetails($voucherno, $itemcode) {
+		$result = $this->db->setTable('import_purchaseorder_details')
+							->setFields('*')
+							->setWhere("voucherno = '$voucherno' AND itemcode = '$itemcode'")
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+		return $result;
+	}
 
 	public function getUnitCostLanded($startdate, $enddate, $import_purchase_order, $supplier, $tab) {
 

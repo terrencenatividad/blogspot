@@ -187,15 +187,8 @@ class bank extends wc_model
 	}
 
 	public function insertCheck($data2){
-		$data_post_dtl['bank_id'] 			= $data2['bank_id'];
-		$data_post_dtl['stat'] 				= 'open';
-		$data_post_dtl['booknumber'] 		= $data2['booknumber'];
-		$data_post_dtl['firstchequeno'] 	= $data2['firstchequeno'];
-		$data_post_dtl['lastchequeno'] 		= $data2['lastchequeno'];
-		$data_post_dtl['nextchequeno'] 		= $data2['firstchequeno'];
-
 		$result = $this->db->setTable('bankdetail')
-		->setValues($data_post_dtl)
+		->setValues($data2)
 		->runInsert();
 		// echo $this->db->getQuery();
 		return $result;
