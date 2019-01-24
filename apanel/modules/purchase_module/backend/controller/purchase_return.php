@@ -268,8 +268,22 @@ class controller extends wc_controller {
 		$result						= $this->purchase_model->savePurchaseReturn($data, $data2);
 		$result2					= $this->purchase_model->updateSerialData($serials);
 		$result3					= $this->purchase_model->updatePurchaseReturnDetailsSerials($data['voucherno'],$serials);
-		$result4					= $this->purchase_model->updatePurchaseReceipt($data, $data2);
-	
+		// var_dump($data2);
+
+		switch ($data['reason']) {
+			case "1":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "4":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "5":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			default:
+				$result4			= $this->purchase_model->removePurchaseReceiptQtyReturned($data, $data2);
+		}
+		
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
 									->setDetails($data['vendor'])
@@ -294,6 +308,7 @@ class controller extends wc_controller {
 
 	private function ajax_edit() {
 		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
+		$temp_voucherno				= $data['voucherno'];
 		unset($data['voucherno']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$voucherno					= $this->input->post('voucherno_ref');
@@ -302,16 +317,33 @@ class controller extends wc_controller {
 
 		$this->inventory_model->prepareInventoryLog('Purchase Return', $voucherno)
 								->preparePreviousValues();
-
+		$serials					= $this->input->post($this->serial_fields);
+		$serials['voucherno']		= $data['source_no'];
 		$result						= $this->purchase_model->updatePurchaseReturn($data, $data2, $voucherno);
-		
-		if ($result && $this->inventory_model) {
-			$this->inventory_model->computeValues()
-									->setDetails($data['vendor'])
-									->logChanges();
+		$result2					= $this->purchase_model->updateSerialData($serials);
+		$result3					= $this->purchase_model->updatePurchaseReturnDetailsSerials($temp_voucherno,$serials);
 
-			$this->inventory_model->generateBalanceTable();
+		switch ($data['reason']) {
+			case "1":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "4":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			case "5":
+				$result4			= $this->purchase_model->updatePurchaseReceiptQtyReturned($data, $data2);
+				break;
+			default:
+				$result4			= $this->purchase_model->removePurchaseReceiptQtyReturned($data, $data2);
 		}
+
+		// if ($result && $this->inventory_model) {
+		// 	$this->inventory_model->computeValues()
+		// 							->setDetails($data['vendor'])
+		// 							->logChanges();
+
+		// 	$this->inventory_model->generateBalanceTable();
+		// }
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -426,9 +458,10 @@ class controller extends wc_controller {
 		$item_ident = $this->input->post('item_ident');
 		$checked_serials = $this->input->post('checked_serials');
 		$voucherno = '';
-		// if ($task=='ajax_edit') {
-		$voucherno = $this->input->post('voucherno');
-		// }
+		// if (task=='ajax_edit') {
+			$voucherno = $this->input->post('voucherno');
+		// } 
+
 		// $curr = $this->delivery_model->getDRSerials($itemcode, $voucherno, $linenum);
 		// if ($curr) {
 		// 	$current_id = explode(",", $curr->serialnumbers);
@@ -452,10 +485,11 @@ class controller extends wc_controller {
 			// else {
 			// 	$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
 			// }
-			$checker = ($row->stat == 'Not Available') ? 'checked disabled' : '';
+			$checker = ($row->stat == 'Not Available') ? 'checked' : '';
+			$disabler = ($task == '') ? 'disabled' : '';
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
-			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
+			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.' '.$disabler.'></td>';
 			
 			$has_serial 	=	substr($item_ident,0,1);
 			$has_engine 	=	substr($item_ident,1,1);

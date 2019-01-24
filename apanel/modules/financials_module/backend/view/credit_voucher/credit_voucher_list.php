@@ -83,13 +83,7 @@
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
-								->addHeader(
-									'<input type="checkbox" class="checkall">',
-									array(
-										'class' => 'text-center',
-										'style' => 'width: 15px'
-									)
-								)
+								->addHeader('')
 								->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'transactiondate')
 								->addHeader('Credit Voucher No', array('class' => 'col-md-2'), 'sort', 'voucherno')
 								->addHeader('Customer', array('class' => 'col-md-2'), 'sort', 'partnername')

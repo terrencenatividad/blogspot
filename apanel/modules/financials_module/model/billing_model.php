@@ -299,7 +299,7 @@ class billing_model extends wc_model {
 
 	public function getJobOrderDetails($job_order_no) {
 		$result		= $this->db->setTable('job_order_details jod')
-								->setFields("jod.itemcode, detailparticular, linenum, qty issueqty, uom issueuom, i.item_ident_flag")
+								->setFields("jod.itemcode, detailparticular, linenum, quantity issueqty, uom issueuom, i.item_ident_flag")
 								->innerJoin('job_order jo ON jod.job_order_no = jo.job_order_no AND jod.companycode = jo.companycode')
 								->leftJoin('items i ON i.itemcode = jod.itemcode')
 								->leftJoin('invfile inv ON jod.itemcode = inv.itemcode AND jod.warehouse = inv.warehouse AND jod.companycode = inv.companycode')

@@ -35,8 +35,6 @@
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
 					<tr class="info">
-						<!-- <th class="col-md-1">Account Name</th>
-						<th class="col-md-1">Budget Code</th> -->
 						<th class="col-md-1">Budget Code</th>
 						<th class="col-md-1">Budget Description</th>
 						<th class="col-md-1">Total Budget</th>
@@ -93,6 +91,9 @@
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			$('#tableList tbody tr input.monthly_total').each(function() {
 				var val = parseInt($(this).val());
+				if($(this).val() == '-') {
+					val = 0;
+				}
 				total += +val;
 				$('.all_total').html('<strong>'+addComma(total)+'</strong>');
 			});

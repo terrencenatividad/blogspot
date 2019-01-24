@@ -111,7 +111,24 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->itemcode.' - '.$row->itemname . '</td>';
 			$table .= '<td>' . $row->brandname . '</td>';
 			$table .= '<td>' . $row->warehouse . '</td>';
-			$table .= '<td>' . $row->reference . '</td>';
+			if (stripos($row->reference, 'DR') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'sales/delivery_receipt/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'PR') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'purchase/purchase_receipt/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'STA') !== FALSE || stripos( $row->reference, 'ST') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'inventory/stock_transfer/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'PRTN') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'purchase/return/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'SR') !== FALSE || stripos($row->reference, 'R') !== FALSE) {
+				$table .= '<td><a href="' . BASE_URL . 'sales/return/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else {
+				$table .= '<td>' . $row->reference . '</td>';
+			}
 			$table .= '<td>' . $row->partnername . '</td>';
 			$table .= '<td>' . (($row->quantity > 0) ? number_format($row->quantity) : '-') . '</td>';
 			$table .= '<td>' . (($row->quantity < 0) ? number_format($row->quantity * -1) : '-') . '</td>';

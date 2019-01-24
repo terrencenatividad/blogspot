@@ -163,8 +163,30 @@ class purchase_return_model extends wc_model {
 
 	public function getPurchaseReturnDetails($fields, $voucherno, $view = true) {
 		if ($view) {
-			$result = $this->db->setTable('purchasereturn_details')
-								->setFields($fields)
+			$result = $this->db->setTable('purchasereturn_details prtnd')
+								// ->setFields($fields)
+								->setFields(array(
+									'prtnd.itemcode',
+									'detailparticular',
+									'linenum',
+									'receiptqty',
+									'receiptuom',
+									'convuom',
+									'convreceiptqty',
+									'conversion',
+									'unitprice',
+									'taxcode',
+									'taxrate',
+									'taxamount',
+									'detail_amount' => 'amount',
+									'convreceiptqty',
+									'discounttype',
+									'discountamount',
+									'detail_warehouse' => 'warehouse',
+									'po_qty',
+									'item_ident_flag'
+								))
+								->innerJoin("items i ON i.itemcode = prtnd.itemcode")
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
@@ -178,8 +200,30 @@ class purchase_return_model extends wc_model {
 
 			$sourceno = ($sourceno) ? $sourceno->source_no : '';
 
-			$result1 = $this->db->setTable('purchasereturn_details')
-								->setFields($fields)
+			$result1 = $this->db->setTable('purchasereturn_details prtnd')
+								// ->setFields($fields)
+								->setFields(array(
+									'prtnd.itemcode',
+									'detailparticular',
+									'linenum',
+									'receiptqty',
+									'receiptuom',
+									'convuom',
+									'convreceiptqty',
+									'conversion',
+									'unitprice',
+									'taxcode',
+									'taxrate',
+									'taxamount',
+									'detail_amount' => 'amount',
+									'convreceiptqty',
+									'discounttype',
+									'discountamount',
+									'detail_warehouse' => 'warehouse',
+									'po_qty',
+									'item_ident_flag'
+								))
+								->innerJoin("items i ON i.itemcode = prtnd.itemcode")
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
@@ -248,6 +292,34 @@ class purchase_return_model extends wc_model {
 						->getResult();
 
 		return $result;
+	}
+
+	public function updatePurchaseReceiptQtyReturned($data, $data2){
+		$voucherno = $data['source_no'];
+		$number_of_items = sizeof($data2['linenum']);
+
+		for ($i = 0; $i < $number_of_items; $i++){
+			$itemcode = $data2['itemcode'][$i];
+			$qty_returned = $data2['receiptqty'][$i];
+			$result = $this->db->setTable('purchasereceipt_details')
+								->setValues(array('qty_returned' => $qty_returned))
+								->setWhere("itemcode = '$itemcode' AND voucherno = '$voucherno'")
+								->runUpdate();
+		}
+	}
+
+	public function removePurchaseReceiptQtyReturned($data, $data2){
+		$voucherno = $data['source_no'];
+		$number_of_items = sizeof($data2['linenum']);
+
+		for ($i = 0; $i < $number_of_items; $i++){
+			$itemcode = $data2['itemcode'][$i];
+			$qty_returned = 0;
+			$result = $this->db->setTable('purchasereceipt_details')
+								->setValues(array('qty_returned' => $qty_returned))
+								->setWhere("itemcode = '$itemcode' AND voucherno = '$voucherno'")
+								->runUpdate();
+		}
 	}
 
 	public function getPurchaseReceiptPagination($vendor = '', $search = '') {
@@ -422,7 +494,8 @@ class purchase_return_model extends wc_model {
 								->setFields('*')
 								->setWhere($condition)
 								->setOrderBy('id')
-								->runPagination();	
+								->runPagination();
+								// echo $this->db->getQuery();
 		return $inner_query;
 	}
 
