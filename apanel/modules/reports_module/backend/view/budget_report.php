@@ -35,8 +35,6 @@
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
 					<tr class="info">
-						<!-- <th class="col-md-1">Account Name</th>
-						<th class="col-md-1">Budget Code</th> -->
 						<th class="col-md-1">Budget Code</th>
 						<th class="col-md-1">Budget Description</th>
 						<th class="col-md-1">Total Budget</th>

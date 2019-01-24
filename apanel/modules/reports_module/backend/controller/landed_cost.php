@@ -75,27 +75,35 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		} else {
 			foreach($pagination->result as $key => $row) {	
-
+			$item_code = $row->itemcode;
+			$item_name = $row->itemname;
+			$item_desc = $row->detailparticular;
+			$ipo_no = $row->ipo_num;
+				// GET ITEM COST
+			$get_item = $this->landed_cost->getIPODetails($ipo_no, $item_code);
+			$total_item_cost = $get_item->amount;
+			$item_qty = $get_item->receiptqty;
 				// CALCULATE ADDITIONAL COST
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
 			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
-				//TOTAL COST OF IMPORT PURCHASE ORDER
+
+			//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
-				// CALCULATE UNIT COST
-			$unit_cost_foreign = number_format(( ($total_ipo_amt-$addtl_cost) / $total_ipo_amt ) * $addtl_cost,2) ;
-				// EXCHANGE RATES STAGING
+			$total_purchase_amount = ($total_ipo_amt - $addtl_cost);
+			
+			// CALCULATE UNIT COST
+			$item_ipo_ratio = $total_item_cost / $total_purchase_amount;
+			$unit_cost_foreign = number_format( ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty ) ,2) ;
+
+			// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
 			$exchange_rate = $row->exchangerate;
 			$unit_cost_base = $unit_cost_foreign * $exchange_rate;
 			$base_curr = $row->basecurrency;
 
 				// IPO FIELDS STAGING
-			$item_code = $row->itemcode;
-			$item_name = $row->itemname;
-			$item_desc = $row->detailparticular;
-			$ipo_no = $row->ipo_num;
 			$transaction_date = $row->transactiondate;
 			$transaction_date_display = (is_null($transaction_date)) ? '' : date('M d, Y',strtotime($transaction_date));
 			$ipo_item_quantity = $row->receiptqty;
@@ -104,7 +112,7 @@ class controller extends wc_controller {
 			$job_no = $row->job_no;
 			$receipt_date = $row->receiptdate;
 			$receipt_date_display = (is_null($receipt_date)) ? '' : date('M d, Y',strtotime($receipt_date));
-
+			// .$item_code.'- '.$item_name.
 			$table .= '<tr>
 						<td class="text-right">'.$item_code.'- '.$item_name.'</td>
 						<td class="text-right">'.$item_desc.'</td>
@@ -113,8 +121,8 @@ class controller extends wc_controller {
 						<td class="text-center">'.$job_item_quantity.' '.$uom.'</td>
 						
 						<td class="text-center">'.$receipt_date_display.'</td>
-						<td class="text-right"><span class="pull-left">'.$exchange_curr.'</span>'.number_format($unit_cost_foreign,2).'</td>
-						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
+						<td class="text-right"><span class="pull-left label label-default">'.$exchange_curr.'</span>'.number_format($unit_cost_foreign,2).'</td>
+						<td class="text-right"><span class="pull-left label label-default">'.$base_curr.'</span>'.number_format($unit_cost_base,2).'</td>';
 
 				// IMPORTATION COST CALCULATION
 			$item_cost = $row->convertedamount / $ipo_item_quantity;
@@ -140,7 +148,7 @@ class controller extends wc_controller {
 			$importation_cost_unit =  ($item_cost_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 			
 			$table .=	'<td class="text-right">'.$dm_debit.'</td> 
-						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
+						<td class="text-right"><span class="pull-left label label-default">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
 			
 				// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
@@ -155,8 +163,8 @@ class controller extends wc_controller {
 				$job_stat_display = '<span class="label label-danger">'.strtoupper($job_stat).'</span>';
 			}
 
-			$table .=	'<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($landed_cost_unit,2).'</td>
-						<td class="text-right"><span class="pull-left">'.$base_curr.'</span>'.number_format($total_landed_cost,2).'</td>
+			$table .=	'<td class="text-right"><span class="pull-left label label-default">'.$base_curr.'</span>'.number_format($landed_cost_unit,2).'</td>
+						<td class="text-right"><span class="pull-left label label-default">'.$base_curr.'</span>'.number_format($total_landed_cost,2).'</td>
 						<td class="text-right"><span class="pull-left">'.$job_stat_display.'</td>;
 
 			$table.= </tr>';
