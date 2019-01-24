@@ -64,6 +64,12 @@
 						</div>
 					</div> -->
 					<div class="row">
+						<?php
+							echo $ui->formField('hidden')
+								->setName('customer')
+								->setId('customer')
+								->draw(true);
+						?>
 						<div class="col-md-6">
 							<?php
 								echo $ui->formField('text')
@@ -271,6 +277,14 @@
 										->setValue(number_format($total_amount,2))
 										->draw($show_input);
 							?>
+							<?php
+								echo $ui->formField('hidden')
+										->setSplit('', '')
+										->setName('total_netamount')
+										->setId('total_netamount')
+										->setValue(number_format($total_netamount,2))
+										->draw($show_input);
+							?>
 						</td>
 					</tr>
 					
@@ -381,17 +395,24 @@ function addVoucherDetails(details, index) {
 	delete other_details.warehouse;
 	delete other_details.unitprice;
 	delete other_details.amount;
+	delete other_details.discountrate;
+	delete other_details.taxcode;
+
+	console.log(other_details);
+
 	var otherdetails = '';
 	for (var key in other_details) {
 		if (other_details.hasOwnProperty(key)) {
 			otherdetails += `<?php 
 				echo $ui->setElement('hidden')
 						->setName('` + key + `[]')
+						->setClass('` + key + `')
 						->setValue('` + other_details[key] + `')
 						->draw();
-			 ?>`;
+			 ?>\n`;
 		}
 	}
+	console.log(otherdetails);
 	var row = `
 		<tr>
 			<?php if ($show_input): ?>
@@ -419,6 +440,7 @@ function addVoucherDetails(details, index) {
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
 						->setName('detailparticular[]')
+						->setClass('detailparticular')
 						->setMaxLength(100)
 						->setValue('` + details.detailparticular + `')
 						->addHidden()
@@ -430,7 +452,7 @@ function addVoucherDetails(details, index) {
 					$value = "<span id='temp_view_warehouse_` + index + `'></span>";
 					echo $ui->formField('dropdown')
 						->setSplit('', 'col-md-12')
-						->setName('detail_warehouse[]')
+						->setName('warehouse[]')
 						->setClass('warehouse')
 						->setList($warehouse_list)
 						->setValue($value)
@@ -439,10 +461,30 @@ function addVoucherDetails(details, index) {
 				?>
 			</td>
 
+			
+
+			
+
 			<?php if ($show_input): ?>
 
 			<td class='text-center'>
-				<input type='checkbox' name='defective[]' class='defective' value='Yes'>
+				<input type='checkbox' class='defective'>
+				<input type='hidden' name='defective[]'	value='No'>
+			</td>
+
+			<td class='text-center'>
+				<input type='checkbox' class='replacement'>
+				<input type='hidden' name='replacement[]' value='No'>
+			</td>
+
+			<td class="text-right">
+				<?php
+					echo $ui->formField('text')
+						->setSplit('', 'col-md-12')
+						->setValue('` + addComma(details.issueqty) + `')
+						->addHidden()
+						->draw($show_input);
+				?>
 			</td>
 
 			<?php else: ?>
@@ -459,15 +501,6 @@ function addVoucherDetails(details, index) {
 				?>
 			</td>
 
-			<?php endif ?>
-			<?php if ($show_input): ?>
-				
-			<td class='text-center'>
-				<input type='checkbox' name='replacement[]' class='replacement' value='Yes'>
-			</td>
-
-			<?php else: ?>
-
 			<td class="text-right">
 				<?php
 					echo $ui->formField('text')
@@ -482,19 +515,6 @@ function addVoucherDetails(details, index) {
 
 			<?php endif ?>
 
-
-			<?php if ($show_input): ?>
-			<td class="text-right">
-				<?php
-					echo $ui->formField('text')
-						->setSplit('', 'col-md-12')
-						->setValue('` + addComma(details.issueqty) + `')
-						->addHidden()
-						->draw($show_input);
-				?>
-			</td>
-			
-			<?php endif ?>
 			<td class="text-right">
 				<?php
 					echo $ui->formField('text')
@@ -506,6 +526,7 @@ function addVoucherDetails(details, index) {
 						->setValue('` + (addComma(details.issueqty) || 0) + `')
 						->draw($show_input);
 				?>
+				<input type='hidden' class='netamount' name='netamount[]' value = 0>
 				` + otherdetails + `
 			</td>
 			<td>
@@ -533,21 +554,21 @@ function addVoucherDetails(details, index) {
 						->setSplit('', 'col-md-12')
 						->setName('discountrate[]')
 						->setClass('discountrate')
-						->setValue('` + details.discountrate + `')
+						->setValue('` + details.discountamount + `')
 						->addHidden()
 						->draw($show_input);
 				?>
 			</td>
 			<td>
 				<?php
-					$value = "<span id='temp_view_taxrate_` + index + `'></span>";
+					$value = "<span id='temp_view_taxcode_` + index + `'></span>";
 					echo $ui->formField('dropdown')
 						->setPlaceholder('Select Tax Code')
 						->setSplit('', 'col-md-12')
-						->setName('taxrate[]')
+						->setName('taxcode[]')
 						->setList($taxrate_list)
 						->setValidation('required')
-						->setClass('taxrate')
+						->setClass('taxcode')
 						->setValue($value)
 						->addHidden()
 						->draw($show_input);
@@ -557,20 +578,13 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
-						->setName('amount1[]')
-						->setClass('amount1')
+						->setName('amount[]')
+						->setClass('amount')
 						->setValue('` + details.amount + `')
 						->addHidden()
 						->draw($show_input);
 				?>
 			</td>
-			<?php if (false): ?>
-			<td>
-				<button type="button" class="btn btn-danger delete_row" style="outline:none;">
-					<span class="glyphicon glyphicon-trash"></span>
-				</button>
-			</td>
-			<?php endif ?>
 		</tr>
 	`;
 	// <td class="text-right">
@@ -592,7 +606,7 @@ function addVoucherDetails(details, index) {
 		$('#tableList tbody').find('tr:last .warehouse').val(details.warehouse);
 	}
 	if (details.taxcode != '') {
-		$('#tableList tbody').find('tr:last .taxrate').val(details.taxcode);
+		$('#tableList tbody').find('tr:last .taxcode').val(details.taxcode);
 	}
 
 	try {
@@ -619,7 +633,7 @@ function addVoucherDetails(details, index) {
 
 	taxratelist.forEach(function(tax) {
 		if (tax.ind == details.taxcode) {
-			$('#temp_view_taxrate_' + index).html(tax.val);
+			$('#temp_view_taxcode_' + index).html(tax.val);
 		}
 	});
 
@@ -670,19 +684,63 @@ function displayHeader(header) {
 }
 
 function recomputeAll() {
-	if ($('#tableList tbody tr .unitprice').length) {
-		var total_amount = 0;
-		$('#tableList tbody tr').each(function() {
-			var price = removeComma($(this).find('.unitprice').val());
-			var quantity = removeComma($(this).find('.issueqty').val());
 
-			var amount = (price * quantity);
-			total_amount += amount;
-			$(this).find('.amount').val(addComma(amount)).closest('.form-group').find('.form-control-static').html(addComma(amount));
-		});
-		$('#tableList tfoot .total_amount').val(total_amount).closest('.form-group').find('.form-control-static').html(addComma(total_amount));
-		$('#tableList tfoot.summary').show();
-	}
+	var vat_sales 		= 0;
+	var vat_exempt 		= 0;
+	var vat_zerorated 	= 0;
+	var total_sales 	= 0;
+	var total_tax 		= 0;
+	var total_amount 	= 0;
+	var total_netamount = 0;
+	var total_discount 	= 0;
+
+	$.each($('#tableList tbody tr'), function(){
+		if ($(this).find('.chkitem').is(':checked')) {
+			var qty 			= removeComma($(this).find('.issueqty').val());
+			var unitprice 		= removeComma($(this).find('.unitprice').val());
+			var amount 			= unitprice * qty;
+			var discounttype 	= $(this).find('.discounttype').val();
+			var discountrate 	= removeComma($(this).find('.discountrate').val());
+			var discountamount 	= 0;
+			if (discounttype == 'perc') {
+				discountamount = amount * discountrate;
+			} else {
+				discountamount = discountrate;
+			}
+			var netamount 	= amount - discountamount;
+			var taxcode 	= $(this).find('.taxcode').val();
+			var taxrate 	= removeComma($(this).find('.taxrate').val());
+			var taxamount 	= netamount * taxrate;
+
+			$(this).find('[name="amount[]"]').text(addComma(netamount));
+			$(this).find('.amount')			.val(amount);
+			$(this).find('.netamount')		.val(netamount);
+			$(this).find('.discountamount')	.val(discountamount);
+			$(this).find('.taxamount')		.val(taxamount);
+
+			if (taxcode.indexOf('VAT') >= 0) {
+				vat_sales += netamount;
+			} else if (taxcode == 'ZRS') {
+				vat_zerorated += netamount;
+			} else {
+				vat_exempt += netamount;
+			}
+			total_netamount += netamount 
+			total_discount 	+= discountamount;
+			total_tax 		+= taxamount;
+		}
+	});
+	total_sales = vat_sales + vat_zerorated + vat_exempt;
+	total_amount = total_sales + total_tax;
+
+	$('#vat_sales')		.val(addComma(vat_sales));
+	$('#vat_exempt')	.val(addComma(vat_exempt));
+	$('#vat_zerorated')	.val(addComma(vat_zerorated));
+	$('#total_sales')	.val(addComma(total_sales));
+	$('#total_tax')		.val(addComma(total_tax));
+	$('#total_amount')	.val(addComma(total_amount));
+	$('#total_netamount').val(addComma(total_netamount));
+	$('#total_discount').val(addComma(total_discount));
 }
 
 var voucher_details = <?php echo $voucher_details ?>;
@@ -696,9 +754,32 @@ displayHeader(header_values);
 <script>
 
 $('#tableList tbody').on('blur recompute', '.issueqty', function(e) {
+	var conversion 		= $(this).closest('tr').find('.conversion').val();
+	var issueqty 		= $(this).val();
+	var convissueqty 	= issueqty * conversion;
+	$(this).closest('tr').find('.convissueqty').val(convissueqty);
 	$(this).val(addComma($(this).val()));
 	recomputeAll();
 });
+
+
+$('#tableList tbody').on('ifChecked', '.defective', function(e) {
+	$(this).closest('td').find('[name="defective[]"]').val('Yes');
+});
+
+$('#tableList tbody').on('ifChecked', '.replacement', function(e) {
+	$(this).closest('td').find('[name="replacement[]"]').val('Yes');
+});
+
+
+$('#tableList tbody').on('ifUnchecked', '.defective', function(e) {
+	$(this).closest('td').find('[name="defective[]"]').val('No');
+});
+
+$('#tableList tbody').on('ifUnchecked', '.replacement', function(e) {
+	$(this).closest('td').find('[name="replacement[]"]').val('No');
+});
+
 
 $('#source_no').on('focus', function() {
 	$('#invoice_tableList tbody').html(`<tr>
@@ -749,11 +830,20 @@ $('#pagination').on('click', 'a', function(e) {
 
 $('tbody').on('ifUnchecked', '.chkitem', function() {
 	$(this).closest('tr').find('.issueqty').attr('readonly', 'readonly').val(0);
+
+	$(this).closest('tr').find('.replacement').iCheck('uncheck').attr('disabled', true).iCheck('update');
+	$(this).closest('tr').find('.defective').iCheck('uncheck').attr('disabled', true).iCheck('update');
+	$(this).closest('tr').find('[name="amount[]"]').text('0.00');
+	recomputeAll();
 });
 
 $('tbody').on('ifChecked', '.chkitem', function() {
 	var n = $(this).closest('tr').find('.issueqty');
 	n.removeAttr('readonly', '').val(addComma(n.attr('data-value')));
+
+	$(this).closest('tr').find('.replacement').attr('disabled', false).iCheck('update');
+	$(this).closest('tr').find('.defective').attr('disabled', false).iCheck('update');
+	recomputeAll();
 });
 
 $('#invoice_tableList').on('click', 'tr[data-id]', function() {
@@ -779,16 +869,12 @@ function loadSalesDetails() {
 			if ( ! data.success) {
 				$('#tableList tbody').html(data.table);
 			} else {
-				var header = data.header;
 				$('#tableList tbody').html('');
+				$('#customer').val(data.header.customer)
 				displayDetails(data.details);
-				$('.vat_sales')		.val(header.vat_sales);
-				$('.vat_exempt')	.val(header.vat_exempt);
-				$('.vat_zerorated')	.val(header.vat_zerorated);
-				$('.total_sales')	.val(header.total_sales);
-				$('.total_tax')		.val(header.total_tax);
-				$('.total_amount')	.val(header.total_amount);
-				$('.total_discount').val(header.total_discount);
+
+				recomputeAll();
+				
 			}
 		});
 	}
@@ -796,22 +882,36 @@ function loadSalesDetails() {
 
 $('form').on('click', '[type="submit"]', function(e) {
 	e.preventDefault();
+	console.log('wasda');
 	var form_element = $(this).closest('form');
 	var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
-	$('#submit_container [type="submit"]').attr('disabled', true);
+
+	//$('#submit_container [type="submit"]').attr('disabled', true);
+
 	form_element.find('.form-group').find('input, textarea, select').trigger('blur');
+
 	if (form_element.find('.form-group.has-error').length == 0) {
+
 		var items = 0;
 		$('.issueqty:not([readonly])').each(function() {
 			items += removeComma($(this).val());
 		});
+
 		if ($('.issueqty:not([readonly])').length > 0 && items > 0) {
+
+			$.each($('#tableList tbody tr'), function(){
+				if(!$(this).find('.chkitem').is(':checked')){
+					$(this).find('input:hidden')	.remove();
+					$(this).find('input.issueqty')	.removeAttr('name')
+				}
+			});
+
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
 				if (data.success) {
 					$('#delay_modal').modal('show');
-							// setTimeout(function() {							
-							// 	window.location = data.redirect;						
-							// }, 1000)
+							setTimeout(function() {							
+								window.location = data.redirect;						
+							}, 1000);
 				} else {
 					$('#submit_container [type="submit"]').attr('disabled', false);
 				}
@@ -827,7 +927,3 @@ $('form').on('click', '[type="submit"]', function(e) {
 });
 </script>
 <?php endif ?>
-
-<script type="text/javascript">
-	
-</script>
