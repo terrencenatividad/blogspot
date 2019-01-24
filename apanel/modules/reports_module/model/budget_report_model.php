@@ -24,21 +24,21 @@ class budget_report_model extends wc_model {
 
 	public function getBudgetReportList($budgetcode, $year) {
 		$budgetreport = array(
-			'br.budget_code',
-			'b.budgetdesc',
-			'br.january',
-			'br.february',
-			'br.march',
-			'br.april',
-			'br.may',
-			'br.june',
-			'br.july',
-			'br.august',
-			'br.september',
-			'br.october',
-			'br.november',
-			'br.december',
-			'CONCAT(ca.segment5, " - ", ca.accountname) as accountname'
+			"br.budget_code",
+			"b.budgetdesc",
+			"IF(br.budget_check = 'Monitored', br.january, '-') as january",
+			"IF(br.budget_check = 'Monitored', br.february, '-') as february",
+			"IF(br.budget_check = 'Monitored', br.march, '-') as march",
+			"IF(br.budget_check = 'Monitored', br.april, '-') as april",
+			"IF(br.budget_check = 'Monitored', br.may, '-') as may",
+			"IF(br.budget_check = 'Monitored', br.june, '-') as june",
+			"IF(br.budget_check = 'Monitored', br.july, '-') as july",
+			"IF(br.budget_check = 'Monitored', br.august, '-') as august",
+			"IF(br.budget_check = 'Monitored', br.september, '-') as september",
+			"IF(br.budget_check = 'Monitored', br.october, '-') as october",
+			"IF(br.budget_check = 'Monitored', br.november, '-') as november",
+			"IF(br.budget_check = 'Monitored', br.december, '-') as december",
+			"br.january as total"
 		);
 
 		$condition = '';
@@ -56,32 +56,29 @@ class budget_report_model extends wc_model {
 		}
 
 		$result = $this->db->setTable('budget_report as br')
-		->leftJoin('chartaccount as ca ON br.accountcode = ca.id')
 		->leftJoin('budget as b ON b.budget_code = br.budget_code')
 		->setFields($budgetreport)
 		->setWhere($condition)
 		->runPagination(false);
-
 		return $result;
 	}
 
-	public function getBudgetReportExport($budgetcode) {
+	public function getBudgetReportExport($budgetcode, $year) {
 		$budgetreport = array(
-			'br.budget_code',
-			'b.budgetdesc',
-			'br.january',
-			'br.february',
-			'br.march',
-			'br.april',
-			'br.may',
-			'br.june',
-			'br.july',
-			'br.august',
-			'br.september',
-			'br.october',
-			'br.november',
-			'br.december',
-			'CONCAT(ca.segment5, " - ", ca.accountname) as accountname'
+			"br.budget_code",
+			"b.budgetdesc",
+			"IF(br.budget_check = 'Monitored', br.january, '-') as january",
+			"IF(br.budget_check = 'Monitored', br.february, '-') as february",
+			"IF(br.budget_check = 'Monitored', br.march, '-') as march",
+			"IF(br.budget_check = 'Monitored', br.april, '-') as april",
+			"IF(br.budget_check = 'Monitored', br.may, '-') as may",
+			"IF(br.budget_check = 'Monitored', br.june, '-') as june",
+			"IF(br.budget_check = 'Monitored', br.july, '-') as july",
+			"IF(br.budget_check = 'Monitored', br.august, '-') as august",
+			"IF(br.budget_check = 'Monitored', br.september, '-') as september",
+			"IF(br.budget_check = 'Monitored', br.october, '-') as october",
+			"IF(br.budget_check = 'Monitored', br.november, '-') as november",
+			"IF(br.budget_check = 'Monitored', br.december, '-') as december"
 		);
 
 		$condition = '';
@@ -92,8 +89,13 @@ class budget_report_model extends wc_model {
 			$condition .= "b.budget_code = '$budgetcode'";
 		}
 
+		if($year == 'none' || empty($year)) {
+			$condition .= " AND br.year != ''";
+		} else if($year != 'none'){
+			$condition .= " AND br.year = '$year'";
+		}
+
 		$result = $this->db->setTable('budget_report as br')
-		->leftJoin('chartaccount as ca ON br.accountcode = ca.id')
 		->leftJoin('budget as b ON b.budget_code = br.budget_code')
 		->setFields($budgetreport)
 		->setWhere($condition)
