@@ -42,9 +42,9 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->segment5 . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->effectivity_date, 1) . '</td>';
-			$table .= '<td class = "amount">' . number_format($row->amount, 2) . '</td>';
-			$table .= '<td class = "actual">' . number_format($row->actual, 2) . '</td>';
-			$table .= '<td class = "variance" data-val = '.$row->variance.'>' . str_replace('-','',$variance) . '</td>';
+			$table .= '<td class = "amount text-right">' . number_format($row->amount, 2) . '</td>';
+			$table .= '<td class = "actual text-right">' . number_format($row->actual, 2) . '</td>';
+			$table .= '<td class = "variance text-right" data-val = '.$row->variance.' >' . str_replace('-','',$variance) . '</td>';
 			$table .= '</tr>';
 		}
 
