@@ -279,7 +279,7 @@ class controller extends wc_controller
 		$apamount[0]->amount;
 
 		$docinfo_table  = "accountspayable as ap";
-		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS vendor", 'ap.currencycode as currencycode', 'ap.exchangerate as exchangerate');
+		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "referenceno AS referenceno", "particulars AS remarks", "p.partnername AS vendor", 'ap.currencycode as currencycode', 'ap.exchangerate as exchangerate');
 		$docinfo_join   = "partners as p ON p.partnercode = ap.vendor AND p.companycode = ap.companycode";
 		$docinfo_cond 	= "ap.voucherno = '$voucherno'";
 

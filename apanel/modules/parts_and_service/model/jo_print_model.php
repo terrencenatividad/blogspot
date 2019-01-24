@@ -92,12 +92,12 @@ class jo_print_model extends fpdf {
 		$this->SetFont('Arial', '', 8);
 		$this->SetX(40);
 		$this->MultiCell(100, 4, $tinno, 0, 'L');
-		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(29, 4, 'NOTES #', 0, 0, 'L');
-		$this->Cell(17, 4, ':', 0, 0, 'L');
-		$this->SetFont('Arial', '', 8);
-		$this->SetX(40);
-		$this->MultiCell(100, 4, $notes, 0, 'L');
+		// $this->SetFont('Arial', 'B', 8);
+		// $this->Cell(29, 4, 'NOTES #', 0, 0, 'L');
+		// $this->Cell(17, 4, ':', 0, 0, 'L');
+		// $this->SetFont('Arial', '', 8);
+		// $this->SetX(40);
+		// $this->MultiCell(100, 4, $notes, 0, 'L');
 
 		$content_width	= 40;
 		$gap			= 2;

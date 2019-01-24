@@ -642,7 +642,7 @@ class controller extends wc_controller
 		$sub_select[0]->amount;
 		
 		$docinfo_table  = "receiptvoucher as pv";
-		$docinfo_fields = array('pv.transactiondate AS documentdate','pv.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","'{$sub_select[0]->amount}' AS amount",'pv.amount AS pvamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS customer","advancepayment");
+		$docinfo_fields = array('pv.transactiondate AS documentdate','pv.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","'{$sub_select[0]->amount}' AS amount",'pv.amount AS pvamount', "or_no AS referenceno", "particulars AS remarks", "p.partnername AS customer","advancepayment");
 		$docinfo_join   = "partners as p ON p.partnercode = pv.customer AND p.companycode = pv.companycode";
 		$docinfo_cond 	= "pv.voucherno = '$voucherno'";
 
