@@ -79,7 +79,6 @@
 							echo '<input type="hidden" id="customer" name="customer" value="'.$customercode.'">';
 						}
 							
-							
 						?>
 					
 					</div>
@@ -1509,6 +1508,7 @@ function finalizeTransaction()
 	$('#sales_invoice_form #customer').trigger('blur');
 	$('#sales_invoice_form #sourceno').trigger('blur');
 	$("#sales_invoice_form .itemcode").trigger('blur');
+	$("#sales_invoice_form #referenceno").trigger('blur');
 
 	if ($('#sales_invoice_form').find('.form-group.has-error').length == 0)
 	{	

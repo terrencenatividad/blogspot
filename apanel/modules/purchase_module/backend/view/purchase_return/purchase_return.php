@@ -107,6 +107,14 @@
 									->setValue($remarks)
 									->draw($show_input);
 							?>
+							<?php
+								echo $ui->formField('hidden')
+									->setName('task')
+									->setId('task')
+									->setClass('task')
+									->setValue($ajax_task)
+									->draw('false');
+							?>
 						</div>
 					</div>
 				</div>
@@ -286,7 +294,9 @@
 			<div class="modal-footer">
 				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 					<div class="btn-group">
-						<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+						<?php if($show_input) { ?>
+							<button id = "btn_tag" type = "button" class = "btn btn-primary btn-sm btn-flat">Tag</button>
+						<?php } ?>
 					</div>
 					&nbsp;&nbsp;&nbsp;
 					<div class="btn-group">
@@ -358,7 +368,7 @@ function addVoucherDetails(details, index) {
 						->setClass('serialnumbers')
 						->setID('serialnumbers`+index+`')
 						->setValue('')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
@@ -366,7 +376,7 @@ function addVoucherDetails(details, index) {
 						->setClass('enginenumbers')
 						->setID('enginenumbers`+index+`')
 						->setValue('')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
@@ -374,75 +384,75 @@ function addVoucherDetails(details, index) {
 						->setClass('chassisnumbers')
 						->setID('chassisnumbers`+index+`')
 						->setValue('')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('h_itemcode[]')
 						->setClass('h_itemcode')
 						->setValue('` + details.itemcode + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('parentcode[]')
 						->setClass('parentcode')
 						->setValue('` + details.parentcode + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('h_detailparticular[]')
 						->setClass('h_detailparticular')
 						->setValue('` + details.detailparticular + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('bundle_itemqty[]')
 						->setClass('bundle_itemqty')
 						->setValue('` + details.bundle_itemqty + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('parentline[]')
 						->setClass('parentline')
 						->setValue('` + details.parentline + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('item_ident_flag[]')
 						->setClass('item_ident_flag')
 						->setValue('` + details.item_ident_flag + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('linenumber[]')
 						->setClass('linenumber')
 						->setValue('` + details.linenum + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setName('quantityleft[]')
 						->setClass('quantityleft')
 						->setValue('` + details.qtyleft + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setClass('available_qty')
 						->setValue('` + details.available + `')
-						->draw($show_input);
+						->draw('false');
 				?>
 				<?php
 					echo $ui->formField('hidden')
 						->setClass('checked')
 						->setValue('')
-						->draw($show_input);
+						->draw('false');
 				?>
 			</td>
 			<td>
@@ -730,6 +740,9 @@ function getSerialList() {
 		ajax.linenumber = linenumber;
 		ajax.voucherno = $('#source_no').val();//$('#voucher').val();
 	// }
+	if (task=='') {
+		ajax.voucherno = $('#source_no').text();//$('#voucher').val();
+	}
 	ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 		$('#tableSerialList tbody').html(data.table);
 		$('#serial_pagination').html(data.pagination);

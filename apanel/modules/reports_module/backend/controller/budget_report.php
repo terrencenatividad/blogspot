@@ -40,23 +40,35 @@ class controller extends wc_controller {
 		}
 		foreach ($pagination->result as $key => $row) {
 			$budget_desc = ($row->budgetdesc) ? $row->budgetdesc : '';
-			$total = $row->january * 12;
+			$january = ($row->january == '-') ? $row->january : number_format($row->january, 2);
+			$february = ($row->february == '-') ? $row->february : number_format($row->february, 2);
+			$march = ($row->march == '-') ? $row->march : number_format($row->march, 2);
+			$april = ($row->april == '-') ? $row->april : number_format($row->april, 2);
+			$may = ($row->may == '-') ? $row->may : number_format($row->may, 2);
+			$june = ($row->june == '-') ? $row->june : number_format($row->june, 2);
+			$july = ($row->july == '-') ? $row->july : number_format($row->july, 2);
+			$august = ($row->august == '-') ? $row->august : number_format($row->august, 2);
+			$september = ($row->september == '-') ? $row->september : number_format($row->september, 2);
+			$october = ($row->october == '-') ? $row->october : number_format($row->october, 2);
+			$november = ($row->november == '-') ? $row->november : number_format($row->november, 2);
+			$december = ($row->december == '-') ? $row->december : number_format($row->december, 2);
+			$total = $row->total;
 			$table .= '<tr>';
 			$table .= '<td>' . $row->budget_code .'</td>';
 			$table .= '<td>' . $budget_desc .'</td>';
 			$table .= '<td class="text-right">' . number_format($total, 2) . '<input type="hidden" class="year_total" value="'.$total.'"/></td>';
-			$table .= '<td class="text-right">' . number_format($row->january, 2) . '<input type="hidden" class="monthly_total" value="'.$row->january.'"/></td>';
-			$table .= '<td class="text-right">' . number_format($row->february, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->march, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->april, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->may, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->june, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->july, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->august, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->september, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->october, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->november, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->december, 2) . '</td>';
+			$table .= '<td class="text-right">' . $january . '<input type="hidden" class="monthly_total" value="'.$row->january.'"/></td>';
+			$table .= '<td class="text-right">' . $february . '</td>';
+			$table .= '<td class="text-right">' . $march . '</td>';
+			$table .= '<td class="text-right">' . $april . '</td>';
+			$table .= '<td class="text-right">' . $may . '</td>';
+			$table .= '<td class="text-right">' . $june . '</td>';
+			$table .= '<td class="text-right">' . $july . '</td>';
+			$table .= '<td class="text-right">' . $august . '</td>';
+			$table .= '<td class="text-right">' . $september . '</td>';
+			$table .= '<td class="text-right">' . $october . '</td>';
+			$table .= '<td class="text-right">' . $november . '</td>';
+			$table .= '<td class="text-right">' . $december . '</td>';
 			$table .= '</tr>';
 		}
 		
@@ -66,10 +78,10 @@ class controller extends wc_controller {
 	}
 
 	private function get_export() {
-		$data			= $this->input->post(array('budgetcode'));
+		$data			= $this->input->post(array('budgetcode', 'year'));
 		extract($data);
 
-		$result			= $this->budget_report->getBudgetReportExport($budgetcode);
+		$result			= $this->budget_report->getBudgetReportExport($budgetcode, $year);
 
 		$header = array(
 			'Budget Code',

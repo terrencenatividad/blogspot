@@ -13,6 +13,7 @@ class controller extends wc_controller {
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
+			'customer',
 			'transactiondate',
 			'remarks',
 			'stat',
@@ -52,7 +53,6 @@ class controller extends wc_controller {
 			'taxcode',
 			'taxrate',
 			'taxamount',
-			'convissueqty',
 			'discounttype',
 			'discountrate'
 		);
@@ -83,6 +83,7 @@ class controller extends wc_controller {
 		$data['total_tax'] 			= 0;
 		$data['total_amount'] 		= 0;
 		$data['total_discount'] 	= 0;
+		$data['total_netamount'] 	= 0;
 
 		$data['reason'] 			= '';
 		$data['ui']					= $this->ui;
@@ -260,30 +261,125 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create() {
-		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
-		$submit						= $this->input->post('submit');
-		$data2						= $this->getItemDetails();
-		$data2						= $this->cleanData($data2);
-		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
-		$seq						= new seqcontrol();
-		$data['voucherno']			= $seq->getValue('SR');
-		$result						= $this->sr_model->saveSalesReturn($data, $data2);
-		// if ($result && $this->inventory_model) {
-		// 	$this->inventory_model->prepareInventoryLog('Sales Return', $data['voucherno'])
-		// 							->setDetails($data['customer'])
-		// 							->computeValues()
-		// 							->logChanges();
+/*
+	GET DATA FROM POST
+*/
+		$fields1 = array('source_no',
+						'customer',
+						'transactiondate', 
+						'remarks', 
+						'reason',
+						'total_discount',
+						'total_amount',
+						'total_discount',
+						'total_tax',
+						'total_netamount'
+					);
+		$fields2 = $this->fields2;
+		array_push($fields2, 'discountamount', 'defective', 'replacement', 'amount', 'netamount');
 
-		// 	$this->inventory_model->setReference($data['voucherno'])
-		// 							->setDetails($data['customer'])
-		// 							->generateBalanceTable();
-		// }
-		$redirect_url = MODULE_URL;
-		if ($submit == 'save_new') {
-			$redirect_url = MODULE_URL . 'create';
-		} else if ($submit == 'save_preview') {
-			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+
+		$header				= $this->input->post($fields1);
+		$details 			= $this->input->post($fields2);
+/*
+	END : GET DATA FROM POST
+*/
+
+/*
+	PREPARE DATA FOR QUERY
+*/
+		$seq				= new seqcontrol();
+		$voucherno			= $seq->getValue('SR');
+		$transactiondate 	= $this->date->dateDbFormat($header['transactiondate']);
+		$fiscalyear 		= date('Y', strtotime($header['transactiondate']));
+		$period 			= date('n', strtotime($header['transactiondate']));
+
+		$values = array(
+						'voucherno' 		=> $voucherno,
+						'source_no' 		=> $header['source_no'],
+						'transactiondate' 	=> $transactiondate,
+						'customer' 			=> $header['customer'],
+						'warehouse' 		=> $details['warehouse'][0],
+						'fiscalyear' 		=> $fiscalyear,
+						'period' 			=> $period,
+						'transtype' 		=> 'SR',
+						'stat'     			=> 'Returned',
+						'remarks'  			=> $header['remarks'],
+						'reason' 			=> $header['reason'],
+						'amount' 			=> $header['total_amount'],
+						'discounttype' 		=> $details['discounttype'][0],
+						'discountamount' 	=> $header['total_discount'],
+						'netamount' 		=> $header['total_netamount'],
+						'taxamount' 		=> $header['total_tax']
+					);
+
+		foreach ($details['itemcode'] as $key => $value) {
+			$arr_voucherno[] 	= $voucherno; 
+			$transtype[] 		= 'SR';
+			$stat 	 			= 'Returned';
 		}
+		$values2 = array(
+					'voucherno' 		=> $arr_voucherno,
+					'transtype' 		=> $transtype,
+					'linenum' 			=> $details['linenum'],
+					'itemcode' 			=> $details['itemcode'],
+					'warehouse' 		=> $details['warehouse'],
+					'detailparticular' 	=> $details['detailparticular'],
+					'defective' 		=> $details['defective'],
+					'replacement' 		=> $details['replacement'],
+					'issueuom' 			=> $details['issueuom'],
+					'issueqty' 			=> $details['issueqty'],
+					'convissueqty' 		=> $details['convissueqty'],
+					'convuom' 			=> $details['convuom'],
+					'conversion' 		=> $details['conversion'],
+					'unitprice'     	=> $details['unitprice'],
+					'discounttype' 		=> $details['discounttype'],
+					'discountrate'		=> $details['discountrate'],
+					'discountamount' 	=> $details['discountamount'],
+					'taxcode'  			=> $details['taxcode'],
+					'taxrate' 			=> $details['taxrate'],
+					'taxamount' 		=> $details['taxamount'],
+					'amount' 			=> $details['amount'],
+					'netamount' 		=> $details['netamount'],
+					'stat' 				=> $stat
+				);
+
+/*
+	END : PREPARE DATA FOR QUERY
+*/
+
+/*
+	RUN DATABASE OPERATIONS
+*/
+		$result		= $this->sr_model->saveSalesReturn($values, $values2);
+		
+		if ($result) {
+
+			if (substr($header['source_no'], 0, 2) == 'SI') {
+				$this->generate_receivable('yes',$voucherno);
+			}
+
+			if ($this->inventory_model) {
+				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
+										->setDetails($values['customer'])
+										->computeValues()
+										->logChanges();
+
+				$this->inventory_model->setReference($voucherno)
+										->setDetails($values['customer'])
+										->generateBalanceTable();
+			}
+		}
+/*
+	END : RUN DATABASE OPERATIONS
+*/
+
+		$redirect_url = MODULE_URL;
+		// if ($submit == 'save_new') {
+		// 	$redirect_url = MODULE_URL . 'create';
+		// } else if ($submit == 'save_preview') {
+		// 	$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		// }
 		return array(
 			'redirect'	=> $redirect_url,
 			'success'	=> $result
@@ -398,59 +494,6 @@ class controller extends wc_controller {
 			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 			$success	= false;
 		}
-
-		$vat_sales 		= 0;
-		$vat_exempt 	= 0;
-		$vat_zerorated 	= 0;
-		$total_tax 		= 0;
-		$total_sales 	= 0;
-		$total_amount 	= 0;
-		$total_discount	= 0;
-		$discountrate	= 0;
-
-
-		foreach ($details as $key => $row) {
-
-			$amount 	= $row->issueqty * $row->unitprice;
-
-			if ($header->discounttype == 'perc') {
-				$discountrate	= $row->discountrate;
-				$discountamount	= $amount * ($discountrate/100);
-				$discountsuffix = ' %';
-			} else {
-				$discountrate	= $row->discountamount;
-				$discountamount	= $row->discountamount;
-				$discountsuffix = '';
-			}
-
-			$discountedamount 	= $amount - $discountamount;
-
-			if (strpos($row->taxcode, 'VAT') !== false) {
-				$total_tax += $row->taxrate * $discountedamount;
-				$vat_sales += $discountedamount;
-			}
-			elseif ($row->taxcode == 'ZRS') {
-				$vat_zerorated 	+= $discountedamount;
-			}
-			else{
-				$vat_exempt 	+= $discountedamount;
-			}
-			$total_discount 	+= $discountamount; 
-
-			$details[$key]->amount 			= number_format($discountedamount, 2);
-			$details[$key]->discountrate  	= $discountrate . $discountsuffix;
-		}
-		$total_sales 	= $vat_sales + $vat_exempt + $vat_zerorated;
-		$total_amount	= $total_sales + $total_tax;
-		
-		
-		$header->vat_sales 		= $vat_sales;
-		$header->vat_exempt 	= $vat_exempt;
-		$header->vat_zerorated 	= $vat_zerorated;
-		$header->total_sales 	= $total_sales;
-		$header->total_tax 		= $total_tax;
-		$header->total_amount 	= $total_amount;
-		$header->total_discount = $total_discount;
 		
 		
 		return array(
@@ -481,6 +524,31 @@ class controller extends wc_controller {
 			}
 		}
 		return $data;
+	}
+
+	public function generate_receivable($trigger,$srno='')
+	{
+		// Get sr Reference
+		$sr_reference 	= $this->sr->getReference("return_ar");
+		$sr_debit 		= $sr_reference->value;
+		
+		$auto_ar		= ($sr_debit == 'yes') ? true : false;
+
+		$sr 			= (!empty($srno)) ? $srno : $this->input->post('voucherno');
+		$result 		= $this->sr->generateReceivable($sr,$auto_ar,$trigger);
+
+		if($result){
+			$code = 1;
+			$msg = "success";
+		}else{
+			$code = 0;
+			$msg = "error";
+		}
+
+		return array(
+			'code' => $code,
+			'result' => $msg
+		);
 	}
 
 }

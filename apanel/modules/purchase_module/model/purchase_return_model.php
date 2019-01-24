@@ -163,9 +163,30 @@ class purchase_return_model extends wc_model {
 
 	public function getPurchaseReturnDetails($fields, $voucherno, $view = true) {
 		if ($view) {
-			$result = $this->db->setTable('purchasereturn_details')
-								->setFields($fields)
-								->innerJoin("items i ON i.itemcode = itemcode")
+			$result = $this->db->setTable('purchasereturn_details prtnd')
+								// ->setFields($fields)
+								->setFields(array(
+									'prtnd.itemcode',
+									'detailparticular',
+									'linenum',
+									'receiptqty',
+									'receiptuom',
+									'convuom',
+									'convreceiptqty',
+									'conversion',
+									'unitprice',
+									'taxcode',
+									'taxrate',
+									'taxamount',
+									'detail_amount' => 'amount',
+									'convreceiptqty',
+									'discounttype',
+									'discountamount',
+									'detail_warehouse' => 'warehouse',
+									'po_qty',
+									'item_ident_flag'
+								))
+								->innerJoin("items i ON i.itemcode = prtnd.itemcode")
 								->setWhere("voucherno = '$voucherno'")
 								->setOrderBy('linenum')
 								->runSelect()
@@ -473,7 +494,8 @@ class purchase_return_model extends wc_model {
 								->setFields('*')
 								->setWhere($condition)
 								->setOrderBy('id')
-								->runPagination();	
+								->runPagination();
+								// echo $this->db->getQuery();
 		return $inner_query;
 	}
 
