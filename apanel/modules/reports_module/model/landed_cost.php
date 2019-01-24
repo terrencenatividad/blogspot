@@ -223,10 +223,10 @@ class landed_cost extends wc_model {
 
 	public function getTotalCostOfJob($job_no) {
 		$result = $this->db->setTable('job_details jd')
-							->setFields('SUM(jd.qty * (ipod.convertedamount / ipod.receiptqty)) total')
+							->setFields('SUM( DISTINCT ipo.amount) total')
 							// ->innerJoin('purchasereceipt pr ON pr.voucherno = jd.ipo_no')
 							// ->innerJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
-							->innerJoin('import_purchaseorder_details ipod ON ipod.voucherno = jd.ipo_no AND ipod.itemcode = jd.itemcode')
+							->innerJoin('import_purchaseorder ipo ON ipo.voucherno = jd.ipo_no')
 							->setWhere("jd.job_no = '$job_no'")
 							->runSelect()
 							->getRow();
