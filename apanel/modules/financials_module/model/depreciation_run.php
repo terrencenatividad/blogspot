@@ -13,7 +13,7 @@ class depreciation_run extends wc_model {
 						->leftJoin('asset_master am ON am.asset_number = d.asset_id')
 						->leftJoin("cost_center c ON c.id = am.department")
 						->leftJoin('asset_class ac ON ac.id = am.asset_class')
-						->setWhere("depreciation_date <= DATE(NOW())")
+						->setWhere(1)
 						->setGroupBy('assetclass')
 						->runSelect()
 						->getResult();
@@ -26,7 +26,7 @@ class depreciation_run extends wc_model {
 						->setFields('a.department, a.asset_number, a.department, a.useful_life, a.capitalized_cost, a.balance_value, a.salvage_value,c.name')
 						->leftJoin('depreciation_schedule d ON asset_id = a.asset_number')
 						->leftJoin("cost_center c ON c.id = a.department")
-						->setWhere("asset_class = '$id' AND depreciation_date <= DATE(NOW())")
+						->setWhere("asset_class = '$id'")
 						->setGroupBy('asset_number')
 						->runSelect()
 						->getResult();
@@ -51,7 +51,7 @@ class depreciation_run extends wc_model {
 						->leftJoin('chartaccount coa ON coa.id = d.gl_asset')
 						->leftJoin('chartaccount asd ON asd.id = d.gl_accdep')
 						->leftJoin('chartaccount dsa ON dsa.id = d.gl_depexpense')
-						->setWhere("d.asset_id = '$id' AND d.depreciation_date <= DATE(NOW())")
+						->setWhere("d.asset_id = '$id'")
 						->runSelect()
 						->getResult();
 
