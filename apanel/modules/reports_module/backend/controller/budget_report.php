@@ -52,7 +52,7 @@ class controller extends wc_controller {
 			$october = ($row->october == '-') ? $row->october : number_format($row->october, 2);
 			$november = ($row->november == '-') ? $row->november : number_format($row->november, 2);
 			$december = ($row->december == '-') ? $row->december : number_format($row->december, 2);
-			$total = $row->total * 12;
+			$total = $row->total;
 			$table .= '<tr>';
 			$table .= '<td>' . $row->budget_code .'</td>';
 			$table .= '<td>' . $budget_desc .'</td>';
