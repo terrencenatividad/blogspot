@@ -267,7 +267,17 @@ class controller extends wc_controller
 	}
 
 	public function save_check(){
-		$posted_data 	= $this->input->post($this->fields2);
+		$arrays = array(
+			'bank_id',
+			'booknumber',
+			'firstchequeno',
+			'lastchequeno',
+			'nextchequeno',
+			'stat'
+		);
+		$posted_data 	= $this->input->post($arrays);
+		$posted_data['stat'] = 'open';
+		$posted_data['nextchequeno'] = $posted_data['firstchequeno'];
 		$result  		= $this->bank->insertCheck($posted_data);
 		$firstchequeno 	= $posted_data['firstchequeno'];
 		$lastchequeno	= $posted_data['lastchequeno'];
