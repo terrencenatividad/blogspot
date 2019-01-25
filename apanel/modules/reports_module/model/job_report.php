@@ -132,7 +132,8 @@
                             balance_table.voucherno,
                             balance_table.transactiondate,
                             balance_table.converted_debit,
-                            balance_table.converted_credit
+                            balance_table.converted_credit,
+                            balance_table.transtype
                         FROM
                             balance_table
                         LEFT JOIN
@@ -148,7 +149,8 @@
                             balance_table.voucherno,
                             balance_table.transactiondate,
                             balance_table.converted_debit,
-                            balance_table.converted_credit
+                            balance_table.converted_credit,
+                            balance_table.transtype
                         FROM
                             balance_table
                         LEFT JOIN
@@ -159,7 +161,7 @@
                             balance_table.accountcode = '$code' AND balance_table.converted_credit != 0.00 AND fj.job_no = '$jobno'";
 
             $result = 	$this->db->setTable("($query) main")
-                        ->setFields('main.voucherno AS referenceList,main.transactiondate,main.converted_debit,main.converted_credit')
+                        ->setFields('main.voucherno AS referenceList,main.transactiondate,main.converted_debit,main.converted_credit,main.transtype')
                         ->setOrderBy($sort)
                         ->runSelect(false)
                         ->getResult();

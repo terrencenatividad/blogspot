@@ -170,11 +170,19 @@
 
             if( !empty($pagination) ) :
                 foreach ($pagination as $key => $row) {
-
-
+                    $link = '';
+                    if($row->transtype == "AP") {
+                    $link .= BASE_URL . 'financials/accounts_payable/view/'.$row->referenceList;
+                    }else if ($row->transtype == "CM") {
+                        $link .= BASE_URL . 'financials/credit_memo/view/'.$row->referenceList;
+                    }else if ($row->transtype == "DM") {
+                        $link .= BASE_URL . 'financials/debit_memo/view/'.$row->referenceList;
+                    }else {
+                        $link ='';
+                    }
 
                     $table .= '<tr>';
-                    $table .= '<td>' . $row->referenceList . '</td>';
+                    $table .= '<td> <a href='.$link.'>' . $row->referenceList . '</a> </td>';
                     $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
                     $table .= '<td class="tobesum text-right">' . number_format($row->converted_debit,2) . '</td>';
                     $table .= '<td class="tobesum2 text-right">' . number_format($row->converted_credit,2) . '</td>';
