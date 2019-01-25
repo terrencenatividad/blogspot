@@ -177,7 +177,7 @@ class landed_cost extends wc_model {
 	public function getSumOfAp($job_no) {
 
 		$result = $this->db->setTable('ap_details apd')
-							->setFields('SUM(apd.converteddebit) AS credit')
+							->setFields('SUM(apd.converteddebit) AS debit')
 							->leftJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
 							->setWhere("ap.job_no LIKE '%$job_no%' AND ap.stat = 'posted'")
 							->runSelect()
