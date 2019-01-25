@@ -352,11 +352,15 @@ class controller extends wc_controller {
 
 	private function ajax_delete() {
 		$delete_id = $this->input->post('delete_id');
+		
 		if ($delete_id) {
 			$result = $this->purchase_model->deletePurchaseReturn($delete_id);
 		}
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
+				$data = $this->purchase_model->getPurchaseReturnById($this->fields, $voucherno);
+				$result2 = $this->purchase_model->deletePurchaseReceiptQtyReturned($data->source_no);
+				
 				$this->inventory_model->prepareInventoryLog('Purchase Return', $voucherno)
 										->computeValues()
 										->logChanges('Cancelled');
