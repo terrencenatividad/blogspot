@@ -509,6 +509,11 @@
 			delete other_details.withholdingamount;
 			delete other_details.taxcode;
 			delete other_details.taxrate;
+			delete other_details.exchangerate;
+			delete other_details.total_amount;
+			delete other_details.freight;
+			delete other_details.insurance;
+			delete other_details.packaging;
 			var otherdetails = '';
 			item_max_qty = (isNaN(details.maxqty)) ? parseInt(details.po_qty) : parseInt(details.maxqty);
 			for (var key in other_details) {
@@ -671,6 +676,31 @@
 									->setID('po_qty`+index+`')
 									->setClass('po_qty')	
 									->setValue('`+item_max_qty+`')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setClass('exchangerate')	
+									->setValue('` + (parseFloat(details.exchangerate) || 0) + `')
+									->draw();
+									
+							echo $ui->setElement('hidden')
+									->setClass('total_amount')	
+									->setValue('` + (parseFloat(details.total_amount) || 0) + `')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setClass('freight')	
+									->setValue('` + (parseFloat(details.freight) || 0) + `')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setClass('insurance')	
+									->setValue('` + (parseFloat(details.insurance) || 0) + `')
+									->draw();
+
+							echo $ui->setElement('hidden')
+									->setClass('packaging')	
+									->setValue('` + (parseFloat(details.packaging) || 0) + `')
 									->draw();
 						?>
 					</td>
@@ -1399,11 +1429,18 @@
 				$('#tableList tbody tr').each(function() {
 					var price = removeComma($(this).find('.unitprice').val());
 					var quantity = removeComma($(this).find('.receiptqty').val());
+					var exchangerate = removeComma($(this).find('.exchangerate').val());
+					var total_purchase = removeComma($(this).find('.total_amount').val() * exchangerate);
+					var freight = removeComma($(this).find('.freight').val() * exchangerate);
+					var insurance = removeComma($(this).find('.insurance').val() * exchangerate);
+					var packaging = removeComma($(this).find('.packaging').val() * exchangerate);
+					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 1;
 					var tax = $(this).find('.taxcode').val();
 					var taxrate = taxrates[tax] || 0;
-
-					var amount = (price * quantity);
-					var taxamount = removeComma(addComma(amount + (amount * parseFloat(taxrate))));
+					
+					//var amount = (price * quantity) * exchangerate;
+					var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
+					var taxamount = (taxrate > 0) ? removeComma(addComma(amount + (amount * parseFloat(taxrate)))) * exchangerate : 0;
 					//amount = amount - taxamount;
 					total_amount += amount;
 					total_tax += taxamount;
