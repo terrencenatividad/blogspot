@@ -180,6 +180,8 @@
 		public function getSource($voucherno) {
 			$source = substr($voucherno, 0,2);
 
+			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno')";
+
 			if ($source == 'DR') {
 				$table 		= 'deliveryreceipt';
 				$fields 	= array(
@@ -198,13 +200,14 @@
 									'source_no sourceno'
 								);
 				
-				$table_details 	= 'deliveryreceipt_details';
+				$table_details 	= 'deliveryreceipt_details tbl';
 				$fields_details = array(
 									'itemcode',
 									'detailparticular',
 									'warehouse',
 									'linenum',
-									'',
+									'serialnumbers',
+									'issueqty - IFNULL('.$sql.', 0) maxqty',
 									'issueqty',
 									'issueuom',
 									'convuom',
@@ -238,12 +241,14 @@
 									'sourceno'
 								);
 
-				$table_details 	= 'salesinvoice_details';
+				$table_details 	= 'salesinvoice_details tbl';
 				$fields_details = array(
 									'itemcode',
 									'detailparticular',
 									'warehouse',
 									'linenum',
+									'serialno',
+									'issueqty - '.$sql.' maxqty',
 									'issueqty',
 									'issueuom',
 									'convuom',
@@ -259,7 +264,10 @@
 								);
 			}
 
-			$result['details'];
+			$result['header'] 	= $this->getSourceHeader($table, $fields, $voucherno);
+			$result['details'] 	= $this->getSourceDetails($table_details, $fields_details, $voucherno);
+
+			return $result;
 		}
 
 		public function getSourceHeader($table, $fields, $voucherno) {
@@ -284,7 +292,6 @@
 			
 			$result = $this->db->setTable($table)
 								->setFields($fields)
-								->leftJoin('inventory_salesreturn_details srd')
 								->setWhere($cond)
 								->setOrderBy($sort)
 								->runSelect()
