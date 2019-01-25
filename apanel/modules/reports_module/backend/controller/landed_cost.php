@@ -89,7 +89,7 @@ class controller extends wc_controller {
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
+			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
 
 			//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
@@ -97,7 +97,7 @@ class controller extends wc_controller {
 			
 			// CALCULATE UNIT COST
 			$item_ipo_ratio = $total_item_cost / $total_purchase_amount;
-			$unit_cost_foreign = number_format( ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty ) ,2) ;
+			$unit_cost_foreign = ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty );
 
 			// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
@@ -241,7 +241,7 @@ class controller extends wc_controller {
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
+			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
 
 			//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
@@ -249,7 +249,7 @@ class controller extends wc_controller {
 			
 			// CALCULATE UNIT COST
 			$item_ipo_ratio = $total_item_cost / $total_purchase_amount;
-			$unit_cost_foreign = number_format( ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty ) ,2) ;
+			$unit_cost_foreign = ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty ) ;
 
 			// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
