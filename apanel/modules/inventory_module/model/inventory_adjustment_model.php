@@ -280,7 +280,8 @@ class inventory_adjustment_model extends wc_model {
 		$remarks 			=	isset($data['remarks']) 			? 	$data['remarks'] 			: 	"";
 		$itemcode 			= 	isset($data['itemcode']) 			? 	$data['itemcode'] 			: 	"";
 		$itemname 			=	isset($data['itemname']) 			? 	$data['itemname']		 	: 	"";
-		$quantity 			=	isset($data['issueqty']) 			?	$data['issueqty'] 			: 	"";
+		$quantity 			=	isset($data['issueqty']) 			?	$data['issueqty'] 			: 	0;
+		$quantity_serial 	=	isset($data['issueqty_serial']) 	?	$data['issueqty_serial'] 	:	0;
 		$selectedaccount  	=	isset($data['inventory_account']) 	? 	$data['inventory_account'] 	: 	"";
 		$actualaccount  	=	isset($data['inv_acct']) 			? 	$data['inv_acct'] 			: 	"";
 		
@@ -300,7 +301,14 @@ class inventory_adjustment_model extends wc_model {
 			$itemprice 		=	$retrieved_price[0]->itemprice;
 		}
 
-		$amount 			=	$quantity * $itemprice;
+		$actual_quantity 	=	0;
+		if($quantity!=0 && $quantity_serial==0) {
+			$actual_quantity= 	$quantity;
+		} else {
+			$actual_quantity=	$quantity_serial;
+		}
+
+		$amount 			=	$actual_quantity * $itemprice;
 
 		/**FORMAT DATES**/
 		$transactiondate	= 	$this->date->datetimeDbFormat($adjustdate);
@@ -356,7 +364,8 @@ class inventory_adjustment_model extends wc_model {
 		$remarks 			=	isset($data['remarks']) 			? 	$data['remarks'] 			: 	"";
 		$itemcode 			= 	isset($data['itemcode']) 			? 	$data['itemcode'] 			: 	"";
 		$itemname 			=	isset($data['itemname']) 			? 	$data['itemname']		 	: 	"";
-		$quantity 			=	isset($data['issueqty']) 			?	$data['issueqty'] 			: 	"";
+		$quantity 			=	isset($data['issueqty']) 			?	$data['issueqty'] 			: 	0;
+		$quantity_serial 	=	isset($data['issueqty_serial']) 	?	$data['issueqty_serial'] 	:	0;
 		$selectedaccount  	=	isset($data['inventory_account']) 	? 	$data['inventory_account'] 	: 	"";
 		$actualaccount  	=	isset($data['inv_acct']) 			? 	$data['inv_acct'] 			: 	"";
 
@@ -374,7 +383,14 @@ class inventory_adjustment_model extends wc_model {
 			$itemprice 		=	$retrieved_price[0]->itemprice;
 		}
 
-		$amount 			=	$quantity * $itemprice;
+		$actual_quantity 	=	0;
+		if($quantity!=0 && $quantity_serial==0) {
+			$actual_quantity= 	$quantity;
+		} else {
+			$actual_quantity=	$quantity_serial;
+		}
+
+		$amount 			=	$actual_quantity * $itemprice;
 
 
 		/**FORMAT DATES**/
@@ -428,7 +444,8 @@ class inventory_adjustment_model extends wc_model {
 		$remarks 			=	isset($data['remarks']) 			? 	$data['remarks'] 			: 	"";
 		$itemcode 			= 	isset($data['itemcode']) 			? 	$data['itemcode'] 			: 	"";
 		$itemname 			=	isset($data['itemname']) 			? 	$data['itemname']		 	: 	"";
-		$quantity 			=	isset($data['issueqty']) 			?	$data['issueqty'] 			: 	"";
+		$quantity 			=	isset($data['issueqty']) 			?	$data['issueqty'] 			: 	0;
+		$quantity_serial 	=	isset($data['issueqty_serial']) 	?	$data['issueqty_serial'] 	:	0;
 		$selectedaccount  	=	isset($data['inventory_account']) 	? 	$data['inventory_account'] 	: 	"";
 		$actualaccount  	=	isset($data['inv_acct']) 			? 	$data['inv_acct'] 			: 	"";
 
@@ -446,7 +463,14 @@ class inventory_adjustment_model extends wc_model {
 			$itemprice 		=	$retrieved_price[0]->itemprice;
 		}
 
-		$amount 			=	$quantity * $itemprice;
+		$actual_quantity 	=	0;
+		if($quantity!=0 && $quantity_serial==0) {
+			$actual_quantity= 	$quantity;
+		} else {
+			$actual_quantity=	$quantity_serial;
+		}
+
+		$amount 			=	$actual_quantity * $itemprice;
 
 		/**FORMAT DATES**/
 		$transactiondate	= 	$this->date->datetimeDbFormat($adjustdate);
