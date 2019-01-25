@@ -66,21 +66,19 @@
 				</div>
 			</div>	
 		</div>			
-		<div class="nav-tabs-custom">
-			<table id="tableList" class="table table-hover table-sidepad">
+		<div class="box-body no-padding">
+			<table id="tableList" class="table table-hover table-striped table-condensed table-bordered" cellpadding="0" cellspacing="0" border="0" width="100%">
 				<?php
 					echo $ui->loadElement('table')
 							->setHeaderClass('info')
 							->addHeader('Taxable Month', array('class' => 'col-md-1'), 'sort', 'rpt.transactiondate', ' asc')
-							->addHeader('TIN', array('class' => 'col-md-1'), 'sort', 'p.tinno', ' asc')
+							->addHeader('TIN', array('class' => 'col-md-2'), 'sort', 'p.tinno', ' asc')
 							->addHeader('Vendor', array('class' => 'col-md-2'), 'sort', 'p.partnername', ' asc')
 							->addHeader('Gross Amount', array('class' => 'col-md-1'),'sort','rpt.netamount',' asc')
-							// ->addHeader('Exempt Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_exempt',' asc')
-							// ->addHeader('Zero Rated Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_zerorated',' asc')
 							->addHeader('Taxable Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_sales',' sc')
 							->addHeader('Purchase of Services', array('class' => 'col-md-1'),'sort','rpt.service',' asc')
-							->addHeader('Purchase of Capital Goods', array('class' => 'col-md-1'),'sort','rpt.goods',' asc')
-							->addHeader('Purchase of Goods Other than Capital Goods', array('class' => 'col-md-1'),'sort','rpt.capital',' asc')
+							->addHeader('Purchase of Capital <br>Goods', array('class' => 'col-md-1'),'sort','rpt.goods',' asc')
+							->addHeader('Purchase of Goods Other <br>than Capital Goods', array('class' => 'col-md-1'),'sort','rpt.capital',' asc')
 							->addHeader('Input Tax', array('class' => 'col-md-1'),'sort','rpt.wtaxamount',' asc')
 							->addHeader('Gross Taxable Purchase', array('class' => 'col-md-1'),'sort','rpt.amount',' asc')
 							->draw();
