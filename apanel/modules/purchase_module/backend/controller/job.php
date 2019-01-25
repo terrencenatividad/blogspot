@@ -424,10 +424,13 @@
                         $maxval = $row->receiptqty - $taggedqty[0]->count;
                     
                     if ($maxval) {
+                        $qtyval  = 1;
                         $disable = '';
                     }
-                    else
+                    else{
+                        $qtyval  = 0;
                         $disable = 'disabled';
+                    }
 
                         $table .= '<tr>';
                         
@@ -453,8 +456,8 @@
                                             ->setName('txtquantity[]')
                                             ->setCLass('quantity text-right')
                                             ->setMaxLength(12)
-                                            ->setValue(1)
-                                            ->setAttribute(array("data-maxval"=>$maxval))
+                                            ->setValue($qtyval)
+                                            ->setAttribute(array("data-maxval"=>$maxval, $disable))
                                             ->setValidation('integer') //required code
                                             ->draw(true);
                         $table .= '</td>';
