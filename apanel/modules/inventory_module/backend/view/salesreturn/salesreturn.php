@@ -481,7 +481,7 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
-						->setValue('` + addComma(details.issueqty) + `')
+						->setValue('` + addComma(details.maxqty) + `')
 						->addHidden()
 						->draw($show_input);
 				?>
@@ -598,7 +598,7 @@ function addVoucherDetails(details, index) {
 	// 		</td>
 
 	$('#tableList tbody').append(row);
-
+	console.log(details.maxty);
 	if (details.itemcode != '') {
 		$('#tableList tbody').find('tr:last .itemcode').val(details.itemcode);
 	}

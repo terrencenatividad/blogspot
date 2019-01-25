@@ -461,7 +461,7 @@ class controller extends wc_controller {
 		$table		= '';
 		$success	= true;
 
-		if (empty($details)) {
+		if (empty($result)) {
 			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 			$success	= false;
 		}
@@ -494,31 +494,6 @@ class controller extends wc_controller {
 			}
 		}
 		return $data;
-	}
-
-	public function generate_receivable($trigger,$srno='')
-	{
-		// Get sr Reference
-		$sr_reference 	= $this->sr->getReference("return_ar");
-		$sr_debit 		= $sr_reference->value;
-		
-		$auto_ar		= ($sr_debit == 'yes') ? true : false;
-
-		$sr 			= (!empty($srno)) ? $srno : $this->input->post('voucherno');
-		$result 		= $this->sr->generateReceivable($sr,$auto_ar,$trigger);
-
-		if($result){
-			$code = 1;
-			$msg = "success";
-		}else{
-			$code = 0;
-			$msg = "error";
-		}
-
-		return array(
-			'code' => $code,
-			'result' => $msg
-		);
 	}
 
 }
