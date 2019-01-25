@@ -177,6 +177,91 @@
 			return $result;
 		}
 
+		public function getSource($voucherno) {
+			$source = substr($voucherno, 0,2);
+
+			if ($source == 'DR') {
+				$table 		= 'deliveryreceipt';
+				$fields 	= array(
+									'voucherno',
+									'customer',
+									'transactiondate',
+									'remarks',
+									'stat',
+									'vat_sales',
+									'vat_exempt',
+									'vat_zerorated',
+									'taxamount',
+									'netamount',
+									'discounttype',
+									'discountamount',
+									'source_no sourceno'
+								);
+				
+				$table_details 	= 'deliveryreceipt_details';
+				$fields_details = array(
+									'itemcode',
+									'detailparticular',
+									'warehouse',
+									'linenum',
+									'',
+									'issueqty',
+									'issueuom',
+									'convuom',
+									'convissueqty',
+									'conversion',
+									'unitprice',
+									'taxcode',
+									'taxrate',
+									'taxamount',
+									'discounttype',
+									'discountrate',
+									'discountamount'
+								);
+			}
+
+			elseif ($source == 'SI') {
+				$table 			= 'salesinvoice';
+				$fields 		= array(
+									'voucherno',
+									'customer',
+									'transactiondate',
+									'remarks',
+									'stat',
+									'vat_sales',
+									'vat_exempt',
+									'vat_zerorated',
+									'taxamount',
+									'netamount',
+									'discounttype',
+									'discountamount',
+									'sourceno'
+								);
+
+				$table_details 	= 'salesinvoice_details';
+				$fields_details = array(
+									'itemcode',
+									'detailparticular',
+									'warehouse',
+									'linenum',
+									'issueqty',
+									'issueuom',
+									'convuom',
+									'convissueqty',
+									'conversion',
+									'unitprice',
+									'taxcode',
+									'taxrate',
+									'taxamount',
+									'discounttype',
+									'discountrate',
+									'itemdiscount discountamount'
+								);
+			}
+
+			$result['details'];
+		}
+
 		public function getSourceHeader($table, $fields, $voucherno) {
 
 			$cond = 'voucherno = "'.$voucherno.'"';
@@ -199,6 +284,7 @@
 			
 			$result = $this->db->setTable($table)
 								->setFields($fields)
+								->leftJoin('inventory_salesreturn_details srd')
 								->setWhere($cond)
 								->setOrderBy($sort)
 								->runSelect()

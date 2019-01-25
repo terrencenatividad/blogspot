@@ -456,36 +456,7 @@ class controller extends wc_controller {
 
 	private function ajax_load_invoice_details() {
 		$voucherno	= $this->input->post('voucherno');
-
-	/*
-		CHECK SOURCE
-		ADJUST COLUMN NAME
-		RENAME RETRIEVED COLUMNS
-	*/
-
-		$source = substr($voucherno, 0,2);
-		$fields = $this->fields;
-		$fields2 = $this->fields2;
-		if ($source == 'DR') {
-			$table 		= 'deliveryreceipt';
-			$table2 	= 'deliveryreceipt_details';
-			array_push($fields, 'source_no sourceno');
-			array_push($fields2, 'discountamount');
-		}
-
-		elseif ($source == 'SI') {
-			$table 		= 'salesinvoice';
-			$table2 	= 'salesinvoice_details';
-			array_push($fields, 'sourceno');
-			array_push($fields2, 'itemdiscount discountamount');
-		}
-
-	/*
-		END 
-	*/
-
-		$details	= $this->sr_model->getSourceDetails($table2, $fields2, $voucherno);
-		$header		= $this->sr_model->getSourceHeader($table, $fields, $voucherno);
+		$result  	= $this->sr_model->getSource($voucherno);
 
 		$table		= '';
 		$success	= true;
@@ -495,11 +466,10 @@ class controller extends wc_controller {
 			$success	= false;
 		}
 		
-		
 		return array(
 			'table'		=> $table,
-			'details'	=> $details,
-			'header'	=> $header,
+			'details'	=> $result['details'],
+			'header'	=> $result['header'],
 			'success'	=> $success
 		);
 	}

@@ -358,8 +358,8 @@ class inventory_model extends wc_model {
 			$this->quantity_field = 'convissueqty';
 			$this->inventory_movement = -1;
 		} else if ($type == 'Sales Return') {
-			$this->table = 'returns';
-			$this->table_detail = 'returns_details';
+			$this->table = 'inventory_salesreturn';
+			$this->table_detail = 'inventory_salesreturn_details';
 			$this->quantity_field = 'convissueqty';
 			$this->inventory_movement = 1;
 		} else if ($type == 'Purchase Receipt') {
@@ -392,8 +392,7 @@ class inventory_model extends wc_model {
 			$this->table_detail = 'job_release';
 			$this->quantity_field = 'quantity';
 			$this->inventory_movement = 1;
-		}
-		else if ($type == 'Job Release Parts') {
+		} else if ($type == 'Job Release Parts') {
 			$this->table = 'job_release';
 			$this->table_detail = 'job_release';
 			$this->quantity_field = 'quantity';
@@ -445,7 +444,7 @@ class inventory_model extends wc_model {
 								->runSelect()
 								->getResult();
 			
-		}else {
+		} else {
 			$result = $this->db->setTable($this->table_detail)
 								->setFields($this->fields)
 								->setWhere("voucherno = '{$this->voucherno}'")
