@@ -296,6 +296,47 @@
 												<div class="row" id = "create">
 													<input type="hidden" name = "budget_id" id = "budget_id">
 													<div class="col-md-4">
+														<?php
+														echo $ui->formField('text')
+														->setLabel('Date')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('transactiondate')
+														->setId('transactiondate')
+														->setClass('datepicker-input')
+														->setAttribute(array('readonly' => ''))
+														->setAddon('calendar')
+														->setValidation('required')
+														->draw(true);
+														?>
+													</div>
+													<div class="col-md-4">
+														<?php
+														echo $ui->formField('text')
+														->setLabel('Effectivity Date')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('effectivity_date')
+														->setId('effectivity_date')
+														->setClass('datepicker-input')
+														->setAttribute(array('readonly' => ''))
+														->setAddon('calendar')
+														->setValidation('required')
+														->draw(true);
+														?>
+													</div>
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('dropdown')
+														->setLabel('Account Codes')
+														->setPlaceholder('Select one')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('accountcode')
+														->setId('accountcodes')
+														->setValidation('required')
+														->setNone('none')
+														->draw(true);	
+														?>	
+													</div>
+													<div class="col-md-4">
 														<?
 														echo $ui->formField('dropdown')
 														->setLabel('Account Codes')
@@ -330,20 +371,6 @@
 														->setValidation('required decimal')
 														->draw(true);	
 														?>	
-													</div>
-													<div class="col-md-4">
-														<?php
-														echo $ui->formField('text')
-														->setLabel('Effectivity Date')
-														->setSplit('col-md-6', 'col-md-12')
-														->setName('effectivity_date')
-														->setId('effectivity_date')
-														->setClass('datepicker-input')
-														->setAttribute(array('readonly' => ''))
-														->setAddon('calendar')
-														->setValidation('required')
-														->draw(true);
-														?>
 													</div>
 												</div>
 												<br><br>
