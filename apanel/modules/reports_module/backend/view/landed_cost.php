@@ -3,29 +3,51 @@
 		<div class="box-header">
 			<div class="row">
 				<form method="post">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <?php
                         echo $ui->formField('dropdown')
 								->setPlaceholder('Filter IPO')
 								->setName('import_purchase_order')
 								->setId('import_purchase_order')
 								->setList($import_purchase_order_list)
-								->setNone('Filter: All')
+								->setNone('Filter: All IPO')
 								->draw();
                     ?>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <?php
                         echo $ui->formField('dropdown')
 								->setPlaceholder('Filter Supplier')
 								->setName('supplier')
 								->setId('supplier')
 								->setList($supplier_list)
-								->setNone('Filter: All')
+								->setNone('Filter: All Suppliers')
 								->draw();
                     ?>
                 </div>
-				<div class="col-md-3">
+				<div class="col-md-2">
+					<?php
+                        echo $ui->formField('dropdown')
+								->setPlaceholder('Filter Job')
+								->setName('job')
+								->setId('job')
+								->setList($jobs)
+								->setNone('Filter: All Jobs')
+								->draw();
+                    ?>
+				</div>
+				<div class="col-md-2">
+					<?php
+					echo $ui->formField('text')
+							->setPlaceholder('Search Item or Item Code')
+							->setName('item')
+							->setId('item')
+							// ->setList($jobs)
+							// ->setNone('Filter: All Jobs')
+							->draw();
+                    ?>
+				</div>
+				<div class="col-md-2">
 					<?php
 							echo $ui->formField('text')
 									->setName('daterangefilter')
@@ -38,7 +60,7 @@
 					?>
 				</div>
 				<!-- <div class="col-md-3"></div> -->
-				<div class="col-md-3">
+				<div class="col-md-2">
 					<div class="form-group text-right">
 					<a href="<?php echo BASE_URL ?>purchase/job" id="job_link" class="btn btn-primary">Create Job</a>
 						<a href="" id="export_csv" download="Landed_Cost.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
@@ -198,6 +220,12 @@
 
 	$('#supplier').on('change', function() {
 		ajax.supplier 	= $(this).val();
+		ajax.page 		= 1;
+		getList();
+	});
+
+	$('#job').on('change', function() {
+		ajax.job 		= $(this).val();
 		ajax.page 		= 1;
 		getList();
 	});

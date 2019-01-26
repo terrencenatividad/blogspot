@@ -28,6 +28,17 @@ class landed_cost extends wc_model {
 
 		return $result;
 	}
+
+	public function getJobList() {
+		$result = $this->db->setTable('job j')
+							->setFields('j.job_no ind, j.job_no val')
+							->setGroupBy("val")
+							->setOrderBy("val")
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
 	
 	public function getIPODetails($voucherno, $itemcode) {
 		$result = $this->db->setTable('import_purchaseorder_details')
@@ -39,7 +50,7 @@ class landed_cost extends wc_model {
 		return $result;
 	}
 
-	public function getUnitCostLanded($startdate, $enddate, $import_purchase_order, $supplier, $tab) {
+	public function getUnitCostLanded($startdate, $enddate, $import_purchase_order, $supplier, $job, $tab) {
 
 		$fields = array (
 			'ipod.voucherno ipo_num',
@@ -71,9 +82,10 @@ class landed_cost extends wc_model {
 			'i.itemname'
 		);
 
-		$cond_dates = ($startdate && $enddate) ? " AND ipo.transactiondate >= '$startdate' AND ipo.transactiondate <= '$enddate'" : "";
-		$cond_ipo = ($import_purchase_order != "none" && $import_purchase_order != "") ? "AND ipod.voucherno = '$import_purchase_order'" : "";
-		$cond_supplier = ($supplier != "none" && $supplier != "") ? " AND ipo.vendor = '$supplier'" : "";
+		$cond_dates 	= ($startdate && $enddate) ? " AND ipo.transactiondate >= '$startdate' AND ipo.transactiondate <= '$enddate'" : "";
+		$cond_ipo 		= ($import_purchase_order != "none" && $import_purchase_order != "") ? "AND ipod.voucherno = '$import_purchase_order'" : "";
+		$cond_supplier 	= ($supplier != "none" && $supplier != "") ? " AND ipo.vendor = '$supplier'" : "";
+		$cond_job 		= ($job != "none" && $job != "") ? " AND jd.job_no = '$job'" : "";
 		
 		if ($tab == "Completed"){
 			$cond_tab = "AND j.stat = 'closed'";
@@ -93,7 +105,7 @@ class landed_cost extends wc_model {
 							->leftJoin('partners p ON ipo.vendor = p.partnercode')
 							->leftJoin('job j ON jd.job_no = j.job_no')
 							->leftJoin('items i on i.itemcode = ipod.itemcode')
-							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' $cond_tab")
+							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' $cond_job $cond_tab")
 							->setOrderBy('ipod.voucherno ASC, ipod.linenum ASC')
 							->setGroupBy('ipod.voucherno, jd.job_no, i.itemcode')
 							->runPagination();

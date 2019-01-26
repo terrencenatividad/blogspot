@@ -23,6 +23,7 @@ class controller extends wc_controller {
         $data['datefilter'] 		= 	$this->date->datefilterMonth();
         $data['supplier_list']	    =   $this->landed_cost->getSupplierList();
 		$data['import_purchase_order_list']	    =   $this->landed_cost->getImportPurchaseOrderList();
+		$data['jobs']				= 	$this->landed_cost->getJobList();
         $this->view->load('landed_cost', $data);
 
 		// $login						= 	$this->session->get('login');
@@ -42,10 +43,11 @@ class controller extends wc_controller {
 
 	private function ajax_list()
 	{
-		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','tab'));
+		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','job','tab'));
 		$import_purchase_order	= $this->input->post('import_purchase_order');
-		$supplier			= $this->input->post('supplier');
-		$tab = $data['tab'];
+		$supplier				= $this->input->post('supplier');
+		$job 					= $this->input->post('job');
+		$tab 					= $data['tab'];
 		// var_dump($data['tab']);
 		// $datefilter			= $this->input->post('datefilter');
 		// $datefilter			= $this->date->dateDbFormat($datefilter);
@@ -63,7 +65,7 @@ class controller extends wc_controller {
 			// echo $datefilterFrom;
 			// echo " - ".$datefilterTo; 
 
-		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$tab);
+		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$job,$tab);
 		
 		$table = '';
 		$addtl_cost = 0;
