@@ -122,7 +122,7 @@ class controller extends wc_controller {
 			$table .= '<tr>
 						<td class="text-right">'.$item_code.'- '.$item_name.'</td>
 						<td class="text-right">'.$item_desc.'</td>
-						<td class="text-right">'.$ipo_no.'</td>
+						<td class="text-right"><a href="'.BASE_URL."purchase/import_purchaseorder/view/" . $ipo_no . '" target="_blank"> '.$ipo_no.'</a></td>
 						<td class="text-center">'.$transaction_date_display.'</td>
 						<td class="text-center">'.$job_item_quantity.' '.$uom.'</td>
 						
@@ -157,7 +157,7 @@ class controller extends wc_controller {
 			// CALCULATE IMPORTATION COST
 			$importation_cost_unit =  ($item_job_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 			
-			$table .=	'<td class="text-right">'.$job_no.'</td> 
+			$table .=	'<td class="text-right"><a href="'.BASE_URL."purchase/job/view/" . $job_no . '" target="_blank">'.$job_no.'</a></td> 
 						<td class="text-right"><span class="pull-left label label-default">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
 			
 			// LANDED COST CALCS STAGING
