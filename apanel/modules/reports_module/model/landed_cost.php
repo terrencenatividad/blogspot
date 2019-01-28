@@ -119,7 +119,7 @@ class landed_cost extends wc_model {
 							->leftJoin('partners p ON ipo.vendor = p.partnercode')
 							->leftJoin('job j ON jd.job_no = j.job_no')
 							->leftJoin('items i on i.itemcode = ipod.itemcode')
-							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' $cond_job $cond_item")
+							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' AND j.stat = 'closed' $cond_job $cond_item")
 							->setOrderBy('ipod.voucherno ASC, ipod.linenum ASC')
 							->setGroupBy('ipod.voucherno, jd.job_no, i.itemcode')
 							->runPagination();

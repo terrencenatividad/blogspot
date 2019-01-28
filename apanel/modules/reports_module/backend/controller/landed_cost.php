@@ -76,7 +76,7 @@ class controller extends wc_controller {
 		// $foot  = '';
 
 		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="13" class="text-center"><b>No Records Found</b></td></tr>';
 		} else {
 			foreach($pagination->result as $key => $row) {	
 			$item_code = $row->itemcode;
@@ -197,6 +197,7 @@ class controller extends wc_controller {
 		$item					= $this->input->post('itemcode');
 		
 		$daterangefilter	= $data['daterangefilter'];
+		// var_dump($daterangefilter);
 		$datefilter     = (!empty($daterangefilter))? $daterangefilter : '';
 		
 		$date_filter = explode('-', $datefilter);
@@ -218,15 +219,17 @@ class controller extends wc_controller {
 		($job == "") ? $job_export = "All" : $job_export = $job;
 		$item_export = "";
 		($item == "") ? $item_export = "All" : $item_export = $item;
+		$date_export = "";
+		($daterangefilter == "") ? $date_export = "" : $date_export = date('M d Y',strtotime($datefilterFrom)). ' - ' .date('M d Y',strtotime($datefilterTo)). '';;
 
 		$csv 	= '';
 		$csv 	.= 'Landed Cost Report';
 		$csv 	.= "\n\n";
-		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .date('M d Y',strtotime($datefilterFrom)). ' - ' .date('M d Y',strtotime($datefilterTo)). '';
-		$csv 	.= "\n";
-		$csv 	.= 'Job: ' .$job_export. '';
-		$csv 	.= "\n";
-		$csv 	.= 'Item: ' .$item_export. '';
+		$csv 	.= 'IPO: ' .$import_purchase_order_export. 
+		',Supplier: ' .$supplier_export. 
+		',Job: ' .$job_export. 
+		',Item: ' .$item_export. 
+		',Period: ' .$date_export;
 		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$header).'"';
 		$csv 	.= "\n";
