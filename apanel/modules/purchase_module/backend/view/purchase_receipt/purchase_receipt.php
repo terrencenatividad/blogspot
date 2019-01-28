@@ -131,7 +131,7 @@
 													'target'=> "_blank",
 												))
 											// ->addHidden($source_no)
-											// ->setValidation('required')
+											->setValidation('required')
 											->draw($show_input);
 											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
@@ -341,8 +341,8 @@
 							<tr class="info">
 								<th class="col-xs-3">PO No.</th>
 								<th class="col-xs-3">Transaction Date</th>
-								<th class="col-xs-4">Notes</th>
-								<th class="col-xs-2 text-right">Amount</th>
+								<th class="col-xs-6">Notes</th>
+								<!-- <th class="col-xs-2 text-right">Amount</th> -->
 							</tr>
 						</thead>
 						<tbody>
@@ -1530,7 +1530,7 @@
 				$('#vendor').trigger('blur');
 			} else {
 				$('#purchase_tableList tbody').html(`<tr>
-					<td colspan="4" class="text-center">Loading Items</td>
+					<td colspan="3" class="text-center">Loading Items</td>
 				</tr>`);
 				$('#pagination').html('');
 				getList();
