@@ -560,12 +560,12 @@ class controller extends wc_controller
 		->setDocumentInfo($documentinfo)
 		->addReceived();
 
-		$print->setHeaderWidth(array(20, 29, 18, 26, 15, 12, 22, 29, 29))
-		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-		->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency', 'Base Currency'))
-		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R'))
+		$print->setHeaderWidth(array(28, 40, 18, 26, 17, 17, 23, 31))
+		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+		->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
+		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
 		->setSummaryAlign(array('J','R','R', 'R'))	
-		->setSummaryWidth(array('120', '30', '25', '25'));
+		->setSummaryWidth(array('120', '19', '30', '31'));
 
 		$detail_height = 37;
 
@@ -600,25 +600,25 @@ class controller extends wc_controller
 			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2), number_format($convertedamount, 2)),
-											array($notes, 'Freight', number_format($freight, 2), number_format($converted_freight, 2)),
-											array('', 'Insurance', number_format($insurance, 2), number_format($converted_insurance, 2)),
-											array('', 'Packaging', number_format($packaging, 2), number_format($converted_packaging, 2)),
-											array('', 'Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2), number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2)),
-											array('','','','')
-				));
+				$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
+										array($notes, '', 'Freight', number_format($freight, 2)),
+										array('', '', 'Insurance', number_format($insurance, 2)),
+										array('', '', 'Packaging', number_format($packaging, 2)),
+										array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
+										array('','','','')
+));
 				$total_amount = 0;
 			}
 		}
-		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2), number_format($convertedamount, 2)),
-											array($notes, 'Freight', number_format($freight, 2), number_format($converted_freight, 2)),
-											array('', 'Insurance', number_format($insurance, 2), number_format($converted_insurance, 2)),
-											array('', 'Packaging', number_format($packaging, 2), number_format($converted_packaging, 2)),
-											array('', 'Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2), number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2)),
+		$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
+											array($notes, '', 'Freight', number_format($freight, 2)),
+											array('', '', 'Insurance', number_format($insurance, 2)),
+											array('', '', 'Packaging', number_format($packaging, 2)),
+											array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
 											array('','','','')
 		));
 
-		$print->drawPDF('Purchase Order - ' . $voucherno);
+		$print->drawPDF('Import Purchase Order - ' . $voucherno);
 	}
 
 	public function ajax($task)
