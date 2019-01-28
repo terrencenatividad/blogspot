@@ -590,7 +590,7 @@
 					</td>
 					<td class="text-right">
 						<button type="button" id="serial_`+ details.linenum +`" data-itemcode="`+details.itemcode+`" data-item="`+details.detailparticular+`" class="serialize_button btn btn-block btn-success btn-flat">
-							<em class="pull-left"><small>Enter serial numbers (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
+							<em class="pull-left"><small><?php if ($show_input) { ?>Enter<?php } else { ?>View<?php } ?> serial numbers (<span class="receiptqty_serialized_display"><?php if ($show_input == '' || $ajax_task == "ajax_edit") { ?>` + (addComma(details.receiptqty, 0) || 0) + `<?php } else { ?>0<?php }?></span>)</small></em>
 						</button>
 						<?php
 							echo $ui->formField('text')

@@ -24,6 +24,7 @@ class controller extends wc_controller {
         $data['supplier_list']	    =   $this->landed_cost->getSupplierList();
 		$data['import_purchase_order_list']	    =   $this->landed_cost->getImportPurchaseOrderList();
 		$data['jobs']				= 	$this->landed_cost->getJobList();
+		$data['item_list']			=	$this->landed_cost->getItemList();
         $this->view->load('landed_cost', $data);
 
 		// $login						= 	$this->session->get('login');
@@ -43,11 +44,12 @@ class controller extends wc_controller {
 
 	private function ajax_list()
 	{
-		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','job','tab'));
+		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','job','itemcode'));
 		$import_purchase_order	= $this->input->post('import_purchase_order');
 		$supplier				= $this->input->post('supplier');
 		$job 					= $this->input->post('job');
-		$tab 					= $data['tab'];
+		$item					= $this->input->post('itemcode');
+		// $tab 					= $data['tab'];
 		// var_dump($data['tab']);
 		// $datefilter			= $this->input->post('datefilter');
 		// $datefilter			= $this->date->dateDbFormat($datefilter);
@@ -65,7 +67,7 @@ class controller extends wc_controller {
 			// echo $datefilterFrom;
 			// echo " - ".$datefilterTo; 
 
-		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$job,$tab);
+		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$job,$item);
 		
 		$table = '';
 		$addtl_cost = 0;
@@ -120,7 +122,7 @@ class controller extends wc_controller {
 			$table .= '<tr>
 						<td class="text-right">'.$item_code.'- '.$item_name.'</td>
 						<td class="text-right">'.$item_desc.'</td>
-						<td class="text-right">'.$ipo_no.'</td>
+						<td class="text-right"><a href="'.BASE_URL."purchase/import_purchaseorder/view/" . $ipo_no . '" target="_blank"> '.$ipo_no.'</a></td>
 						<td class="text-center">'.$transaction_date_display.'</td>
 						<td class="text-center">'.$job_item_quantity.' '.$uom.'</td>
 						
@@ -155,7 +157,7 @@ class controller extends wc_controller {
 			// CALCULATE IMPORTATION COST
 			$importation_cost_unit =  ($item_job_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 			
-			$table .=	'<td class="text-right">'.$job_no.'</td> 
+			$table .=	'<td class="text-right"><a href="'.BASE_URL."purchase/job/view/" . $job_no . '" target="_blank">'.$job_no.'</a></td> 
 						<td class="text-right"><span class="pull-left label label-default">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
 			
 			// LANDED COST CALCS STAGING
@@ -188,10 +190,11 @@ class controller extends wc_controller {
 
 	private function export()
 	{
-		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','tab'));
+		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','job','itemcode'));
 		$import_purchase_order	= $this->input->post('import_purchase_order');
-		$supplier			= $this->input->post('supplier');
-		$tab = $data['tab'];
+		$supplier				= $this->input->post('supplier');
+		$job 					= $this->input->post('job');
+		$item					= $this->input->post('itemcode');
 		
 		$daterangefilter	= $data['daterangefilter'];
 		$datefilter     = (!empty($daterangefilter))? $daterangefilter : '';
@@ -203,7 +206,7 @@ class controller extends wc_controller {
 		$datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		$datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
 
-		$retrieved = $this->landed_cost->exportUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$tab);
+		$retrieved = $this->landed_cost->exportUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$job,$item);
 		
 		$header	= array('Item','Description','IPO Number','IPO Date','Qty/Unit','IPO Receipt Date','Unit Cost Foreign Currency','Unit Cost Base Currency','Job Number','Importation Cost per Unit','Landed Cost per Unit','Total Landed Cost','Job Status');
 
@@ -211,15 +214,19 @@ class controller extends wc_controller {
 		($import_purchase_order == "") ? $import_purchase_order_export = "All" : $import_purchase_order_export = $import_purchase_order;
 		$supplier_export = "";
 		($supplier == "") ? $supplier_export = "All" : $supplier_export = $supplier;
-		$tab_export = "";
-		($tab == "") ? $tab_export = "All" : $tab_export = $supplier;
+		$job_export = "";
+		($job == "") ? $job_export = "All" : $job_export = $job;
+		$item_export = "";
+		($item == "") ? $item_export = "All" : $item_export = $item;
 
 		$csv 	= '';
 		$csv 	.= 'Landed Cost Report';
 		$csv 	.= "\n\n";
 		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .date('M d Y',strtotime($datefilterFrom)). ' - ' .date('M d Y',strtotime($datefilterTo)). '';
 		$csv 	.= "\n";
-		$csv 	.= 'Job: ' .$tab_export. '';
+		$csv 	.= 'Job: ' .$job_export. '';
+		$csv 	.= "\n";
+		$csv 	.= 'Item: ' .$item_export. '';
 		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$header).'"';
 		$csv 	.= "\n";
