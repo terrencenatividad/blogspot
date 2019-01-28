@@ -65,12 +65,13 @@ class check_task {
 		return $this;
 	}
 	
-	public function addOtherTask($task, $glyphicon, $show = true, $class="") {
+	public function addOtherTask($task, $glyphicon, $show = true, $class="", $attr = array()) {
 		$this->addon[] = (object) array(
 									'task' => $task,
 									'glyphicon' => $glyphicon,
 									'class' => $class,
-									'show' => $show
+									'show' => $show,
+									'attr' => $attr
 								);
 		return $this;
 	}
@@ -107,7 +108,11 @@ class check_task {
 
 				foreach ($this->addon as $addon) {
 					$class = strtolower(str_replace(' ', '_', $addon->task)) . ' ' . $addon->class;
-					$check_task_addon .= ($addon->show) ? '<li><a class="btn-sm link ' . $class . '" data-id="' . $this->value . '"><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i> ' . $addon->task . '</a></li>' : '';
+					$other_attr = '';
+					foreach ($addon->attr as $attr_key => $attr_val) {
+						$other_attr .= $attr_key.' = "'. $attr_val .'"';
+					}
+					$check_task_addon .= ($addon->show) ? '<li><a class="btn-sm link ' . $class . '" data-id="' . $this->value . '" '.$other_attr.'><i class="glyphicon glyphicon-' . $addon->glyphicon . '"></i> ' . $addon->task . '</a></li>' : '';
 				}
 
 				if ($check_task_addon) {
@@ -212,6 +217,7 @@ class check_task {
 			'print'		=> 'print_preview'
 		);
 		$this->addon			= array();
+		$this->addon_attribute  = array();
 		$this->labels			= (object) array(
 			'save'		=> 'Save',
 			'view'		=> 'View',

@@ -38,14 +38,14 @@
 				</div>
 				<div class="col-md-2">
 					<?php
-					echo $ui->formField('text')
-							->setPlaceholder('Search Item or Item Code')
-							->setName('item')
-							->setId('item')
-							// ->setList($jobs)
-							// ->setNone('Filter: All Jobs')
+						echo $ui->formField('dropdown')
+							->setPlaceholder('Select Item')
+							->setName('itemcode')
+							->setId('itemcode')
+							->setList($item_list)
+							->setNone('Filter: All')
 							->draw();
-                    ?>
+					?>
 				</div>
 				<div class="col-md-2">
 					<?php
@@ -54,7 +54,7 @@
 									->setId('daterangefilter')
 									->setAttribute(array('data-daterangefilter' => 'month'))
 									->setAddon('calendar')
-									->setValue($datefilter)
+									// ->setValue($datefilter)
 									// ->setValidation('required')
 									->draw(true);
 					?>
@@ -72,14 +72,14 @@
 	</div>
 
 
-    <div class="nav-tabs-custom">
-        <ul id="filter_tabs" class="nav nav-tabs">
+    <!-- <div class="nav-tabs-custom"> -->
+        <!-- <ul id="filter_tabs" class="nav nav-tabs">
             <li class="active"><a href="#All" data-toggle="tab" data-id="All">All</a></li>
             <li><a href="#Partial" data-toggle="tab" data-id="Partial">Partial</a></li>
             <li><a href="#Completed" data-toggle="tab" data-id="Completed">Completed</a></li>
-        </ul>
+        </ul> -->
 
-		<div class="tab-content no-padding">
+		<!-- <div class="tab-content no-padding"> -->
 			<div id="All" class="tab-pane active">
 				<table id="landedCostListAll" class="landedCostList table table-hover table-striped table-condensed table-bordered" cellpadding="0" cellspacing="0" border="0" width="100%">
 					<thead>
@@ -110,7 +110,7 @@
 				<div id="pagination" class="page"></div>	
 			</div>
 
-			<div id="Partial" class="tab-pane">
+			<!-- <div id="Partial" class="tab-pane">
 				<table id="landedCostListPartial" class="landedCostList table table-hover table-striped table-condensed table-bordered" cellpadding="0" cellspacing="0" border="0" width="100%">
 					<thead>
 						<tr class="info">
@@ -162,10 +162,10 @@
 					
 				</table>
 				<div id="pagination" class="page"></div>	
-			</div>
-		</div>
+			</div> -->
+		<!-- </div> -->
 
-    </div>
+    <!-- </div> -->
 </section>
 
 
@@ -226,6 +226,12 @@
 
 	$('#job').on('change', function() {
 		ajax.job 		= $(this).val();
+		ajax.page 		= 1;
+		getList();
+	});
+
+	$('#itemcode').on('change', function() {
+		ajax.itemcode 	= $(this).val();
 		ajax.page 		= 1;
 		getList();
 	});

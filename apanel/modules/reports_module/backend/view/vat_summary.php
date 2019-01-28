@@ -33,7 +33,7 @@
 			<ul id="filter_tabs" class="nav nav-tabs">
 				<!-- <li class="<?echo ($tab == 'summary_tab') ? 'active' : '';?>"><a href="#Summary" id="summary_tab" role="tab" data-toggle="tab">Summary</a></li> -->
 				<li class="<?echo ($tab == 'output_tab') ? 'active' : '';?>"><a href="output_tab" id="output_tab" role="tab" data-toggle="tab">Sales</a></li>
-				<li class="<?echo ($tab == 'input_tab') ? 'active' : '';?>"><a href="input_tab" id="input_tab" role="tab" data-toggle="tab">Purchase / Billing</a></li>	
+				<li class="<?echo ($tab == 'input_tab') ? 'active' : '';?>"><a href="input_tab" id="input_tab" role="tab" data-toggle="tab">Purchase</a></li>	
 			</ul>
 			<table id="tableList" class="table table-hover table-sidepad">
 				<?php
