@@ -614,7 +614,16 @@ class controller extends wc_controller
 		else if( $task == 'get_duplicate' )
 		{
 			$result = $this->get_duplicate();
+		} 
+		else if( $task == "checkifitemisinbudget") 
+		{
+			$result = $this->checkifitemisinbudget();
 		}
+		else if( $task == "checkifpairexistsinbudget" )
+		{
+			$result = $this->checkifpairexistsinbudget();
+		}
+
 
 		echo json_encode($result); 
 	}
@@ -975,6 +984,35 @@ class controller extends wc_controller
 		
 		$csv .= '"","","","Total ","'. number_format($totalamount,2) .'"';
 		return $csv;
+	}
+
+	private function checkifitemisinbudget(){
+		$itemcode = $this->input->post('itemcode');
+
+		// Get item's purchase account 
+		$ret_acct 	= 	$this->po->get_purchaseaccount($itemcode);
+		$item_acct 	=	isset($ret_acct->expense_account) ? $ret_acct->expense_account : 0;
+
+		// Check if Account is used in a Budget
+		$ret_result = $this->po->checkifaccountisinbudget($item_acct);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+
+	private function checkifpairexistsinbudget() {
+		$itemcode 	= $this->input->post('itemcode');
+		$budget 	= $this->input->post('budgetcode');
+
+		// Get item's purchase account 
+		$ret_acct 	= 	$this->po->get_purchaseaccount($itemcode);
+		$item_acct 	=	isset($ret_acct->expense_account) ? $ret_acct->expense_account : 0;
+
+		// Check if Budget_Accountcode pair exists
+		$ret_result = $this->po->checkifpairexistsinbudget($item_acct, $budget);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
 	}
 }
 ?>
