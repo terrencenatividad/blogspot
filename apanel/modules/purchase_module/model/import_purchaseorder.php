@@ -911,5 +911,33 @@ class import_purchaseorder extends wc_model
 
 		return $result;
 	}
-}
+
+	public function checkifaccountisinbudget($accountcode){
+		$result = $this->db->setTable('budget_details bd')
+						   ->setFields("bd.budget_code")
+						   ->setWhere("bd.accountcode = '$accountcode'")
+						   ->runSelect()
+						   ->getResult();
+		return $result;
+	}
+
+	public function checkifpairexistsinbudget($accountcode, $budget){
+		$result = $this->db->setTable('budget_details bd')
+						   ->setFields("bd.id")
+						   ->setWhere("bd.accountcode = '$accountcode' AND bd.budget_code = '$budget'")
+						   ->runSelect()
+						   ->getRow();
+		return $result;
+	}          
+
+	public function get_purchaseaccount($itemcode){
+		$result = $this->db->setTable("items i")
+							->leftJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode") 	
+							->setFields("IF(i.expense_account!=0, i.expense_account, ic.expense_account) expense_account")
+							->setWhere("i.itemcode = '$itemcode'")
+							->runSelect()
+							->getRow(); 
+		return $result;
+	}
+}	
 ?>
