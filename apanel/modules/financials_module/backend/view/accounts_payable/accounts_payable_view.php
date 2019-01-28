@@ -263,7 +263,7 @@
                                             <?php if($row->debit == 0)  { ?>
                                                 <td class = "remove-margin">
                                                     <div class="col-md-12 currencyamount text-right">
-                                                        <?php echo number_format($row->convertedcredit, 2);?>
+                                                        <?php echo '('. number_format($row->convertedcredit, 2) .')';?>
                                                     </div>
                                                 </td>
                                             <?php } else { ?>
