@@ -1489,7 +1489,7 @@ class controller extends wc_controller
 				->addOtherTask(
 					'Print Check',
 					'print',
-					($chequenumber),
+					($chequenumber && $status == 'posted'),
 					'',
 					array(
 						'data-check' => $chequenumber
