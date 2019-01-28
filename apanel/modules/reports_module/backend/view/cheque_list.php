@@ -6,6 +6,7 @@
 					<div class="col-md-12">
 						<div class="row">
 							<div class = "col-md-11 form-group">
+							<?php if(MOD_EDIT):?>
 								<?php echo $ui->setElement("button")
 										->setId("release")
 										->setClass("btn btn-primary ")
@@ -24,6 +25,7 @@
 										->setPlaceholder('<i class="glyphicon glyphicon-ban-circle"></i>  Cancel <span></span>')
 										->draw();
 								?>
+							<?php endif?>
 							</div>
 							<!-- <div class = "col-md-9"></div> -->
 							<div class = "col-md-1 text-right">
