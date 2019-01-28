@@ -316,6 +316,7 @@
 											->setValue("")
 											->draw($show_input);
 											?>
+											<span class="help-block hidden has-error small budget-error" style='color:red;'><i class="glyphicon glyphicon-exclamation-sign"></i> Please Select a Budget Code</span>
 										</td>
 										<td class = "remove-margin">
 											<?php
@@ -2074,6 +2075,33 @@ function computeWTAX()
 	$('#t_wtax').val(computed_wtax.toFixed(2));
 }
 
+function checkifpairexistsinbudget(itemcode, budget, field, type){
+	$.post('<?=MODULE_URL?>ajax/checkifpairexistsinbudget', "itemcode=" + itemcode + "&budgetcode=" + budget, function(data) {
+		if(data.result == 1){
+			$('#accountchecker-modal').modal('hide');
+			$('#accounterror').html('');
+			if(type == "budget") {
+				field.closest('.form-group').removeClass('has-error');
+				field.closest('tr').find('.budget-error').addClass('hidden');
+			} else {
+				field.closest('tr').find('.budgetcode').find('.form-group').removeClass('has-error');
+				field.closest('tr').find('.budget-error').addClass('hidden');
+			}
+		} else {
+			$('#accountchecker-modal').modal('show');
+			$('#accounterror').html("The account is not in your Budget Code.");
+
+			if(type == "budget") {
+				field.closest('.form-group').addClass('has-error');
+				// field.closest('tr').find('.budget-error').html('Please re-select a budget code.');
+			} else {
+				field.closest('tr').find('.budgetcode').find('.form-group').addClass('has-error');
+				// field.closest('tr').find('.budget-error').html('Please re-select a budget code.');
+
+			}
+		}
+	});
+}
 $(document).ready(function(){
 
 	// -- For Vendor -- 
@@ -2121,19 +2149,38 @@ $(document).ready(function(){
 		
 		$('.itemcode').on('change', function(e) 
 		{
+			var itemfield = $(this);
 			var id = $(this).attr("id");
 			var sup = $('#vendor').val();
 			var cur = $('#currency').val();
+			var value = $(this).val();
+			var budget = $(this).closest('tr').find('.budgetcode').val();
+
 			if(sup != "" && cur != ""){
-				getItemDetails(id);			
-			}
-			else if(sup == ""){
-				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Supplier');
-				setZero();
-			}
-			else if(cur == ""){
-				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Currency');
-				setZero();
+				getItemDetails(id);		
+				if(budget==""){
+					$.post('<?=MODULE_URL?>ajax/checkifitemisinbudget', "itemcode=" + value, function(data) {
+						if(data.result == 1){
+							itemfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
+							itemfield.closest('tr').find('.budget-error').removeClass('hidden');
+						} else {
+							itemfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
+							itemfield.closest('tr').find('.budget-error').addClass('hidden');
+						}
+					});
+				} else {
+					checkifpairexistsinbudget(value, budget, field, 'item');
+					// itemfield.closest('.budget-error').addClass('hidden');
+				}
+			} else {
+				if(sup == ""){
+					$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Supplier');
+					setZero();
+				} 
+				if(cur == ""){
+					$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Currency');
+					setZero();
+				}
 			}
 		});
 
@@ -2292,9 +2339,9 @@ $(document).ready(function(){
 		{	
 			$('#itemsTable tbody tr.clone select').select2('destroy');
 			
-			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
+			var clone 		= $("#itemsTable tbody tr.clone:first").clone(true); 
 
-			var ParentRow = $("#itemsTable tbody tr.clone").last();
+			var ParentRow 	= $("#itemsTable tbody tr.clone").last();
 			
 			var table 		= document.getElementById('itemsTable');
 			var rows 		= table.tBodies[0].rows.length;
@@ -2306,8 +2353,9 @@ $(document).ready(function(){
 			}else{
 				$('#row_limit').modal('show');
 			}
-			
+			// $('.itemcode').change();
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+			// $("#itemsTable tbody tr.clone:last").find('tr').closest('.budget-error').addClass('hidden'); 
 		});
 		
 	// -- For Items -- End
@@ -2562,6 +2610,16 @@ $('#discounttypeModal').on('click','#disc_yes',function(){
 $('#discounttypeModal').on('click','#disc_no',function(){
 	$('#discounttypeModal').modal('hide');
 });
+
+$('#itemsTable').on('change','.budgetcode',function(){
+	var budgetfield= $(this);
+	var budgetcode = $(this).val();
+	var itemcode   = $(this).closest('tr').find('.itemcode').val();
+
+	checkifpairexistsinbudget(itemcode, budgetcode, budgetfield, 'budget');
+	// budgetfield.closest('tr').find('.form-group').removeClass('has-error');
+	// $('.budget-error').addClass('hidden');
+});	
 
 </script>
 <?php endif; ?>
