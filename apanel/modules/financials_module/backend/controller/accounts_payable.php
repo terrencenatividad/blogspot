@@ -95,6 +95,7 @@ class controller extends wc_controller
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data["transactiondate"]    = $this->date->dateFormat();
+		$data["currencycode"]    	= 'PHP';
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
