@@ -27,7 +27,7 @@
                                     ->setSplit('col-md-3', 'col-md-6')
 									->setName('booknumber')
 									->setId('booknumber')
-									->setValidation('required num')
+									// ->setValidation('required num')
 									->setMaxLength(20)
 									->setValue($booknumber)
 									->draw($show_input);
