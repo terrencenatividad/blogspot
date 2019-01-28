@@ -86,7 +86,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h4>Vendor : </h4>
+                                    <h4>Supplier : </h4>
                                 </div>
                             </div>
                             <div class="row">
@@ -476,8 +476,8 @@
         $('.debit').each(function() {
             debit = removeComma($(this).html());
             total_debit += +debit;
-            $('#total_debit').html(addComma(total_debit));
         });
+        $('#total_debit').html(addComma(total_debit));
     }
 
     function sumCredit() {
@@ -487,17 +487,21 @@
         $('.credit').each(function() {
             credit = removeComma($(this).html());
             total_credit += +credit;
-            $('#total_credit').html(addComma(total_credit));
         });
+        $('#total_credit').html(addComma(total_credit));
     }
 
     function sumCurrencyAmount() {
         var total_currency = 0;
         var currency = 0;
         $('.currencyamount').each(function() {
-            currency = removeComma($(this).html());
-            total_currency += +currency;
-            $('#total_currency').html(addComma(total_currency));
+            currency = removeComma($(this).html().replace('(','').replace(')',''));
+            if(removeComma($(this).closest('tr').find('.credit').html()) != 0){
+                total_currency += -currency;
+            }else{
+                total_currency += +currency;
+            }
         });
+        $('#total_currency').html(addComma(total_currency));
     }
 </script>

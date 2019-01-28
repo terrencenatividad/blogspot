@@ -1260,7 +1260,7 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.credit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1281,7 +1281,7 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.debit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1338,8 +1338,8 @@
 			$('.debit').each(function() {
 				debit = removeComma($(this).val());
 				total_debit += +debit;
-				$('#total_debit').val(addComma(total_debit));
 			});
+			$('#total_debit').val(addComma(total_debit));
 		}
 
 		function sumCredit() {
@@ -1349,8 +1349,8 @@
 			$('.credit').each(function() {
 				credit = removeComma($(this).val());
 				total_credit += +credit;
-				$('#total_credit').val(addComma(total_credit));
 			});
+			$('#total_credit').val(addComma(total_credit));
 		}
 
 		function sumCurrencyAmount() {
@@ -1358,9 +1358,13 @@
 			var currency = 0;
 			$('.currencyamount').each(function() {
 				currency = removeComma($(this).val());
-				total_currency += +currency;
-				$('#total_currency').val(addComma(total_currency));
+				if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
+					total_currency += -currency;
+				}else{
+					total_currency += +currency;
+				}
 			});
+			$('#total_currency').val(addComma(total_currency));
 		}
 
 		$('#currencycode').on('change', function() {
