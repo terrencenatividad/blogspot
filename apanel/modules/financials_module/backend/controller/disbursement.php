@@ -488,7 +488,7 @@ class controller extends wc_controller
 		$print->setDocumentType('Disbursement Voucher')
 		->setDocumentInfo($documentinfo[0])
 		->setVendor($vendor)
-				->setVoucherStatus(strtoupper($status->stat))
+		->setVoucherStatus(strtoupper($status->stat))
 				// ->setPayments($chequeArray_2)
 		->setDocumentDetails($documentdetails)
 		->setCheque($chequeArray)
@@ -916,13 +916,16 @@ class controller extends wc_controller
 			}
 		}
 
-		if(empty($error)) {
-			$result    	= array_filter($this->payment_voucher->savePayment($data_post));
-		}
-
 		$code 		= 0;
 		$voucher 	= '';
 		$errmsg 	= array();
+
+		if(empty($error)) {
+			$result    	= array_filter($this->payment_voucher->savePayment($data_post));
+		} else {
+			$code = 1;
+			$result = false;
+		}
 
 		if($result)
 		{

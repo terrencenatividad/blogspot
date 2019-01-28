@@ -138,7 +138,7 @@
 				<div class="modal-body">
 					<div class="row">
 					<div class="modal-body">
-					<p>This may take a while. Are you sure you want to run it? huh?</p>
+					<p>This may take a while. Are you sure you want to run it?</p>
 					</div>
 					<div class="modal-footer text-center">
 						<button type="button" class="btn btn-primary" id = "yes_or_yes">Yes</button>

@@ -287,11 +287,12 @@ class controller extends wc_controller
 			$session			= new session();
 			$get = $session->get('login');
 			$username = $get['username'];
-			$result = false;
 			if($username == $approver) {
 				$fields['status'] = $status;
 				$fields['approved_by'] = $username;
 				$result = $this->budgetting->updateBudgetStatus($fields, $id);
+			} else {
+				$result = false;
 			}
 
 			return array('success' => $result);
@@ -354,8 +355,9 @@ class controller extends wc_controller
 				$table .= '<td align = "center">' . $dropdown . '</td>';
 				$table .= '<td>' . $row->accountname . '</td>';
 				$table .= '<td>' . $row->description . '</td>';
-				$table .= '<td>' . $row->amount . '</td>';
-				$table .= '<td>' . $this->colorStat($row->status) . '</td>';
+				$table .= '<td class = "text-right">' . $row->amount . '</td>';
+				$table .= '<td align = "center">' . $row->effectivity_date . '</td>';
+				$table .= '<td align = "center">' . $this->colorStat($row->status) . '</td>';
 				$table .= '</tr>';
 			}
 			$pagination->table = $table;
@@ -365,6 +367,7 @@ class controller extends wc_controller
 		private function ajax_save_supplement() {
 			$supplements = $this->input->post();
 			$supplements['amount'] = str_replace(',', '', $supplements['amount']);
+			$supplements['effectivity_date'] = date('Y-m-d', strtotime($supplements['effectivity_date']));
 			$result = $this->budgetting->saveSupplement($supplements);
 			return $result;
 		}
@@ -387,6 +390,7 @@ class controller extends wc_controller
 			$fields['accountcode'] = $post['code_edit'];
 			$fields['description'] = $post['description_edit'];
 			$fields['amount'] = str_replace(',','',$post['amount_edit']);
+			$fields['effectivity_date'] = date('Y-m-d', strtotime($post['effectivity_date_edit']));
 			$result = $this->budgetting->updateSupplement($id, $fields);
 			return $result;
 		}
@@ -396,7 +400,7 @@ class controller extends wc_controller
 			$arr = array('status');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'approved';
-			$result = $this->budgetting->updateSupplementAppove($id, $fields);
+			$result = $this->budgetting->updateSupplementApprove($id, $fields);
 			return $result;
 		}
 

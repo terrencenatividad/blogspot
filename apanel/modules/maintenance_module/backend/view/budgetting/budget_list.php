@@ -296,6 +296,47 @@
 												<div class="row" id = "create">
 													<input type="hidden" name = "budget_id" id = "budget_id">
 													<div class="col-md-4">
+														<?php
+														echo $ui->formField('text')
+														->setLabel('Date')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('transactiondate')
+														->setId('transactiondate')
+														->setClass('datepicker-input')
+														->setAttribute(array('readonly' => ''))
+														->setAddon('calendar')
+														->setValidation('required')
+														->draw(true);
+														?>
+													</div>
+													<div class="col-md-4">
+														<?php
+														echo $ui->formField('text')
+														->setLabel('Effectivity Date')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('effectivity_date')
+														->setId('effectivity_date')
+														->setClass('datepicker-input')
+														->setAttribute(array('readonly' => ''))
+														->setAddon('calendar')
+														->setValidation('required')
+														->draw(true);
+														?>
+													</div>
+													<div class="col-md-4">
+														<?
+														echo $ui->formField('dropdown')
+														->setLabel('Account Codes')
+														->setPlaceholder('Select one')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('accountcode')
+														->setId('accountcodes')
+														->setValidation('required')
+														->setNone('none')
+														->draw(true);	
+														?>	
+													</div>
+													<div class="col-md-4">
 														<?
 														echo $ui->formField('dropdown')
 														->setLabel('Account Codes')
@@ -376,6 +417,19 @@
 														->setValidation('decimal')
 														->draw(true);	
 														?>	
+													</div><div class="col-md-4">
+														<?php
+														echo $ui->formField('text')
+														->setLabel('Effectivity Date')
+														->setSplit('col-md-6', 'col-md-12')
+														->setName('effectivity_date_edit')
+														->setId('effectivity_date_edit')
+														->setClass('datepicker-input')
+														->setAttribute(array('readonly' => ''))
+														->setAddon('calendar')
+														->setValidation('required')
+														->draw(true);
+														?>
 													</div>
 												</div>
 												<br><br>
@@ -397,6 +451,7 @@
 															->addHeader('Account Name', array('class' => 'col-md-2 text-center'),'sort', 'ca.accountname')
 															->addHeader('Description', array('class' => 'col-md-2 text-center'),'sort', 'bs.description')
 															->addHeader('Amount', array('class'=> 'col-md-2 text-center'),'sort', 'bs.amount')
+															->addHeader('Effectivity Date', array('class'=> 'col-md-2 text-center'),'sort', 'bs.effectivity_date')
 															->addHeader('Status', array('class'=> 'col-md-2 text-center'))
 															->draw();
 															?>		
@@ -474,6 +529,10 @@
 									$('#accountcodes').val('none');
 									$('#description').val('');
 									$('#amount').val('');
+									$('#supplementForm').removeAttr('hidden');
+									$('#supplementForm').removeAttr('disabled');
+									$('#supplementFormEdit').attr('hidden', 'hidden');
+									$('#supplementFormEdit').attr('disabled', 'hidden');
 								});
 
 								function getBudgetAccounts() {
@@ -494,6 +553,7 @@
 											$('#accountcodes').val('none');
 											$('#description').val('');
 											$('#amount').val('');
+											$('#effectivity_date').val('');
 										});
 									} else {
 										$('#supplementForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
@@ -512,6 +572,9 @@
 								var edit_id = '';
 								$('#itemsTable #list_supplements').on('click', '.edit_supplement', function() {
 									edit_id = $(this).attr('data-id');
+									$('#modalSupplement').animate({
+										scrollTop: 0
+									}, 500);
 									$('#supplementForm').attr('hidden', 'hidden');
 									$('#supplementForm').attr('disabled', 'disabled');
 									$('#supplementFormEdit').removeAttr('hidden');
@@ -522,6 +585,7 @@
 											$('#accountcode_edit').val(data.accountname);
 											$('#description_edit').val(data.description);
 											$('#amount_edit').val(data.amount);
+											$('#effectivity_date_edit').val(data.effectivity_date);
 										}
 									});
 								});

@@ -284,16 +284,16 @@ class controller extends wc_controller {
 				$result4			= $this->purchase_model->removePurchaseReceiptQtyReturned($data, $data2);
 		}
 		
-		// if ($result && $this->inventory_model) {
-		// 	$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
-		// 							->setDetails($data['vendor'])
-		// 							->computeValues()
-		// 							->logChanges();
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Purchase Return', $data['voucherno'])
+									->setDetails($data['vendor'])
+									->computeValues()
+									->logChanges();
 
-		// 	$this->inventory_model->setReference($data['voucherno'])
-		// 							->setDetails($data['vendor'])
-		// 							->generateBalanceTable();
-		// }
+			$this->inventory_model->setReference($data['voucherno'])
+									->setDetails($data['vendor'])
+									->generateBalanceTable();
+		}
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
@@ -352,11 +352,15 @@ class controller extends wc_controller {
 
 	private function ajax_delete() {
 		$delete_id = $this->input->post('delete_id');
+		
 		if ($delete_id) {
 			$result = $this->purchase_model->deletePurchaseReturn($delete_id);
 		}
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
+				$data = $this->purchase_model->getPurchaseReturnById($this->fields, $voucherno);
+				$result2 = $this->purchase_model->deletePurchaseReceiptQtyReturned($data->source_no);
+				
 				$this->inventory_model->prepareInventoryLog('Purchase Return', $voucherno)
 										->computeValues()
 										->logChanges('Cancelled');
@@ -458,9 +462,10 @@ class controller extends wc_controller {
 		$item_ident = $this->input->post('item_ident');
 		$checked_serials = $this->input->post('checked_serials');
 		$voucherno = '';
-		// if ($task=='ajax_edit') {
-		$voucherno = $this->input->post('voucherno');
-		// }
+		// if (task=='ajax_edit') {
+			$voucherno = $this->input->post('voucherno');
+		// } 
+
 		// $curr = $this->delivery_model->getDRSerials($itemcode, $voucherno, $linenum);
 		// if ($curr) {
 		// 	$current_id = explode(",", $curr->serialnumbers);
@@ -484,10 +489,11 @@ class controller extends wc_controller {
 			// else {
 			// 	$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
 			// }
-			$checker = ($row->stat == 'Not Available') ? 'checked disabled' : '';
+			$checker = ($row->stat == 'Not Available') ? 'checked' : '';
+			$disabler = ($task == '') ? 'disabled' : '';
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';
-			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.'></td>';
+			$table .= '<td class = "text-center"><input type = "checkbox" name = "check_id[]" id = "check_id" class = "check_id" value = "'.$row->id.'" '.$checker.' '.$disabler.'></td>';
 			
 			$has_serial 	=	substr($item_ident,0,1);
 			$has_engine 	=	substr($item_ident,1,1);

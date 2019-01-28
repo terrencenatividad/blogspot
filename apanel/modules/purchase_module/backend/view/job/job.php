@@ -259,7 +259,7 @@
         $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_items', {ajax, ipo:ipo,task:task,job:job},function (data) {
             $('#item_tableList tbody').html(data.table);
             $('#item_pagination').html(data.pagination);
-            console.log(data);
+            
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
             }

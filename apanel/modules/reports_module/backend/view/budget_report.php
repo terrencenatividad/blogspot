@@ -91,6 +91,9 @@
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			$('#tableList tbody tr input.monthly_total').each(function() {
 				var val = parseInt($(this).val());
+				if($(this).val() == '-') {
+					val = 0;
+				}
 				total += +val;
 				$('.all_total').html('<strong>'+addComma(total)+'</strong>');
 			});

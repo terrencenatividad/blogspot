@@ -431,10 +431,13 @@
                         $max_val = $maxval;
                     }   
                     if ($maxval) {
+                        $qtyval  = 1;
                         $disable = '';
                     }
-                    else
+                    else{
+                        $qtyval  = 0;
                         $disable = 'disabled';
+                    }
 
                         $table .= '<tr>';
                         

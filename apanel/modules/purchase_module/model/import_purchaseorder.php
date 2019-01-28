@@ -604,7 +604,7 @@ class import_purchaseorder extends wc_model
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $getaccount->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($subtotal > $getbudgetaccount->amount) {
+								if($convertedamount > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
@@ -624,7 +624,7 @@ class import_purchaseorder extends wc_model
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($subtotal > $getbudgetaccount->amount) {
+								if($convertedamount > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}
@@ -661,7 +661,7 @@ class import_purchaseorder extends wc_model
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $getaccount->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($subtotal > $getbudgetaccount->amount) {
+								if($convertedamount > $getbudgetaccount->amount) {
 									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 								}
 							}
@@ -681,7 +681,7 @@ class import_purchaseorder extends wc_model
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								if($subtotal > $getbudgetaccount->amount) {
+								if($convertedamount > $getbudgetaccount->amount) {
 									$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
 							}
