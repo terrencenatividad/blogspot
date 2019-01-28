@@ -61,7 +61,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->tinno . '</td>';
 			$table .= '<td>' . $row->vendor . '</td>';
 			$table .= '<td>' . $row->remarks . '</td>';
-			$table .= '<td>' . $row->ref_no . '</td>';
+			$table .= '<td><a href="' . BASE_URL . 'purchase/purchase_order/view/'.$row->ref_no.'" target = "_blank">' . $row->ref_no . '</a></td>';
 			$table .= '<td class="text-right">' . number_format($amount,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->discount,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->taxamount,2) . '</td>';
