@@ -132,7 +132,8 @@
                                     
                                     <th class="col-md-2">IPO No.</th>
                                     <th class="col-md-2">Item</th>
-                                    <th class="col-md-4">Description</th>
+                                    <th class="col-md-2">Description</th>
+                                    <th class="col-md-2 text-center">Qty Left</th>
                                     <th class="col-md-2 text-center">Qty</th>
                                     <th class="col-md-1 text-right">UOM</th>
                                 </tr>
@@ -229,6 +230,7 @@
                     'ipo_item'   :[],
                     'itemcode'  :[],
                     'qty'       :[],
+                    'qty_left'  :[],
                     'linenum'   :[]
                     };
     var task            = "<?=$task?>";
@@ -332,7 +334,7 @@
     function viewItemList(){
         $("#item_tableList tbody").empty();
         for(var i=0; i<selected.itemcode.length; i++){
-            $("#item_tableList tbody").append("<tr><td>"+ selected.ipo_item[i] +"</td><td></td><td>"+ selected.itemcode[i] +"</td><td class='text-right'>"+ selected.qty[i] +"</td></tr>");
+            $("#item_tableList tbody").append("<tr><td>"+ selected.ipo_item[i] +"</td><td></td><td>"+ selected.itemcode[i] +"</td><td class='text-right'>"+ selected.qty_left[i] +"</td><td class='text-right'>"+ selected.qty[i] +"</td></tr>");
         }
         
     }
@@ -456,6 +458,7 @@
         $("#item_tableList").on("input", ".quantity", function(){
             inputqty = $(this).val();
             maxqty = $(this).data("maxval");
+            $(this).closest('tr').find('.qty_left').val(maxqty-inputqty);
             if (inputqty>maxqty || inputqty =="" || inputqty <1) {
                 $(this).closest("div").addClass("has-error");
             }
@@ -557,6 +560,7 @@
                 selected.ipo_item.push("' . $ipo[$key] . '");
                 selected.itemcode.push("' . $item[$key] . '");
                 selected.linenum.push("' . $linenum[$key] . '");
+                selected.qty_left.push("' . $qty_left[$key] . '");
                 selected.qty.push("' . $qty[$key] . '");';
         }
         echo '  viewItemList();
