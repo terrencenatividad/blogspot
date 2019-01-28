@@ -456,50 +456,20 @@ class controller extends wc_controller {
 
 	private function ajax_load_invoice_details() {
 		$voucherno	= $this->input->post('voucherno');
-
-	/*
-		CHECK SOURCE
-		ADJUST COLUMN NAME
-		RENAME RETRIEVED COLUMNS
-	*/
-
-		$source = substr($voucherno, 0,2);
-		$fields = $this->fields;
-		$fields2 = $this->fields2;
-		if ($source == 'DR') {
-			$table 		= 'deliveryreceipt';
-			$table2 	= 'deliveryreceipt_details';
-			array_push($fields, 'source_no sourceno');
-			array_push($fields2, 'discountamount');
-		}
-
-		elseif ($source == 'SI') {
-			$table 		= 'salesinvoice';
-			$table2 	= 'salesinvoice_details';
-			array_push($fields, 'sourceno');
-			array_push($fields2, 'itemdiscount discountamount');
-		}
-
-	/*
-		END 
-	*/
-
-		$details	= $this->sr_model->getSourceDetails($table2, $fields2, $voucherno);
-		$header		= $this->sr_model->getSourceHeader($table, $fields, $voucherno);
+		$result  	= $this->sr_model->getSource($voucherno);
 
 		$table		= '';
 		$success	= true;
 
-		if (empty($details)) {
+		if (empty($result)) {
 			$table		= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 			$success	= false;
 		}
 		
-		
 		return array(
 			'table'		=> $table,
-			'details'	=> $details,
-			'header'	=> $header,
+			'details'	=> $result['details'],
+			'header'	=> $result['header'],
 			'success'	=> $success
 		);
 	}
@@ -524,31 +494,6 @@ class controller extends wc_controller {
 			}
 		}
 		return $data;
-	}
-
-	public function generate_receivable($trigger,$srno='')
-	{
-		// Get sr Reference
-		$sr_reference 	= $this->sr->getReference("return_ar");
-		$sr_debit 		= $sr_reference->value;
-		
-		$auto_ar		= ($sr_debit == 'yes') ? true : false;
-
-		$sr 			= (!empty($srno)) ? $srno : $this->input->post('voucherno');
-		$result 		= $this->sr->generateReceivable($sr,$auto_ar,$trigger);
-
-		if($result){
-			$code = 1;
-			$msg = "success";
-		}else{
-			$code = 0;
-			$msg = "error";
-		}
-
-		return array(
-			'code' => $code,
-			'result' => $msg
-		);
 	}
 
 }

@@ -177,6 +177,99 @@
 			return $result;
 		}
 
+		public function getSource($voucherno) {
+			$source = substr($voucherno, 0,2);
+
+			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno')";
+
+			if ($source == 'DR') {
+				$table 		= 'deliveryreceipt';
+				$fields 	= array(
+									'voucherno',
+									'customer',
+									'transactiondate',
+									'remarks',
+									'stat',
+									'vat_sales',
+									'vat_exempt',
+									'vat_zerorated',
+									'taxamount',
+									'netamount',
+									'discounttype',
+									'discountamount',
+									'source_no sourceno'
+								);
+				
+				$table_details 	= 'deliveryreceipt_details tbl';
+				$fields_details = array(
+									'itemcode',
+									'detailparticular',
+									'warehouse',
+									'linenum',
+									'serialnumbers',
+									'issueqty - IFNULL('.$sql.', 0) maxqty',
+									'issueqty',
+									'issueuom',
+									'convuom',
+									'convissueqty',
+									'conversion',
+									'unitprice',
+									'taxcode',
+									'taxrate',
+									'taxamount',
+									'discounttype',
+									'discountrate',
+									'discountamount'
+								);
+			}
+
+			elseif ($source == 'SI') {
+				$table 			= 'salesinvoice';
+				$fields 		= array(
+									'voucherno',
+									'customer',
+									'transactiondate',
+									'remarks',
+									'stat',
+									'vat_sales',
+									'vat_exempt',
+									'vat_zerorated',
+									'taxamount',
+									'netamount',
+									'discounttype',
+									'discountamount',
+									'sourceno'
+								);
+
+				$table_details 	= 'salesinvoice_details tbl';
+				$fields_details = array(
+									'itemcode',
+									'detailparticular',
+									'warehouse',
+									'linenum',
+									'serialno',
+									'issueqty - '.$sql.' maxqty',
+									'issueqty',
+									'issueuom',
+									'convuom',
+									'convissueqty',
+									'conversion',
+									'unitprice',
+									'taxcode',
+									'taxrate',
+									'taxamount',
+									'discounttype',
+									'discountrate',
+									'itemdiscount discountamount'
+								);
+			}
+
+			$result['header'] 	= $this->getSourceHeader($table, $fields, $voucherno);
+			$result['details'] 	= $this->getSourceDetails($table_details, $fields_details, $voucherno);
+
+			return $result;
+		}
+
 		public function getSourceHeader($table, $fields, $voucherno) {
 
 			$cond = 'voucherno = "'.$voucherno.'"';

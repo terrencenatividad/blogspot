@@ -612,7 +612,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->remarks . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->netamount, 2) . '</td>';
+			//$table .= '<td class="text-right">' . number_format($row->netamount, 2) . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;
