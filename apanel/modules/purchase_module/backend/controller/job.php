@@ -391,7 +391,6 @@
                 $table .= '<td><input type="checkbox" data-ipono = "' . $row->voucherno . '"></td>';
                 $table .= '<td>' . $row->voucherno . '</td>';
                 $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
-                $table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
                 $table .= '</tr>';
             }
             $table .= '<script>checkExistingIPO();</script>';
