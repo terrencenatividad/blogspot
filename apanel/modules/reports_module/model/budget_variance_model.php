@@ -11,7 +11,7 @@ class budget_variance_model extends wc_model {
 		return $result;
 	}
 
-	public function getBudgetList($costcenter, $budget_type) {
+	public function getBudgetList($costcenter, $budget_type, $date) {
 		$condition = '';
 		$type = '';
 		
@@ -26,6 +26,8 @@ class budget_variance_model extends wc_model {
 		} else {
 			$type .= " AND b.budget_type = '$budget_type'";
 		}
+
+		var_dump($date);
 
 		$result = $this->db->setTable('budget_details bd')
 		->setFields('ca.segment5 segment5, ca.accountname description, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IFNULL(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')

@@ -336,8 +336,7 @@ class controller extends wc_controller
 				$dropdown = $this->ui->loadElement('check_task')
 				->addOtherTask(
 					'Edit Check Series',
-					'pencil',
-					$show_button
+					'pencil'
 				)
 				->addOtherTask(
 					'Delete Check Series',
@@ -345,9 +344,14 @@ class controller extends wc_controller
 					$show_button
 				)
 				->addOtherTask(
-					'Cancel Check Range',
-					'remove-circle',
-					!$show_cancel
+					'Activate',
+					'arrow-up',
+					$show_button
+				)
+				->addOtherTask(
+					'Deactivate',
+					'arrow-down',
+					$show_button
 				)
 				->setValue($row->booknumber)
 				->draw();

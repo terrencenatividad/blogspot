@@ -67,7 +67,7 @@ class budgetting extends wc_model
 	public function getSupplementValues($id)
 	{
 		$result = $this->db->setTable('budget_supplement bs')
-		->setFields('bs.accountcode as accountcode, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status, bs.effectivity_date as effectivity_date')
+		->setFields('bs.accountcode as accountcode, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status, bs.effectivity_date as effectivity_date, bs.transactiondate as transactiondate, bs.prepared_by as prepared_by')
 		->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
 		->setWhere("bs.id = '$id'")
 		->runSelect(false)

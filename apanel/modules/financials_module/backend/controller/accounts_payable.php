@@ -769,7 +769,7 @@ class controller extends wc_controller
 		$details = false;
 		$warning = array();
 		$accountchecker = array();
-		$errors = array();
+		$error = array();
 		$date_check = array();
 
 		$actualbudget = $this->input->post($this->actualbudget);
