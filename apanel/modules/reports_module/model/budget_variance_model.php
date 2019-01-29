@@ -27,8 +27,6 @@ class budget_variance_model extends wc_model {
 			$type .= " AND b.budget_type = '$budget_type'";
 		}
 
-		var_dump($date);
-
 		$result = $this->db->setTable('budget_details bd')
 		->setFields('ca.segment5 segment5, ca.accountname description, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IFNULL(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code')
