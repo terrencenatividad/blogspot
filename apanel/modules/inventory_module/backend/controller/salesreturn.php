@@ -315,12 +315,12 @@ class controller extends wc_controller {
 
 		foreach ($details['itemcode'] as $key => $value) {
 			$arr_voucherno[] 	= $voucherno; 
-			$transtype[] 		= 'SR';
-			$stat 	 			= 'Returned';
+			$arr_transtype[] 		= 'SR';
+			$arr_stat[] 	 		= 'Returned';
 		}
 		$values2 = array(
 					'voucherno' 		=> $arr_voucherno,
-					'transtype' 		=> $transtype,
+					'transtype' 		=> $arr_transtype,
 					'linenum' 			=> $details['linenum'],
 					'itemcode' 			=> $details['itemcode'],
 					'warehouse' 		=> $details['warehouse'],
@@ -341,7 +341,7 @@ class controller extends wc_controller {
 					'taxamount' 		=> $details['taxamount'],
 					'amount' 			=> $details['amount'],
 					'netamount' 		=> $details['netamount'],
-					'stat' 				=> $stat
+					'stat' 				=> $arr_stat
 				);
 
 /*
@@ -494,6 +494,35 @@ class controller extends wc_controller {
 			}
 		}
 		return $data;
+	}
+
+	private function getSerialItemList() {
+		$serialids 	= explode(',', $this->input->post('serials'));
+		$linenum 	= $this->input->post('linenum');
+		$show_input = $this->input->post('showinput');
+		$sourceno 	= $this->input->post('sourceno');
+		$serials 	= $this->sr_model->getSerialItemList($serialids);
+		$taggedserials = $this->sr_model->getTaggedSerial($sourceno);
+		$table 		= '';
+		foreach ($serials as $key => $row) {
+			$state = '';
+			foreach ($taggedserials as $value) {
+				if ($row->id == $value) {
+					$state = 'disabled';
+				}
+			}
+			$table .= '<tr>';
+			if ($show_input) {
+				$table .= '<td><input type="checkbox" class="chkserial" data-serialid="' . $row->id . '"' . $state . '></td>';
+			}
+			$table .= '<td>' . $row->item . '</td>';
+			$table .= '<td>' . $row->serialno . '</td>';
+			$table .= '<td>' . $row->chassisno . '</td>';
+			$table .= '<td>' . $row->engineno . '</td>';
+			$table .= '</tr>';
+		}
+		$table .= '<script>checkSelectedSerial($(".chkserial"));</script>';
+		return $result = array('linenum' => $linenum, 'table' => $table);;
 	}
 
 }
