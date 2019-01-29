@@ -1761,4 +1761,25 @@ class controller extends wc_controller
 		}
 		return array('amount' => $amount, 'budget_check' => $budget_check);
 	}
+
+	private function checkifacctisinbudget(){
+		$accountcode = $this->input->post('accountcode');
+
+		// Check if Account is used in a Budget
+		$ret_result = $this->accounts_payable->checkifaccountisinbudget($accountcode);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+
+	private function checkifpairexistsinbudget() {
+		$accountcode= $this->input->post('accountcode');
+		$budget 	= $this->input->post('budgetcode');
+
+		// Check if Budget_Accountcode pair exists
+		$ret_result = $this->accounts_payable->checkifpairexistsinbudget($accountcode, $budget);
+		$result 	= !empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
 }
