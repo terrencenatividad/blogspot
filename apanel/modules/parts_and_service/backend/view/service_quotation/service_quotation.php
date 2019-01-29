@@ -241,6 +241,7 @@
 								<input type='hidden' class='haswarranty' name='haswarranty[]' value='<?=$row->haswarranty?>'>
 								<input type="hidden" class='isbundle' 	name="isbundle[]" 	value='<?=$row->isbundle?>'>
 								<input type='hidden' class='discounttype_details' name='discounttype_details[]' value='<?=$row->discounttype?>'>
+								<input type='hidden' class='discountamount' name='discountamount[]' 	 	value='<?=$row->discountamount?>'>
 								<input type='hidden' class='taxrate' 	name='taxrate[]' 	value='<?=$row->taxrate?>'>
 								<input type='hidden' class='taxamount' 	name='taxamount[]' 	value='<?=$row->taxamount?>'>
 							</td>
