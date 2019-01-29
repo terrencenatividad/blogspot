@@ -324,7 +324,7 @@ class controller extends wc_controller {
 		$data['job_list']			= $this->job_order->getOption('job_type','code');
 		$data['customer_list']		= $this->job_order->getCustomerList();
 		$data['discount_type_list']	= $this->job_order->getOption('discount_type','value');
-		$data['item_list']			= $this->job_order->getItemList();
+		$data['item_list']			= $this->job_order->getItemList('goods');
 		$data['warehouse_list']		= $this->job_order->getWarehouseList();
 		$data["taxrate_list"]		= $this->job_order->getTaxRateList();
 		$data["taxrates"]			= $this->job_order->getTaxRates();
