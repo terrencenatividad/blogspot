@@ -2300,4 +2300,22 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
+	public function checkifaccountisinbudget($accountcode){
+		$result = $this->db->setTable('budget_details bd')
+						   ->setFields("bd.budget_code")
+						   ->setWhere("bd.accountcode = '$accountcode'")
+						   ->runSelect()
+						   ->getResult();
+		return $result;
+	}
+
+	public function checkifpairexistsinbudget($accountcode, $budget){
+		$result = $this->db->setTable('budget_details bd')
+						   ->setFields("bd.id")
+						   ->setWhere("bd.accountcode = '$accountcode' AND bd.budget_code = '$budget'")
+						   ->runSelect()
+						   ->getRow();
+		return $result;
+	}      
+
 }

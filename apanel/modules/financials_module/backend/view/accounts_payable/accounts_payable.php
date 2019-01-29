@@ -1322,6 +1322,27 @@
 		{
 			$('#vendor_modal').modal('hide');
 		}
+		function checkifpairexistsinbudget(accountcode, budget, field, type){
+			$.post('<?=MODULE_URL?>ajax/checkifpairexistsinbudget', "accountcode=" + accountcode + "&budgetcode=" + budget, function(data) {
+				if(data.result == 1) {
+					$('#accountchecker-modal').modal('hide');
+					$('#accounterror').html('');
+					if(type == "budget") {
+						field.closest('.form-group').removeClass('has-error');
+					} else {
+						field.closest('tr').find('.budgetcode').find('.form-group').removeClass('has-error');
+					}
+				} else {
+					$('#accountchecker-modal').modal('show');
+					$('#accounterror').html("The account is not in your Budget Code.");
+					if(type == "budget") {
+						field.closest('.form-group').addClass('has-error');
+					} else {
+						field.closest('tr').find('.budgetcode').find('.form-group').addClass('has-error');
+					}
+				}
+			});
+		}
 		$('#vendor_button').click(function() 
 		{
 			$('#vendor_modal').modal('show');
@@ -1416,7 +1437,7 @@
 			var rate = removeComma($('#exchangerate').val());
 			var debit = removeComma($(this).val());
 			if(debit != '0') {
-				debit_currency = $(this).val() * rate;
+				debit_currency = debit * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
 				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
@@ -1455,7 +1476,7 @@
 			var rate = removeComma($('#exchangerate').val());
 			var credit = removeComma($(this).val());
 			if(credit != '0') {
-				credit_currency = $(this).val() * rate;
+				credit_currency = credit * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
 				$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
 				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
@@ -1547,13 +1568,13 @@
 			var currency = 0;
 			$('.currencyamount').each(function() {
 				currency = removeComma($(this).val());
-				if($(this).closest('tr').find('.credit').val() > 0){
+				if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
 					total_currency += -currency;
 				}else{
 					total_currency += +currency;
 				}
-				$('#total_currency').val(addComma(total_currency));
 			});
+			$('#total_currency').val(addComma(total_currency));
 		}
 
 		$('#currencycode').on('change', function() {
@@ -1579,6 +1600,9 @@
 		var row = '';
 		$('.accountcode').on('change', function() {
 			var accountcode = $(this).val();
+			var id 			= $(this).attr("id");
+			var acctfield 	= $(this);
+			var budget 		= $(this).closest('tr').find('.budgetcode').val();
 			row = $(this).closest('tr');
 			$.post('<?=MODULE_URL?>ajax/ajax_check_cwt', '&accountcode=' + accountcode, function(data) {
 				if(data.checker == 'true') {
@@ -1588,6 +1612,18 @@
 				} else {
 					$(this).closest('tr').find('.checkbox-select').show();
 					$(this).closest('tr').find('.edit-button').hide();
+				}
+			}).done(function(){
+				if(budget==""){
+					$.post('<?=MODULE_URL?>ajax/checkifacctisinbudget', "accountcode=" + accountcode, function(data) {
+						if(data.result == 1){
+							acctfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
+						} else {
+							acctfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
+						}
+					});
+				} else {
+					checkifpairexistsinbudget(accountcode, budget, acctfield, 'item');
 				}
 			});
 		});
@@ -1841,4 +1877,12 @@
 				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 			}
 		});
+		// For Validation of Budget Code
+		$('#itemsTable').on('change','.budgetcode',function(){
+			var budgetfield= $(this);
+			var budgetcode = $(this).val();
+			var accountcode= $(this).closest('tr').find('.accountcode').val();
+
+			checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+		});	
 	</script>
