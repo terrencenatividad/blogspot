@@ -104,7 +104,6 @@ class controller extends wc_controller {
 			'notes',
 			'job_order.stat',
 			'partnername',
-			'stat'
 		);
 	}
 	public function ajax($task) {
