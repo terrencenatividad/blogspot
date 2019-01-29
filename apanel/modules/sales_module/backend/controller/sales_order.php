@@ -594,7 +594,7 @@ class controller extends wc_controller
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(30, 50, 10, 12, 28, 20, 20, 30))
+		$print->setHeaderWidth(array(30, 30, 10, 12, 28, 30, 30, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C','C','C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price','Discount','Tax','Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R','R','R'))
