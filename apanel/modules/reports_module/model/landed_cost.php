@@ -5,7 +5,9 @@ class landed_cost extends wc_model {
 		$result = $this->db->setTable('partners p')
 							->setFields("DISTINCT p.partnercode ind, p.partnername val")
 							->leftJoin("import_purchaseorder ipo ON p.partnercode = ipo.vendor")
-							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND ipo.stat = 'posted'")
+							->leftJoin("job_details jd ON jd.ipo_no = ipo.voucherno")
+							->leftJoin("job j ON j.job_no = jd.job_no")
+							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND ipo.stat = 'posted' AND j.stat = 'closed'")
 							->setGroupBy("val")
 							->setOrderBy("val")
 							->runSelect()
@@ -19,12 +21,25 @@ class landed_cost extends wc_model {
 							->setFields("ipo.voucherno ind, ipo.voucherno val")
 							->leftJoin("purchasereceipt pr ON pr.source_no = ipo.voucherno")
 							->leftJoin("job_details jd ON jd.ipo_no = ipo.voucherno")
-							->setWhere("ipo.voucherno != '' AND ipo.stat = 'posted' AND jd.job_no != ''")
+							->leftJoin("job j ON j.job_no = jd.job_no")
+							->setWhere("ipo.voucherno != '' AND ipo.stat = 'posted' AND jd.job_no != '' AND j.stat = 'closed'")
 							->setGroupBy("val")
 							->setOrderBy("val")
 							->runSelect()
 							->getResult();
 							// echo $this->db->getQuery();
+
+		return $result;
+	}
+
+	public function getJobList() {
+		$result = $this->db->setTable('job j')
+							->setFields('j.job_no ind, j.job_no val')
+							->setWhere('j.stat = "closed"')
+							->setGroupBy("val")
+							->setOrderBy("val")
+							->runSelect()
+							->getResult();
 
 		return $result;
 	}
@@ -39,7 +54,20 @@ class landed_cost extends wc_model {
 		return $result;
 	}
 
-	public function getUnitCostLanded($startdate, $enddate, $import_purchase_order, $supplier, $tab) {
+	public function getItemList() {
+		$result = $this->db->setTable('job_details jd')
+							->setFields("DISTINCT itemcode ind, CONCAT(itemcode,' - ',description) val")
+							->innerJoin('job j ON j.job_no = jd.job_no')
+							->setWhere('j.stat = "closed"')
+							->setOrderBy('itemcode')
+							->runSelect()
+							->getResult();
+							// echo $this->db->getQuery();
+
+		return $result;
+	}
+
+	public function getUnitCostLanded($startdate, $enddate, $import_purchase_order, $supplier, $job, $item) {
 
 		$fields = array (
 			'ipod.voucherno ipo_num',
@@ -71,17 +99,19 @@ class landed_cost extends wc_model {
 			'i.itemname'
 		);
 
-		$cond_dates = ($startdate && $enddate) ? " AND ipo.transactiondate >= '$startdate' AND ipo.transactiondate <= '$enddate'" : "";
-		$cond_ipo = ($import_purchase_order != "none" && $import_purchase_order != "") ? "AND ipod.voucherno = '$import_purchase_order'" : "";
-		$cond_supplier = ($supplier != "none" && $supplier != "") ? " AND ipo.vendor = '$supplier'" : "";
-		
-		if ($tab == "Completed"){
-			$cond_tab = "AND j.stat = 'closed'";
-		}elseif ($tab == "Partial"){
-			$cond_tab = "AND j.stat = 'on-going'";
-		}else{
-			$cond_tab = "AND j.stat != 'cancelled'";
-		}
+		$cond_dates 	= ($startdate && $enddate) ? " AND ipo.transactiondate >= '$startdate' AND ipo.transactiondate <= '$enddate'" : "";
+		$cond_ipo 		= ($import_purchase_order != "none" && $import_purchase_order != "") ? "AND ipod.voucherno = '$import_purchase_order'" : "";
+		$cond_supplier 	= ($supplier != "none" && $supplier != "") ? " AND ipo.vendor = '$supplier'" : "";
+		$cond_job 		= ($job != "none" && $job != "") ? " AND jd.job_no = '$job'" : "";
+		$cond_item		= ($item != "none" && $item != "") ? " AND jd.itemcode = '$item'" : "";
+
+		// if ($tab == "Completed"){
+		// 	$cond_tab = "AND j.stat = 'closed'";
+		// }elseif ($tab == "Partial"){
+		// 	$cond_tab = "AND j.stat = 'on-going'";
+		// }else{
+		// 	$cond_tab = "AND j.stat != 'cancelled'";
+		// }
 
 		$result = $this->db->setTable('job_details jd')
 							->setFields($fields)
@@ -93,7 +123,7 @@ class landed_cost extends wc_model {
 							->leftJoin('partners p ON ipo.vendor = p.partnercode')
 							->leftJoin('job j ON jd.job_no = j.job_no')
 							->leftJoin('items i on i.itemcode = ipod.itemcode')
-							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' $cond_tab")
+							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' AND j.stat = 'closed' $cond_job $cond_item")
 							->setOrderBy('ipod.voucherno ASC, ipod.linenum ASC')
 							->setGroupBy('ipod.voucherno, jd.job_no, i.itemcode')
 							->runPagination();
@@ -102,7 +132,7 @@ class landed_cost extends wc_model {
 		return $result;
 	}
 
-	public function exportUnitCostLanded($startdate, $enddate, $import_purchase_order, $supplier, $tab) {
+	public function exportUnitCostLanded($startdate, $enddate, $import_purchase_order, $supplier, $job, $item) {
 		$fields = array (
 			'ipod.voucherno ipo_num',
 			'ipod.linenum',
@@ -136,14 +166,16 @@ class landed_cost extends wc_model {
 		$cond_dates = ($startdate && $enddate) ? " AND ipo.transactiondate >= '$startdate' AND ipo.transactiondate <= '$enddate'" : "";
 		$cond_ipo = ($import_purchase_order != "none" && $import_purchase_order != "") ? "AND ipod.voucherno = '$import_purchase_order'" : "";
 		$cond_supplier = ($supplier != "none" && $supplier != "") ? " AND ipo.vendor = '$supplier'" : "";
+		$cond_job 		= ($job != "none" && $job != "") ? " AND jd.job_no = '$job'" : "";
+		$cond_item		= ($item != "none" && $item != "") ? " AND jd.itemcode = '$item'" : "";
 		
-		if ($tab == "Completed"){
-			$cond_tab = "AND j.stat = 'closed'";
-		}elseif ($tab == "Partial"){
-			$cond_tab = "AND j.stat = 'on-going'";
-		}else{
-			$cond_tab = "AND j.stat != 'cancelled'";
-		}
+		// if ($tab == "Completed"){
+		// 	$cond_tab = "AND j.stat = 'closed'";
+		// }elseif ($tab == "Partial"){
+		// 	$cond_tab = "AND j.stat = 'on-going'";
+		// }else{
+		// 	$cond_tab = "AND j.stat != 'cancelled'";
+		// }
 
 		$result = $this->db->setTable('job_details jd')
 							->setFields($fields)
@@ -154,7 +186,7 @@ class landed_cost extends wc_model {
 							->leftJoin('partners p ON ipo.vendor = p.partnercode')
 							->leftJoin('job j ON jd.job_no = j.job_no')
 							->leftJoin('items i on i.itemcode = ipod.itemcode')
-							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' $cond_tab")
+							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' $cond_job $cond_item")
 							->setOrderBy('ipod.voucherno ASC, ipod.linenum ASC')
 							->setGroupBy('ipod.voucherno, jd.job_no, i.itemcode')
 							->runSelect()
@@ -177,7 +209,7 @@ class landed_cost extends wc_model {
 	public function getSumOfAp($job_no) {
 
 		$result = $this->db->setTable('ap_details apd')
-							->setFields('SUM(apd.converteddebit) AS credit')
+							->setFields('SUM(apd.converteddebit) AS debit')
 							->leftJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
 							->setWhere("ap.job_no LIKE '%$job_no%' AND ap.stat = 'posted'")
 							->runSelect()

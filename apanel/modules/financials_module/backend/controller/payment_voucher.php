@@ -1480,6 +1480,21 @@ class controller extends wc_controller
 				$dropdown = $this->ui->loadElement('check_task')
 				->addView()
 				->addEdit($show_edit)
+				->addPrint()
+				->addOtherTask(
+					'Print 2307',
+					'print',
+					$bir_link
+				)
+				->addOtherTask(
+					'Print Check',
+					'print',
+					($chequenumber && $status == 'posted'),
+					'',
+					array(
+						'data-check' => $chequenumber
+					)
+				)
 				->addOtherTask(
 					'Post',
 					'thumbs-up',
@@ -1495,16 +1510,13 @@ class controller extends wc_controller
 					'ban-circle',
 					$show_btn
 				)
-				->addPrint()
-				->addOtherTask(
-					'Print 2307',
-					'print',
-					$bir_link
-				)
-							//->addDelete($show_dlt)
+				// ->addOtherTaskAttribute(
+				// 	'data-check',
+				// 	$chequenumber
+				// )
+				//->addDelete($show_dlt)
 				->addCheckbox($show_btn)
 				->setValue($voucher)
-				->setLabels(array('print' => 'Print Voucher'))
 				->draw();
 
 				
@@ -1521,7 +1533,7 @@ class controller extends wc_controller
 					$table	.= '</tr>';
 				}
 
-				if($paymentmode == 'cheque'){
+				if($paymentmode == 'check'){
 					if($nextvno != $prevvno){
 						$table	.= '<tr>';
 						$table	.= '<td></td>';

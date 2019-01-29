@@ -123,7 +123,12 @@ class controller extends wc_controller {
 							$total_gross[$key3] 	-= ($key == 'Cost' && ($row3)) ? $row3 : 0;
 
 							$total_type[$key3] 		+= (($row3) ? $row3 : 0);
-							$table .= '<td>' . (($row3 == 0) ? number_format(0, 2) : number_format($row3, 2)) . '</td>';
+							if($row3 >= 0){
+								$table .= '<td>' . (($row3 == 0) ? number_format(0, 2) : number_format($row3, 2)) . '</td>';
+							}else{
+								$row3 = $row3 * -1;
+								$table .= '<td>' . (($row3 == 0) ? number_format(0, 2) : '('.number_format($row3, 2)).')' . '</td>';
+							}
 						}
 						$col_num = (isset($key3)) ? $key3 + 1 : 0;
 						for ($num_col = $col_num; $num_col < ($colspan - 1); $num_col++) {
@@ -135,7 +140,12 @@ class controller extends wc_controller {
 				$table .= '<tr class="warning bold">';
 				$table .= '<td class="text-left">Total ' . $key . '</td>';
 				foreach ($total_type as $tot) {
-					$table .= '<td>' . number_format($tot, 2) . '</td>';
+					if($tot >= 0){
+						$table .= '<td>' . number_format($tot, 2) . '</td>';
+					}else{
+						$tot = $tot * -1;
+						$table .= '<td>(' . number_format($tot, 2) . ')</td>';
+					}
 				}
 				for ($num_col = $col_num; $num_col < ($colspan - 1); $num_col++) {
 					$table .= '<td>' . number_format(0, 2) . '</td>';
@@ -148,7 +158,12 @@ class controller extends wc_controller {
 					$table .= '<tr class="warning bold">';
 					$table .= '<td class="text-left">Gross Income</td>';
 					foreach ($total_gross as $tot => $tot_val) {
-						$table 	.= '<td>' . number_format($total_gross[$tot], 2) . '</td>';
+						if($total_gross[$tot] >= 0){
+							$table 	.= '<td>' . number_format($total_gross[$tot], 2) . '</td>';
+						}else{
+							$total_gross[$tot] = $total_gross[$tot] * -1;
+							$table 	.= '<td>(' . number_format($total_gross[$tot], 2) . ')</td>';
+						}
 					}
 					$table .= '</tr>';
 				}
@@ -163,7 +178,12 @@ class controller extends wc_controller {
 			$table .= '<td class="text-left">Total Income/(Loss) Before Income Tax</td>';
 			foreach ($total_type as $tot => $tot_val) {
 				$total_net_income 	= (isset($total_gross[$tot])) ? $total_gross[$tot] - $total_expense[$tot] : - $total_expense[$tot];
-				$table 				.= '<td>' . (($total_net_income == 0) ? number_format(0, 2) : number_format($total_net_income, 2)) . '</td>';
+				if($total_net_income >= 0){
+					$table 				.= '<td>' . (($total_net_income == 0) ? number_format(0, 2) : number_format($total_net_income, 2)) . '</td>';
+				}else{
+					$total_net_income 	 = $total_net_income * -1;
+					$table 				.= '<td>(' . (($total_net_income == 0) ? number_format(0, 2) : number_format($total_net_income, 2)) . ')</td>';
+				}
 			}
 			$table .= '</tr>';
 
@@ -173,7 +193,12 @@ class controller extends wc_controller {
 			$table .= '<td class="text-left">Income Tax</td>';
 			if($total_intax){
 				foreach ($total_intax as $tot => $tot_val) {
-					$table 				.= '<td>' . (($tot_val == 0) ? number_format(0, 2) : number_format($tot_val, 2)) . '</td>';
+					if($tot_val >= 0){
+						$table 				.= '<td>' . (($tot_val == 0) ? number_format(0, 2) : number_format($tot_val, 2)) . '</td>';
+					}else{
+						$tot_val = $tot_val * -1;
+						$table 				.= '<td>(' . (($tot_val == 0) ? number_format(0, 2) : number_format($tot_val, 2)) . ')</td>';
+					}
 				}
 			}else{
 				foreach ($total_type as $tot => $tot_val) { 
@@ -188,7 +213,12 @@ class controller extends wc_controller {
 			$table .= '<td class="text-left">Total Income/(Loss) After Income Tax</td>';
 			foreach ($total_type as $tot => $tot_val) {
 				$total_gross_income 	= (isset($total_gross[$tot])) ? $total_gross[$tot] - $total_expense[$tot] : - $total_expense[$tot];
-				$table 				.= '<td>' . (($total_gross_income == 0) ? number_format(0, 2) : number_format($total_gross_income, 2)) . '</td>';
+				if($total_gross_income >= 0){
+					$table 				.= '<td>' . (($total_gross_income == 0) ? number_format(0, 2) : number_format($total_gross_income, 2)) . '</td>';
+				}else{
+					$total_gross_income = $total_gross_income * -1;
+					$table 				.= '<td>(' . (($total_gross_income == 0) ? number_format(0, 2) : number_format($total_gross_income, 2)) . ')</td>';
+				}
 			}
 			$table .= '</tr>';
 

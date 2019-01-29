@@ -127,7 +127,7 @@
 									echo $ui->formField('text')
 									->setLabel('Due Date')
 									->setSplit('col-md-4', 'col-md-8')
-									->setName('due_date')
+									->setName('duedate')
 									->setId('due_date')
 									->setClass('datepicker-input')
 									->setAttribute(array('readonly' => ''))
@@ -346,12 +346,12 @@
 								<thead>
 									<tr class="info">
 										<th class="col-md-1 text-center">Withholding Tax</th>
-										<th class="col-md-2 text-center">Budget Code</th>
+										<th class="col-md-1 text-center">Budget Code</th>
 										<th class="col-md-2 text-center">Account</th>
 										<th class="col-md-2 text-center">Description</th>
 										<th class="col-md-2 text-center" colspan = "2">Debit</th>
 										<th class="col-md-2 text-center" colspan = "2">Credit</th>
-										<th class="col-md-3 text-center">Currency Amount</th>
+										<th class="col-md-2 text-center">Base Currency Amount</th>
 										<?if($ajax_task != 'view'){?>
 											<th class="col-md-1 center"></th>
 											<?}?>
@@ -485,8 +485,9 @@
 												<td class = "remove-margin">
 													<?php
 													echo $ui->formField('text')
-													->setPlaceholder('00.00')
-													->setSplit('', 'col-md-12')
+													->setPlaceholder('0.00')
+													->setSplit('col-md-2', 'col-md-10')
+													->setLabel('<span class="label label-default base_symbol">PHP</span>')
 													->setName('currencyamount[]')
 													->setId('currencyamount')
 													->setAttribute(array("maxlength" => "20", 'readonly'))
@@ -1260,7 +1261,7 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.credit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1281,7 +1282,7 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.debit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1338,8 +1339,8 @@
 			$('.debit').each(function() {
 				debit = removeComma($(this).val());
 				total_debit += +debit;
-				$('#total_debit').val(addComma(total_debit));
 			});
+			$('#total_debit').val(addComma(total_debit));
 		}
 
 		function sumCredit() {
@@ -1349,8 +1350,8 @@
 			$('.credit').each(function() {
 				credit = removeComma($(this).val());
 				total_credit += +credit;
-				$('#total_credit').val(addComma(total_credit));
 			});
+			$('#total_credit').val(addComma(total_credit));
 		}
 
 		function sumCurrencyAmount() {
@@ -1358,8 +1359,34 @@
 			var currency = 0;
 			$('.currencyamount').each(function() {
 				currency = removeComma($(this).val());
-				total_currency += +currency;
-				$('#total_currency').val(addComma(total_currency));
+				if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
+					total_currency += -currency;
+				}else{
+					total_currency += +currency;
+				}
+			});
+			$('#total_currency').val(addComma(total_currency));
+		}
+
+		function checkifpairexistsinbudget(accountcode, budget, field, type){
+			$.post('<?=MODULE_URL?>ajax/checkifpairexistsinbudget', "accountcode=" + accountcode + "&budgetcode=" + budget, function(data) {
+				if(data.result == 1) {
+					$('#accountchecker-modal').modal('hide');
+					$('#accounterror').html('');
+					if(type == "budget") {
+						field.closest('.form-group').removeClass('has-error');
+					} else {
+						field.closest('tr').find('.budgetcode').find('.form-group').removeClass('has-error');
+					}
+				} else {
+					$('#accountchecker-modal').modal('show');
+					$('#accounterror').html("The account is not in your Budget Code.");
+					if(type == "budget") {
+						field.closest('.form-group').addClass('has-error');
+					} else {
+						field.closest('tr').find('.budgetcode').find('.form-group').addClass('has-error');
+					}
+				}
 			});
 		}
 
@@ -1373,7 +1400,7 @@
 						if($(this).val() != '0.00') {
 							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
 						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
 						}
 					});
 					sumDebit();
@@ -1386,6 +1413,9 @@
 		var row = '';
 		$('.accountcode').on('change', function() {
 			var accountcode = $(this).val();
+			var id 			= $(this).attr("id");
+			var acctfield 	= $(this);
+			var budget 		= $(this).closest('tr').find('.budgetcode').val();
 			row = $(this).closest('tr');
 			$.post('<?=MODULE_URL?>ajax/ajax_check_cwt', '&accountcode=' + accountcode, function(data) {
 				if(data.checker == 'true') {
@@ -1395,6 +1425,18 @@
 				} else {
 					$(this).closest('tr').find('.checkbox-select').show();
 					$(this).closest('tr').find('.edit-button').hide();
+				}
+			}).done(function(){
+				if(budget==""){
+					$.post('<?=MODULE_URL?>ajax/checkifacctisinbudget', "accountcode=" + accountcode, function(data) {
+						if(data.result == 1){
+							acctfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
+						} else {
+							acctfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
+						}
+					});
+				} else {
+					checkifpairexistsinbudget(accountcode, budget, acctfield, 'item');
 				}
 			});
 		});
@@ -1644,4 +1686,12 @@
 				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 			}
 		});
+		// For Validation of Budget Code
+		$('#itemsTable').on('change','.budgetcode',function(){
+			var budgetfield= $(this);
+			var budgetcode = $(this).val();
+			var accountcode= $(this).closest('tr').find('.accountcode').val();
+
+			checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+		});	
 	</script>

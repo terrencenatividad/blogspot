@@ -8,6 +8,7 @@ class controller extends wc_controller {
 		$this->inventory_model	= new inventory_tracking_model();
 		$this->brand_model		= $this->checkoutModel('maintenance_module/brand');
 		$this->item_model		= new item_model();
+		$this->job_order		= $this->checkoutModel('parts_and_service/job_order_model');
 		$this->session			= new session();
 		$this->data = array();
 		$this->view->header_active = 'inventory/tracking/';
@@ -116,6 +117,10 @@ class controller extends wc_controller {
 			}
 			else if (stripos($row->reference, 'PR') !== FALSE) {
 				$table .= '<td><a href="' . BASE_URL . 'purchase/purchase_receipt/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';
+			}
+			else if (stripos($row->reference, 'JR') !== FALSE) {
+				$ref = $this->job_order->getJRByID('job_order_no', $row->reference);
+				$table .= '<td><a href="' . BASE_URL . 'parts_and_service/job_order/view/'.$ref->job_order_no.'" target = "_blank">' . $row->reference . '</a></td>';
 			}
 			else if (stripos($row->reference, 'STA') !== FALSE || stripos( $row->reference, 'ST') !== FALSE) {
 				$table .= '<td><a href="' . BASE_URL . 'inventory/stock_transfer/view/'.$row->reference.'" target = "_blank">' . $row->reference . '</a></td>';

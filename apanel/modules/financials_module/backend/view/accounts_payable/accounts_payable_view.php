@@ -86,7 +86,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <h4>Vendor : </h4>
+                                    <h4>Supplier : </h4>
                                 </div>
                             </div>
                             <div class="row">
@@ -158,12 +158,12 @@
                             <thead>
                                 <tr class="info">
                                     <th class="col-md-1 text-center">Withholding Tax</th>
-                                    <th class="col-md-2 text-center">Budget Code</th>
+                                    <th class="col-md-1 text-center">Budget Code</th>
                                     <th class="col-md-2 text-center">Account</th>
                                     <th class="col-md-2 text-center">Description</th>
                                     <th class="col-md-2 text-center" colspan = "2">Debit</th>
                                     <th class="col-md-2 text-center" colspan = "2">Credit</th>
-                                    <th class="col-md-3 text-center">Currency Amount</th>
+                                    <th class="col-md-2 text-center">Base Currency Amount</th>
                                     <?if($ajax_task != 'view'){?>
                                         <th class="col-md-1 center"></th>
                                         <?}?>
@@ -251,7 +251,7 @@
                                                     </div>
                                                 </td>
                                                 <td class = "remove-margin" colspan = "2">
-                                                 <div class="col-md-2">
+                                                <div class="col-md-2">
                                                     <span class="label label-default currency_symbol"><?php echo $currencycode ?></span>
                                                 </div>
                                                 <div class="col-md-10">
@@ -262,13 +262,19 @@
                                             </td>
                                             <?php if($row->debit == 0)  { ?>
                                                 <td class = "remove-margin">
-                                                    <div class="col-md-12 currencyamount text-right">
-                                                        <?php echo number_format($row->convertedcredit, 2);?>
+                                                    <div class="col-md-2">
+                                                        <span class="label label-default base_symbol">PHP</span>
+                                                    </div>
+                                                    <div class="col-md-10 currencyamount text-right">
+                                                        <?php echo '('. number_format($row->convertedcredit, 2) .')';?>
                                                     </div>
                                                 </td>
                                             <?php } else { ?>
                                                 <td class = "remove-margin">
-                                                    <div class="col-md-12 currencyamount text-right">
+                                                    <div class="col-md-2">
+                                                        <span class="label label-default base_symbol">PHP</span>
+                                                    </div>
+                                                    <div class="col-md-10 currencyamount text-right">
                                                         <?php echo number_format($row->converteddebit, 2);?>
                                                     </div>
                                                 </td>
@@ -476,8 +482,8 @@
         $('.debit').each(function() {
             debit = removeComma($(this).html());
             total_debit += +debit;
-            $('#total_debit').html(addComma(total_debit));
         });
+        $('#total_debit').html(addComma(total_debit));
     }
 
     function sumCredit() {
@@ -487,17 +493,21 @@
         $('.credit').each(function() {
             credit = removeComma($(this).html());
             total_credit += +credit;
-            $('#total_credit').html(addComma(total_credit));
         });
+        $('#total_credit').html(addComma(total_credit));
     }
 
     function sumCurrencyAmount() {
         var total_currency = 0;
         var currency = 0;
         $('.currencyamount').each(function() {
-            currency = removeComma($(this).html());
-            total_currency += +currency;
-            $('#total_currency').html(addComma(total_currency));
+            currency = removeComma($(this).html().replace('(','').replace(')',''));
+            if(removeComma($(this).closest('tr').find('.credit').html()) != 0){
+                total_currency += -currency;
+            }else{
+                total_currency += +currency;
+            }
         });
+        $('#total_currency').html(addComma(total_currency));
     }
 </script>

@@ -23,6 +23,8 @@ class controller extends wc_controller {
         $data['datefilter'] 		= 	$this->date->datefilterMonth();
         $data['supplier_list']	    =   $this->landed_cost->getSupplierList();
 		$data['import_purchase_order_list']	    =   $this->landed_cost->getImportPurchaseOrderList();
+		$data['jobs']				= 	$this->landed_cost->getJobList();
+		$data['item_list']			=	$this->landed_cost->getItemList();
         $this->view->load('landed_cost', $data);
 
 		// $login						= 	$this->session->get('login');
@@ -42,10 +44,12 @@ class controller extends wc_controller {
 
 	private function ajax_list()
 	{
-		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','tab'));
+		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','job','itemcode'));
 		$import_purchase_order	= $this->input->post('import_purchase_order');
-		$supplier			= $this->input->post('supplier');
-		$tab = $data['tab'];
+		$supplier				= $this->input->post('supplier');
+		$job 					= $this->input->post('job');
+		$item					= $this->input->post('itemcode');
+		// $tab 					= $data['tab'];
 		// var_dump($data['tab']);
 		// $datefilter			= $this->input->post('datefilter');
 		// $datefilter			= $this->date->dateDbFormat($datefilter);
@@ -63,7 +67,7 @@ class controller extends wc_controller {
 			// echo $datefilterFrom;
 			// echo " - ".$datefilterTo; 
 
-		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$tab);
+		$pagination = $this->landed_cost->getUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$job,$item);
 		
 		$table = '';
 		$addtl_cost = 0;
@@ -72,7 +76,7 @@ class controller extends wc_controller {
 		// $foot  = '';
 
 		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="13" class="text-center"><b>No Records Found</b></td></tr>';
 		} else {
 			foreach($pagination->result as $key => $row) {	
 			$item_code = $row->itemcode;
@@ -89,7 +93,7 @@ class controller extends wc_controller {
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
+			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
 
 			//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
@@ -97,7 +101,7 @@ class controller extends wc_controller {
 			
 			// CALCULATE UNIT COST
 			$item_ipo_ratio = $total_item_cost / $total_purchase_amount;
-			$unit_cost_foreign = number_format( ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty ) ,2) ;
+			$unit_cost_foreign = ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty );
 
 			// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
@@ -118,7 +122,7 @@ class controller extends wc_controller {
 			$table .= '<tr>
 						<td class="text-right">'.$item_code.'- '.$item_name.'</td>
 						<td class="text-right">'.$item_desc.'</td>
-						<td class="text-right">'.$ipo_no.'</td>
+						<td class="text-right"><a href="'.BASE_URL."purchase/import_purchaseorder/view/" . $ipo_no . '" target="_blank"> '.$ipo_no.'</a></td>
 						<td class="text-center">'.$transaction_date_display.'</td>
 						<td class="text-center">'.$job_item_quantity.' '.$uom.'</td>
 						
@@ -133,15 +137,15 @@ class controller extends wc_controller {
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
-			$query_AP_credit = $this->landed_cost->getSumOfAp($job_no);
+			$query_AP_debit = $this->landed_cost->getSumOfAp($job_no);
 			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
 			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
 
 			// CALCULATE IMPORTATION COSTS
-			$ap_credit = $query_AP_credit->credit;
+			$ap_debit = $query_AP_debit->debit;
 			$cm_credit = $query_CM_credit->credit;
 			$dm_debit = $query_DM_debit->debit;
-			$total_importation_cost = $ap_credit + $cm_credit - $dm_debit; //importation cost/fees from AP,CM,DM
+			$total_importation_cost = $ap_debit + $dm_debit - $cm_credit; //importation cost/fees from AP,CM,DM
 			
 			// CALCULATE TOTAL PURCHASE AMOUNT OF ALL IPO IN JOB
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
@@ -153,10 +157,10 @@ class controller extends wc_controller {
 			// CALCULATE IMPORTATION COST
 			$importation_cost_unit =  ($item_job_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 			
-			$table .=	'<td class="text-right">'.$job_no.'</td> 
+			$table .=	'<td class="text-right"><a href="'.BASE_URL."purchase/job/view/" . $job_no . '" target="_blank">'.$job_no.'</a></td> 
 						<td class="text-right"><span class="pull-left label label-default">'.$base_curr.'</span>'.number_format($importation_cost_unit,2).'</td>';
 			
-				// LANDED COST CALCS STAGING
+			// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
 			$total_landed_cost = $landed_cost_unit * $job_item_quantity;
 			$job_stat = $row->job_stat;
@@ -186,12 +190,14 @@ class controller extends wc_controller {
 
 	private function export()
 	{
-		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','tab'));
+		$data = $this->input->post(array('daterangefilter','supplier','import_purchase_order','job','itemcode'));
 		$import_purchase_order	= $this->input->post('import_purchase_order');
-		$supplier			= $this->input->post('supplier');
-		$tab = $data['tab'];
+		$supplier				= $this->input->post('supplier');
+		$job 					= $this->input->post('job');
+		$item					= $this->input->post('itemcode');
 		
 		$daterangefilter	= $data['daterangefilter'];
+		// var_dump($daterangefilter);
 		$datefilter     = (!empty($daterangefilter))? $daterangefilter : '';
 		
 		$date_filter = explode('-', $datefilter);
@@ -201,7 +207,7 @@ class controller extends wc_controller {
 		$datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		$datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
 
-		$retrieved = $this->landed_cost->exportUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$tab);
+		$retrieved = $this->landed_cost->exportUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$job,$item);
 		
 		$header	= array('Item','Description','IPO Number','IPO Date','Qty/Unit','IPO Receipt Date','Unit Cost Foreign Currency','Unit Cost Base Currency','Job Number','Importation Cost per Unit','Landed Cost per Unit','Total Landed Cost','Job Status');
 
@@ -209,15 +215,21 @@ class controller extends wc_controller {
 		($import_purchase_order == "") ? $import_purchase_order_export = "All" : $import_purchase_order_export = $import_purchase_order;
 		$supplier_export = "";
 		($supplier == "") ? $supplier_export = "All" : $supplier_export = $supplier;
-		$tab_export = "";
-		($tab == "") ? $tab_export = "All" : $tab_export = $supplier;
+		$job_export = "";
+		($job == "") ? $job_export = "All" : $job_export = $job;
+		$item_export = "";
+		($item == "") ? $item_export = "All" : $item_export = $item;
+		$date_export = "";
+		($daterangefilter == "") ? $date_export = "" : $date_export = date('M d Y',strtotime($datefilterFrom)). ' - ' .date('M d Y',strtotime($datefilterTo)). '';;
 
 		$csv 	= '';
 		$csv 	.= 'Landed Cost Report';
 		$csv 	.= "\n\n";
-		$csv 	.= 'IPO: ' .$import_purchase_order_export. ',Supplier: ' .$supplier_export. ',Period: ' .date('M d Y',strtotime($datefilterFrom)). ' - ' .date('M d Y',strtotime($datefilterTo)). '';
-		$csv 	.= "\n";
-		$csv 	.= 'Job: ' .$tab_export. '';
+		$csv 	.= 'IPO: ' .$import_purchase_order_export. 
+		',Supplier: ' .$supplier_export. 
+		',Job: ' .$job_export. 
+		',Item: ' .$item_export. 
+		',Period: ' .$date_export;
 		$csv 	.= "\n\n";
 		$csv 	.= '"' . implode('","',$header).'"';
 		$csv 	.= "\n";
@@ -241,7 +253,7 @@ class controller extends wc_controller {
 			$freight_cost = $row->freight;
 			$insurance_cost = $row->insurance;
 			$packaging_cost = $row->packaging;
-			$addtl_cost = number_format($freight_cost + $insurance_cost + $packaging_cost,2);
+			$addtl_cost = $freight_cost + $insurance_cost + $packaging_cost;
 
 			//TOTAL COST OF IMPORT PURCHASE ORDER
 			$total_ipo_amt = $row->netamount;
@@ -249,7 +261,7 @@ class controller extends wc_controller {
 			
 			// CALCULATE UNIT COST
 			$item_ipo_ratio = $total_item_cost / $total_purchase_amount;
-			$unit_cost_foreign = number_format( ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty ) ,2) ;
+			$unit_cost_foreign = ((($item_ipo_ratio*$addtl_cost) + $total_item_cost) / $item_qty ) ;
 
 			// EXCHANGE RATES STAGING
 			$exchange_curr = $row->exchangecurrency;
@@ -284,15 +296,15 @@ class controller extends wc_controller {
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
-			$query_AP_credit = $this->landed_cost->getSumOfAp($job_no);
+			$query_AP_debit = $this->landed_cost->getSumOfAp($job_no);
 			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
 			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
 
 			// CALCULATE IMPORTATION COSTS
-			$ap_credit = $query_AP_credit->credit;
+			$ap_debit = $query_AP_debit->debit;
 			$cm_credit = $query_CM_credit->credit;
 			$dm_debit = $query_DM_debit->debit;
-			$total_importation_cost = $ap_credit + $cm_credit - $dm_debit; //importation cost/fees from AP,CM,DM
+			$total_importation_cost = $ap_debit + $dm_debit - $cm_credit; //importation cost/fees from AP,CM,DM
 			
 			// CALCULATE TOTAL PURCHASE AMOUNT OF ALL IPO IN JOB
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);

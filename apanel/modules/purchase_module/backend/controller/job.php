@@ -63,22 +63,24 @@
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
 
-            $ipo_item                    = array();
+            $ipo_item                   = array();
             $item                       = array();
             $qty                        = array();
             $linenum                    = array();
+            $qty_left                   = array();
             foreach ($result as $key => $row) {
-                
-                $ipo_item[]      = $row->ipo_no;
+                $getQty = $this->job->getThisQty($row->ipo_no, $row->itemcode, $job);
+                $ipo_item[]     = $row->ipo_no;
                 $item[]         = $row->itemcode;
                 $linenum[]      = $row->linenum;
+                $qty_left[]     = $row->receiptqty - $getQty->count;
                 $qty[]          = $row->qty;
-
             }
             
-            $data['ipo']         = $ipo_item;
+            $data['ipo']        = $ipo_item;
             $data['item']       = $item;
             $data['linenum']    = $linenum;
+            $data['qty_left']   = $qty_left;
             $data['qty']        = $qty;
             $this->view->load('job/job',  $data);
         }
@@ -389,7 +391,6 @@
                 $table .= '<td><input type="checkbox" data-ipono = "' . $row->voucherno . '"></td>';
                 $table .= '<td>' . $row->voucherno . '</td>';
                 $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
-                $table .= '<td class="text-right">' . number_format($row->amount, 2) . '</td>';
                 $table .= '</tr>';
             }
             $table .= '<script>checkExistingIPO();</script>';
@@ -415,14 +416,19 @@
 
                 foreach ($pagination->result as $key => $row) {
                     
-                    $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode, $job_no);
-                    
+                    $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode, $job_no, $task);
                     if (empty($taggedqty)) {
                         $maxval = $row->receiptqty;
                     }
                     else
                         $maxval = $row->receiptqty - $taggedqty[0]->count;
-                    
+                    if ($task == 'update') {
+                        $qty = $this->job->getThisQty($row->voucherno, $row->itemcode, $job_no);
+                        $max_val = $maxval + $qty->count;
+                    }
+                    else {
+                        $max_val = $maxval;
+                    }   
                     if ($maxval) {
                         $qtyval  = 1;
                         $disable = '';
@@ -451,13 +457,20 @@
                         $table .= '<td class = "td_ipono">' . $row->voucherno . '</td>';
                         $table .= '<td>' . $row->itemcode . " - " . $row->detailparticular . '</td>';
                         $table .= '<td></td>';
+                        $table .= '<td style = "padding-right:20px">';
+                        $table .= $this->ui->formField('text')
+											->setAttribute(array("readOnly"=>"readOnly"))
+											->setClass("qty_left input_label text-right")
+											->setValue(number_format($maxval,0))
+											->draw(true);
+                        $table .= '</td>';
                         $table .= '<td>';
                         $table .= $this->ui->formField('text')
                                             ->setName('txtquantity[]')
                                             ->setCLass('quantity text-right')
                                             ->setMaxLength(12)
-                                            ->setValue($qtyval)
-                                            ->setAttribute(array("data-maxval"=>$maxval, $disable))
+                                            ->setValue($maxval)
+                                            ->setAttribute(array("data-maxval"=>$max_val))
                                             ->setValidation('integer') //required code
                                             ->draw(true);
                         $table .= '</td>';
