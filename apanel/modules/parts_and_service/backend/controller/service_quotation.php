@@ -313,6 +313,7 @@ class controller extends wc_controller {
 		$quote_details 		= $this->input->post($this->fields_details);
 		$submit 			= $this->input->post('submit');
 
+
 		$transactiondate 	= date('Y-m-d', strtotime($quote['transactiondate']));
 		$targetdate 		= date('Y-m-d', strtotime($quote['targetdate']));
 		$fiscalyear 		= date('Y', strtotime($transactiondate));
@@ -417,9 +418,15 @@ class controller extends wc_controller {
 
 		$delete1 	= $this->service_quotation->deleteData('servicequotation_details', $cond);
 
+		foreach ($quote_details['itemcode'] as $key => $value) {
+			$arr_voucherno[] 	= $voucherno;
+			$arr_transtype[] 	= 'SEQ';
+			$arr_stat[] 		= 'Pending';
+		}
+
 		$values = array(
-					'voucherno' 		=> $voucherno,
-					'transtype' 		=> 'SEQ',
+					'voucherno' 		=> $arr_voucherno,
+					'transtype' 		=> $arr_transtype,
 					'itemcode' 			=> $quote_details['itemcode'],
 					'linenum' 			=> $quote_details['linenum'],
 					'haswarranty' 		=> $quote_details['haswarranty'],
@@ -439,7 +446,7 @@ class controller extends wc_controller {
 					'discounttype' 		=> $quote_details['discounttype_details'],
 					'discountrate' 		=> str_replace(',', '', $quote_details['discount']),
 					'discountamount' 	=> str_replace(',', '', $quote_details['discountamount']),
-					'stat' 				=> 'Pending'
+					'stat' 				=> $arr_stat
 		);
 		$result2 = $this->service_quotation->saveFromPost('servicequotation_details', $values);
 		
