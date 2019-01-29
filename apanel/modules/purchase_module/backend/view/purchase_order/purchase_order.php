@@ -1767,6 +1767,34 @@ function computeWTAX()
 	$('#t_wtax').val(computed_wtax.toFixed(2));
 }
 
+function checkifpairexistsinbudget(itemcode, budget, field, type){
+	$.post('<?=MODULE_URL?>ajax/checkifpairexistsinbudget', "itemcode=" + itemcode + "&budgetcode=" + budget, function(data) {
+		if(data.result == 1){
+			$('#accountchecker-modal').modal('hide');
+			$('#accounterror').html('');
+			if(type == "budget") {
+				field.closest('.form-group').removeClass('has-error');
+				// field.closest('tr').find('.budget-error').addClass('hidden');
+			} else {
+				field.closest('tr').find('.budgetcode').find('.form-group').removeClass('has-error');
+				// field.closest('tr').find('.budget-error').addClass('hidden');
+			}
+		} else {
+			$('#accountchecker-modal').modal('show');
+			$('#accounterror').html("The account is not in your Budget Code.");
+
+			if(type == "budget") {
+				field.closest('.form-group').addClass('has-error');
+				// field.closest('tr').find('.budget-error').html('Please re-select a budget code.');
+			} else {
+				field.closest('tr').find('.budgetcode').find('.form-group').addClass('has-error');
+				// field.closest('tr').find('.budget-error').html('Please re-select a budget code.');
+
+			}
+		}
+	});
+}
+
 $(document).ready(function(){
 
 	// -- For Vendor -- 
@@ -1812,8 +1840,25 @@ $(document).ready(function(){
 		$('.itemcode').on('change', function(e) 
 		{
 			var id = $(this).attr("id");
+			var itemfield = $(this);
+			var value = $(this).val();
+			var budget = $(this).closest('tr').find('.budgetcode').val();
+
 			getItemDetails(id);
-			
+			if(budget==""){
+				$.post('<?=MODULE_URL?>ajax/checkifitemisinbudget', "itemcode=" + value, function(data) {
+					if(data.result == 1){
+						itemfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
+						// itemfield.closest('tr').find('.budget-error').removeClass('hidden');
+					} else {
+						itemfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
+						// itemfield.closest('tr').find('.budget-error').addClass('hidden');
+					}
+				});
+			} else {
+				checkifpairexistsinbudget(value, budget, field, 'item');
+				// itemfield.closest('.budget-error').addClass('hidden');
+			}
 		});
 
 		$('.warehouse').on('change', function(e) 
@@ -2080,6 +2125,18 @@ $(document).ready(function(){
 	});
 	
 	// -- For Deletion of Item Per Row -- End
+
+	// For Validation of Budget Code
+	$('#itemsTable').on('change','.budgetcode',function(){
+		var budgetfield= $(this);
+		var budgetcode = $(this).val();
+		var itemcode   = $(this).closest('tr').find('.itemcode').val();
+
+		checkifpairexistsinbudget(itemcode, budgetcode, budgetfield, 'budget');
+		// budgetfield.closest('tr').find('.form-group').removeClass('has-error');
+		// $('.budget-error').addClass('hidden');
+	});	
+
 });
 
 </script>

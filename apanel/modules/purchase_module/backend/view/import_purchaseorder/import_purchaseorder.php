@@ -2082,10 +2082,10 @@ function checkifpairexistsinbudget(itemcode, budget, field, type){
 			$('#accounterror').html('');
 			if(type == "budget") {
 				field.closest('.form-group').removeClass('has-error');
-				field.closest('tr').find('.budget-error').addClass('hidden');
+				// field.closest('tr').find('.budget-error').addClass('hidden');
 			} else {
 				field.closest('tr').find('.budgetcode').find('.form-group').removeClass('has-error');
-				field.closest('tr').find('.budget-error').addClass('hidden');
+				// field.closest('tr').find('.budget-error').addClass('hidden');
 			}
 		} else {
 			$('#accountchecker-modal').modal('show');
@@ -2162,10 +2162,10 @@ $(document).ready(function(){
 					$.post('<?=MODULE_URL?>ajax/checkifitemisinbudget', "itemcode=" + value, function(data) {
 						if(data.result == 1){
 							itemfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
-							itemfield.closest('tr').find('.budget-error').removeClass('hidden');
+							// itemfield.closest('tr').find('.budget-error').removeClass('hidden');
 						} else {
 							itemfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
-							itemfield.closest('tr').find('.budget-error').addClass('hidden');
+							// itemfield.closest('tr').find('.budget-error').addClass('hidden');
 						}
 					});
 				} else {
