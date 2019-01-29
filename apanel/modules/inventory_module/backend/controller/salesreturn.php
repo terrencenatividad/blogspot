@@ -16,7 +16,7 @@ class controller extends wc_controller {
 			'customer',
 			'transactiondate',
 			'remarks',
-			'stat',
+			'job_order.stat',
 			'vat_sales',
 			'vat_exempt',
 			'vat_zerorated',
@@ -327,6 +327,7 @@ class controller extends wc_controller {
 					'detailparticular' 	=> $details['detailparticular'],
 					'defective' 		=> $details['defective'],
 					'replacement' 		=> $details['replacement'],
+					'serialnumbers' 	=> $details['serialnumbers'],
 					'issueuom' 			=> $details['issueuom'],
 					'issueqty' 			=> $details['issueqty'],
 					'convissueqty' 		=> $details['convissueqty'],
@@ -354,10 +355,6 @@ class controller extends wc_controller {
 		$result		= $this->sr_model->saveSalesReturn($values, $values2);
 		
 		if ($result) {
-
-			if (substr($header['source_no'], 0, 2) == 'SI') {
-				$this->generate_receivable('yes',$voucherno);
-			}
 
 			if ($this->inventory_model) {
 				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
