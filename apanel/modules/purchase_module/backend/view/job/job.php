@@ -199,9 +199,8 @@
                         <thead>
                             <tr class="info">
                                 <th><input type="checkbox" class="checkall text-center col-md-1" style="width:100px;"></th>
-                                <th class="col-xs-4">IPO No.</th>
-                                <th class="col-xs-3">Date</th>
-                                <th class="col-xs-2 text-right">Amount</th>
+                                <th class="col-xs-5">IPO No.</th>
+                                <th class="col-xs-6">Date</th>
                             </tr>
                         </thead>
                         <tbody>

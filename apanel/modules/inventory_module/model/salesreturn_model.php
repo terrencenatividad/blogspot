@@ -247,7 +247,7 @@
 									'detailparticular',
 									'warehouse',
 									'linenum',
-									'serialno',
+									'serialno serialnumbers',
 									'issueqty - '.$sql.' maxqty',
 									'issueqty',
 									'issueuom',
@@ -557,6 +557,35 @@
 			return $result;
 		}
 
+		public function getSerialItemList($serialids) {
+			$serialno = array();
+			foreach ($serialids as $value) {
+				$result = $this->db->setTable('items_serialized serial')
+									->setFields('serial.id, CONCAT(i.itemcode, " - ", i.itemname) item, serialno, engineno, chassisno')
+									->leftJoin('items i ON i.itemcode = serial.itemcode')
+									->setWhere("id='$value'")
+									->setOrderBy('id')
+									->runSelect()
+									->getRow();
+				array_push($serialno, $result);
+			}
+			return $serialno;
+		}
+
+		public function getTaggedSerial($sourceno) {
+			$serialno = array();
+			$result = $this->db->setTable('inventory_salesreturn_details srd')
+								->setFields('serialnumbers')
+								->leftJoin('inventory_salesreturn sr ON sr.voucherno = srd.voucherno')
+								->setWhere("source_no='$sourceno'")
+								->runSelect()
+								->getResult();
+
+			foreach ($result as $key => $row) {
+				array_push($serialno, explode(',',$result->serialnumbers));
+			}
+			return $serialno;
+		}
 
 		// public function getPackingList($customer) 
 		// {

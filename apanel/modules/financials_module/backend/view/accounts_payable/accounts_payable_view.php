@@ -158,12 +158,12 @@
                             <thead>
                                 <tr class="info">
                                     <th class="col-md-1 text-center">Withholding Tax</th>
-                                    <th class="col-md-2 text-center">Budget Code</th>
+                                    <th class="col-md-1 text-center">Budget Code</th>
                                     <th class="col-md-2 text-center">Account</th>
                                     <th class="col-md-2 text-center">Description</th>
                                     <th class="col-md-2 text-center" colspan = "2">Debit</th>
                                     <th class="col-md-2 text-center" colspan = "2">Credit</th>
-                                    <th class="col-md-3 text-center">Currency Amount</th>
+                                    <th class="col-md-2 text-center">Base Currency Amount</th>
                                     <?if($ajax_task != 'view'){?>
                                         <th class="col-md-1 center"></th>
                                         <?}?>
@@ -251,7 +251,7 @@
                                                     </div>
                                                 </td>
                                                 <td class = "remove-margin" colspan = "2">
-                                                 <div class="col-md-2">
+                                                <div class="col-md-2">
                                                     <span class="label label-default currency_symbol"><?php echo $currencycode ?></span>
                                                 </div>
                                                 <div class="col-md-10">
@@ -262,13 +262,19 @@
                                             </td>
                                             <?php if($row->debit == 0)  { ?>
                                                 <td class = "remove-margin">
-                                                    <div class="col-md-12 currencyamount text-right">
+                                                    <div class="col-md-2">
+                                                        <span class="label label-default base_symbol">PHP</span>
+                                                    </div>
+                                                    <div class="col-md-10 currencyamount text-right">
                                                         <?php echo '('. number_format($row->convertedcredit, 2) .')';?>
                                                     </div>
                                                 </td>
                                             <?php } else { ?>
                                                 <td class = "remove-margin">
-                                                    <div class="col-md-12 currencyamount text-right">
+                                                    <div class="col-md-2">
+                                                        <span class="label label-default base_symbol">PHP</span>
+                                                    </div>
+                                                    <div class="col-md-10 currencyamount text-right">
                                                         <?php echo number_format($row->converteddebit, 2);?>
                                                     </div>
                                                 </td>
