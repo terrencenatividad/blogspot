@@ -569,12 +569,9 @@ class purchase_order extends wc_model
 							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
-
-							echo $this->db->getQuery();
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
-								var_dump($getbudgetaccount->amount);
 								if($subtotal > $getbudgetaccount->amount) {
 									$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 								}
@@ -853,6 +850,34 @@ class purchase_order extends wc_model
 		->runSelect()
 		->getResult();
 
+		return $result;
+	}
+
+	public function checkifaccountisinbudget($accountcode){
+		$result = $this->db->setTable('budget_details bd')
+						   ->setFields("bd.budget_code")
+						   ->setWhere("bd.accountcode = '$accountcode'")
+						   ->runSelect()
+						   ->getResult();
+		return $result;
+	}
+
+	public function checkifpairexistsinbudget($accountcode, $budget){
+		$result = $this->db->setTable('budget_details bd')
+						   ->setFields("bd.id")
+						   ->setWhere("bd.accountcode = '$accountcode' AND bd.budget_code = '$budget'")
+						   ->runSelect()
+						   ->getRow();
+		return $result;
+	}          
+
+	public function get_purchaseaccount($itemcode){
+		$result = $this->db->setTable("items i")
+							->leftJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode") 	
+							->setFields("IF(i.expense_account!=0, i.expense_account, ic.expense_account) expense_account")
+							->setWhere("i.itemcode = '$itemcode'")
+							->runSelect()
+							->getRow(); 
 		return $result;
 	}
 }

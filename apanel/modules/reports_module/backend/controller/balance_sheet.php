@@ -90,7 +90,12 @@ class controller extends wc_controller {
 								$total[$key4] += (($row4) ? $row4 : 0);
 							}
 							$total_type[$key4] += (($row4) ? $row4 : 0);
-							$table .= '<td>' . number_format($row4, 2) . '</td>';
+							if($row4 >= 0){
+								$table .= '<td>' . number_format($row4, 2) . '</td>';
+							}else{
+								$row4 = $row4 * -1;
+								$table .= '<td>(' . number_format($row4, 2) . ')</td>';
+							}
 						}
 						$col_num = (isset($key4)) ? $key4 + 1 : 0;
 						for ($num_col = $col_num; $num_col < ($colspan - 1); $num_col++) {
@@ -102,7 +107,12 @@ class controller extends wc_controller {
 				$table .= '<tr class="warning bold">';
 				$table .= '<td class="text-left">Total ' . $key . '</td>';
 				foreach ($total_type as $tot) {
-					$table .= '<td>' . number_format($tot, 2) . '</td>';
+					if($tot >= 0){
+						$table .= '<td>' . number_format($tot, 2) . '</td>';
+					}else{
+						$tot = $tot * -1;
+						$table .= '<td>(' . number_format($tot, 2) . ')</td>';
+					}
 				}
 				for ($num_col = $col_num; $num_col < ($colspan - 1); $num_col++) {
 					$table .= '<td>' . number_format(0, 2) . '</td>';
@@ -114,7 +124,12 @@ class controller extends wc_controller {
 			$table .= '<tr class="warning bold">';
 			$table .= '<td class="text-left">Total Liabilities and Equity</td>';
 			foreach ($total as $tot) {
-				$table .= '<td>' . number_format($tot, 2) . '</td>';
+				if($tot >= 0){
+					$table .= '<td>' . number_format($tot, 2) . '</td>';
+				}else{
+					$tot = $tot * -1;
+					$table .= '<td>(' . number_format($tot, 2) . ')</td>';
+				}
 			}
 			for ($num_col = $col_num; $num_col < ($colspan - 1); $num_col++) {
 				$table .= '<td>' . number_format(0, 2) . '</td>';

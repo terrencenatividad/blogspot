@@ -32,7 +32,9 @@ class inventory_model extends wc_model {
 			'purchasereceiptQty',
 			'purchasereturnQty',
 			'adjustmentsQty',
-			'transferedQty'
+			'transferedQty',
+			'joborderQty',
+			'jobreleasedQty'
 		);
 		$bb = $this->db->setTable('inv_beg_balance b')
 						->setFields($this->createFields('bb', 'quantity'))
@@ -125,29 +127,33 @@ class inventory_model extends wc_model {
 						->setFields('*')
 						->buildSelect();
 
-		//Issue Parts
+		//Job Order
+		$jo = $this->db->setTable('job_order a')
+						->innerJoin('job_order_details b ON a.job_order_no = b.job_order_no AND a.companycode = b.companycode')
+						->setFields($this->createFields('jo', 'quantity'))
+						->setWhere("a.stat IN('prepared', 'partial', 'completed')")
+						->buildSelect();
+
 		$jr = $this->db->setTable('job_release b')
 						->setFields($this->createFields('jr', 'quantity'))
 						->setWhere("stat = 'released'")
 						->buildSelect();
 
 		$inner_query = $bb . ' UNION ALL ' . $so . ' UNION ALL ' . $dr . ' UNION ALL ' . $si . ' UNION ALL ' . $sr . ' UNION ALL ' . $xr;
-		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st . ' UNION ALL ' . $jr;
+		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st . ' UNION ALL ' . $jo . ' UNION ALL ' . $jr;
 
 		$inner_query = $this->db->setTable("($inner_query) i")
-								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st')
+								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st, SUM(jo) jo, SUM(jr) jr')
 								->setWhere("warehouse != ''")
 								->setGroupBy('warehouse, itemcode')
 								->buildSelect();
 
 		$inv_check = $this->db->setTable("($inner_query) i")
 								->leftJoin('invdtlfile id ON i.ic = id.itemcode AND i.companycode = id.companycode AND i.wh = id.warehouse')
-								->setFields('i.ic itemcode, i.wh warehouse, beginningQty, IFNULL(bb, 0) - IFNULL(beginningQty, 0) bb, salesorderQty, IFNULL(so, 0) - IFNULL(salesorderQty, 0) so, deliveredQty,  IFNULL(dr, 0) - IFNULL(deliveredQty, 0) dr, salesinvoiceQty, IFNULL(si, 0) - IFNULL(salesinvoiceQty, 0) si, salesreturnQty, IFNULL(sr, 0) - IFNULL(salesreturnQty, 0) sr, salesscrapQty, IFNULL(xr, 0) - IFNULL(salesscrapQty, 0) xr, purchaseorderQty, IFNULL(po, 0) - IFNULL(purchaseorderQty, 0) po, purchasereceiptQty,  IFNULL(pr, 0) - IFNULL(purchasereceiptQty, 0) pr, purchasereturnQty, IFNULL(pt, 0) - IFNULL(purchasereturnQty, 0) pt, adjustmentsQty, IFNULL(ia, 0) - IFNULL(adjustmentsQty, 0) ia, transferedQty, IFNULL(st, 0) - IFNULL(transferedQty, 0) st')
-								->setHaving('bb != 0 OR so != 0 OR dr != 0 OR si != 0 OR sr != 0 OR xr != 0 OR po != 0 OR pr != 0 OR pt != 0 OR ia != 0 OR st != 0')
+								->setFields('i.ic itemcode, i.wh warehouse, beginningQty, IFNULL(bb, 0) - IFNULL(beginningQty, 0) bb, salesorderQty, IFNULL(so, 0) - IFNULL(salesorderQty, 0) so, deliveredQty,  IFNULL(dr, 0) - IFNULL(deliveredQty, 0) dr, salesinvoiceQty, IFNULL(si, 0) - IFNULL(salesinvoiceQty, 0) si, salesreturnQty, IFNULL(sr, 0) - IFNULL(salesreturnQty, 0) sr, salesscrapQty, IFNULL(xr, 0) - IFNULL(salesscrapQty, 0) xr, purchaseorderQty, IFNULL(po, 0) - IFNULL(purchaseorderQty, 0) po, purchasereceiptQty,  IFNULL(pr, 0) - IFNULL(purchasereceiptQty, 0) pr, purchasereturnQty, IFNULL(pt, 0) - IFNULL(purchasereturnQty, 0) pt, adjustmentsQty, IFNULL(ia, 0) - IFNULL(adjustmentsQty, 0) ia, transferedQty, IFNULL(st, 0) - IFNULL(transferedQty, 0) st, IFNULL(jo, 0) - IFNULL(joborderQty, 0) jo, IFNULL(jr, 0) - IFNULL(jobreleasedQty, 0) jr')
+								->setHaving('bb != 0 OR so != 0 OR dr != 0 OR si != 0 OR sr != 0 OR xr != 0 OR po != 0 OR pr != 0 OR pt != 0 OR ia != 0 OR st != 0 OR jo != 0 OR jr != 0')
 								->runSelect()
 								->getResult();
-
-								// var_dump($inv_check);
 
 		if (empty($inv_check)) {
 			$check_transactions = $this->db->setTable("($inner_query) i")
@@ -166,7 +172,7 @@ class inventory_model extends wc_model {
 							->runDelete();
 			}
 		}
-
+		
 		if ($inv_check) {
 			$result = $this->db->setTable('invdtlfile')
 							->setWhere('companycode IS NOT NULL')
@@ -189,10 +195,10 @@ class inventory_model extends wc_model {
 													'companycode,
 													itemcode,
 													warehouse,
-													beginningQty + purchasereceiptQty + salesreturnQty - deliveredQty - purchasereturnQty + adjustmentsQty + transferedQty,
+													beginningQty + purchasereceiptQty + salesreturnQty - deliveredQty - purchasereturnQty + adjustmentsQty + transferedQty - jobreleasedQty,
 													purchaseorderQty - purchasereceiptQty + purchasereturnQty,
-													(beginningQty + purchasereceiptQty + salesreturnQty - deliveredQty - purchasereturnQty + adjustmentsQty + transferedQty) - (salesorderQty - deliveredQty),
-													salesorderQty - deliveredQty')
+													(beginningQty + purchasereceiptQty + salesreturnQty - deliveredQty - purchasereturnQty + adjustmentsQty + transferedQty - jobreleasedQty) - (salesorderQty - deliveredQty) - (joborderQty - jobreleasedQty),
+													(salesorderQty - deliveredQty) + (joborderQty - jobreleasedQty)')
 												->buildSelect();
 
 						$result = $this->db->setTable('invfile')
@@ -315,6 +321,7 @@ class inventory_model extends wc_model {
 			'pt',
 			'ia',
 			'st',
+			'jo',
 			'jr'
 		);
 

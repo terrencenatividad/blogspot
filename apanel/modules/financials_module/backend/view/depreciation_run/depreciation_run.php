@@ -150,6 +150,44 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="modal fade" id="lockerModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog ">
+
+		<div class="modal-content">
+			<div class="modal-header ">
+				<div class="row">
+					<div class="col-md-10">
+						<h4 class = 'bold'> <span class="glyphicon glyphicon-warning-sign"></span> Notice!</h4>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-body">
+				<div class = 'row'>
+					<div class = 'col-md-12'>
+						Proceeding with this transaction will prevent other users from logging in.<br><br>
+						<strong>Currently Logged In Users are: </strong><br>
+						<div id = "logged_users"></div>
+						<br>
+						Would you like to proceed with your transaction? 
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<div class="row row-dense">
+					<div class="col-md-12 right">
+						<div class="form-group">
+							<button type="button" class="btn btn-warning" id="btnProceed" >Proceed</button>	
+							<button type="button" id="btnCancel" class="btn btn-default">Cancel</button> 
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 	<script>
 		var ajax = {}
 		var ajax_call = '';
@@ -249,5 +287,54 @@
 				getList2();
 			});
 		});
+
+		$.post('<?=MODULE_URL?>ajax/retrieve_users', ajax, function(data) {
+		$('#lockerModal #logged_users').html(data.user_lists);
+	});
+	
+	$('#lockerModal').modal('show');
+
+	$('#lockerModal').on('click','#btnProceed',function(){
+		$.post('<?=MODULE_URL?>ajax/update_locktime', ajax, function(data) {
+			if( data.msg == 'success' )
+			{
+				$('#lockerModal').modal('hide');
+				document.getElementById('timer').innerHTML = 10 + ":" + 01;
+				startTimer();
+
+				var warehouse 	=	$('#warehouse').val();
+
+				if( warehouse != "" ){
+					$('#warehouse').change();
+				}
+				
+			}
+		});
+		$('#lockerModal').modal('hide');
+	});
+
+	$('#lockerModal').on('click','#btnCancel',function(){
+		window.history.back();
+	});
+
+	function startTimer() {
+		var presentTime = document.getElementById('timer').innerHTML;
+		var timeArray = presentTime.split(/[:]+/);
+		var m = timeArray[0];
+		var s = checkSecond((timeArray[1] - 1));
+
+		if(s == 59){
+			m = m-1
+		}
+		
+		if( m == 0 && s == 30 )
+		{
+			$('#timerModal').modal('show');
+			window.location = '<?php echo MODULE_URL;?>';
+		}
+
+		document.getElementById('timer').innerHTML = m + ":" + s;
+		setTimeout(startTimer, 1000);
+	}
 			
 	</script>

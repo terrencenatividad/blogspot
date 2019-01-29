@@ -5,7 +5,8 @@ class controller extends wc_controller {
 		parent::__construct();
 		$this->ui				= new ui();
 		$this->input			= new input();
-		$this->depreciation_run		= new depreciation_run();
+		$this->depreciation_run	= new depreciation_run();
+		$this->adjustment		= $this->checkoutModel('inventory_module/inventory_adjustment_model');
 		$this->session			= new session();
 		$this->fields 			= array(
 			'asset_number',
@@ -197,6 +198,38 @@ class controller extends wc_controller {
 		}
 
 		return array('table' => $table);
+	}
+
+	private function update_locktime(){
+		$curr_user 	=	USERNAME;
+		$result 	=	$this->adjustment->update_locktime($curr_user);
+
+		if( $result )
+		{
+			$msg = "success";
+			$this->log->saveActivity("Current User [$curr_user]. Locked Other Users for Adjustment.");
+		}
+		else
+		{
+			$msg = $result;
+		}
+
+		return $dataArray = array("msg" => $msg);
+	}
+
+	private function retrieve_users(){
+		$curr_user 	=	USERNAME;
+		$temp 		=	array();
+
+		$result 	=	$this->adjustment->getLoggedInUsers($curr_user);
+		
+		foreach ($result as $key => $row) {
+			$temp[] 	=	$row->name."<br>";
+		}
+
+		$lists		= implode(' ', $temp);
+
+		return $dataArray = array("user_lists" => $lists);
 	}
 
 }

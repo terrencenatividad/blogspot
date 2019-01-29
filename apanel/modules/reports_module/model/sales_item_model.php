@@ -88,9 +88,34 @@ class sales_item_model extends wc_model {
 	}
 
 	public function getCustomerList() {
+		$si = $this->db->setTable('salesinvoice a')
+						->innerJoin('salesinvoice_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+						->setFields("a.customer, itemcode, b.warehouse, a.companycode")
+						->setWhere("a.stat = 'open' OR a.stat = 'posted'")
+						->buildSelect();
+
+		$sr = $this->db->setTable('salesreturn a')
+						->innerJoin('salesreturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+						->setFields("a.customer, itemcode, b.warehouse, a.companycode")
+						->setWhere("a.stat = 'Returned'")
+						->buildSelect();
+
+		$inner_query = $si . ' UNION ALL ' . $sr;
+		
+		$query = $this->db->setTable("itemclass ic")
+							->leftJoin('items i ON i.classid = ic.id AND i.companycode = ic.companycode')
+							->leftJoin("($inner_query) iq ON iq.itemcode = i.itemcode AND iq.companycode = i.companycode")
+							->setFields("GROUP_CONCAT(customer SEPARATOR ',') as customers")
+							->setWhere("iq.warehouse != '' AND iq.itemcode IS NOT NULL")
+							->runSelect()
+							->getRow();
+
+		$ids = preg_split("/[\s,]+/", $query->customers);
+		$customers	= "'" . implode("','", $ids) . "'";
+
 		$result = $this->db->setTable('partners')
 						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
-						->setWhere("partnertype = 'customer'")
+						->setWhere("partnertype = 'customer' AND partnercode IN ($customers)")
 						->runSelect()
 						->getResult();
 

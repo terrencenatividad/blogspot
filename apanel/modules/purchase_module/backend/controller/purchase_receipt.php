@@ -303,7 +303,7 @@ class controller extends wc_controller {
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setVendorDetails($vendordetails)
 				->setDocumentDetails($documentdetails)
-				// ->addTermsAndCondition()
+				// ->addTermsAndConditon()
 				->addReceived();
 
 		$print->setHeaderWidth(array(30, 50, 20, 20, 30, 20, 30))
@@ -316,19 +316,62 @@ class controller extends wc_controller {
 		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);		
 		
 		$hasSerial = false;
+		$serial = '0';
+		$engine = '0';
+		$chassis = '0';
+		$serial_total = 0;
 		foreach($documentcontent as $key => $row) {
 			if ($row->Ident != 0){
 				$hasSerial = true;
+				if (substr($row->Ident,0,1) == '1')
+					$serial = '1';
+				if (substr($row->Ident,1,1) == '1')
+					$engine = '1';
+				if (substr($row->Ident,2,1) == '1')
+					$chassis = '1';
 			}
 		}
 
+		$serial_total = (int)$serial + (int)$engine + (int)$chassis;
+		
 		if ($hasSerial) {
-			$print->setHeaderWidth(array(25, 30, 15, 15, 15, 15, 15, 25, 20, 25))
-					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
-					->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
-					->setSummaryAlign(array('J'))	
-					->setSummaryWidth(array('200'));		
+			if ($serial_total == 1) {
+			// 1 SERIAL FIELD ONLY
+				$first = ($serial == '1') ? 'S/N' : (($engine == '1') ? 'E/N' : 'C/N');
+				$print->setHeaderWidth(array(30, 40, 20, 20, 20, 25, 20, 25))
+						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, 'Price', 'Tax', 'Amount'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'R', 'R', 'R'))
+						->setSummaryAlign(array('J'))	
+						->setSummaryWidth(array('200'));		
+			} else if ($serial_total == 2) {
+			// 2 SERIAL FIELDS
+				if ($serial == '1' && $engine == '1' && $chassis == '0') {
+					$first = 'S/N';
+					$second = 'E/N';
+				} else if ($serial == '1' && $engine == '0' && $chassis == '1') {
+					$first = 'S/N';
+					$second = 'C/N';
+				} else if ($serial == '0' && $engine == '1' && $chassis == '1') {
+					$first = 'E/N';
+					$second = 'C/N';
+				}
+					
+				$print->setHeaderWidth(array(25, 35, 15, 15, 20, 20, 25, 20, 25))
+						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second, 'Price', 'Tax', 'Amount'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
+						->setSummaryAlign(array('J'))	
+						->setSummaryWidth(array('200'));
+			} else if ($serial_total == 3) {
+			// 3 SERIAL FIELDS
+				$print->setHeaderWidth(array(25, 30, 15, 15, 15, 15, 15, 25, 20, 25))
+						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
+						->setSummaryAlign(array('J'))	
+						->setSummaryWidth(array('200'));
+			}
 		}
 
 		$detail_height = 37;
@@ -359,14 +402,38 @@ class controller extends wc_controller {
 			$row->Amount	= number_format($row->Amount, 2);
 			
 			if($hasSerial){
-			$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', '', $row->Price, $row->Tax,$row->Amount));
+				if ($serial_total == 1) {
+					$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', $row->Price, $row->Tax,$row->Amount));
+				} else if ($serial_total == 2) {
+					$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', $row->Price, $row->Tax,$row->Amount));
+				} else if ($serial_total == 3) {
+					$print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', '', $row->Price, $row->Tax,$row->Amount));
+				}
+			// $print->addRow(array($row->ItemCode, $row->Description, $row->Quantity, $row->UOM, '', '', $row->Price, $row->Tax,$row->Amount));
 				if ($row->Ident != 0) {
 					$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
 					foreach($documentserials as $key => $rowserials) {
-						$sndisplay = $rowserials->Serial;
-						$endisplay = $rowserials->Engine;
-						$cndisplay = $rowserials->Chassis;
-						$print->addRow(array('', '', '', '', $sndisplay, $endisplay, $cndisplay, '', '',''));
+						
+							$sndisplay = $rowserials->Serial;
+							$endisplay = $rowserials->Engine;
+							$cndisplay = $rowserials->Chassis;
+							if ($serial_total == 1) {
+								if ($serial == '1' && $engine == '0' && $chassis == '0')
+									$print->addRow(array('', '', '', '', $sndisplay, '', '',''));
+								if ($serial == '0' && $engine == '1' && $chassis == '0')
+									$print->addRow(array('', '', '', '', $endisplay, '', '',''));
+								if ($serial == '0' && $engine == '0' && $chassis == '1')
+									$print->addRow(array('', '', '', '', $cndisplay, '', '',''));
+							} else if ($serial_total == 2) {
+								if ($serial == '1' && $engine == '1' && $chassis == '0')
+									$print->addRow(array('', '', '', '', $sndisplay, $endisplay, '', '',''));
+								if ($serial == '1' && $engine == '0' && $chassis == '1')
+									$print->addRow(array('', '', '', '', $sndisplay, $cndisplay, '', '',''));
+								if ($serial == '0' && $engine == '1' && $chassis == '1')
+									$print->addRow(array('', '', '', '', $endisplay, $cndisplay, '', '',''));
+							} else if ($serial_total == 3) {
+								$print->addRow(array('', '', '', '', $sndisplay, $endisplay, $cndisplay, '', '',''));
+							}						
 					}
 				}
 			} else {
@@ -612,7 +679,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->remarks . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->netamount, 2) . '</td>';
+			//$table .= '<td class="text-right">' . number_format($row->netamount, 2) . '</td>';
 			$table .= '</tr>';
 		}
 		$pagination->table = $table;

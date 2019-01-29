@@ -560,12 +560,12 @@ class controller extends wc_controller
 		->setDocumentInfo($documentinfo)
 		->addReceived();
 
-		$print->setHeaderWidth(array(20, 29, 18, 26, 15, 12, 22, 29, 29))
-		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-		->setHeader(array('Item Code', 'Description', 'Ohq', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency', 'Base Currency'))
-		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R', 'R'))
+		$print->setHeaderWidth(array(28, 40, 18, 26, 17, 17, 23, 31))
+		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+		->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
+		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
 		->setSummaryAlign(array('J','R','R', 'R'))	
-		->setSummaryWidth(array('120', '30', '25', '25'));
+		->setSummaryWidth(array('120', '19', '30', '31'));
 
 		$detail_height = 37;
 
@@ -600,25 +600,25 @@ class controller extends wc_controller
 			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2), number_format($convertedamount, 2)),
-											array($notes, 'Freight', number_format($freight, 2), number_format($converted_freight, 2)),
-											array('', 'Insurance', number_format($insurance, 2), number_format($converted_insurance, 2)),
-											array('', 'Packaging', number_format($packaging, 2), number_format($converted_packaging, 2)),
-											array('', 'Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2), number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2)),
-											array('','','','')
-				));
+				$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
+										array($notes, '', 'Freight', number_format($freight, 2)),
+										array('', '', 'Insurance', number_format($insurance, 2)),
+										array('', '', 'Packaging', number_format($packaging, 2)),
+										array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
+										array('','','','')
+));
 				$total_amount = 0;
 			}
 		}
-		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2), number_format($convertedamount, 2)),
-											array($notes, 'Freight', number_format($freight, 2), number_format($converted_freight, 2)),
-											array('', 'Insurance', number_format($insurance, 2), number_format($converted_insurance, 2)),
-											array('', 'Packaging', number_format($packaging, 2), number_format($converted_packaging, 2)),
-											array('', 'Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2), number_format(($convertedamount+$converted_freight+$converted_insurance+$converted_packaging), 2)),
+		$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
+											array($notes, '', 'Freight', number_format($freight, 2)),
+											array('', '', 'Insurance', number_format($insurance, 2)),
+											array('', '', 'Packaging', number_format($packaging, 2)),
+											array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
 											array('','','','')
 		));
 
-		$print->drawPDF('Purchase Order - ' . $voucherno);
+		$print->drawPDF('Import Purchase Order - ' . $voucherno);
 	}
 
 	public function ajax($task)
@@ -677,6 +677,13 @@ class controller extends wc_controller
 		else if( $task == 'get_onhandqty' )
 		{
 			$result = $this->get_onhandqty();
+		}
+		else if( $task == "checkifitemisinbudget") 
+		{
+			$result = $this->checkifitemisinbudget();
+		}
+		else if( $task == "checkifpairexistsinbudget" ){
+			$result = $this->checkifpairexistsinbudget();
 		}
 
 		echo json_encode($result); 
@@ -1061,6 +1068,35 @@ class controller extends wc_controller
 		
 		$csv .= '"","","","Total ","'. number_format($totalamount,2) .'"';
 		return $csv;
+	}
+
+	private function checkifitemisinbudget(){
+		$itemcode = $this->input->post('itemcode');
+
+		// Get item's purchase account 
+		$ret_acct 	= 	$this->po->get_purchaseaccount($itemcode);
+		$item_acct 	=	isset($ret_acct->expense_account) ? $ret_acct->expense_account : 0;
+
+		// Check if Account is used in a Budget
+		$ret_result = $this->po->checkifaccountisinbudget($item_acct);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+
+	private function checkifpairexistsinbudget() {
+		$itemcode 	= $this->input->post('itemcode');
+		$budget 	= $this->input->post('budgetcode');
+
+		// Get item's purchase account 
+		$ret_acct 	= 	$this->po->get_purchaseaccount($itemcode);
+		$item_acct 	=	isset($ret_acct->expense_account) ? $ret_acct->expense_account : 0;
+
+		// Check if Budget_Accountcode pair exists
+		$ret_result = $this->po->checkifpairexistsinbudget($item_acct, $budget);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
 	}
 }
 ?>

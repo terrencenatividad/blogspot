@@ -95,6 +95,7 @@ class controller extends wc_controller
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data["transactiondate"]    = $this->date->dateFormat();
+		$data["currencycode"]    	= 'PHP';
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
@@ -570,7 +571,7 @@ class controller extends wc_controller
 		$date_check = array();
 		$warning = array();
 		$accountchecker = array();
-		$errors = array();
+		$error = array();
 		$actualbudget = $this->input->post($this->actualbudget);
 		for($count = 0; $count < count($ap_details['budgetcode']); $count++) {
 			if(!empty($ap_details['budgetcode'][$count])) {
@@ -628,11 +629,23 @@ class controller extends wc_controller
 								if($ap_details['debit'][$count] > $amount) {
 									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$count] . 
 									' ' . $accountname . ' account <br>';
+								} else {
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+									$actualbudget['actual'] = $ap_details['debit'][$count];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 								}
 							} else {
 								if($ap_details['credit'][$count] > $amount) {
 									$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$count] . 
 									' ' . $accountname . ' account <br>';
+								} else {
+									$actualbudget['voucherno'] = $ap['voucherno'];
+									$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+									$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+									$actualbudget['actual'] = $ap_details['debit'][$count];
+									$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 								}
 							}
 						}
@@ -646,13 +659,13 @@ class controller extends wc_controller
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$checker = true;
-					if(empty($errors)) {
+					if(empty($error)) {
 						$result    = $this->accounts_payable->saveAP($ap, $ap_details);
 					}
 				}
 			}	
 		} else {
-			if(empty($errors)) {
+			if(empty($error)) {
 				$result    = $this->accounts_payable->saveAP($ap, $ap_details);
 			}
 		}
@@ -680,7 +693,7 @@ class controller extends wc_controller
 			'success'	=> $result,
 			'check'		=> $checker,
 			'warning'  	=> $warning,
-			'error'		=> $errors,
+			'error'		=> $error,
 			'date_check'	=> $date_check,
 			'accountchecker' => $accountchecker
 		);
@@ -819,11 +832,23 @@ class controller extends wc_controller
 									if($ap_details['debit'][$check] > $amount) {
 										$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
 										' ' . $accountname . ' account <br>';
+									} else {
+										$actualbudget['voucherno'] = $ap['voucherno'];
+										$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+										$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+										$actualbudget['actual'] = $ap_details['debit'][$count];
+										$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 									}
 								} else {
 									if($ap_details['credit'][$check] > $amount) {
 										$error[] = 'You are not allowed to exceed budget in ' . $ap_details['budgetcode'][$check] . 
 										' ' . $accountname . ' account <br>';
+									} else {
+										$actualbudget['voucherno'] = $ap['voucherno'];
+										$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
+										$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
+										$actualbudget['actual'] = $ap_details['debit'][$count];
+										$save_budget = $this->accounts_payable->saveActualBudget($actualbudget);
 									}
 								}
 							}
@@ -837,14 +862,14 @@ class controller extends wc_controller
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
-					if(empty($errors)) {
+					if(empty($error)) {
 						$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
 						$details = $this->accounts_payable->saveAPDetails($ap_details);
 					}
 				}
 			}
 		} else {
-			if(empty($errors)) {
+			if(empty($error)) {
 				$result    = $this->accounts_payable->updateAP($ap['voucherno'], $ap);
 				$details = $this->accounts_payable->saveAPDetails($ap_details);
 			}
@@ -869,7 +894,7 @@ class controller extends wc_controller
 			'success'	=> $result,
 			'check'		=> $check,
 			'warning'  	=> $warning,
-			'error'		=> $errors,
+			'error'		=> $error,
 			'date_check'	=> $date_check,
 			'accountchecker' => $accountchecker
 		);
