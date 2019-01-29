@@ -127,7 +127,7 @@
 									echo $ui->formField('text')
 									->setLabel('Due Date')
 									->setSplit('col-md-4', 'col-md-8')
-									->setName('due_date')
+									->setName('duedate')
 									->setId('due_date')
 									->setClass('datepicker-input')
 									->setAttribute(array('readonly' => ''))
@@ -346,12 +346,12 @@
 								<thead>
 									<tr class="info">
 										<th class="col-md-1 text-center">Withholding Tax</th>
-										<th class="col-md-2 text-center">Budget Code</th>
+										<th class="col-md-1 text-center">Budget Code</th>
 										<th class="col-md-2 text-center">Account</th>
 										<th class="col-md-2 text-center">Description</th>
 										<th class="col-md-2 text-center" colspan = "2">Debit</th>
 										<th class="col-md-2 text-center" colspan = "2">Credit</th>
-										<th class="col-md-3 text-center">Currency Amount</th>
+										<th class="col-md-2 text-center">Base Currency Amount</th>
 										<?if($ajax_task != 'view'){?>
 											<th class="col-md-1 center"></th>
 											<?}?>
@@ -485,8 +485,9 @@
 												<td class = "remove-margin">
 													<?php
 													echo $ui->formField('text')
-													->setPlaceholder('00.00')
-													->setSplit('', 'col-md-12')
+													->setPlaceholder('0.00')
+													->setSplit('col-md-2', 'col-md-10')
+													->setLabel('<span class="label label-default base_symbol">PHP</span>')
 													->setName('currencyamount[]')
 													->setId('currencyamount')
 													->setAttribute(array("maxlength" => "20", 'readonly'))
@@ -1260,7 +1261,7 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.credit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1281,7 +1282,7 @@
 				sumCurrencyAmount();
 			} else {
 				$(this).closest('tr').find('.debit').removeAttr('readonly');
-				$(this).closest('tr').find('.currencyamount').val('0.00');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
 				sumDebit();
 				sumCredit();
 				sumCurrencyAmount();
@@ -1338,8 +1339,8 @@
 			$('.debit').each(function() {
 				debit = removeComma($(this).val());
 				total_debit += +debit;
-				$('#total_debit').val(addComma(total_debit));
 			});
+			$('#total_debit').val(addComma(total_debit));
 		}
 
 		function sumCredit() {
@@ -1349,8 +1350,8 @@
 			$('.credit').each(function() {
 				credit = removeComma($(this).val());
 				total_credit += +credit;
-				$('#total_credit').val(addComma(total_credit));
 			});
+			$('#total_credit').val(addComma(total_credit));
 		}
 
 		function sumCurrencyAmount() {
@@ -1358,9 +1359,13 @@
 			var currency = 0;
 			$('.currencyamount').each(function() {
 				currency = removeComma($(this).val());
-				total_currency += +currency;
-				$('#total_currency').val(addComma(total_currency));
+				if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
+					total_currency += -currency;
+				}else{
+					total_currency += +currency;
+				}
 			});
+			$('#total_currency').val(addComma(total_currency));
 		}
 
 		$('#currencycode').on('change', function() {
@@ -1373,7 +1378,7 @@
 						if($(this).val() != '0.00') {
 							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
 						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).closest('tr').find('.credit').val()));
+							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
 						}
 					});
 					sumDebit();

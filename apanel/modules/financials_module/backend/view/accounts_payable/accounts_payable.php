@@ -127,7 +127,7 @@
 									echo $ui->formField('text')
 									->setLabel('Due Date')
 									->setSplit('col-md-4', 'col-md-8')
-									->setName('due_date')
+									->setName('duedate')
 									->setId('due_date')
 									->setClass('datepicker-input')
 									->setAttribute(array('readonly' => ''))
@@ -343,12 +343,12 @@
 								<thead>
 									<tr class="info">
 										<th class="col-md-1 text-center">Withholding Tax</th>
-										<th class="col-md-2 text-center">Budget Code</th>
+										<th class="col-md-1 text-center">Budget Code</th>
 										<th class="col-md-2 text-center">Account</th>
 										<th class="col-md-2 text-center">Description</th>
 										<th class="col-md-2 text-center" colspan = "2">Debit</th>
 										<th class="col-md-2 text-center" colspan = "2">Credit</th>
-										<th class="col-md-3 text-center">Currency Amount</th>
+										<th class="col-md-2 text-center">Base Currency Amount</th>
 										<?if($ajax_task != 'view'){?>
 											<th class="col-md-1 center"></th>
 											<?}?>
@@ -442,7 +442,7 @@
 												->setId('debit')
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("debit text-right")
-												->setValidation('decimal required')
+												->setValidation('decimal')
 												->setValue('0.00')
 												->draw($show_input);
 												?>
@@ -450,7 +450,7 @@
 											<td class = "remove-margin" colspan = "2">
 												<?php
 												echo $ui->formField('text')
-												->setPlaceholder('00.00')
+												->setPlaceholder('0.00')
 												->setSplit('col-md-2', 'col-md-10')
 												->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 												->setName('credit[]')
@@ -458,15 +458,16 @@
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("credit text-right")
 												->setValue('0.00')
-												->setValidation('decimal required')
+												->setValidation('decimal')
 												->draw($show_input);
 												?>
 											</td>
 											<td class = "remove-margin">
 												<?php
 												echo $ui->formField('text')
-												->setPlaceholder('00.00')
-												->setSplit('', 'col-md-12')
+												->setPlaceholder('0.00')
+												->setSplit('col-md-2', 'col-md-10')
+												->setLabel('<span class="label label-default base_symbol">PHP</span>')
 												->setName('currencyamount[]')
 												->setId('currencyamount')
 												->setAttribute(array("maxlength" => "20", 'readonly'))
@@ -569,7 +570,7 @@
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("debit text-right")
 												->setValue('0.00')
-												->setValidation('decimal required')
+												->setValidation('decimal')
 												->draw($show_input);
 												?>
 											</td>
@@ -584,15 +585,16 @@
 												->setAttribute(array("maxlength" => "20"))
 												->setClass("credit text-right")
 												->setValue('0.00')
-												->setValidation('decimal required')
+												->setValidation('decimal')
 												->draw($show_input);
 												?>
 											</td>
 											<td class = "remove-margin">
 												<?php
 												echo $ui->formField('text')
-												->setPlaceholder('00.00')
-												->setSplit('', 'col-md-12')
+												->setPlaceholder('0.00')
+												->setSplit('col-md-2', 'col-md-10')
+												->setLabel('<span class="label label-default base_symbol">PHP</span>')
 												->setName('currencyamount[]')
 												->setId('currencyamount')
 												->setAttribute(array("maxlength" => "20", 'readonly'))
@@ -1525,8 +1527,8 @@
 			$('.debit').each(function() {
 				debit = removeComma($(this).val());
 				total_debit += +debit;
-				$('#total_debit').val(addComma(total_debit));
 			});
+			$('#total_debit').val(addComma(total_debit));
 		}
 
 		function sumCredit() {
@@ -1536,8 +1538,8 @@
 			$('.credit').each(function() {
 				credit = removeComma($(this).val());
 				total_credit += +credit;
-				$('#total_credit').val(addComma(total_credit));
 			});
+			$('#total_credit').val(addComma(total_credit));
 		}
 
 		function sumCurrencyAmount() {
@@ -1545,7 +1547,11 @@
 			var currency = 0;
 			$('.currencyamount').each(function() {
 				currency = removeComma($(this).val());
-				total_currency += +currency;
+				if($(this).closest('tr').find('.credit').val() > 0){
+					total_currency += -currency;
+				}else{
+					total_currency += +currency;
+				}
 				$('#total_currency').val(addComma(total_currency));
 			});
 		}

@@ -95,6 +95,7 @@ class controller extends wc_controller
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$data['close_date']			= $close_date;
 		$data["transactiondate"]    = $this->date->dateFormat();
+		$data["currencycode"]    	= 'PHP';
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
@@ -160,7 +161,7 @@ class controller extends wc_controller
 		$data["ajax_task"] 	  		   = "ajax_view";
 		$data['ajax_post'] = "&id=$id";
 		$data["transactiondate"] 			   = $this->date->dateFormat($data['transactiondate']);
-		$data['duedate'] = $this->date->dateFormat();
+		$data['duedate'] = $this->date->dateFormat($data['duedate']);
 		$data['asset_list'] = $this->accounts_payable->retrieveAssetId();
 		$data['voucherno'] = $id;
 		$this->view->load('accounts_payable/accounts_payable_view', $data);
@@ -769,7 +770,7 @@ class controller extends wc_controller
 		$details = false;
 		$warning = array();
 		$accountchecker = array();
-		$errors = array();
+		$error = array();
 		$date_check = array();
 
 		$actualbudget = $this->input->post($this->actualbudget);
