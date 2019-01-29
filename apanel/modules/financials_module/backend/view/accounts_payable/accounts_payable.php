@@ -1416,7 +1416,7 @@
 			var rate = removeComma($('#exchangerate').val());
 			var debit = removeComma($(this).val());
 			if(debit != '0') {
-				debit_currency = $(this).val() * rate;
+				debit_currency = debit * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
 				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
@@ -1455,7 +1455,7 @@
 			var rate = removeComma($('#exchangerate').val());
 			var credit = removeComma($(this).val());
 			if(credit != '0') {
-				credit_currency = $(this).val() * rate;
+				credit_currency = credit * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
 				$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
 				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
@@ -1547,13 +1547,13 @@
 			var currency = 0;
 			$('.currencyamount').each(function() {
 				currency = removeComma($(this).val());
-				if($(this).closest('tr').find('.credit').val() > 0){
+				if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
 					total_currency += -currency;
 				}else{
 					total_currency += +currency;
 				}
-				$('#total_currency').val(addComma(total_currency));
 			});
+			$('#total_currency').val(addComma(total_currency));
 		}
 
 		$('#currencycode').on('change', function() {
