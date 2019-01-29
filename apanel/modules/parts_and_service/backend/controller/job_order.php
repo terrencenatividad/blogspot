@@ -103,7 +103,8 @@ class controller extends wc_controller {
 			'po_number',
 			'notes',
 			'job_order.stat',
-			'partnername'
+			'partnername',
+			'stat'
 		);
 	}
 	public function ajax($task) {
@@ -360,6 +361,7 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $row) {
 			$withparts = $this->job_order->checkForParts($row->job_order_no);
 			$withparts = ($withparts=='released')? true : false;
+			$iscomplete = ($row->stat=='completed')? false : true;
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
@@ -367,7 +369,7 @@ class controller extends wc_controller {
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
 									->addOtherTask('Issue Parts', 'bookmark')
-									->addOtherTask('Tag as Complete', 'bookmark')
+									->addOtherTask('Tag as Complete', 'bookmark', $iscomplete)
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->job_order_no)
