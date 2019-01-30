@@ -33,11 +33,17 @@ class controller extends wc_controller {
 		$pagination		= $this->budget_report->getBudgetList($costcenter, $budget_type, $date);
 
 		$table		= '';
+		$total_amount = 0;
+		$total_actual = 0;
+		$total_variance = 0;
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
 			$variance = ($row->variance < 0) ? '('.number_format($row->variance, 2).')' : number_format($row->variance,2);
+			$total_amount += $row->amount;
+			$total_actual += $row->actual ;
+			$total_variance += $row->variance;
 			$table .= '<tr>';
 			$table .= '<td>' . $row->segment5 . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
@@ -50,6 +56,9 @@ class controller extends wc_controller {
 
 		$pagination->table	= $table;
 		$pagination->csv	= $this->get_export();
+		$pagination->total_amount = $total_amount;
+		$pagination->total_actual = $total_actual;
+		$pagination->total_variance = $total_variance;
 		return $pagination;
 	}
 
@@ -75,7 +84,7 @@ class controller extends wc_controller {
 		}
 		foreach ($result as $key => $row) {
 			$csv .= "\n";
-			$csv .= '"' . $row->accountcode . '",';
+			$csv .= '"' . $row->segment5 . '",';
 			$csv .= '"' . $row->description . '",';
 			$csv .= '"' . $row->effectivity_date . '",';
 			$csv .= '"' . $row->amount . '",';

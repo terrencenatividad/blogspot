@@ -14,6 +14,7 @@ class budget_variance_model extends wc_model {
 	public function getBudgetList($costcenter, $budget_type, $date) {
 		$condition = '';
 		$type = '';
+		$get_date = '';
 		
 		if($costcenter == 'none' || empty($costcenter)) {
 			$condition .= "b.budget_center_code != ''";
@@ -27,6 +28,19 @@ class budget_variance_model extends wc_model {
 			$type .= " AND b.budget_type = '$budget_type'";
 		}
 
+		if($date == 'none' || empty($date)) {
+			$get_date .= " AND b.effectivity_date != ''";
+		} else {
+			$dates = explode('-', $date);
+			$arr = array();
+			for($i=0;$i<count($dates);$i++) {
+				$arr[] = $dates[$i];
+			}
+			$first_date = date('Y-m-d', strtotime($arr[0]));
+			$second_date = date('Y-m-d', strtotime($arr[1]));
+			$get_date .= " AND b.effectivity_date BETWEEN '$first_date' AND '$second_date'";
+		}
+
 		$result = $this->db->setTable('budget_details bd')
 		->setFields('ca.segment5 segment5, ca.accountname description, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IFNULL(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code')
@@ -36,7 +50,7 @@ class budget_variance_model extends wc_model {
 		->leftJoin("budget_supplement as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode AND bs.status = 'approved'")
 		->setGroupBy('bd.accountcode, bd.budget_code')
 		->setOrderBy('bd.accountcode')
-		->setWhere($condition . $type)
+		->setWhere($condition . $type . $get_date)
 		->runPagination();
 
 		 // echo $this->db->getQuery();
@@ -61,7 +75,7 @@ class budget_variance_model extends wc_model {
 		}
 
 		$result = $this->db->setTable('budget_details bd')
-		->setFields('bd.accountcode accountcode, ca.accountname description, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IFNULL(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
+		->setFields('ca.segment5 segment5, ca.accountname description, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IFNULL(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code')
 		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
 		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code FROM actual_budget WHERE id != '' GROUP BY accountcode, budget_code)
