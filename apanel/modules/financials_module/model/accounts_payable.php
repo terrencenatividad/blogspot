@@ -70,7 +70,7 @@ class accounts_payable extends wc_model
 		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-		->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->setGroupBy('bs.accountcode')
 		->runSelect()
@@ -2302,19 +2302,19 @@ class accounts_payable extends wc_model
 
 	public function checkifaccountisinbudget($accountcode){
 		$result = $this->db->setTable('budget_details bd')
-						   ->setFields("bd.budget_code")
-						   ->setWhere("bd.accountcode = '$accountcode'")
-						   ->runSelect()
-						   ->getResult();
+		->setFields("bd.budget_code")
+		->setWhere("bd.accountcode = '$accountcode'")
+		->runSelect()
+		->getResult();
 		return $result;
 	}
 
 	public function checkifpairexistsinbudget($accountcode, $budget){
 		$result = $this->db->setTable('budget_details bd')
-						   ->setFields("bd.id")
-						   ->setWhere("bd.accountcode = '$accountcode' AND bd.budget_code = '$budget'")
-						   ->runSelect()
-						   ->getRow();
+		->setFields("bd.id")
+		->setWhere("bd.accountcode = '$accountcode' AND bd.budget_code = '$budget'")
+		->runSelect()
+		->getRow();
 		return $result;
 	}      
 

@@ -396,13 +396,13 @@ class bir extends wc_model {
 
     public function getTotalRemittance($month, $year){
         $ap	= $this->db->setTable('ap_details apd')
-                                ->setFields(array('credit'))
+                                ->setFields(array('convertedcredit'))
                                 ->leftJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
 								->setWhere("taxcode IS NOT NULL AND taxcode != '' AND ap.stat = 'posted' AND (MONTH(transactiondate) = '$month' AND YEAR(transactiondate) = '$year')")
                                 ->buildSelect();
 
         $pv	= $this->db->setTable('pv_details pvd')
-								->setFields(array('credit'))
+								->setFields(array('convertedcredit'))
                                 ->leftJoin('paymentvoucher pv ON pv.voucherno = pvd.voucherno')
 								->setWhere("taxcode IS NOT NULL AND taxcode != '' AND pv.stat = 'posted' AND (MONTH(transactiondate) = '$month' AND YEAR(transactiondate) = '$year')")
                                 ->buildSelect();
@@ -410,7 +410,7 @@ class bir extends wc_model {
         $union = $ap . ' UNION ALL ' . $pv;
         
         $result = $this->db->setTable("($union) u")
-                        ->setFields('SUM(credit) total')
+                        ->setFields('SUM(convertedcredit) total')
                         ->setWhere(1)
                         ->runSelect(false)
                         ->getResult();

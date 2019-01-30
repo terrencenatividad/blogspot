@@ -284,9 +284,10 @@ class job_order_model extends wc_model
 
 	public function getServiceQuotationDetails($voucherno, $voucherno_ref = false) {
 		$result1		= $this->db->setTable('servicequotation_details sqd')
-								->setFields("sqd.itemcode, detailparticular, linenum, qty as quantity, sqd.warehouse, uom, sqd.parentcode as parentcode, sqd.childqty, sqd.isbundle as isbundle, sqd.parentline, i.item_ident_flag")
+								->setFields("sqd.itemcode, detailparticular, linenum, qty as quantity, sqd.warehouse, w.description, uom, sqd.parentcode as parentcode, sqd.childqty, sqd.isbundle as isbundle, sqd.parentline, i.item_ident_flag")
 								->innerJoin('servicequotation sq ON sqd.voucherno = sq.voucherno AND sqd.companycode = sq.companycode')
 								->leftJoin('items i ON i.itemcode = sqd.itemcode')
+								->leftJoin('warehouse w ON w.warehousecode = sqd.warehouse')
 								->leftJoin('invfile inv ON sqd.itemcode = inv.itemcode AND sqd.warehouse = inv.warehouse AND sqd.companycode = inv.companycode')
 								->setWhere("sq.voucherno = '$voucherno'")
 								->setOrderBy('linenum ASC')
@@ -544,7 +545,9 @@ class job_order_model extends wc_model
 		public function getSerialList($itemcode, $search, $voucherno, $linenum, $serialnumbers, $task) {
 			$cond = '';
 			if($task == 'ajax_edit'){
-				$cond = " OR id IN($serialnumbers)";
+				if($serialnumbers != ''){
+					$cond = " OR id IN($serialnumbers)";
+				}
 			}else{
 				$cond = '';
 			}
@@ -664,8 +667,9 @@ class job_order_model extends wc_model
 	}
 	public function getIssuedPartsNo($jobno) {
 		$result	= $this->db->setTable('job_release j')
-								->setFields('DISTINCT (job_release_no) jrno, voucherno, serialnumbers')
+								->setFields('DISTINCT(job_release_no) jrno')
 								->leftJoin('job_order_details jod ON jod.job_order_no = j.job_order_no  and jod.itemcode = j.itemcode')
+								->leftJoin('warehouse w ON w.warehousecode = j.warehouse')
 								->leftJoin('journalvoucher jv ON jv.referenceno = j.job_release_no')
 								->setWhere("j.job_order_no = '$jobno' AND (parentcode = '' OR parentcode IS NULL) AND j.stat NOT IN ('cancelled')")
 								->setGroupBy('j.job_release_no, j.itemcode')
