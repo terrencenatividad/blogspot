@@ -3,11 +3,11 @@ class landed_cost extends wc_model {
 
     public function getSupplierList() {
 		$result = $this->db->setTable('partners p')
-							->setFields("DISTINCT p.partnercode ind, p.partnername val")
+							->setFields("DISTINCT partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 							->leftJoin("import_purchaseorder ipo ON p.partnercode = ipo.vendor")
 							->leftJoin("job_details jd ON jd.ipo_no = ipo.voucherno")
 							->leftJoin("job j ON j.job_no = jd.job_no")
-							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND ipo.stat = 'posted' AND j.stat = 'closed'")
+							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND j.stat = 'closed'")
 							->setGroupBy("val")
 							->setOrderBy("val")
 							->runSelect()
@@ -22,7 +22,7 @@ class landed_cost extends wc_model {
 							->leftJoin("purchasereceipt pr ON pr.source_no = ipo.voucherno")
 							->leftJoin("job_details jd ON jd.ipo_no = ipo.voucherno")
 							->leftJoin("job j ON j.job_no = jd.job_no")
-							->setWhere("ipo.voucherno != '' AND ipo.stat = 'posted' AND jd.job_no != '' AND j.stat = 'closed'")
+							->setWhere("ipo.voucherno != '' AND jd.job_no != '' AND j.stat = 'closed'")
 							->setGroupBy("val")
 							->setOrderBy("val")
 							->runSelect()
@@ -179,6 +179,7 @@ class landed_cost extends wc_model {
 
 		$result = $this->db->setTable('job_details jd')
 							->setFields($fields)
+							// ->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = pr.source_no AND ipod.itemcode = jd.itemcode')
 							->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = jd.ipo_no AND ipod.itemcode = jd.itemcode')
 							->leftJoin('purchasereceipt pr ON pr.source_no = ipod.voucherno')
 							->leftJoin('purchasereceipt_details prd ON prd.voucherno = pr.voucherno')
@@ -186,7 +187,7 @@ class landed_cost extends wc_model {
 							->leftJoin('partners p ON ipo.vendor = p.partnercode')
 							->leftJoin('job j ON jd.job_no = j.job_no')
 							->leftJoin('items i on i.itemcode = ipod.itemcode')
-							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' $cond_job $cond_item")
+							->setWhere("ipod.stat = 'open' $cond_ipo $cond_supplier $cond_dates AND jd.job_no != '' AND j.stat = 'closed' $cond_job $cond_item")
 							->setOrderBy('ipod.voucherno ASC, ipod.linenum ASC')
 							->setGroupBy('ipod.voucherno, jd.job_no, i.itemcode')
 							->runSelect()
@@ -267,4 +268,13 @@ class landed_cost extends wc_model {
 		return $result;
 	}
 
+	public function getImportCost($job_no) {
+		$result = $this->db->setTable('job j')
+							->setFields('import_cost')
+							->setWhere("j.job_no = '$job_no'")
+							->runSelect()
+							->getRow();
+
+		return $result;
+	}
 }	

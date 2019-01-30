@@ -207,7 +207,7 @@
                         left join 
                             financial_jobs fj on fj.voucherno = bt.voucherno
                         where
-                            fj.job_no = '$job_no' AND bt.converted_debit != '' AND bt.transtype != 'DM'
+                            fj.job_no = '$job_no' AND bt.converted_debit != '' AND bt.transtype IN('AP','DM')
                             
                         UNION
                         
@@ -223,7 +223,7 @@
                         left join 
                             financial_jobs fj on fj.voucherno = bt.voucherno
                         where
-                            fj.job_no = '$job_no' AND bt.converted_credit != '' AND bt.transtype = 'DM'
+                            fj.job_no = '$job_no' AND bt.converted_credit != '' AND bt.transtype = 'CM'
             ";
 
             $result = 	$this->db->setTable("($query) main")
@@ -231,7 +231,7 @@
                         ->setOrderBy($sort)
                         ->runSelect(false)
                         ->getResult();
-            //echo $this->db->getQuery();
+            // echo $this->db->getQuery();
             return $result;         
         }
 

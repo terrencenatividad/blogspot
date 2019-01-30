@@ -4,7 +4,7 @@
 
         public function retrievePartnerList(){
 			$result = $this->db->setTable('partners')
-						->setFields("partnercode ind, partnername val")
+						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 						->setWhere("partnercode != '' AND partnertype = 'customer' AND stat = 'active'")
 						->setOrderBy("val")
 						->runSelect()
@@ -41,7 +41,7 @@
 
 		public function getQueryDetails($search, $startdate, $enddate, $partner, $filter, $bank, $sort) {
 		
-			$condition = "(chq.voucherno != '' )  AND  chq.stat != 'cancelled'  "; 
+			$condition = "(chq.voucherno != '' )  AND  rva.stat != 'cancelled'  "; 
 			
 			// For Check Date
 			if ( $startdate && $enddate ) {
