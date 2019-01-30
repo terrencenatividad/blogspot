@@ -46,7 +46,7 @@ class asset_master extends wc_model {
 		return $result;
 	}
 
-	public function updateAssetMaster($data, $id, $asset_number) {
+	public function updateAssetMaster($data, $id, $asset_number, $old_location, $old_department, $old_person) {
 		$data['commissioning_date'] = date("Y-m-d",strtotime($data['commissioning_date']));
 		$data['retirement_date']    = date("Y-m-d",strtotime($data['retirement_date']));
 		$data['depreciation_month'] = date("Y-m-d",strtotime($data['depreciation_month']));
@@ -56,9 +56,16 @@ class asset_master extends wc_model {
 							->setLimit(1)
 							->runUpdate();
 
-		$result = $this->db->setTable('depreciation_schedule')
-							->setWhere("asset_id = '$asset_number'")
-							->runDelete();
+		if($result){
+			if($old_location != $data['asset_location'] || $old_department != $data['department'] || $old_person != $data['accountable_person']){
+				$this->db->setTable('asset_transfer')
+				->setValues(array('asset_number' => $data['asset_number'], 'asset_location' => $data['asset_location'], 'department' => $data['department'], 'accountable_person' => $data['accountable_person']))
+				->runInsert();
+			}
+		} 
+		// $result = $this->db->setTable('depreciation_schedule')
+		// 					->setWhere("asset_id = '$asset_number'")
+		// 					->runDelete();
 		
 		if ($result) {
 			$this->log->saveActivity("Update Asset [$id]");		
@@ -73,16 +80,16 @@ class asset_master extends wc_model {
 		$shh['accumulated_dep'] = $depreciation;
 		$shh['depreciation_amount'] = $depreciation_amount;
 
-		$result =  $this->db->setTable('depreciation_schedule')
-							->setValues($shh)
-							->setWhere("asset_id = '$asset_number'")
-							->setLimit(1)
-							->runUpdate();
+		// $result =  $this->db->setTable('depreciation_schedule')
+		// 					->setValues($shh)
+		// 					->setWhere("asset_id = '$asset_number'")
+		// 					->setLimit(1)
+		// 					->runUpdate();
 							
-		if ($result) {
-			$insert_id = $this->db->getInsertId();
-			$this->log->saveActivity("Create Asset Master Schedule [$insert_id]");
-		}
+		// if ($result) {
+		// 	$insert_id = $this->db->getInsertId();
+		// 	$this->log->saveActivity("Create Asset Master Schedule [$insert_id]");
+		// }
 
 		return $result;
 	}
