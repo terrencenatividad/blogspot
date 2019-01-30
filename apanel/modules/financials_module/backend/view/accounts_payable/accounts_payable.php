@@ -1431,6 +1431,26 @@
 			console.log($console);
 		}
 
+
+		var row = '';
+		$('#exchangerate').on('blur', function() {
+			var total = 0;
+			var rate = $(this).val();
+			$('.currencyamount').each(function() {
+				var debit = removeComma($(this).closest('tr').find('.debit').val());
+				var credit = removeComma($(this).closest('tr').find('.credit').val());
+				if(debit != '0.00') {
+					row = $(this).closest('tr').find('.debit');
+					total = debit * rate;
+				} else {
+					row = $(this).closest('tr').find('.credit');
+					total = credit * rate;
+				}
+				row.closest('tr').find('.currencyamount').val(addComma(total));
+				sumCurrencyAmount();
+			});
+		});
+		
 		var debit_currency = 0;
 		var credit_currency = 0;
 		$('#itemsTable').on('blur', '.debit', function() {
@@ -1451,25 +1471,6 @@
 				sumCredit();
 				sumCurrencyAmount();
 			}
-		});
-
-		var row = '';
-		$('#exchangerate').on('blur', function() {
-			var total = 0;
-			var rate = $(this).val();
-			$('.currencyamount').each(function() {
-				var debit = removeComma($(this).closest('tr').find('.debit').val());
-				var credit = removeComma($(this).closest('tr').find('.credit').val());
-				if(debit != '0.00') {
-					row = $(this).closest('tr').find('.debit');
-					total = debit * rate;
-				} else {
-					row = $(this).closest('tr').find('.credit');
-					total = credit * rate;
-				}
-				row.closest('tr').find('.currencyamount').val(addComma(total));
-				sumCurrencyAmount();
-			});
 		});
 
 		$('#itemsTable').on('blur', '.credit', function() {
@@ -1714,7 +1715,9 @@
 			});
 			if($('#total_debit').val() != $('#total_credit').val()) {
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
-				good = 'false';
+				good = false;
+			} else {
+				good = true;
 			}
 			
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
@@ -1773,6 +1776,8 @@
 				$('#error-modal').modal('show');
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
 				good = false;
+			} else {
+				good = true;
 			}
 
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
@@ -1830,7 +1835,9 @@
 			if($('#total_debit').val() != $('#total_credit').val()) {
 				$('#error-modal').modal('show');
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
-				good = 'false';
+				good = false;
+			} else {
+				good = true;
 			}
 
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
