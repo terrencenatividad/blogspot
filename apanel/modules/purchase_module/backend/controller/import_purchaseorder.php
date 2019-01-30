@@ -601,21 +601,21 @@ class controller extends wc_controller
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
-										array($notes, '', 'Freight', number_format($freight, 2)),
-										array('', '', 'Insurance', number_format($insurance, 2)),
-										array('', '', 'Packaging', number_format($packaging, 2)),
-										array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
-										array('','','','')
-));
+					array($notes, '', 'Freight', number_format($freight, 2)),
+					array('', '', 'Insurance', number_format($insurance, 2)),
+					array('', '', 'Packaging', number_format($packaging, 2)),
+					array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
+					array('','','','')
+				));
 				$total_amount = 0;
 			}
 		}
 		$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
-											array($notes, '', 'Freight', number_format($freight, 2)),
-											array('', '', 'Insurance', number_format($insurance, 2)),
-											array('', '', 'Packaging', number_format($packaging, 2)),
-											array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
-											array('','','','')
+			array($notes, '', 'Freight', number_format($freight, 2)),
+			array('', '', 'Insurance', number_format($insurance, 2)),
+			array('', '', 'Packaging', number_format($packaging, 2)),
+			array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
+			array('','','','')
 		));
 
 		$print->drawPDF('Import Purchase Order - ' . $voucherno);
@@ -903,7 +903,7 @@ class controller extends wc_controller
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
-					$saveArr['actual'] 		= str_replace(',','', $data_post['t_subtotal']);
+					$saveArr['actual'] 		= str_replace(',','', $data_post['itemprice'][$i]);
 					$actualArr[]      		= $saveArr;
 				}
 			}

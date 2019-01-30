@@ -58,7 +58,7 @@ class payment_voucher_model extends wc_model
 		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
-		->leftJoin("actual_budget as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode' AND ac.voucherno NOT LIKE '%DV_%'")
+		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->runSelect()
