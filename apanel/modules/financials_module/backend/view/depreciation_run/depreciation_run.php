@@ -201,7 +201,7 @@
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
 			ajax.search = $(this).val();
-			getList();
+			getAssetList();
 		});
 		$('#items').on('change', function() {
 			ajax.limit = $(this).val();
