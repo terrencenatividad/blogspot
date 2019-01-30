@@ -1054,15 +1054,30 @@ class controller extends wc_controller
 		$voucher		= $this->input->post('voucher');
 		$list		= $this->invoice->getDeliveryList($customer,$search,$voucher);
 		$table		= '';
-		if (empty($list->result)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
-		}
+		$counter = 0;
 		foreach ($list->result as $key => $row) {
-			$table .= '<tr data-id="' . $row->voucherno . '">';
+			if ($voucher == 'jo') {	
+				$services = $this->invoice->countParts($row->voucherno);
+				if ($services->count == 0) {
+					$hide_tr = 'hidden';
+				}
+				else {
+					$hide_tr = '';
+					$counter++;
+				}
+			}
+			else {
+				$hide_tr = '';
+				$counter++;
+			}
+			$table .= '<tr class ="'.$hide_tr.'" data-id="' . $row->voucherno . '">';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->notes . '</td>';
 			$table .= '</tr>';
+		}
+		if ($counter == 0) {
+			$table.= '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		$list->table = $table;
 		// return array(

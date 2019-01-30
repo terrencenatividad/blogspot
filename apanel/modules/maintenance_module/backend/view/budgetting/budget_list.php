@@ -582,9 +582,6 @@
 											$('#accountcodes').val('none');
 											$('#description').val('');
 											$('#amount').val('');
-											$('#effectivity_date').val('');
-											$('#prepared_by').val('');
-											$('#transactiondate').val('');
 										});
 									} else {
 										$('#supplementForm').find('.form-group.has-error').first().find('input, textarea, select').focus();

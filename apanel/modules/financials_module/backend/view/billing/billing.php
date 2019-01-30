@@ -65,7 +65,7 @@
 											->setLabel('Discount Type ')
 											->setPlaceholder('Select Discount Type')
 											->setSplit('col-md-4', 'col-md-8')
-											->setName('discounttype')
+											->setName('discount_type')
 											->setId('discounttype')
 											->setList($discounttypes)
 											->setValue($discounttype)
@@ -114,6 +114,13 @@
 											->setName('remarks')
 											->setId('remarks')
 											->setValue($remarks)
+											->draw($show_input);
+									?>
+									<?php
+										echo $ui->formField('hidden')
+											->setName('sq')
+											->setId('sq')
+											->setValue('')
 											->draw($show_input);
 									?>
 								</div>
@@ -499,6 +506,7 @@
 		var ajax_call	= '';
 		var min_row		= 1;
 		function addVoucherDetails(details, index) {
+			var sq = $('#sq').val();
 			var details = details || {itemcode: '', detailparticular: '', unitprice: ''};
 			details.itemcode = details.itemcode || '';
 			details.detailparticular = details.detailparticular || '';
@@ -608,12 +616,18 @@
 							echo $ui->formField('dropdown')
 								->setSplit('', 'col-md-12')
 								->setPlaceholder('Select TAX')
-								->setName('taxcode[]')
+								->setName('tax_code[]')
 								->setClass('taxcode')
 								->setList($taxrate_list)
 								->setValue($value)
 								->setNone('None')
 								->draw($show_input);
+
+							echo $ui->setElement('hidden')
+								->setName('taxcode[]')
+								->setClass('tax_field')	
+								->setValue('` + (parseFloat(details.taxcode) || 0) + `')
+								->draw();
 
 							echo $ui->setElement('hidden')
 									->setName('taxrate[]')
@@ -626,7 +640,7 @@
 									->setClass('taxamount')	
 									->setValue('` + (parseFloat(details.taxamount) || 0) + `')
 									->draw();
-							
+									
 						?>
 					</td>
 					<td class="text-right">
@@ -670,6 +684,7 @@
 			}
 			if (details.taxcode != '') {
 				$('#tableList tbody').find('tr:last .taxcode').val(details.taxcode);
+				$('#tableList tbody').find('tr:last .tax_field').val(details.taxcode);
 			} else {
 				$('#tableList tbody').find('tr:last .taxcode').val('none');
 			}
@@ -695,6 +710,17 @@
 			else {
 				$('#tableList tbody').find('.discount').attr('readonly', '').val('0.00');
 			}
+			if (sq == '') {
+				$('#tableList tbody').find('.unitprice').removeAttr('readonly');
+				$('#tableList tbody').find('.discount').removeAttr('readonly');
+				$('#tableList tbody').find('.taxcode').removeAttr('disabled');
+			} 
+			else {
+				$('#tableList tbody').find('.unitprice').attr('readonly', true);
+				$('#tableList tbody').find('.discount').attr('readonly', true);
+				$('#tableList tbody').find('.taxcode').attr('disabled', true);
+			}
+			$('#discount_type').val(discounttype);
 		}
 		var voucher_details = <?php echo $voucher_details ?>;
 		function displayDetails(details) {
@@ -745,6 +771,7 @@
 					//total_amount += amount;
 					total_tax += taxamount;
 					
+					$(this).find('.tax_field').val(tax);
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
 
@@ -881,7 +908,11 @@
 		}
 		$('#jo_tableList').on('click', 'tr[data-id]', function() {
 			var jono = $(this).attr('data-id');
+			var discount = $(this).attr('data-discount');
+			var sq = $(this).attr('data-sq');
+			$('#sq').val(sq);
 			$('#job_orderno').val(jono).trigger('blur');
+			$('#discounttype').val(discount).trigger('change.select2');
 			$('#jo_list_modal').modal('hide');
 			$('#addNewItem').hide();
 			loadJODetails();
@@ -972,7 +1003,6 @@
 		$('#discounttype').on('select2:selecting',function(e){
 			var curr_type	=  $(this).val();	
 			var new_type 	= e.params.args.data.id;
-			
 			if(curr_type == "none" || curr_type == ""){
 				$('#discounttype').closest('.form-group').removeClass('has-error');
 
@@ -996,6 +1026,7 @@
 		$('#discounttypeModal').on('click','#disc_yes',function(){
 			var newtype = $('#newdisctype').val();
 			$('#discounttype').val(newtype).trigger('change');
+			$('#discount_type').val(newtype);
 			$('#discounttypeModal').modal('hide');
 			$('.discount').val('0.00');
 
@@ -1125,11 +1156,22 @@
 
 		$(document).ready(function() {
 			var discounttype = $('#discounttype').val();
+			var job = $('#job_orderno').val();
 			if (discounttype == 'amt' || discounttype == 'perc') {
 				$('#tableList tbody').find('.discount').removeAttr('readonly');
 			} 
 			else {
 				$('#tableList tbody').find('.discount').attr('readonly', '').val('0.00');
+			}
+			if (job == '') {
+				$('#tableList tbody').find('.unitprice').removeAttr('readonly');
+				$('#tableList tbody').find('.discount').removeAttr('readonly');
+				$('#tableList tbody').find('.taxcode').removeAttr('disabled');
+			}
+			else {
+				$('#tableList tbody').find('.unitprice').attr('readonly', true);
+				$('#tableList tbody').find('.discount').attr('readonly', true);
+				$('#tableList tbody').find('.taxcode').attr('disabled', true);
 			}
 		});
 	</script>

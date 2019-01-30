@@ -137,15 +137,17 @@ class controller extends wc_controller {
 			$query_job_item_count = $this->landed_cost->getTotalItemsInJob($job_no);
 			$job_item_count = $query_job_item_count->qty; //number of items in job
 
-			$query_AP_debit = $this->landed_cost->getSumOfAp($job_no);
-			$query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
-			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
+			// $query_AP_debit = $this->landed_cost->getSumOfAp($job_no);
+			// $query_CM_credit = $this->landed_cost->getSumOfCm($job_no);
+			// $query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
 
 			// CALCULATE IMPORTATION COSTS
-			$ap_debit = $query_AP_debit->debit;
-			$cm_credit = $query_CM_credit->credit;
-			$dm_debit = $query_DM_debit->debit;
-			$total_importation_cost = $ap_debit + $dm_debit - $cm_credit; //importation cost/fees from AP,CM,DM
+			// $ap_debit = $query_AP_debit->debit;
+			// $cm_credit = $query_CM_credit->credit;
+			// $dm_debit = $query_DM_debit->debit;
+			// $total_importation_cost = $ap_debit + $dm_debit - $cm_credit; //importation cost/fees from AP,CM,DM
+			$total_importation_cost_query = $this->landed_cost->getImportCost($job_no);
+			$total_importation_cost = $total_importation_cost_query->import_cost;
 			
 			// CALCULATE TOTAL PURCHASE AMOUNT OF ALL IPO IN JOB
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
@@ -305,6 +307,8 @@ class controller extends wc_controller {
 			$cm_credit = $query_CM_credit->credit;
 			$dm_debit = $query_DM_debit->debit;
 			$total_importation_cost = $ap_debit + $dm_debit - $cm_credit; //importation cost/fees from AP,CM,DM
+			// $total_importation_cost_query = $this->landed_cost->getImportCost($job_no);
+			// $total_importation_cost = $total_importation_cost_query->import_cost;
 			
 			// CALCULATE TOTAL PURCHASE AMOUNT OF ALL IPO IN JOB
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
