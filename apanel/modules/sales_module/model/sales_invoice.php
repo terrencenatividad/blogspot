@@ -165,6 +165,18 @@ class sales_invoice extends wc_model
 		return $result;
 	}
 
+	public function countServices($voucherno) {
+		$result = $this->db->setTable('job_order_details jod')
+							->setFields("COUNT('job_order_no') count")
+							->leftJoin('items i ON i.itemcode = jod.itemcode')
+							->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
+							->setWhere("jod.job_order_no = '$voucherno' AND it.label LIKE '%service%'")
+							->runSelect()
+							->getRow();
+		
+		return $result;
+	}
+
 	public function getDeliveries()
 	{
 		$result = $this->db->setTable('deliveryreceipt')
@@ -679,8 +691,11 @@ class sales_invoice extends wc_model
 			$retrieved_data['details'] 	= $this->db->setTable('job_order_details jod')
 											->setFields($detail_fields)
 											->leftJoin('job_order jo ON jo.job_order_no = jod.job_order_no')
+											->leftJoin('items i ON i.itemcode = jod.itemcode')
+											->leftJoin('invfile inv ON jod.itemcode = inv.itemcode AND jod.warehouse = inv.warehouse AND jod.companycode = inv.companycode')
+											->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
 											->leftJoin('servicequotation_details sqd ON sqd.voucherno = jo.service_quotation AND sqd.itemcode = jod.itemcode AND sqd.companycode = jod.companycode')
-											->setWhere($condition)
+											->setWhere($condition." AND it.label LIKE '%service%'")
 											->runSelect()
 											->getResult();
 		}
