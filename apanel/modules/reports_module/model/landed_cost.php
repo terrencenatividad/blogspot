@@ -3,7 +3,7 @@ class landed_cost extends wc_model {
 
     public function getSupplierList() {
 		$result = $this->db->setTable('partners p')
-							->setFields("DISTINCT p.partnercode ind, p.partnername val")
+							->setFields("DISTINCT partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 							->leftJoin("import_purchaseorder ipo ON p.partnercode = ipo.vendor")
 							->leftJoin("job_details jd ON jd.ipo_no = ipo.voucherno")
 							->leftJoin("job j ON j.job_no = jd.job_no")

@@ -3,7 +3,7 @@ class ar_aging extends wc_model {
 
 	public function getCustomerList() {
 		$result = $this->db->setTable('partners p')
-							->setFields("DISTINCT p.partnercode ind, p.partnername val")
+							->setFields("DISTINCT partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 							->leftJoin("accountsreceivable ar ON p.partnercode = ar.customer")
 							->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND p.stat = 'active' AND ar.stat = 'posted'")
 							->setGroupBy("val")

@@ -51,7 +51,7 @@ class sales_journal extends wc_model {
 
 	public function getCustomerList() {
 		$result = $this->db->setTable('partners')
-						->setFields("partnercode ind, partnername val")
+						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 						->setWhere("stat = 'active' AND partnertype = 'customer'")
 						->runSelect()
 						->getResult();
