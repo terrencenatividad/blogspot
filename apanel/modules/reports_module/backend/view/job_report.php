@@ -467,7 +467,9 @@
         if ($('#closedjobForm').find('.form-group.has-error').length == 0) {
             var closedjob = $('#close_job_number').val();
             ajax.closedjob = closedjob;
-            console.log(ajax.closedjob);
+            var total_importation_cost = parseFloat(removeComma($('.closed_final_total').text()));
+            ajax.total_importation_cost = total_importation_cost;
+            // console.log(ajax.total_importation_cost);
             if(closedjob != "") {
                 form_group.removeClass('has-error').find('p.help-block').html('');
                 $.post('<?=MODULE_URL?>ajax/ajax_get_closing', ajax, function (data) {

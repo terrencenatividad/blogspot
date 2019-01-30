@@ -229,9 +229,12 @@
         }
 
         private function ajax_get_closing() {
-			$job_no 	= $this->input->post('closedjob');
-			$data['stat'] 			=	'closed';
-			$result 			= 	$this->job_report->updateStat($data, $job_no);
+            $job_no 	            = $this->input->post('closedjob');
+            $total_importation_cost = $this->input->post('total_importation_cost');
+            // var_dump((float)$total_importation_cost);
+            $data['stat'] 			= 'closed';
+            $data['import_cost']    = (float)$total_importation_cost;
+			$result      			= 	$this->job_report->updateStat($data, $job_no);
 			if($result)
 			{
 				$msg = "success";

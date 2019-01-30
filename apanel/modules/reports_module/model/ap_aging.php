@@ -3,7 +3,7 @@ class ap_aging extends wc_model {
 
 	public function getSupplierList() {
 		$result = $this->db->setTable('partners p')
-							->setFields("DISTINCT p.partnercode ind, p.partnername val")
+							->setFields("DISTINCT partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 							->leftJoin("accountspayable ap ON p.partnercode = ap.vendor")
 							->setWhere("p.partnercode != '' AND p.partnertype = 'supplier' AND p.stat = 'active' AND ap.stat = 'posted'")
 							->setGroupBy("val")
