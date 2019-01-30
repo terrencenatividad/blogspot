@@ -128,6 +128,7 @@
 												->setValidation('required')
 												->draw($show_input);
 										?>
+										<input type="hidden" name="h_location" id="h_location" value="<?php echo $asset_location;?>">
 									</div>
 								</div>
 								
@@ -145,6 +146,7 @@
 													->setValidation('required')
 													->draw($show_input);
 										?>
+										<input type="hidden" name="h_department" id="h_department" value="<?php echo $department;?>">
 									</div>	
 									<div class="col-md-6">
 										<?php
@@ -160,6 +162,7 @@
 													->setValidation('required')
 													->draw($show_input);
 										?>
+										<input type="hidden" name="h_person" id="h_person" value="<?php echo $accountable_person;?>">
 									</div>
 								</div>
 

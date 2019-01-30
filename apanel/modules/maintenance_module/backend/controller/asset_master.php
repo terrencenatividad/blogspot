@@ -272,6 +272,9 @@ class controller extends wc_controller {
 	private function ajax_edit() {
 		$data = $this->input->post($this->fields);
 		$shh  = $this->input->post($this->fields2);
+		$old_location	= $this->input->post('h_location');
+		$old_department = $this->input->post('h_department');
+		$old_person		= $this->input->post('h_person');
 		$code = $this->input->post('id');
 		$data['frequency_of_dep'] = '1';
 		$data['stat'] = 'active';
@@ -292,7 +295,7 @@ class controller extends wc_controller {
 		$time  					= strtotime($data['depreciation_month']);
 		$depreciation = 0;
 		
-		$result = $this->asset_master->updateAssetMaster($data, $code, $asset_number);
+		$result = $this->asset_master->updateAssetMaster($data, $code, $asset_number, $old_location, $old_department, $old_person);
 
 		// for($x=1;$x<=$data['useful_life'];$x++){
 		// 	$depreciation_amount 	= ($balance_value - $salvage_value) / $useful_life;
