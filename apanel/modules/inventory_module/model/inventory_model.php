@@ -155,8 +155,6 @@ class inventory_model extends wc_model {
 								->runSelect()
 								->getResult();
 
-		echo $this->db->getQuery();
-
 		if (empty($inv_check)) {
 			$check_transactions = $this->db->setTable("($inner_query) i")
 											->setFields('*')
@@ -174,7 +172,6 @@ class inventory_model extends wc_model {
 							->runDelete();
 			}
 		}
-		
 		
 		if ($inv_check) {
 			$result = $this->db->setTable('invdtlfile')
