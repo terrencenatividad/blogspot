@@ -295,47 +295,47 @@
 											<form method = "post" class="form-horizontal" id = "supplementForm">
 												<div class="row" id = "create">
 													<input type="hidden" name = "budget_id" id = "budget_id">
-													<div class="col-md-4">
+													<div class="col-md-12">
 														<?php
 														echo $ui->formField('text')
 														->setLabel('Date')
-														->setSplit('col-md-6', 'col-md-12')
+														->setSplit('col-md-3', 'col-md-7')
 														->setName('transactiondate')
 														->setId('transactiondate')
 														->setClass('datepicker-input')
 														->setAttribute(array('readonly' => ''))
+														->setValue(date('m-d-Y'))
 														->setAddon('calendar')
 														->setValidation('required')
 														->draw(true);
 														?>
 													</div>
-													<div class="col-md-4">
+													<div class="col-md-12">
 														<?php
 														echo $ui->formField('text')
 														->setLabel('Effectivity Date')
-														->setSplit('col-md-6', 'col-md-12')
+														->setSplit('col-md-3', 'col-md-7')
 														->setName('effectivity_date')
 														->setId('effectivity_date')
 														->setClass('datepicker-input')
 														->setAttribute(array('readonly' => ''))
+														->setValue(date('m-d-Y'))
 														->setAddon('calendar')
 														->setValidation('required')
 														->draw(true);
 														?>
 													</div>
-													<div class="col-md-4">
+													<div class="col-md-12">
 														<?
-														echo $ui->formField('dropdown')
-														->setLabel('Account Codes')
-														->setPlaceholder('Select one')
-														->setSplit('col-md-6', 'col-md-12')
-														->setName('accountcode')
-														->setId('accountcodes')
-														->setValidation('required')
-														->setNone('none')
+														echo $ui->formField('text')
+														->setLabel('Prepared By')
+														->setSplit('col-md-3', 'col-md-7')
+														->setName('prepared_by')
+														->setId('prepared_by')
+														->setAttribute(array('readonly' => 'readonly'))
 														->draw(true);	
 														?>	
-													</div>
+													</div>	
 													<div class="col-md-4">
 														<?
 														echo $ui->formField('dropdown')
@@ -343,7 +343,7 @@
 														->setPlaceholder('Select one')
 														->setSplit('col-md-6', 'col-md-12')
 														->setName('accountcode')
-														->setId('accountcodes')
+														->setId('accountcode')
 														->setValidation('required')
 														->setNone('none')
 														->draw(true);	
@@ -383,6 +383,47 @@
 											<form method = "post" class="form-horizontal" id = "supplementFormEdit" hidden disabled>
 												<div class="row" id = "edit">
 													<input type="hidden" name="code_edit" id = "code_edit">
+													<div class="col-md-12">
+														<?php
+														echo $ui->formField('text')
+														->setLabel('Date')
+														->setSplit('col-md-3', 'col-md-7')
+														->setName('transactiondate_edit')
+														->setId('transactiondate_edit')
+														->setClass('datepicker-input')
+														->setAttribute(array('readonly' => ''))
+														->setValue(date('m-d-Y'))
+														->setAddon('calendar')
+														->setValidation('required')
+														->draw(true);
+														?>
+													</div>
+													<div class="col-md-12">
+														<?php
+														echo $ui->formField('text')
+														->setLabel('Effectivity Date')
+														->setSplit('col-md-3', 'col-md-7')
+														->setName('effectivity_date_edit')
+														->setId('effectivity_date_edit')
+														->setClass('datepicker-input')
+														->setAttribute(array('readonly' => ''))
+														->setValue(date('m-d-Y'))
+														->setAddon('calendar')
+														->setValidation('required')
+														->draw(true);
+														?>
+													</div>
+													<div class="col-md-12">
+														<?
+														echo $ui->formField('text')
+														->setLabel('Prepared By')
+														->setSplit('col-md-3', 'col-md-7')
+														->setName('prepared_by_edit')
+														->setId('prepared_by_edit')
+														->setAttribute(array('readonly' => 'readonly'))
+														->draw(true);	
+														?>	
+													</div>
 													<div class="col-md-4">
 														<?
 														echo $ui->formField('text')
@@ -417,19 +458,6 @@
 														->setValidation('decimal')
 														->draw(true);	
 														?>	
-													</div><div class="col-md-4">
-														<?php
-														echo $ui->formField('text')
-														->setLabel('Effectivity Date')
-														->setSplit('col-md-6', 'col-md-12')
-														->setName('effectivity_date_edit')
-														->setId('effectivity_date_edit')
-														->setClass('datepicker-input')
-														->setAttribute(array('readonly' => ''))
-														->setAddon('calendar')
-														->setValidation('required')
-														->draw(true);
-														?>
 													</div>
 												</div>
 												<br><br>
@@ -510,13 +538,14 @@
 								}
 
 								var id = '';
+								var budget_code = '';
 								$('#tableList tbody').on('click', '.manage_budget_supplements', function() {
 									id = $(this).attr('data-id');
+									budget_code = $(this).closest('tr').find('.budgetcode').html();
 									$.post('<?=MODULE_URL?>ajax/ajax_get_budget_accounts', {id:id}, function(data) {
 										if(data) {
-											$('#accountcodes').html(data).val('').trigger('change');
-											$('#accountcodes').closest('.form-group').removeClass('has-error');
-											$('#accountcodes').closest('.form-group').find('.help-block').html('');
+											$('#accountcode').html(data.ret).val(data.in).trigger('change');
+											$('#prepared_by').val(data.username);
 											$('#modalSupplement').modal('show');
 											$('#budget_id').val(id);
 											getBudgetAccounts();
@@ -554,6 +583,8 @@
 											$('#description').val('');
 											$('#amount').val('');
 											$('#effectivity_date').val('');
+											$('#prepared_by').val('');
+											$('#transactiondate').val('');
 										});
 									} else {
 										$('#supplementForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
@@ -586,6 +617,8 @@
 											$('#description_edit').val(data.description);
 											$('#amount_edit').val(data.amount);
 											$('#effectivity_date_edit').val(data.effectivity_date);
+											$('#transactiondate_edit').val(data.transactiondate);
+											$('#prepared_by_edit').val(data.prepared_by);
 										}
 									});
 								});

@@ -38,6 +38,18 @@ class controller extends wc_controller {
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
+		$total_jan = 0;
+		$total_feb = 0;
+		$total_mar = 0;
+		$total_april = 0;
+		$total_may = 0;
+		$total_june = 0;
+		$total_july = 0;
+		$total_aug = 0;
+		$total_sept = 0;
+		$total_oct = 0;
+		$total_nov = 0;
+		$total_dec = 0;
 		foreach ($pagination->result as $key => $row) {
 			$budget_desc = ($row->budgetdesc) ? $row->budgetdesc : '';
 			$january = ($row->january == '-') ? $row->january : number_format($row->january, 2);
@@ -53,6 +65,30 @@ class controller extends wc_controller {
 			$november = ($row->november == '-') ? $row->november : number_format($row->november, 2);
 			$december = ($row->december == '-') ? $row->december : number_format($row->december, 2);
 			$total = $row->total;
+			$jan_val = ($row->january == '-') ? 0 : $row->january;
+			$feb_val = ($row->february == '-') ? 0 : $row->february;
+			$mar_val = ($row->march == '-') ? 0 : $row->march;
+			$april_val = ($row->april == '-') ? 0 : $row->april;
+			$may_val = ($row->may == '-') ? 0 : $row->may;
+			$june_val = ($row->june == '-') ? 0 : $row->june;
+			$july_val = ($row->july == '-') ? 0 : $row->july;
+			$aug_val = ($row->august == '-') ? 0 : $row->august;
+			$sept_val = ($row->september == '-') ? 0 : $row->september;
+			$oct_val = ($row->october == '-') ? 0 : $row->october;
+			$nov_val = ($row->november == '-') ? 0 : $row->november;
+			$dec_val = ($row->december == '-') ? 0 : $row->december;
+			$total_jan += $jan_val;
+			$total_feb += $feb_val;
+			$total_mar += $mar_val;
+			$total_april += $april_val;
+			$total_may += $may_val;
+			$total_june += $jan_val;
+			$total_july += $july_val;
+			$total_aug += $aug_val;
+			$total_sept += $sept_val;
+			$total_oct += $oct_val;
+			$total_nov += $nov_val;
+			$total_dec += $dec_val;
 			$table .= '<tr>';
 			$table .= '<td>' . $row->budget_code .'</td>';
 			$table .= '<td>' . $budget_desc .'</td>';
@@ -74,6 +110,18 @@ class controller extends wc_controller {
 		
 		$pagination->table	= $table;
 		$pagination->csv	= $this->get_export();
+		$pagination->jan	= $total_jan;
+		$pagination->feb	= $total_feb;
+		$pagination->mar	= $total_mar;
+		$pagination->april	= $total_april;
+		$pagination->may	= $total_may;
+		$pagination->june	= $total_june;
+		$pagination->july	= $total_july;
+		$pagination->aug	= $total_aug;
+		$pagination->sept	= $total_sept;
+		$pagination->oct	= $total_oct;
+		$pagination->nov	= $total_nov;
+		$pagination->dec	= $total_dec;
 		return $pagination;
 	}
 
