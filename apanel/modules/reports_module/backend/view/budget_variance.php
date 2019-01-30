@@ -24,7 +24,16 @@
 					->draw();
 					?>
 				</div>
-				<div class="col-md-3"></div>
+				<div class="col-md-3">
+					<div class="form-group">
+						<div class="input-group">
+							<input type="text" name="date" id="date" class="form-control" value = "" data-daterangefilter="month" autocomplete="off">
+							<span class="input-group-addon">
+								<i class="glyphicon glyphicon-calendar"></i>
+							</span>
+						</div>
+					</div>
+				</div>
 				<div class="col-md-3 text-right">
 					<a href="" id="export_csv" download="Budget_Variance.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 				</div>
@@ -132,6 +141,13 @@
 	});
 	$("#budget_type").on("change",function(){
 		ajax.budget_type = $(this).val();
+		getList();
+		totalBudget();
+		totalActual();
+		totalVariance();
+	});
+	$("#date").on("change",function(){
+		ajax.date = $(this).val();
 		getList();
 		totalBudget();
 		totalActual();

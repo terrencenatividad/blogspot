@@ -27,10 +27,10 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data			= $this->input->post(array('costcenter', 'budget_type'));
+		$data			= $this->input->post(array('costcenter', 'budget_type', 'date'));
 		extract($data);
 
-		$pagination		= $this->budget_report->getBudgetList($costcenter, $budget_type);
+		$pagination		= $this->budget_report->getBudgetList($costcenter, $budget_type, $date);
 
 		$table		= '';
 		if (empty($pagination->result)) {

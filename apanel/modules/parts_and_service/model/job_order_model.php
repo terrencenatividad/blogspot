@@ -213,10 +213,11 @@ class job_order_model extends wc_model
 
 		return $result;
 	}
-	public function getItemList() {
+	public function getItemList($cond = '') {
+		$where 	= ($cond != '') ? 'itemgroup = ' + $cond : '';
 		$result = $this->db->setTable('items')
 						->setFields("itemcode ind, CONCAT(itemcode, ' - ', itemname) val")
-						->setWhere("itemgroup = 'goods'")
+						->setWhere($where)
 						->runSelect()
 						->getResult();
 

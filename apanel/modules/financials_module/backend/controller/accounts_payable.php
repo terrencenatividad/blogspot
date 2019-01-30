@@ -161,7 +161,7 @@ class controller extends wc_controller
 		$data["ajax_task"] 	  		   = "ajax_view";
 		$data['ajax_post'] = "&id=$id";
 		$data["transactiondate"] 			   = $this->date->dateFormat($data['transactiondate']);
-		$data['duedate'] = $this->date->dateFormat();
+		$data['duedate'] = $this->date->dateFormat($data['duedate']);
 		$data['asset_list'] = $this->accounts_payable->retrieveAssetId();
 		$data['voucherno'] = $id;
 		$this->view->load('accounts_payable/accounts_payable_view', $data);
@@ -770,7 +770,7 @@ class controller extends wc_controller
 		$details = false;
 		$warning = array();
 		$accountchecker = array();
-		$errors = array();
+		$error = array();
 		$date_check = array();
 
 		$actualbudget = $this->input->post($this->actualbudget);
@@ -1760,5 +1760,26 @@ class controller extends wc_controller
 			$budget_check = $get_amount->budget_check;
 		}
 		return array('amount' => $amount, 'budget_check' => $budget_check);
+	}
+
+	private function checkifacctisinbudget(){
+		$accountcode = $this->input->post('accountcode');
+
+		// Check if Account is used in a Budget
+		$ret_result = $this->accounts_payable->checkifaccountisinbudget($accountcode);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+
+	private function checkifpairexistsinbudget() {
+		$accountcode= $this->input->post('accountcode');
+		$budget 	= $this->input->post('budgetcode');
+
+		// Check if Budget_Accountcode pair exists
+		$ret_result = $this->accounts_payable->checkifpairexistsinbudget($accountcode, $budget);
+		$result 	= !empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
 	}
 }

@@ -11,7 +11,7 @@ class budget_variance_model extends wc_model {
 		return $result;
 	}
 
-	public function getBudgetList($costcenter, $budget_type) {
+	public function getBudgetList($costcenter, $budget_type, $date) {
 		$condition = '';
 		$type = '';
 		
