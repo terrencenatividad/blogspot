@@ -59,18 +59,18 @@
 					<tr>
 						<td colspan="2" class="text-right"><strong>Total</strong></td>
 						<td class = "text-right year_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
-						<td class = "text-right all_total"></td>
+						<td class = "text-right jan"></td>
+						<td class = "text-right feb"></td>
+						<td class = "text-right mar"></td>
+						<td class = "text-right april"></td>
+						<td class = "text-right may"></td>
+						<td class = "text-right june"></td>
+						<td class = "text-right july"></td>
+						<td class = "text-right aug"></td>
+						<td class = "text-right sept"></td>
+						<td class = "text-right oct"></td>
+						<td class = "text-right nov"></td>
+						<td class = "text-right dec"></td>
 					</tr>
 				</tfoot>
 			</table>
@@ -88,6 +88,18 @@
 			$('#tableList tbody').html(data.table);
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
+			$('.jan').html(addComma(data.jan));
+			$('.feb').html(addComma(data.feb));
+			$('.mar').html(addComma(data.mar));
+			$('.april').html(addComma(data.april));
+			$('.may').html(addComma(data.may));
+			$('.june').html(addComma(data.june));
+			$('.july').html(addComma(data.july));
+			$('.aug').html(addComma(data.aug));
+			$('.sept').html(addComma(data.sept));
+			$('.oct').html(addComma(data.oct));
+			$('.nov').html(addComma(data.nov));
+			$('.dec').html(addComma(data.dec));
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 			$('#tableList tbody tr input.monthly_total').each(function() {
 				var val = parseInt($(this).val());
@@ -98,11 +110,6 @@
 				$('.all_total').html('<strong>'+addComma(total)+'</strong>');
 			});
 			total = 0;
-			$('#tableList tbody tr input.year_total').each(function() {
-				var val = parseInt($(this).val());
-				total += +val;
-				$('.year_total').html('<strong>'+addComma(total)+'</strong>');
-			});
 		});
 	}
 	getList();

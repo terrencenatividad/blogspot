@@ -16,7 +16,7 @@ class controller extends wc_controller {
 			'customer',
 			'transactiondate',
 			'remarks',
-			'job_order.stat',
+			'stat',
 			'vat_sales',
 			'vat_exempt',
 			'vat_zerorated',

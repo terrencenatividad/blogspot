@@ -4,6 +4,7 @@ class controller extends wc_controller
 	public function __construct() {
 		parent::__construct();
 		$this->url 			= new url();
+		$this->session 		= new session();
 		$this->budgetting 	= new budgetting();
 		$this->input        = new input();
 		$this->ui 			= new ui();
@@ -307,6 +308,9 @@ class controller extends wc_controller
 
 		private function ajax_get_budget_accounts() {
 			$id = $this->input->post('id');
+			$getuser = $this->session;
+			$get = $getuser->get('login');
+			$username = $get['username'];
 			$getaccounts = $this->budgetting->getBudgetAccountsOnSupplement($id);
 			$ret = '';
 			foreach ($getaccounts as $row) {
@@ -314,7 +318,7 @@ class controller extends wc_controller
 				$val = $row->val;
 				$ret .= "<option value=". $in.">" .$val. "</option>";
 			}
-			return $ret;
+			return array('ret' => $ret, 'in' => $in, 'username' => $username);
 		}
 
 		private function ajax_get_supplements() {
@@ -368,6 +372,7 @@ class controller extends wc_controller
 			$supplements = $this->input->post();
 			$supplements['amount'] = str_replace(',', '', $supplements['amount']);
 			$supplements['effectivity_date'] = date('Y-m-d', strtotime($supplements['effectivity_date']));
+			$supplements['transactiondate'] = date('Y-m-d', strtotime($supplements['transactiondate']));
 			$result = $this->budgetting->saveSupplement($supplements);
 			return $result;
 		}

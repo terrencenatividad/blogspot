@@ -269,13 +269,6 @@
 																	<?php endif; ?>
 																<?php } ?>
 															</tbody>
-															<tfoot>
-																<tr>
-																	<?php if($ajax_task != 'ajax_view') : ?>
-																		<td><a href="javascript:void(0);" class = "add-data">Add A New Line</a></td>
-																	<?php endif; ?>
-																</tr>
-															</tfoot>
 														</table>
 													</div>
 													<div id="Supplements" class="tab-pane table-responsive">

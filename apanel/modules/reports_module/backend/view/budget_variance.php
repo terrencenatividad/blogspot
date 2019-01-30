@@ -24,7 +24,16 @@
 					->draw();
 					?>
 				</div>
-				<div class="col-md-3"></div>
+				<div class="col-md-3">
+					<div class="form-group">
+						<div class="input-group">
+							<input type="text" name="date" id="date" class="form-control" value = "" data-daterangefilter="month" autocomplete="off">
+							<span class="input-group-addon">
+								<i class="glyphicon glyphicon-calendar"></i>
+							</span>
+						</div>
+					</div>
+				</div>
 				<div class="col-md-3 text-right">
 					<a href="" id="export_csv" download="Budget_Variance.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 				</div>
@@ -49,7 +58,7 @@
 				<tfoot>
 					<tr>
 						<td colspan = "3"></td>
-						<td class = "text-right"><strong>Total : </strong><span class = "total_budget"></span></td>
+						<td class = "text-right"><strong>Total : </strong><span class = "total_amount"></span></td>
 						<td class = "text-right"><b>Total : </b><span class = "total_actual"></span></td>
 						<td class = "text-right"><b>Total : </b><span class="total_variance"></span></td>
 					</tr>
@@ -69,47 +78,13 @@
 			$('#tableList tbody').html(data.table);
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
+			$('.total_amount').html(addComma(data.total_amount));
+			$('.total_actual').html(addComma(data.total_actual));
+			$('.total_variance').html(addComma(data.total_variance));
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-			totalBudget();
-			totalActual();
-			totalVariance();
 		});
 	}
 	getList();
-
-	function totalBudget() {
-		var total = 0;
-		var amount = 0;
-		$('#tableList tbody tr td.amount').each(function(index,value) {
-			amount = removeComma($(this).html());
-			total += amount;
-			$('td .total_budget').html(addComma(total));
-		});
-	}
-
-	function totalActual() {
-		var total = 0;
-		var amount = 0;
-		$('#tableList tbody tr td.actual').each(function(index,value) {
-			amount = removeComma($(this).html());
-			total += amount;
-			$('td .total_actual').html(addComma(total));
-		});
-	}
-
-	function totalVariance() {
-		var total = 0;
-		var amount = 0;
-		$('#tableList tbody tr td.variance').each(function(index,value) {
-			amount = removeComma($(this).attr('data-val'));
-			total += amount;
-			if(total < 0) {
-				$('td .total_variance').html('('+addComma(Math.abs(total))+')');
-			} else {
-				$('td .total_variance').html(addComma(total));
-			}
-		});
-	}
 
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
@@ -117,24 +92,19 @@
 		if (li.not('.active').length && li.not('.disabled').length) {
 			ajax.page = $(this).attr('data-page');
 			getList();
-			totalBudget();
-			totalActual();
-			totalVariance();
 		}
 	});
 
 	$("#costcenter").on("change",function(){
 		ajax.costcenter = $(this).val();
 		getList();
-		totalBudget();
-		totalActual();
-		totalVariance();
 	});
 	$("#budget_type").on("change",function(){
 		ajax.budget_type = $(this).val();
 		getList();
-		totalBudget();
-		totalActual();
-		totalVariance();
+	});
+	$("#date").on("change",function(){
+		ajax.date = $(this).val();
+		getList();
 	});
 </script>

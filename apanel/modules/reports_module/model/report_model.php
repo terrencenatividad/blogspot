@@ -283,6 +283,18 @@ class report_model extends wc_model {
 								'CONCAT(am.asset_location ," - ", am.accountable_person)'
 							);
 
+		$transfields 	=	array('a.companycode',
+								'a.id',
+								'"Transfer"',
+								'am.asset_class',
+								'am.asset_number',
+								'am.sub_number',
+								'am.serial_number',
+								'a.entereddate',
+								'""',
+								'CONCAT(a.asset_location ," - ", a.accountable_person)'
+							);
+
 		$columns 	=	array(	'companycode',
 								'voucherno',
 								'transactiontype',
@@ -324,10 +336,16 @@ class report_model extends wc_model {
 						->setFields($depfields)
 						->leftJoin('asset_master am ON am.asset_number = d.asset_id')
 						->setWhere("d.depreciation_date <= DATE(NOW())")
-						->buildSelect();				
+						->buildSelect();	
+						
+		$transfer = $this->db->setTable('asset_transfer a')
+						->setFields($transfields)
+						->leftJoin('asset_master am ON am.asset_number = a.asset_number')
+						->setWhere(1)
+						->buildSelect();	
 						
 						
-		$union = $po . ' UNION ALL ' . $pr. ' UNION ALL ' . $ap. ' UNION ALL ' . $dep;
+		$union = $po . ' UNION ALL ' . $pr. ' UNION ALL ' . $ap. ' UNION ALL ' . $dep. ' UNION ALL ' . $transfer;
 		$result = $this->db->setTable('asset_transaction')
 						->setFields($columns)
 						->setInsertSelect($union)

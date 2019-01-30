@@ -58,12 +58,14 @@
                                         ->innerJoin('financial_jobs fj on fj.voucherno = bt.voucherno')
                                         ->leftJoin('chartaccount ca on ca.id = bt.accountcode')
                                         ->leftJoin('job j on j.job_no = fj.job_no')
-                                        ->setWhere("bt.transtype IN('AP',
-                                        'CM','DM') AND j.job_no != '' $add_query")
+                                        ->setWhere("bt.transtype IN('AP','CM','DM') AND j.job_no != '' 
+                                        AND ((bt.transtype IN('AP','DM') AND bt.converted_credit = 0) OR (bt.transtype IN('CM') AND bt.converted_debit = 0))
+                                        $add_query")
                                         ->setGroupBy('bt.accountcode, j.job_no')
                                         ->setOrderBy($sort)
                                         ->runPagination();
-            //echo $this->db->getQuery();
+                                        // echo $this->db->getQuery();
+            // echo $add_query;
 
             return $result;
         }
@@ -103,7 +105,9 @@
                                     ca.segment5,
                                     ca.id,
                                     (SUM(bt.converted_debit) - SUM(bt.converted_credit)) AS amount,
-                                    j.stat
+                                    j.stat,
+                                    SUM(bt.converted_debit),
+                                    SUM(bt.converted_credit)
                                     ');
 
             $result         = $this->db->setTable('balance_table bt')
@@ -112,12 +116,15 @@
                                         ->leftJoin('chartaccount ca on ca.id = bt.accountcode')
                                         ->leftJoin('job j on j.job_no = fj.job_no')
                                         ->setWhere("bt.transtype IN('AP',
-                                        'CM','DM') AND j.job_no != '' $add_query")
+                                        'CM','DM') AND j.job_no != '' 
+                                        AND ((bt.transtype IN('AP','DM') AND bt.converted_credit = 0) OR (bt.transtype IN('CM') AND bt.converted_debit = 0))
+                                        $add_query")
                                         ->setGroupBy('bt.accountcode, j.job_no')
                                         ->setOrderBy($sort)
                                         ->runPagination();
-            //echo $this->db->getQuery();
-
+            // echo $this->db->getQuery();
+            
+                                    
             return $result;
         }
 
@@ -279,7 +286,7 @@
                                         ->setGroupBy('bt.accountcode, j.job_no')
                                         ->runSelect()
                                         ->getResult();
-            echo $this->db->getQuery();
+                                        // echo $this->db->getQuery();
 
             return $result;
         }
