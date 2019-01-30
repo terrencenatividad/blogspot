@@ -165,12 +165,12 @@ class sales_invoice extends wc_model
 		return $result;
 	}
 
-	public function countServices($voucherno) {
+	public function countParts($voucherno) {
 		$result = $this->db->setTable('job_order_details jod')
 							->setFields("COUNT('job_order_no') count")
 							->leftJoin('items i ON i.itemcode = jod.itemcode')
 							->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
-							->setWhere("jod.job_order_no = '$voucherno' AND it.label LIKE '%service%'")
+							->setWhere("jod.job_order_no = '$voucherno' AND it.label NOT LIKE '%service%'")
 							->runSelect()
 							->getRow();
 		
@@ -695,7 +695,7 @@ class sales_invoice extends wc_model
 											->leftJoin('invfile inv ON jod.itemcode = inv.itemcode AND jod.warehouse = inv.warehouse AND jod.companycode = inv.companycode')
 											->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
 											->leftJoin('servicequotation_details sqd ON sqd.voucherno = jo.service_quotation AND sqd.itemcode = jod.itemcode AND sqd.companycode = jod.companycode')
-											->setWhere($condition." AND it.label LIKE '%service%'")
+											->setWhere($condition." AND it.label NOT LIKE '%service%'")
 											->runSelect()
 											->getResult();
 		}

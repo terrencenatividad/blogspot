@@ -1057,7 +1057,7 @@ class controller extends wc_controller
 		$counter = 0;
 		foreach ($list->result as $key => $row) {
 			if ($voucher == 'jo') {	
-				$services = $this->invoice->countServices($row->voucherno);
+				$services = $this->invoice->countParts($row->voucherno);
 				if ($services->count == 0) {
 					$hide_tr = 'hidden';
 				}
