@@ -17,7 +17,7 @@ class controller extends wc_controller {
 			'customer',
 			'remarks',
 			'amount',
-			'discounttype',
+			'discount_type'		=> 'discounttype',
 			'total_discount'	=> 'discountamount',
 			'netamount',
 			'taxamount',
@@ -331,7 +331,7 @@ class controller extends wc_controller {
 				$hide_tr = '';
 				$counter++;
 			}
-			$table .= '<tr class ="'.$hide_tr.'" data-id="' . $row->job_order_no . '">';
+			$table .= '<tr class ="'.$hide_tr.'" data-id="' . $row->job_order_no . '" data-discount="' . $row->discounttype . '" data-sq="' . $row->service_quotation . '">';
 			$table .= '<td>' . $row->job_order_no . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td class="text-right">' . $row->service_quotation . '</td>';
