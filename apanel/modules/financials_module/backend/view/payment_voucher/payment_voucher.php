@@ -1,4 +1,4 @@
-	<section class="content"> 
+<section class="content"> 
 		<div id = "errordiv" class="alert alert-warning alert-dismissible hidden">
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 			<h4><i class="icon fa fa-warning"></i>The system has encountered the following error/s!</h4>
@@ -92,6 +92,37 @@
 											)
 										)
 										->setValue($paymenttype)
+										->draw($show_input);
+										?>
+									</div>
+								</div>
+
+								<div class = "row">
+									<div class="col-md-6">
+										<?php
+										echo $ui->formField('dropdown')
+										->setLabel('Currency')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('currencycode')
+										->setId('currencycode')
+										->setValue($currencycode)
+										->setList($currencycodes)
+										->draw($show_input);
+										?>
+									</div>
+								</div>
+
+								<div class = "row">
+									<div class="col-md-6">
+										<?php
+										echo $ui->formField('text')
+										->setLabel('Exchange Rate')
+										->setPlaceholder('0.00')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('exchangerate')
+										->setId('exchangerate')
+										->setValue($exchangerate)
+										->setClass('text-right')
 										->draw($show_input);
 										?>
 									</div>
@@ -501,9 +532,10 @@
 												<tr class="info">
 													<th class="col-md-1 <?=$toggle_wtax?>">Withholding Tax</th>
 													<th class="col-md-3">Account</th>
-													<th class="col-md-3">Description</th>
+													<th class="col-md-2">Description</th>
 													<th class="col-md-2">Debit</th>
 													<th class="col-md-2">Credit</th>
+													<th class="col-md-2 text-center">Base Currency Amount</th>
 													<?if($show_input){?><th class="col-md-1"></th><?}?>
 												</tr>
 											</thead>
@@ -591,7 +623,8 @@
 														<td>
 															<?php
 															echo $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 															->setName('debit['.$row.']')
 															->setId('debit['.$row.']')
 															->setClass("text-right debit")
@@ -604,13 +637,29 @@
 														<td>
 															<?php
 															echo $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 															->setName('credit['.$row.']')
 															->setId('credit['.$row.']')
 															->setClass("text-right account_amount credit")
 															->setValidation('decimal')
 															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 															->setValue(number_format($credit, 2))
+															->draw($show_input);
+															?>
+														</td>
+														<td class = "remove-margin">
+															<?php
+															echo $ui->formField('text')
+															->setPlaceholder('0.00')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default base_symbol">PHP</span>')
+															->setName('currencyamount[]')
+															->setId('currencyamount')
+															->setAttribute(array("maxlength" => "20", 'readonly'))
+															->setClass("currencyamount text-right")
+															->setValue('0.00')
+															->setValidation('decimal')
 															->draw($show_input);
 															?>
 														</td>
@@ -691,7 +740,8 @@
 														<td>
 															<?php
 															echo $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 															->setName('debit['.$row.']')
 															->setId('debit['.$row.']')
 															->setClass("text-right debit")
@@ -704,13 +754,29 @@
 														<td>
 															<?php
 															echo $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 															->setName('credit['.$row.']')
 															->setClass("text-right account_amount credit")
 															->setId('credit['.$row.']')
 															->setValidation('decimal')
 															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 															->setValue(number_format($credit, 2))
+															->draw($show_input);
+															?>
+														</td>
+														<td class = "remove-margin">
+															<?php
+															echo $ui->formField('text')
+															->setPlaceholder('0.00')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default base_symbol">PHP</span>')
+															->setName('currencyamount[]')
+															->setId('currencyamount')
+															->setAttribute(array("maxlength" => "20", 'readonly'))
+															->setClass("currencyamount text-right")
+															->setValue('0.00')
+															->setValidation('decimal')
 															->draw($show_input);
 															?>
 														</td>
@@ -733,6 +799,8 @@
 															$taxcode 			= $aPvJournalDetails_Value->taxcode;
 															$taxbase_amount 	= $aPvJournalDetails_Value->taxbase_amount;
 															$taxbase_amount		= number_format($taxbase_amount,2);
+
+															$currencyamount = ($debit == 0) ? $credit : $debit;
 
 															$disable_code 		= "";
 															$added_class 		= "";
@@ -818,7 +886,8 @@
 
 															$detail_row	.= '<td class="text-right">';
 															$detail_row .= $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default currency_symbol">'.$currencycode.'</span>')
 															->setName('debit['.$row.']')
 															->setClass("debit text-right $indicator")
 															->setId('debit['.$row.']')
@@ -830,13 +899,27 @@
 
 															$detail_row	.= '<td class="text-right">';
 															$detail_row .= $ui->formField('text')
-															->setSplit('', 'col-md-12')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default currency_symbol">'.$currencycode.'</span>')
 															->setName('credit['.$row.']')
 															->setValidation('decimal')
 															->setClass("account_amount credit text-right $indicator")
 															->setId('credit['.$row.']')
 															->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_credit))
 															->setValue(number_format($credit, 2))
+															->draw($show_input);
+															$detail_row	.= '</td>';
+
+															$detail_row	.= '<td class="text-right">';
+															$detail_row .= $ui->formField('text')
+															->setSplit('col-md-2', 'col-md-10')
+															->setLabel('<span class="label label-default base_symbol">PHP</span>')
+															->setName('currencyamount['.$row.']')
+															->setValidation('decimal')
+															->setClass("currencyamount text-right $indicator")
+															->setId('currencyamount['.$row.']')
+															->setAttribute(array("maxlength" => "20", 'readonly'))
+															->setValue(number_format($currencyamount, 2))
 															->draw($show_input);
 															$detail_row	.= '</td>';
 
@@ -891,6 +974,18 @@
 															->setClass("input_label text-right")
 															->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
 															->setValue(number_format($total_credit,2))
+															->draw($show_input);
+															?>
+														</td>
+														<td class="text-right" style="border-top:1px solid #DDDDDD;">
+															<?php
+															echo $ui->formField('text')
+															->setSplit('', 'col-md-12')
+															->setName('total_currency')
+															->setId('total_currency')
+															->setClass("input_label text-right")
+															->setAttribute(array("maxlength" => "40", "readonly" => "readonly"))
+															->setValue(number_format(0,2))
 															->draw($show_input);
 															?>
 														</td>
@@ -1887,6 +1982,7 @@ function resetIds() {
 		row.cells[5].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[7].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].id 	= 'currencyamount['+x+']';
 		
 		row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
@@ -1897,6 +1993,7 @@ function resetIds() {
 		row.cells[5].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[7].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
+		row.cells[7].getElementsByTagName("input")[0].name 	= 'currencyamount['+x+']';
 		
 		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
 		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
@@ -1957,6 +2054,7 @@ function setZero() {
 		document.getElementById('detailparticulars['+newid+']').value 	= '';
 		document.getElementById('debit['+newid+']').value 				= '0.00';
 		document.getElementById('credit['+newid+']').value 				= '0.00';
+		document.getElementById('currencyamount['+newid+']').value 		= '0.00';
 
 		document.getElementById('debit['+newid+']').readOnly 			= false;
 		document.getElementById('credit['+newid+']').readOnly 			= false;
@@ -2475,9 +2573,11 @@ function confirmChequePrint(row){
 
 function showList()
 {
-	var vnose 		= JSON.stringify(container);
-	var	vendor_code	= $('#payableForm #vendor').val();
-	voucherno 		= $('#payableForm #h_voucher_no').val();
+	var vnose 			= JSON.stringify(container);
+	var	vendor_code		= $('#payableForm #vendor').val();
+	voucherno 			= $('#payableForm #h_voucher_no').val();
+	var	currencycode	= $('#payableForm #currencycode').val();
+	var	exchangerate	= $('#payableForm #exchangerate').val();
 
 	var ajax_call	= '';
 	ajax.limit 		= 5;
@@ -2485,11 +2585,13 @@ function showList()
 		ajax_call.abort();
 	}
 
-	ajax.vendor 	= vendor_code;
-	ajax.voucherno 	= voucherno;
-	ajax.vno 		= vnose;
-	ajax.task 		= task;
-	ajax_call 		= $.post("<?= BASE_URL ?>financials/payment_voucher/ajax/load_payables", ajax )
+	ajax.vendor 	  = vendor_code;
+	ajax.voucherno 	  = voucherno;
+	ajax.vno 		  = vnose;
+	ajax.task 		  = task;
+	ajax.currencycode = currencycode;
+	ajax.exchangerate = exchangerate;
+	ajax_call 			= $.post("<?= BASE_URL ?>financials/payment_voucher/ajax/load_payables", ajax )
 	.done(function( data ) 
 	{
 		if ( ! edited) {
@@ -2676,6 +2778,9 @@ function getPVDetails(){
 	var vendorcode   	= $("#vendor").val();
 	var selected_rows 	= JSON.stringify(container);
 
+	var currencycode 	= $('#currencycode').val();
+	var exchangerate 	= $('#exchangerate').val();
+
 	var cheques = [];
 	cheques_obj = getCheckAccounts();
 
@@ -2689,7 +2794,7 @@ function getPVDetails(){
 
 	$("#selected_rows").html(selected_rows);
 	
-	var data 		 = "checkrows=" + selected_rows + "&vendor=" + vendorcode + "&cheques=" + cheques;
+	var data 		 = "checkrows=" + selected_rows + "&vendor=" + vendorcode + "&cheques=" + cheques + '&currencycode=' + currencycode + '&exchangerate=' + exchangerate;
 
 	if(selected_rows == "")
 	{
@@ -2748,6 +2853,7 @@ function getPVDetails(){
 					disable_acct_fields(row);
 				}
 				addAmountAll("credit");
+				sumCurrencyAmount();
 			}
 		});
 	}
@@ -4394,5 +4500,105 @@ $(document).ready(function() {
 		}
 	})
 
-}); // end
+	$(document).ready(function() {
+		var currencycode = $('#currencycode').val();
+		$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
+			if(data) {
+				$('#exchangerate').val(data.exchangerate);
+			}
+		});
+	});
+
+	$('#currencycode').on('change', function() {
+		var currencycode = $(this).val();
+		$('#entriesTable tbody tr td .form-group').find('.currency_symbol').html(currencycode);
+		$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
+			if(data) {
+				$('#exchangerate').val(data.exchangerate);	
+				$('.debit').each(function() {
+					if($(this).val() != '0.00') {
+						$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).val())));
+					} else {
+						$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
+					}
+				});
+			}
+		});
+	});
+
+	$('#exchangerate').on('blur', function() {
+		var total = 0;
+		var rate = $(this).val();
+		$('.currencyamount').each(function() {
+			var debit = removeComma($(this).closest('tr').find('.debit').val());
+			var credit = removeComma($(this).closest('tr').find('.credit').val());
+			if(debit != '0.00') {
+				row = $(this).closest('tr').find('.debit');
+				total = debit * rate;
+			} else {
+				row = $(this).closest('tr').find('.credit');
+				total = credit * rate;
+			}
+			row.closest('tr').find('.currencyamount').val(addComma(total));
+			sumCurrencyAmount();
+		});
+	});
+		
+	var debit_currency = 0;
+	var credit_currency = 0;
+	$('#entriesTable').on('blur', '.debit', function() {
+		var rate = removeComma($('#exchangerate').val());
+		var debit = removeComma($(this).val());
+		if(debit != '0') {
+			debit_currency = debit * rate;
+			$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
+			$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+			$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
+			$(this).closest('tr').find('.asterisk').html('');
+			// sumDebit();
+			// sumCredit();
+			sumCurrencyAmount();
+		} else {
+			$(this).closest('tr').find('.credit').removeAttr('readonly');
+			// sumDebit();
+			// sumCredit();
+			sumCurrencyAmount();
+		}
+	});
+
+	$('#entriesTable').on('blur', '.credit', function() {
+		var rate = removeComma($('#exchangerate').val());
+		var credit = removeComma($(this).val());
+		if(credit != '0') {
+			credit_currency = credit * rate;
+			$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
+			$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
+			$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
+			$(this).closest('tr').find('.asterisk').html('');
+			// sumCredit();
+			// sumDebit();
+			sumCurrencyAmount();
+		} else {
+			$(this).closest('tr').find('.debit').removeAttr('readonly');
+			// sumDebit();
+			// sumCredit();
+			sumCurrencyAmount();
+		}
+	});
+
+	}); // end
+	
+	function sumCurrencyAmount() {
+		var total_currency = 0;
+		var currency = 0;
+		$('.currencyamount').each(function() {
+			currency = removeComma($(this).val());
+			if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
+				total_currency += -currency;
+			}else{
+				total_currency += +currency;
+			}
+		});
+		$('#total_currency').val(addComma(total_currency));
+	}
 </script>

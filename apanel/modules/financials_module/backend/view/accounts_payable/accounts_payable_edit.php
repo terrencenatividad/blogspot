@@ -1523,7 +1523,9 @@
 			});
 			if($('#total_debit').val() != $('#total_credit').val()) {
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
-				good = 'false';
+				good = false;
+			} else {
+				good = true;
 			}
 			
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
@@ -1582,6 +1584,8 @@
 				$('#error-modal').modal('show');
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
 				good = false;
+			} else {
+				good = true;
 			}
 
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
@@ -1639,7 +1643,9 @@
 			if($('#total_debit').val() != $('#total_credit').val()) {
 				$('#error-modal').modal('show');
 				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
-				good = 'false';
+				good = false;
+			} else {
+				good = true;
 			}
 
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');

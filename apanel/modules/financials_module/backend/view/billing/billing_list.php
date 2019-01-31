@@ -88,9 +88,9 @@
 								->addHeader('Transaction Date', array('class' => 'col-md-2'), 'sort', 'b.transactiondate')
 								->addHeader('Billing No.', array('class' => 'col-md-3'), 'sort', 'b.voucherno', 'desc')
 								->addHeader('Customer', array('class' => 'col-md-3'), 'sort', 'customer')
-								->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'b.netamount')
+								->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'b.netamount')	
 								->addHeader('Balance', array('class' => 'col-md-2 text-right'), 'sort', 'balance')
-								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'b.stat')
+								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'b.stat', 'desc')
 								->draw();
 					?>
 					<tbody>
