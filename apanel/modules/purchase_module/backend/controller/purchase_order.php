@@ -798,7 +798,7 @@ class controller extends wc_controller
 		$saveArr = array();
 		$actualArr = array();
 
-		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['warning']) && !empty($result['date_checker']))
+		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['date_checker']))
 		{
 			$msg = $result;
 		}
