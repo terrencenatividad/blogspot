@@ -671,6 +671,7 @@ class purchase_order extends wc_model
 							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
+							var_dump($getbudgetaccount);
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
@@ -688,7 +689,7 @@ class purchase_order extends wc_model
 									} 
 								} else {
 									if($row['unitprice'] > $getbudgetaccount->amount) {
-										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
+										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									}
 								}
 							}
