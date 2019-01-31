@@ -748,9 +748,9 @@
 		$('#tableList tbody').on('blur', '.quantity', function(e) {		
 			var task		= $('#task').val();
 			var itemcode 	= $(this).closest('tr').find('.h_itemcode').val();
-			var editqty 	= $(this).closest('tr').find('.h_quantity').val();
 			var jobno		= $('#job_order_no').val();
 			var value 		=	removeComma($(this).val());
+			var editqty 	= $(this).closest('tr').find('.h_quantity').val();
 			var orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
 			var issuedqty 	=	removeComma($(this).closest('tr').find('.h_issuedqty').val());
 			var issueqtyleft = parseInt(orderqty) - parseInt(issuedqty);
@@ -764,15 +764,14 @@
 
 			if(task != 'ajax_edit'){
 				if(value > issueqtyleft){
-				$(this).val(issueqtyleft);
-				// value = issueqtyleft;
+					$(this).val(issueqtyleft);
+					// value = issueqtyleft;
 				}
 			}else{
 				issueqtyleft = parseInt(editqty) + parseInt(issueqtyleft);
-				console.log(issueqtyleft);
 				if(value > issueqtyleft){
-				$(this).val(issueqtyleft);
-				// value = issueqtyleft;
+					$(this).val(issueqtyleft);
+					// value = issueqtyleft;
 				}
 			}
 			
@@ -803,9 +802,10 @@
 			itemcode = $(this).closest('tr').find('.h_itemcode').val();
 			description = $(this).closest('tr').find('.h_detailparticular').val();
 			serials = $(this).closest('tr').find('.serialnumbers').val();
-			orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
-			issuedqty 	=	removeComma($(this).closest('tr').find('.h_issuedqty').val());
-			issueqtyleft = parseInt(orderqty) - parseInt(issuedqty);
+			orderqty 	 =	removeComma($(this).closest('tr').find('.h_orderqty').val());
+			editqty 	 =	removeComma($(this).closest('tr').find('.h_quantity').val());
+			issuedqty 	 =	removeComma($(this).closest('tr').find('.h_issuedqty').val());
+			issueqtyleft = parseInt(orderqty) - parseInt(issuedqty) + parseInt(editqty);
 			check_num = $(this).val();
 			if ($(this).hasClass('mainitem')) {
 				type = 'mainitem';
@@ -1025,6 +1025,7 @@
 				$('.quantity').val('0');
 				$('#isyu').show();
 				$('#save').addClass('hidden');	
+				$('#task').val('');	
 				$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
 			});
 		});
