@@ -4,7 +4,7 @@
 		public function retrieveCustomerList()
 		{
 			$result = $this->db->setTable('partners p')
-							->setFields("p.partnercode ind, p.partnername val")
+							->setFields("p.partnercode ind, CONCAT(p.partnercode,' - ',p.partnername) val")
 							->leftJoin("accountsreceivable ar ON p.partnercode = ar.customer")
 							->setWhere("p.partnercode != '' AND p.partnertype = 'customer' AND p.stat = 'active' AND ar.stat = 'posted'")
 							->setGroupBy("val")

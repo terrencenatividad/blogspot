@@ -816,15 +816,17 @@ class trial_balance extends wc_model {
 		$month_end  = 	($ret->taxyear == 'fiscal') ? $ret->periodstart-1	:	12;
 
 		$select 	=	array(); 
+
 		foreach($ret_years as $key => $result){
 			$year 	=	$result->fiscalyear;
 			for($x=$month_start;$x<=12;$x++){
 				if($x==12 && $ret->taxyear == 'fiscal'){
 					$month_end   = $month_start - 1;
 					$month_start = 1;
-					// $x 	=	1;
 				}
-				$select[] 	=	"SELECT $year year, $x month";
+				if($year!=""){
+					$select[] 	=	"SELECT $year year, $x month";
+				}
 			}
 		}
 		

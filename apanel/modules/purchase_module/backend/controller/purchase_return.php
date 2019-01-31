@@ -10,6 +10,7 @@ class controller extends wc_controller {
 		$this->restrict 		= new purchase_restriction_model();
 		// $this->financial_model  = $this->checkOutModel('financials_module/financial_model');
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
+		$this->financial_model	= $this->checkOutModel('financials_module/financial_model');
 		$this->session			= new session();
 		$this->fields 			= array(
 			'voucherno',
@@ -294,6 +295,11 @@ class controller extends wc_controller {
 									->setDetails($data['vendor'])
 									->generateBalanceTable();
 		}
+
+		if ($result && $this->financial_model) {
+			$this->financial_model->generateCM($data['voucherno']);
+		}
+
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
@@ -337,13 +343,18 @@ class controller extends wc_controller {
 				$result4			= $this->purchase_model->removePurchaseReceiptQtyReturned($data, $data2);
 		}
 
-		// if ($result && $this->inventory_model) {
-		// 	$this->inventory_model->computeValues()
-		// 							->setDetails($data['vendor'])
-		// 							->logChanges();
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->computeValues()
+									->setDetails($data['vendor'])
+									->logChanges();
 
-		// 	$this->inventory_model->generateBalanceTable();
-		// }
+			$this->inventory_model->generateBalanceTable();
+		}
+
+		if ($result && $this->financial_model) {
+			$this->financial_model->generateCM($voucherno);
+		}
+
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -356,6 +367,7 @@ class controller extends wc_controller {
 		if ($delete_id) {
 			$result = $this->purchase_model->deletePurchaseReturn($delete_id);
 		}
+
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
 				$data = $this->purchase_model->getPurchaseReturnById($this->fields, $voucherno);
@@ -367,6 +379,13 @@ class controller extends wc_controller {
 			}
 			$this->inventory_model->generateBalanceTable();
 		}
+
+		if ($result && $this->financial_model) {
+			foreach ($delete_id as $voucherno) {
+				$this->financial_model->cancelCM($voucherno);
+			}
+		}
+
 		return array(
 			'success' => $result
 		);

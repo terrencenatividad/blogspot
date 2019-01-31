@@ -798,7 +798,7 @@ class controller extends wc_controller
 		$saveArr = array();
 		$actualArr = array();
 
-		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['warning']) && !empty($result['date_checker']))
+		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['date_checker']))
 		{
 			$msg = $result;
 		}
@@ -817,7 +817,7 @@ class controller extends wc_controller
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
-					$saveArr['actual'] 		= str_replace(',','', $data_post['t_subtotal']);
+					$saveArr['actual'] 		= str_replace(',','', $data_post['itemprice'][$i]);
 					$actualArr[]      		= $saveArr;
 				}
 				$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);

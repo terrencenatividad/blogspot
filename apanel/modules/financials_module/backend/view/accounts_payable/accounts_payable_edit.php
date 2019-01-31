@@ -1251,7 +1251,7 @@
 			var rate = removeComma($('#exchangerate').val());
 			var debit = removeComma($(this).val());
 			if(debit != '0') {
-				debit_currency = $(this).val() * rate;
+				debit_currency = debit * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
 				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
@@ -1272,7 +1272,7 @@
 			var rate = removeComma($('#exchangerate').val());
 			var credit = removeComma($(this).val());
 			if(credit != '0') {
-				credit_currency = $(this).val() * rate;
+				credit_currency = credit * rate;
 				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
 				$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
 				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
@@ -1692,6 +1692,8 @@
 			var budgetcode = $(this).val();
 			var accountcode= $(this).closest('tr').find('.accountcode').val();
 
-			checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+			if(accountcode){
+				checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+			}
 		});	
 	</script>

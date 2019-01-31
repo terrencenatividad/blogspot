@@ -484,7 +484,7 @@ class purchase_receipt_model extends wc_model {
 		$result = $this->db->setTable("($query) i")
 							->setFields('i.voucherno, i.transactiondate, i.remarks, i.netamount, i.qtyleft, i.vendor')
 							->setGroupBy('i.voucherno')
-							->setHaving('i.qtyleft > 0')
+							// ->setHaving('i.qtyleft > 0')
 							->runPagination(FALSE);
 							
 		return $result;

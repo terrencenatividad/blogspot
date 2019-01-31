@@ -60,7 +60,7 @@ class purchase_journal extends wc_model {
 
 	public function getVendorList() {
 		$result = $this->db->setTable('partners')
-						->setFields("partnercode ind, partnername val")
+						->setFields("partnercode ind, CONCAT(partnercode,' - ',partnername) val")
 						->setWhere("stat = 'active' AND partnertype = 'supplier'")
 						->runSelect()
 						->getResult();

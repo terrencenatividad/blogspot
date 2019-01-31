@@ -190,13 +190,13 @@ class depreciation_run extends wc_model {
 		$sort = ($sort) ? $sort : 'asset_number asc';
 		$condition = '';
 		if ($search) {
-			$condition = $this->generateSearch($search, array('asset_number','asset_name'));
+			$condition = ' AND ' .$this->generateSearch($search, array('a.asset_number','assetclass','c.name'));
 		}
 		$result = $this->db->setTable("asset_master a")
 						->setFields($fields)
 						->leftJoin("cost_center c ON c.id = a.department")
 						->leftJoin('asset_class ac ON ac.id = a.asset_class')
-						->setWhere("a.stat = 'active'")
+						->setWhere("a.stat = 'active' $condition")
 						->runPagination();
 						
 		return $result;

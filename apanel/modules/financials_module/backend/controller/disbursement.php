@@ -865,6 +865,7 @@ class controller extends wc_controller
 		$date_checker = array();
 
 		$data_post 	= $this->input->post();
+		$codes = array('code' => 'code', 'amount' => 'amount');
 		if(!empty($data_post['budgetcode'])) {
 			for($arr = 0; $arr <= count($data_post['budgetcode']); $arr++) {
 				if(!empty($data_post['budgetcode'][$arr])) {
@@ -887,26 +888,87 @@ class controller extends wc_controller
 
 							if($type == 'Monitored') {
 								if($data_post['debit'][$arr] != '0.00') {
-									if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
-										$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
-										' ' . $accountname . ' account <br>';
+									$check = in_array($data_post['budgetcode'][$arr], $codes);
+									if(!$check) {
+										$codes['code'] = $data_post['budgetcode'][$arr];
+										$codes['amount'] = str_replace(',', '', $data_post['debit'][$arr]);
+									} else {
+										$codes['code'] = $data_post['budgetcode'][$arr];
+										$codes['amount'] += str_replace(',', '',$data_post['debit'][$arr]);
+									}
+									if($check) {
+										if($codes['amount'] > $amount) {
+											$warning[0] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+											' ' . $accountname . ' account <br>';	
+										}
+									} else {
+										if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
+											$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+											' ' . $accountname . ' account <br>';
+										}
 									}
 								} else {
-									if($data_post['credit'][$arr] > $amount) {
-										$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
-										' ' . $accountname . ' account <br>';
+									$check = in_array($data_post['budgetcode'][$arr], $codes);
+									if(!$check) {
+										$codes['code'] = $data_post['budgetcode'][$arr];
+										$codes['amount'] = str_replace(',', '', $data_post['credit'][$arr]);
+									} else {
+										$codes['code'] = $data_post['budgetcode'][$arr];
+										$codes['amount'] += str_replace(',', '',$data_post['credit'][$arr]);
+									}
+									if($check) {
+										if($codes['amount'] > $amount) {
+											$warning[0] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+											' ' . $accountname . ' account <br>';	
+										}
+									} else {
+										if($data_post['credit'][$arr] > $amount) {
+											$warning[] = 'You were about to exceed from your budget code ' . $data_post['budgetcode'][$arr] . 
+											' ' . $accountname . ' account <br>';
+										}
 									}
 								}
 							} else {
 								if($data_post['debit'][$arr] != '0.00') {
-									if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
-										$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
-										' ' . $accountname . ' account <br>';
+									$check = in_array($data_post['budgetcode'][$arr], $codes);
+									if(!$check) {
+										$codes['code'] = $data_post['budgetcode'][$arr];
+										$codes['amount'] = str_replace(',', '', $data_post['debit'][$arr]);
+									} else {
+										$codes['code'] = $data_post['budgetcode'][$arr];
+										$codes['amount'] += str_replace(',', '',$data_post['debit'][$arr]);
 									}
-								} else {
-									if($data_post['credit'][$arr] > $amount) {
-										$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
-										' ' . $accountname . ' account <br>';
+									if($check) {
+										if($codes['amount'] > $amount) {
+											$error[0] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+											' ' . $accountname . ' account <br>';
+										} else {
+											if(str_replace(',','',$data_post['debit'][$arr]) > $amount) {
+												$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+												' ' . $accountname . ' account <br>';
+											}
+										}
+									} else {
+										$check = in_array($data_post['budgetcode'][$arr], $codes);
+										if(!$check) {
+											$codes['code'] = $data_post['budgetcode'][$arr];
+											$codes['amount'] = str_replace(',', '', $data_post['credit'][$arr]);
+										} else {
+											$codes['code'] = $data_post['budgetcode'][$arr];
+											$codes['amount'] += str_replace(',', '',$data_post['credit'][$arr]);
+										}
+
+										if($check) {
+											if($codes['amount'] > $amount) {
+												$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+												' ' . $accountname . ' account <br>';
+											} else {
+												if($data_post['credit'][$arr] > $amount) {
+													$error[] = 'You are not allowed to exceed budget in ' . $data_post['budgetcode'][$arr] . 
+													' ' . $accountname . ' account <br>';
+												}
+											}
+										}
 									}
 								}
 							}
@@ -945,7 +1007,7 @@ class controller extends wc_controller
 		// 	} 
 		// }
 
-		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, 'warning' => $warning, 'accountchecker' => $accountchecker, 'error' => $error, 'date_checker' => $date_checker);
+		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, 'warning' => $warning, 'error' => $error, 'date_checker' => $date_checker);
 		return $dataArray;
 	}
 

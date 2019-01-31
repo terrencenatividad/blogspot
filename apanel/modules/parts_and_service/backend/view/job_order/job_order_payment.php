@@ -461,6 +461,11 @@
 								->setClass('h_issuedqty')
 								->setValue('` + details.issuedqty + `')
 								->draw(true);
+							echo $ui->formField('hidden')
+								->setClass('checked')
+								->setValue('')
+								->draw(true);
+						
 						?>
 					</td>
 					<td>
@@ -750,23 +755,24 @@
 					$(this).parent().parent().removeClass('has-error');
 			}
 			
-			if(value > issueqtyleft){
-				$(this).val(issueqtyleft);
-				value = issueqtyleft;
-			}
+			// if(value > issueqtyleft){
+			// 	$(this).val(issueqtyleft);
+			// 	value = issueqtyleft;
+			// }
 
-			if ($(this).closest('tr').data('isbundle') == 1) {
-				var linenum = $(this).closest('tr').data('linenum');
-				$.each($('.subitem'+linenum), function(){
-					var subitemqty 	= $(this).closest('tr').data('value');
-					subitemqty 		= subitemqty * value;
-					$(this).find('.quantity').val(subitemqty);
-				});
-			}
+			// if ($(this).closest('tr').data('isbundle') == 1) {
+			// 	var linenum = $(this).closest('tr').data('linenum');
+			// 	$.each($('.subitem'+linenum), function(){
+			// 		var subitemqty 	= $(this).closest('tr').data('value');
+			// 		subitemqty 		= subitemqty * value;
+			// 		$(this).find('.quantity').val(subitemqty);
+			// 	});
+			// }
 	});	
 
 		var itemselected = [];
 		var allserials = [];
+		var checked_serials = [];
 		var linenum = '';
 		var serials = '';
 		var itemrow = '';
@@ -808,8 +814,7 @@
 			ajax.id = itemrow.closest('tr').find('.serialnumbers').val();
 			ajax.item_ident = itemrow.closest('tr').find('.item_ident_flag').val();
 			var checked = itemrow.closest('tr').find('.checked').val();
-			// ajax.checked_serials = checked.toString();
-			// console.log(ajax.checked_serials);
+			ajax.checked_serials = checked.toString();
 			task = $('#task').val();
 			ajax.task = $('#task').val();
 			if (task=='ajax_edit') {
@@ -820,6 +825,11 @@
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_serial_list', ajax, function(data) {
 				$('#tableSerialList tbody').html(data.table);
 				$('#serial_pagination').html(data.pagination);
+				$('#tableSerialList tbody tr td input[type="checkbox"]').each(function() {
+					if(jQuery.inArray($(this).val(), checked_serials) != -1) {
+						$(this).closest('tr').iCheck('check');
+					}
+				});
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
 					ajax.page = data.page_limit;
 					getSerialList();
@@ -830,6 +840,12 @@
 		$('#serial_pagination').on('click', 'a', function(e) {
 			e.preventDefault();
 			var li = $(this).closest('li');
+			$('#tableSerialList tbody tr td input[type="checkbox"]:checked').each(function() {
+				var serialnum = $(this).val();
+				if($.inArray(serialnum, checked_serials) == -1) {
+					checked_serials.push(serialnum);
+				}
+			});	
 			if (li.not('.active').length && li.not('.disabled').length) {
 				ajax.page = $(this).attr('data-page');
 				getSerialList();
@@ -861,11 +877,13 @@
 			var checkcount = $('#checkcount').val();
 			qtyleft =  removeComma(quantityleft);
 			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
-				count++;
 				var serialed = $(this).val();
-				itemselected.push(serialed);
-				itemrow.closest('tr').find('.serialnumbers').val(itemselected);
+				if($.inArray(serialed, checked_serials) == -1) {
+					checked_serials.push(serialed);
+				}
+				itemrow.closest('tr').find('.serialnumbers').val(checked_serials.toString());
 			});
+			var count = checked_serials.length;
 			$('#tableList tbody tr .serialnumbers').each(function() {
 				var serials = $(this).val();
 				if (serials != '') {
@@ -900,6 +918,35 @@
 				$('#btn_close').show();
 			}
 		});
+
+		$('#tableSerialList').on('ifChecked', '.check_id', function () {
+			var serialnum = $(this).val();
+			if($.inArray(serialnum, checked_serials) == -1) {
+				checked_serials.push(serialnum);
+			}
+			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+		});
+
+		$('#tableSerialList').on('ifUnchecked', '.check_id', function () {
+			var remove_this  =   $(this).val(); 
+			checked_serials = jQuery.grep(checked_serials, function(value) {
+				return value != remove_this;
+			});
+			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+		});
+
+		$('#tableSerialList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {
+			var b = $('#tableSerialList input[type=checkbox]:not(.checkall)');
+			var row = $('#tableSerialList >tbody >tr').length;
+			var c =  b.filter(':checked').length;
+			if(c == row){
+				$('#tableSerialList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+			}
+			else{
+				$('#tableSerialList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+			}
+		});
+		
 		$('#btn_ok').on('click', function() {
 			$('#warning_counter').modal('hide');
 		});
@@ -917,9 +964,8 @@
 			var jv = $(this).closest('tr').data('jv');
 			var sn = $(this).closest('tr').data('serialnumbers');
 			$('#delete_modal').modal('show');
-			console.log(sn);
 			$('#delete_yes').on('click', function(){
-				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id + '&voucherno=' + jv + '&serialnumbers=' + sn, function(data) {
+				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id, function(data) {
 				$('#delete_modal').modal('hide');					
 			});
 			getList();

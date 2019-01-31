@@ -67,7 +67,7 @@ class budgetting extends wc_model
 	public function getSupplementValues($id)
 	{
 		$result = $this->db->setTable('budget_supplement bs')
-		->setFields('bs.accountcode as accountcode, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status, bs.effectivity_date as effectivity_date')
+		->setFields('bs.accountcode as accountcode, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status, bs.effectivity_date as effectivity_date, bs.transactiondate as transactiondate, bs.prepared_by as prepared_by')
 		->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
 		->setWhere("bs.id = '$id'")
 		->runSelect(false)
@@ -248,28 +248,41 @@ class budgetting extends wc_model
 		->setLimit(1)
 		->runUpdate(false);
 
+		$months = array(
+			'1' => 'january',
+			'2' => 'february',
+			'3' => 'march',
+			'4' => 'april',
+			'5' => 'may',
+			'6' => 'june',
+			'7' => 'july',
+			'8' => 'august',
+			'9' => 'september',
+			'10' => 'october',
+			'11' => 'november',
+			'12' => 'december'
+		);
+
 		$getdetails = $this->getIdOfBudgetCode($id);
 		$temp = array();
 		if($getdetails) {
 			$budget_code = $getdetails->budget_code;
 			$accountcode = $getdetails->accountcode;
 			$description = $getdetails->description;
+			$budget_check = $getdetails->budget_check;
+			$effectivity_date = $getdetails->effectivity_date;
+			$month = date('m', strtotime($effectivity_date));
+			$year = date('Y', strtotime($effectivity_date));
 			$amount = $getdetails->amount;
-			$rounded = round($amount / 12);
+			$budget_per_month = (12 - $month) + 1;
+			$rounded = round($amount / $budget_per_month);
 			$temp['budget_code'] = $budget_code;
 			$temp['accountcode'] = $accountcode;
-			$temp['january'] = $rounded;
-			$temp['february'] = $rounded;
-			$temp['march'] = $rounded;
-			$temp['april'] = $rounded;
-			$temp['may'] = $rounded;
-			$temp['june'] = $rounded;
-			$temp['july'] = $rounded;
-			$temp['august'] = $rounded;
-			$temp['september'] = $rounded;
-			$temp['october'] = $rounded;
-			$temp['november'] = $rounded;
-			$temp['december'] = $rounded;
+			for($i = round($month); $i <= count($months); $i++) {
+				$temp[$months[$i]] = $rounded;
+			}
+			$temp['year'] = $year;
+			$temp['budget_check'] = $budget_check;
 			$temp['year'] = date('Y');
 			$result = $this->db->setTable('budget_report')
 			->setValues($temp)
@@ -479,8 +492,8 @@ class budgetting extends wc_model
 		$result  = $this->db->setTable('budget_supplement bs')
 		->leftJoin('budget_details as bd ON bs.accountcode = bd.accountcode')
 		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-		->setFields('bd.budget_code, bs.accountcode, bs.description, bs.amount')
-		->setWhere("bs.id = '$id' AND b.budget_check = 'Monitored' AND bd.budget_code = b.budget_code")
+		->setFields('bd.budget_code, bs.accountcode, bs.description, bs.amount, bs.effectivity_date, b.budget_check')
+		->setWhere("bs.id = '$id' AND bd.budget_code = b.budget_code")
 		->runSelect(false)
 		->getRow();
 		return $result;

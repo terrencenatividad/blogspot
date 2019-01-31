@@ -10,6 +10,7 @@ class controller extends wc_controller {
 		$this->parts_and_service= new parts_and_service_model();
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');		
 		$this->session			= new session();
+		$this->seq 					= new seqcontrol();
 		$this->fields 			= array(
 			'job_order_no',
 			'transactiondate',
@@ -473,6 +474,7 @@ class controller extends wc_controller {
 		$search	= $this->input->post('search');
 		$itemcode = $this->input->post('itemcode');
 		$allserials = $this->input->post('allserials');
+		$checked_serials = $this->input->post('checked_serials');
 		$itemselected = $this->input->post('itemselected');
 		$linenum = $this->input->post('linenumber');
 		$id = $this->input->post('id');
@@ -573,8 +575,7 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create() {
-		$seq 						= new seqcontrol();
-		$job_order_no 				= $seq->getValue("JO");
+		$job_order_no 				= $this->seq->getValue("JO");
 		$submit						= $this->input->post('submit');
 		$data 						= $this->input->post($this->fields);
 		$data['stat'] 				= 'prepared';
@@ -645,8 +646,8 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_create_issue() {
-		$seq 						= new seqcontrol();
-		$job_release_no 			= $seq->getValue("JR");
+		$job_release_no 			= $this->seq->getValue("JR");
+
 		$data						= $this->input->post($this->fields4);
 		$customer					= $this->input->post('h_customer');
 		$data['job_release_no'] 	= $job_release_no;
@@ -662,10 +663,10 @@ class controller extends wc_controller {
 									->computeValues()
 									->logChanges();
 
-			$this->inventory_model->prepareInventoryLog('Job Release Parts', $data['job_release_no'])
-									->setDetails($customer)
-									->computeValues()
-									->logChanges();
+			// $this->inventory_model->prepareInventoryLog('Job Release Parts', $data['job_release_no'])
+			// 						->setDetails($customer)
+			// 						->computeValues()
+			// 						->logChanges();
 
 			$this->inventory_model->setReference($data['job_release_no'])
 									->setDetails($customer)
@@ -694,7 +695,7 @@ class controller extends wc_controller {
 		$data			= $this->input->post($this->fields4);
 		$customer		= $this->input->post('h_customer');
 		
-		$this->inventory_model->prepareInventoryLog('Job Release Parts', $job_release_no)
+		$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
 								->preparePreviousValues();
 														
 		$result 		= $this->job_order->updateIssueParts($job_release_no,$data);
@@ -715,8 +716,6 @@ class controller extends wc_controller {
 
 	private function ajax_delete_issue() {
 		$delete_id = $this->input->post('id');
-		$voucherno = $this->input->post('voucherno');
-		$serialnumbers = $this->input->post('serialnumbers');
 		
 		if ($delete_id) {
 			$result = $this->job_order->deleteJobRelease($delete_id);
@@ -727,9 +726,9 @@ class controller extends wc_controller {
 										->computeValues()
 										->logChanges('Cancelled');
 
-				$this->inventory_model->prepareInventoryLog('Job Release Parts', $delete_id)
-										->computeValues()
-										->logChanges('Cancelled');
+				// $this->inventory_model->prepareInventoryLog('Job Release Parts', $delete_id)
+				// 						->computeValues()
+				// 						->logChanges('Cancelled');
 
 				$this->job_order->createClearingEntries($delete_id);
 			}
@@ -741,21 +740,19 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_load_issue() {
-		$seq 						= new seqcontrol();
-		$job_release_no 			= $seq->getValue("JR");
 		$jobno						= $this->input->post('jobno');
 		$task						= $this->input->post('ajax_task');
 
 		$result	= $this->job_order->getIssuedPartsNo($jobno);
-		
 		$table = '';
 		
 		if (empty($result)) {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($result as $row) {
-			if($task == ''){
-				$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->jrno . '" data-serialnumbers = "' . $row->serialnumbers .'">';
+		// var_dump($row->jrno);
+		if($task == ''){
+				$table .= '<tr data-id = "' . $row->jrno . '"">';
 				$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->jrno . '</td>';
 				$table .= '<td>' . '<a class="btn-sm" pointer id="editip" title="Edit"><span class="glyphicon glyphicon-pencil editip pointer" style="border: 1px solid gainsboro;
 				padding: 3px 4px 3px 4px;
@@ -763,10 +760,6 @@ class controller extends wc_controller {
 				$table .= '<td>' . '<a class="btn-sm" pointer title="Delete"><span class="glyphicon glyphicon-trash deleteip pointer" style="border: 1px solid gainsboro;
 				padding: 3px 4px 3px 4px;
 				background-color: lavender;"></span></a>' . '</td>';
-				$table .= '</tr>';
-			}else{
-				$table .= '<tr  data-jv = "' . $row->voucherno . '" data-id = "' . $row->jrno . '">';
-				$table .= '<td colspan="7">' . 'Part Issuance No.: '.$row->jrno . '</td>';
 				$table .= '</tr>';
 			}
 			
