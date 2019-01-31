@@ -1856,7 +1856,7 @@ $(document).ready(function(){
 					}
 				});
 			} else {
-				checkifpairexistsinbudget(value, budget, field, 'item');
+				checkifpairexistsinbudget(value, budget, itemfield, 'item');
 				// itemfield.closest('.budget-error').addClass('hidden');
 			}
 		});
