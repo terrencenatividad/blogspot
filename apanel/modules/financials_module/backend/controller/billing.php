@@ -125,7 +125,7 @@ class controller extends wc_controller {
 		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
 		$print = new billing_print_model();
 		$print->setDocumentType('Billing')
-				->setFooterDetails(array('Approved By', 'Checked By'))
+				->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 				->setCustomerDetails($vendordetails)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()

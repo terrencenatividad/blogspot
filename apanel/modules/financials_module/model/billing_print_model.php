@@ -177,62 +177,17 @@ class billing_print_model extends fpdf {
 		$content_width	= 0;
 		$label_width	= 0;
 		$footer_start = $this->GetY();
-		if ($this->has_received) {
-			if ($this->has_footer_details) {
-				$content_width	= 75;
-				$label_width	= 30;
-				$this->SetFillColor(230,230,230);
-				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
-				$this->Cell($content_width, 5, '', 'T', 0, 'L');
-				$this->Ln();
-				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
-				$this->Cell($content_width, 5, '', 'T', 0, 'L');
-				$this->Ln();
-				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
-				$this->Cell($content_width, 5, '', 'T', 0, 'L');
-				$this->Ln();
-				$this->SetX($this->margin_side);
-				$this->Cell(30, 5, '', 'TLRB', 0, 'L', true);
-				$this->Cell($content_width, 5, '', 'TB', 0, 'L');
-				if ($this->footer_details) {
-					$this->SetY($footer_start);
-					$this->SetX($this->margin_side);
-					foreach ($this->footer_details as $footer_details) {
-						$this->SetFont('Arial', 'B', 8);
-						$this->Cell(30, 5, $footer_details, 0, 0, 'L');
-						$this->Ln();
-					}
-				}
-			}
-
-			$receipt_width = 216 - ($this->margin_side * 2) - $content_width - $label_width;
-			$this->SetFont('Arial', 'B', 8);
-			$this->Rect($this->margin_side + $content_width + $label_width, $footer_start, $receipt_width, 20);
-			$this->SetY($footer_start);
-			$this->SetX($this->margin_side + $content_width + $label_width);
-			$this->Cell($receipt_width, 5, 'Received the above good/s in good condition', 0, 0, 'C');
-			$this->Ln(15);
-			$this->SetFont('Arial', '', 8);
-			$this->SetX($this->margin_side + $content_width + $label_width);
-			$this->Cell($receipt_width - round($receipt_width * 0.5), 5, 'Signature over Printed Name', 0, 0, 'C');
-			$this->Cell(round($receipt_width * 0.5), 5, 'Date Received', 0, 0, 'C');
-		} else if ($this->has_footer_details) {
-			$content_width		= 69;
-			$label_width		= 30;
-			$footer_label_left	= isset($this->footer_details) ? $this->footer_details[0] : '';
-			$footer_label_right	= isset($this->footer_details) ? $this->footer_details[1] : '';
-			$this->SetFillColor(230,230,230);
-			$this->SetFont('Arial', 'B', 8);
-			$this->SetX($this->margin_side);
-			$this->Cell(30, 10, $footer_label_left, 'TLRB', 0, 'C', true);
-			$this->Cell($content_width, 10, '', 'TLRB', 0, 'L');
-			$this->SetX($this->margin_side + 101);
-			$this->Cell(30, 10, $footer_label_right, 'TLRB', 0, 'C', true);
-			$this->Cell($content_width, 10, '', 'TLRB', 0, 'L');
-		}
+		$content_width		= 69;
+		$label_width		= 30;
+		$footer_label_1	= isset($this->footer_details) ? $this->footer_details[0] : '';
+		$footer_label_2	= isset($this->footer_details) ? $this->footer_details[1] : '';
+		$footer_label_3	= isset($this->footer_details[2]) ? $this->footer_details[2] : '';
+		$this->Cell(67, 8, $footer_label_1, 'TLRB', 0, 'L');
+		$this->Cell(67, 8, $footer_label_2, 'TLRB', 0, 'L');
+		$this->Cell(66, 8, $footer_label_3, 'TLRB', 1, 'L');
+		$this->Cell(67, 8, '', 'LRB', 0, 'L');
+		$this->Cell(67, 8, '', 'LRB', 0, 'L');
+		$this->Cell(66, 8, '', 'LRB', 1, 'L');
 	}
 
 	public function setCustomerDetails($customer_details) {
