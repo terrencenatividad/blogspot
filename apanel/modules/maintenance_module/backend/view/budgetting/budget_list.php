@@ -677,15 +677,7 @@
 								});
 
 
-								tableSort('#tableList', function(value, x) 
-								{
-									ajax.sort = value;
-									ajax.page = 1;
-									if (x) 
-									{
-										showList();
-									}
-								});
+								
 								$( "#table_search" ).keyup(function() 
 								{
 									var search = $( this ).val();
