@@ -144,7 +144,6 @@ class billing_model extends wc_model {
 							->setWhere($condition)
 							->setOrderBy($sort)
 							->runPagination();
-
 		return $result;
 	}
 
