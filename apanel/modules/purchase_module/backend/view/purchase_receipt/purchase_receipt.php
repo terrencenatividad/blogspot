@@ -1437,24 +1437,23 @@
 					var freight = removeComma($(this).find('.freight').val() * exchangerate) || 0;
 					var insurance = removeComma($(this).find('.insurance').val() * exchangerate) || 0;
 					var packaging = removeComma($(this).find('.packaging').val() * exchangerate) || 0;
-					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 1;
+					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 0;
 					var tax = $(this).find('.taxcode').val();
 					var taxrate = taxrates[tax] || 0;
-					
-					// if(parseFloat(freight) != 0 || parseFloat(insurance) != 0 || parseFloat(packaging) != 0){
-						computed_forex_total = (total_purchase/count_of_items) || 1;
-						amount = (((computed_forex_total/total_purchase)*(charges))/quantity);
-					// } else{
-					// 	amount = (price * quantity) * exchangerate; 
-					// }
+					console.log(freight+" - "+insurance+" - "+packaging+" - "+charges);
 					var computebase = price*quantity*exchangerate;
 					var withmiscfee = ((computebase/total_purchase)*charges)/quantity;
-
-					amount = withmiscfee;
+					if(parseFloat(freight) != 0 || parseFloat(insurance) != 0 || parseFloat(packaging) != 0){
+						amount = withmiscfee;
+					} else{
+						console.log('else');
+						amount = computebase;
+					}
 					console.log("Price = "+price);
 					console.log("Quantity = "+quantity);
 					console.log("Exchange Rate = "+exchangerate);
 					console.log("Computed Base = "+computebase);
+					console.log("Charges = "+charges);
 
 
 					console.log("Total Purchase = "+total_purchase);
