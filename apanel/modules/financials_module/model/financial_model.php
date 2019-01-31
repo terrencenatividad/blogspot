@@ -369,7 +369,6 @@ class financial_model extends wc_model {
 							->getResult();
 
 		$total_amount = 0;
-
 		foreach ($result as $row) {
 			$total_amount += $row->amount;
 		}
@@ -378,8 +377,8 @@ class financial_model extends wc_model {
 		$dc_add		= true;
 		if ($result && $total_amount > 0) {
 			foreach ($result as $row) {
-				//$primary_amount = $row->amount - (($row->amount / $total_amount) * $row->discountamount);
-				$primary_amount = $row->amount;
+				$primary_amount = $row->amount - (($row->amount / $total_amount) * $row->discountamount);
+				//$primary_amount = $row->amount;
 				if ($this->header_table != 'accountspayable') {
 					$this->addAccount($data, 'primaryaccount', $row->{$this->primaryaccount}, $primary_amount - ($row->amount * $row->wtaxrate) + $row->taxamount);
 				}

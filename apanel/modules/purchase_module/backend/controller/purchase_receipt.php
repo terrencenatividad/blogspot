@@ -61,6 +61,7 @@ class controller extends wc_controller {
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
 			'po_qty',
+			'exchangerate',
 			'item_ident_flag'
 		);
 		$this->fields3			= array(
@@ -81,7 +82,8 @@ class controller extends wc_controller {
 			'detail_discountamount'		=> 'discountamount',
 			'detail_withholdingamount'	=> 'withholdingamount',
 			'detail_warehouse'			=> 'warehouse',
-			'po_qty'
+			'po_qty',
+			'exchangerate'
 		);
 		$this->clean_number		= array(
 			'receiptqty'
