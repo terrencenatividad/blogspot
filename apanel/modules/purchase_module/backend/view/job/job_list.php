@@ -85,10 +85,14 @@
 
 <script>
 	var ajax = {};
-
 	// Sorting Script
 	tableSort('#tableList', function(value) {
-	ajax.sort = value;
+	if (value == '') {
+		ajax.sort = 'job_no desc';
+	}
+	else{
+		ajax.sort = value;
+	}
 	ajax.page = 1;
 	showList();
 	});
@@ -123,7 +127,6 @@
 
 	$(function () {
 		showList();
-
 		$("#tableList").on('click', '.delete', function () {
 			var id = $(this).attr("data-id");
 			if (id != "") {
