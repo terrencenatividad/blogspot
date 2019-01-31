@@ -671,7 +671,6 @@ class purchase_order extends wc_model
 							->setGroupBy('bs.accountcode')
 							->runSelect()
 							->getRow();
-							var_dump($getbudgetaccount);
 							if(!$getbudgetaccount) {
 								$warning[] = 'The account ' . $check->accountname . ' is not in your budget code ' .$budgetcode. '.';
 							} else {
