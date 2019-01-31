@@ -1106,7 +1106,8 @@ $('form').on('click', '[type="submit"]', function(e) {
 		});
 		if ($('.receiptqty:not([readonly])').length > 0 && items > 0) {
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
-				if (data.success) {
+				console.log(data.redirect);
+				if (data.success) {console.log(data.redirect);
 					$('#delay_modal').modal('show');
 							setTimeout(function() {							
 								window.location = data.redirect;						
