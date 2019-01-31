@@ -121,7 +121,10 @@
 						</tbody>
 					</table>
 					<div class="row">&nbsp;</div>
-					<div class="text-center"><input type="button" id="sim" class="simulate btn btn-info" value="Simulate Asset"></div>
+					<div class="text-center">
+					<input type="button" id="sim" class="simulate btn btn-info" value="Simulate Asset">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					</div>
 
 				</div>
 			</div>

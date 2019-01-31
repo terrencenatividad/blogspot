@@ -99,7 +99,7 @@ class controller extends wc_controller {
 
 
 		$header = array(
-			'Department',
+			'Budget Center',
 			'Asset Number',
 			'Serial Number / Engine Number',
 			'Asset Class',
