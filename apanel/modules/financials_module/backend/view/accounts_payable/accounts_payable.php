@@ -1890,6 +1890,8 @@
 			var budgetcode = $(this).val();
 			var accountcode= $(this).closest('tr').find('.accountcode').val();
 
-			checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+			if(accountcode){
+				checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+			}
 		});	
 	</script>
