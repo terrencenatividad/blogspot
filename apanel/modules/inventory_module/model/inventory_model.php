@@ -220,25 +220,25 @@ class inventory_model extends wc_model {
 
 		$dr = $this->db->setTable('deliveryreceipt a')
 						->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'OUT' movement, a.voucherno documentno, 'DEL_REC' doctype, a.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'OUT' movement, a.voucherno documentno, 'DEL_REC' doctype, b.amount")
 						->setWhere("(a.stat = 'Delivered' OR a.stat = 'With Invoice') AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$sr = $this->db->setTable('returns a')
 						->innerJoin('returns_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'IN' movement, a.voucherno documentno, 'INV_RET' doctype, a.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'IN' movement, a.voucherno documentno, 'INV_RET' doctype, b.amount")
 						->setWhere("a.stat = 'Returned' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$pr = $this->db->setTable('purchasereceipt a')
 						->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'IN' movement, a.voucherno documentno, 'PUR_REC' doctype, a.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'IN' movement, a.voucherno documentno, 'PUR_REC' doctype, b.amount")
 						->setWhere("a.stat = 'Received' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$pt = $this->db->setTable('purchasereturn a')
 						->innerJoin('purchasereturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'OUT' movement, a.voucherno documentno, 'PUR_RET' doctype, a.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'OUT' movement, a.voucherno documentno, 'PUR_RET' doctype, b.amount")
 						->setWhere("a.stat = 'Returned' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 
