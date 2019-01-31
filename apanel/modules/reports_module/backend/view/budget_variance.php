@@ -98,19 +98,18 @@
 		var li = $(this).closest('li');
 		if (li.not('.active').length && li.not('.disabled').length) {
 			ajax.page = $(this).attr('data-page');
-		console.log(ajax);
 			getList();
 		}
 	});
 
 	$("#costcenter").on("change",function(){
 		ajax.costcenter = $(this).val();
+		ajax.page = "1";
 		getList();
 	});
 	$("#budget_type").on("change",function(){
 		ajax.budget_type = $(this).val();
 		ajax.page = "1";
-		console.log(ajax);
 		getList();
 	});
 	$("#date").on("change",function(){
