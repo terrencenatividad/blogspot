@@ -28,6 +28,9 @@ class budget_variance_model extends wc_model {
 			$type .= " AND b.budget_type = '$budget_type'";
 		}
 
+		$first_date = '';
+		$second_date = '';
+
 		if($date == 'none' || empty($date)) {
 			$get_date .= " AND b.effectivity_date != ''";
 		} else {
@@ -45,15 +48,13 @@ class budget_variance_model extends wc_model {
 		->setFields('ca.segment5 segment5, ca.accountname description, bd.amount+ IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IFNULL(ab.actual,0) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code')
 		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
-		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code FROM actual_budget WHERE id != '' AND voucherno NOT LIKE '%DV_%' GROUP BY accountcode, budget_code)
-			as ab ON  ab.accountcode = bd.accountcode AND ab.budget_code = bd.budget_code")
-		->leftJoin("(SELECT SUM(amount) as amount, accountcode, effectivity_date, budget_id FROM budget_supplement WHERE status = 'approved' GROUP BY accountcode) as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode")
+		 ->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code FROM actual_budget WHERE id != '' AND voucherno NOT LIKE '%DV_%' GROUP BY accountcode, budget_code)
+		 	as ab ON  ab.accountcode = bd.accountcode AND ab.budget_code = bd.budget_code")
+		->leftJoin("(SELECT SUM(amount) as amount, accountcode, effectivity_date, budget_id FROM budget_supplement WHERE status = 'approved' AND effectivity_date BETWEEN '$first_date' AND '$second_date' GROUP BY accountcode) as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode")
 		->setGroupBy('bd.accountcode, bd.budget_code')
 		->setOrderBy('bd.accountcode')
 		->setWhere($condition . $type . $get_date)
 		->runPagination();
-
-		 // echo $this->db->getQuery();
 
 		return $result;
 	}
