@@ -593,11 +593,11 @@ class import_purchaseorder extends wc_model
 							$expenseaccount = $getaccount->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
-							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%TMP%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%'  GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -628,11 +628,11 @@ class import_purchaseorder extends wc_model
 							$expenseaccount = $check->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
-							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%TMP%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -679,11 +679,11 @@ class import_purchaseorder extends wc_model
 							$expenseaccount = $getaccount->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
-							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%TMP%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%'  GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -713,11 +713,11 @@ class import_purchaseorder extends wc_model
 							$expenseaccount = $check->expense_account;
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
-							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, SUM(ac.actual)) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
 							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%TMP%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%'  GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -776,7 +776,7 @@ class import_purchaseorder extends wc_model
 			$errmsg[] 		= "The system has encountered an error in saving. Our team is currently checking on this.<br/>";
 		}
 
-		return array('errmsg' =>$errmsg, 'warning' => $warning, 'checkamount' => $checkamount, 'error' => $error, 'accountcode' => $accountcode, 'date_checker' => $date_checker);
+		return array('errmsg' =>$errmsg, 'checkamount' => $checkamount, 'error' => $error, 'accountcode' => $accountcode, 'date_checker' => $date_checker);
 	}
 
 	public function updateActual($fields, $voucherno) {

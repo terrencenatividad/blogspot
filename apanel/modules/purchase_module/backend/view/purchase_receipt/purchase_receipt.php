@@ -1423,28 +1423,47 @@
 		displayHeader(header_values);
 		function recomputeAll() {
 			var taxrates = <?php echo $taxrates ?>;
+			var count_of_items = $('#tableList tbody tr .unitprice').length || 0;
+			var computed_forex_total = 0;
 			if ($('#tableList tbody tr .unitprice').length) {
 				var total_amount = 0;
 				var total_tax = 0;
 				$('#tableList tbody tr').each(function() {
+					var amount =	0;	
 					var price = removeComma($(this).find('.unitprice').val());
-					var quantity = removeComma($(this).find('.receiptqty').val());
+					var quantity = removeComma($(this).find('.receiptqty').val()) || 1;
 					var exchangerate = removeComma($(this).find('.exchangerate').val());
 					var total_purchase = removeComma($(this).find('.total_amount').val() * exchangerate);
-					var freight = removeComma($(this).find('.freight').val() * exchangerate);
-					var insurance = removeComma($(this).find('.insurance').val() * exchangerate);
-					var packaging = removeComma($(this).find('.packaging').val() * exchangerate);
-					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 1;
+					var freight = removeComma($(this).find('.freight').val() * exchangerate) || 0;
+					var insurance = removeComma($(this).find('.insurance').val() * exchangerate) || 0;
+					var packaging = removeComma($(this).find('.packaging').val() * exchangerate) || 0;
+					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 0;
 					var tax = $(this).find('.taxcode').val();
 					var taxrate = taxrates[tax] || 0;
-					
-					//var amount = (price * quantity) * exchangerate;
-					var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
+					console.log(freight+" - "+insurance+" - "+packaging+" - "+charges);
+					var computebase = price*quantity*exchangerate;
+					var withmiscfee = ((computebase/total_purchase)*charges)/quantity;
+					if(parseFloat(freight) != 0 || parseFloat(insurance) != 0 || parseFloat(packaging) != 0){
+						amount = withmiscfee;
+					} else{
+						console.log('else');
+						amount = computebase;
+					}
+					console.log("Price = "+price);
+					console.log("Quantity = "+quantity);
+					console.log("Exchange Rate = "+exchangerate);
+					console.log("Computed Base = "+computebase);
+					console.log("Charges = "+charges);
+
+
+					console.log("Total Purchase = "+total_purchase);
+					console.log("Computed Amount = "+amount);
+
 					var taxamount = (taxrate > 0) ? removeComma(addComma(amount + (amount * parseFloat(taxrate)))) * exchangerate : 0;
-					//amount = amount - taxamount;
+					
 					total_amount += amount;
 					total_tax += taxamount;
-					
+
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
 

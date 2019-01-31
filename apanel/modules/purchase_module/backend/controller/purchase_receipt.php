@@ -73,7 +73,7 @@ class controller extends wc_controller {
 			'taxcode',
 			'taxrate',
 			'taxamount'	=> 'taxamount',
-			'amount'	=> 'amount',
+			'detail_amount'	=> 'amount',
 			'convreceiptqty',
 			'convuom',
 			'conversion',
@@ -300,16 +300,16 @@ class controller extends wc_controller {
 
 		$print = new purchase_print_model();
 		$print->setDocumentType('Purchase Receipt')
-				->setFooterDetails(array('Approved By', 'Checked By'))
+				->setFooterDetails(array('Approved By', 'Checked By', 'Received By'))
 				->setVendorDetails($vendordetails)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndConditon()
 				->addReceived();
 
-		$print->setHeaderWidth(array(30, 50, 20, 20, 30, 20, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Tax', 'Amount'))
-				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
+		$print->setHeaderWidth(array(50, 80, 50, 20))
+				->setHeaderAlign(array('C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+				->setRowAlign(array('L', 'L', 'C', 'C'))
 				->setSummaryAlign(array('J'))	
 				->setSummaryWidth(array('200'));
 		
@@ -338,10 +338,10 @@ class controller extends wc_controller {
 			if ($serial_total == 1) {
 			// 1 SERIAL FIELD ONLY
 				$first = ($serial == '1') ? 'S/N' : (($engine == '1') ? 'E/N' : 'C/N');
-				$print->setHeaderWidth(array(30, 40, 20, 20, 20, 25, 20, 25))
-						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, 'Price', 'Tax', 'Amount'))
-						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'R', 'R', 'R'))
+				$print->setHeaderWidth(array(30, 70, 40, 20, 40))
+						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
+						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first))
+						->setRowAlign(array('L', 'L', 'C', 'C', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));		
 			} else if ($serial_total == 2) {
@@ -357,18 +357,18 @@ class controller extends wc_controller {
 					$second = 'C/N';
 				}
 					
-				$print->setHeaderWidth(array(25, 35, 15, 15, 20, 20, 25, 20, 25))
-						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second, 'Price', 'Tax', 'Amount'))
-						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
+				$print->setHeaderWidth(array(30, 50, 20, 10, 45, 45))
+						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
+						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second))
+						->setRowAlign(array('L', 'L', 'C', 'C', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			} else if ($serial_total == 3) {
 			// 3 SERIAL FIELDS
-				$print->setHeaderWidth(array(25, 30, 15, 15, 15, 15, 15, 25, 20, 25))
-						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N', 'Price', 'Tax', 'Amount'))
-						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L', 'R', 'R', 'R'))
+				$print->setHeaderWidth(array(30, 50, 20, 10, 30, 30, 30))
+						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
+						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
+						->setRowAlign(array('L', 'L', 'C', 'C', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			}
@@ -514,7 +514,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									//->addEdit($row->stat != 'Received' && $restrict_pr)
+									->addEdit($row->stat == 'Received')
 									// ->addDelete($row->stat == 'Received' && $restrict_pr)
 									->addPrint()
 									//->addCheckbox($row->stat == 'Received' && $restrict_pr)
@@ -564,6 +564,9 @@ class controller extends wc_controller {
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$data['voucherno']);
 		$attachment_update['reference'] = $data['voucherno'];
 		$attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
+		// retrieve  freight, insurance, packaging 
+		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
+		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;
 
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);

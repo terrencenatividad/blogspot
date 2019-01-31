@@ -180,7 +180,7 @@
 		public function getSource($voucherno) {
 			$source = substr($voucherno, 0,2);
 
-			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno')";
+			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno' AND srd.itemcode = tbl.itemcode AND srd.linenum = tbl.linenum)";
 
 			if ($source == 'DR') {
 				$table 		= 'deliveryreceipt';
@@ -248,7 +248,7 @@
 									'warehouse',
 									'linenum',
 									'serialno serialnumbers',
-									'issueqty - '.$sql.' maxqty',
+									'issueqty - IFNULL('.$sql.', 0) maxqty',
 									'issueqty',
 									'issueuom',
 									'convuom',
@@ -304,21 +304,23 @@
 		public function saveSalesReturn($header, $details) {
 			$this->getAmounts($header, $details);
 
-			$result = $this->db->setTable('inventory_salesreturn')
-								->setValues($header)
-								->runInsert();
+			//$result = $this->db->setTable('inventory_salesreturn')
+								// ->setValues($header)
+								// ->runInsert();
 			
-			if ($result) {
-				if ($result) {
-					$this->log->saveActivity("Create Sales Return [{$header['voucherno']}]");
-				}
-				$result = $this->updateSalesReturnDetails($details, $header['voucherno']);
-
-				$this->createClearingEntries($header['voucherno']);
+			//if ($result) {
+				//$this->log->saveActivity("Create Sales Return [{$header['voucherno']}]");
 				
-			}
+				//$result = $this->updateSalesReturnDetails($details, $header['voucherno']);
+				
+				//$serialupdate = $this->updateItemSerialized($details['serialnumbers'], 'Available');
+
+				
+				
+			//}
+				$jv = $this->createClearingEntries($header['voucherno']);
 			
-			return $result;
+			return $jv;
 		}
 
 		public function updateSalesReturnDetails($details, $voucherno) {
@@ -330,6 +332,19 @@
 			$result = $this->db->setTable('inventory_salesreturn_details')
 								->setValuesFromPost($details)
 								->runInsert();
+
+			return $result;
+		}
+
+		public function updateItemSerialized($serialids, $stat) {
+			$update_arr['stat'] = 'Available';
+
+			$serialids = implode(',',$serialids);
+			$result = $this->db->setTable('items_serialized')
+						->setFields('stat')
+						->setValues($update_arr)
+						->setWhere("id IN ($serialids)")
+						->runUpdate();
 
 			return $result;
 		}
@@ -411,7 +426,8 @@
 								->setGroupBy('accountcode')
 								->runSelect()
 								->getResult();
-
+			var_dump($detail_fields);
+			return $details;
 			$sr_stat = (isset($data['stat'])) ? $data['stat'] : '';
 			$data['stat'] = 'posted';
 
@@ -481,6 +497,10 @@
 			$header = $this->db->setTable('journalvoucher')
 								->setValues($data);
 
+		/*
+		RUN UPDATE OR INSERT WHETHER JV IS IN DB
+		*/
+
 			if ($exist) {
 				$result = $header->setWhere("voucherno = '$jvvoucherno'")
 								->setLimit(1)
@@ -489,10 +509,15 @@
 				$result = $header->runInsert();
 			}
 			
+
+		/*
+		RUN DELETE AND INSERT UPDATED JV ENTRIES
+		*/
+
 			if ($result) {
-				$this->db->setTable('journaldetails')
-						->setWhere("voucherno = '$jvvoucherno'")
-						->runDelete();
+				// $this->db->setTable('journaldetails')
+				// 		->setWhere("voucherno = '$jvvoucherno'")
+				// 		->runDelete();
 
 
 				$ftax = $this->db->setTable('fintaxcode')
@@ -536,20 +561,20 @@
 					);
 				}
 				$detail_insert  = false;
-				$detail_insert = $this->db->setTable('journaldetails')
-											->setValues($details)
-											->runInsert();
+				// $detail_insert = $this->db->setTable('journaldetails')
+				// 							->setValues($details)
+				// 							->runInsert();
 
 				if ($detail_insert) {
 					$data = array(
 						'amount'			=> $total_amount,
 						'convertedamount'	=> $total_amount
 					);
-					$result = $this->db->setTable('journalvoucher')
-										->setValues($data)
-										->setWhere("voucherno = '$jvvoucherno'")
-										->setLimit(1)
-										->runUpdate();
+					// $result = $this->db->setTable('journalvoucher')
+					// 					->setValues($data)
+					// 					->setWhere("voucherno = '$jvvoucherno'")
+					// 					->setLimit(1)
+					// 					->runUpdate();
 
 				}
 			}
@@ -572,19 +597,19 @@
 			return $serialno;
 		}
 
-		public function getTaggedSerial($sourceno) {
+		public function getTaggedSerial($sourceno, $linenum) {
 			$serialno = array();
+			$explode_serial = array();
 			$result = $this->db->setTable('inventory_salesreturn_details srd')
 								->setFields('serialnumbers')
 								->leftJoin('inventory_salesreturn sr ON sr.voucherno = srd.voucherno')
-								->setWhere("source_no='$sourceno'")
+								->setWhere("source_no='$sourceno' AND linenum='$linenum'")
 								->runSelect()
-								->getResult();
+								->getRow();
 
-			foreach ($result as $key => $row) {
-				array_push($serialno, explode(',',$result->serialnumbers));
-			}
-			return $serialno;
+			$explode_serial = ($result) ? explode(',', $result->serialnumbers) : '';
+			
+			return $explode_serial;
 		}
 
 		// public function getPackingList($customer) 

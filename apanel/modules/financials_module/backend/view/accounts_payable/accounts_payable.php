@@ -1739,9 +1739,6 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != '') {
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.accountchecker);
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1799,9 +1796,6 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != ''){
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.accountchecker);
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1859,9 +1853,6 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != ''){
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.accountchecker);
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1890,6 +1881,8 @@
 			var budgetcode = $(this).val();
 			var accountcode= $(this).closest('tr').find('.accountcode').val();
 
-			checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+			if(accountcode){
+				checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
+			}
 		});	
 	</script>

@@ -308,7 +308,6 @@ class purchase_return_model extends wc_model {
 
 	public function removePurchaseReceiptQtyReturned($data, $data2){
 		$voucherno = $data['source_no'];
-		var_dump($data2);
 		
 		$number_of_items = sizeof($data2['linenum']);
 		$qty_returned = 0;

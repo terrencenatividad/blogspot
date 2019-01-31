@@ -44,9 +44,8 @@
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
 					<tr class="info">
-						<th class="col-md-1">Code</th>
-						<th class="col-md-2">Description</th>
-						<th class="col-md-2">Effectivity Date</th>
+						<th class="col-md-3">Code</th>
+						<th class="col-md-4">Description</th>
 						<th class="col-md-2">Budget</th>
 						<th class="col-md-2">Actual</th>
 						<th class="col-md-1">Variance</th>
@@ -57,7 +56,7 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<td colspan = "3"></td>
+						<td colspan = "2"></td>
 						<td class = "text-right"><strong>Total : </strong><span class = "total_amount"></span></td>
 						<td class = "text-right"><b>Total : </b><span class = "total_actual"></span></td>
 						<td class = "text-right"><b>Total : </b><span class="total_variance"></span></td>
@@ -69,7 +68,7 @@
 	<div id="pagination"></div>	
 </section>
 <script type="text/javascript">
-	var ajax = {};
+	var ajax = filterFromURL();
 	var ajax_call = '';
 	ajax.limit = 10;
 
@@ -86,6 +85,14 @@
 	}
 	getList();
 
+	tableSort('#tableList', function(value, getlist) {
+		ajax.sort = value;
+		ajax.page = 1;
+		if (getlist) {
+			getList();
+		}
+	});
+
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
 		var li = $(this).closest('li');
@@ -97,14 +104,17 @@
 
 	$("#costcenter").on("change",function(){
 		ajax.costcenter = $(this).val();
+		ajax.page = "1";
 		getList();
 	});
 	$("#budget_type").on("change",function(){
 		ajax.budget_type = $(this).val();
+		ajax.page = "1";
 		getList();
 	});
 	$("#date").on("change",function(){
 		ajax.date = $(this).val();
+		ajax.page = "1";
 		getList();
 	});
 </script>
