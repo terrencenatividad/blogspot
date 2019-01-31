@@ -137,7 +137,7 @@ class payment_voucher_model extends wc_model
 	
 	public function retrieveEditData($sid)
 	{
-		$setFields = "voucherno, transactiondate, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat status, companycode";
+		$setFields = "voucherno, transactiondate, currencycode, vendor, referenceno, particulars, netamount, exchangerate, convertedamount, paymenttype, amount, stat status, companycode";
 		$cond = "voucherno = '$sid'";
 		
 		$temp = array();
@@ -399,7 +399,7 @@ class payment_voucher_model extends wc_model
 
 	}
 
-	public function retrieveAPList($data,$search)
+	public function retrieveAPList($data, $search, $currencycode)
 	{
 		$vendorcode = (isset($data["vendor"]) && !empty($data["vendor"])) ? $data["vendor"]         : "";
 		$voucherno  = (isset($data["voucherno"]) && !empty($data["voucherno"])) ? $data["voucherno"]: "";
@@ -441,11 +441,11 @@ class payment_voucher_model extends wc_model
 
 		if($vendorcode && empty($voucherno))
 		{
-			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND main.balance > 0 ";
+			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND main.balance > 0  AND main.currencycode = '$currencycode'";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
 			$tempArr["result"] = $query;
 		} else if($voucherno) {
-			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance > 0 OR ($sub_select) > 0)";
+			$mainCondition   		= "main.stat = 'posted' AND main.vendor = '$vendorcode' AND ((main.balance - ($sub_select)) <= main.convertedamount) AND ( main.balance > 0 OR ($sub_select) > 0) AND main.currencycode = '$currencycode'";
 			$query 				= $this->retrieveDataPagination($mainTable, $mainFields, $mainCondition, $mainJoin, $groupBy);
 			$tempArr["result"] = $query;
 		}
@@ -661,18 +661,25 @@ class payment_voucher_model extends wc_model
 			$invoice_data  			= html_entity_decode($invoice_data);
 			$picked_payables		= json_decode($invoice_data, true);
 
+			$total_currency			= (isset($data['total_currency']) && (!empty($data['total_currency']))) ? htmlentities(addslashes(trim($data['total_currency']))) : "";
+			$exchangerate			= (isset($data['exchangerate']) && (!empty($data['exchangerate']))) ? htmlentities(addslashes(trim($data['exchangerate']))) : "";
+			$currencycode			= (isset($data['currencycode']) && (!empty($data['currencycode']))) ? htmlentities(addslashes(trim($data['currencycode']))) : "";
+
 			$source				   	= (!empty($picked_payables)) ? "PV" : "DV";
 
-			$exchangerate			= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
-			$convertedamount		= (!empty($data['paymentconverted'])) ? $data['paymentconverted'] : $total_payment;
+			//$exchangerate			= (!empty($data['paymentrate'])) ? $data['paymentrate'] : "1.00";
+			//$convertedamount		= (!empty($data['paymentconverted'])) ? $data['paymentconverted'] : $total_payment;
 			$checkdate				= (!empty($data['checkdate'])) ? $data['checkdate'] : "0000-00-00";
 
 			/**TRIM COMMAS FROM AMOUNTS**/
 			$totalamount			= str_replace(',','',$totalamount);
 			$total_payment			= str_replace(',','',$total_payment);
-			$convertedamount 		= str_replace(',','',$convertedamount);
 			$total_debit 			= str_replace(',','',$total_debit);
 			$total_credit 			= str_replace(',','',$total_credit);
+			$exchangerate 			= str_replace(',','',$exchangerate);
+
+			$convertedamount 		= $exchangerate * $totalamount;
+			$convertedamount 		= str_replace(',','',$convertedamount);
 
 			$gen_value              = $this->getValue("paymentvoucher", "COUNT(*) as count", " voucherno != ''");	
 			$temporary_voucher     	= (!empty($gen_value[0]->count)) ? $source.'_'.($gen_value[0]->count + 1) : $source.'_1';
@@ -684,7 +691,7 @@ class payment_voucher_model extends wc_model
 			$aChequeData 	= array();
 			foreach($data as $postIndex => $postValue)
 			{
-				if($postIndex == 'budgetcode' || $postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount')
+				if($postIndex == 'budgetcode' || $postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount' || $postIndex=='currencyamount')
 				{
 					$a		= '';
 					foreach($postValue as $postValueIndex => $postValueIndexValue){
@@ -784,7 +791,7 @@ class payment_voucher_model extends wc_model
 			$post_header['period']			= $period;
 			$post_header['fiscalyear']		= $fiscalyear;
 			$post_header['releaseby']		= USERNAME;
-			$post_header['currencycode']	= 'PHP';
+			$post_header['currencycode']	= $currencycode;
 			$post_header['amount']			= $total_payment;
 			$post_header['exchangerate']	= $exchangerate;
 			$post_header['convertedamount']	= $convertedamount;
@@ -855,7 +862,7 @@ class payment_voucher_model extends wc_model
 				$post_detail['converteddebit']			= $debit;
 				$post_detail['convertedcredit'] 		= $credit;
 				$post_detail['convertedtaxbase_amount']	= $taxbase_amount;
-				$post_detail['currencycode']			= 'PHP';
+				$post_detail['currencycode']			= $currencycode;
 				$post_detail['detailparticulars'] 		= $detailparticulars;
 				$post_detail['ischeck']					= $ischeck;
 				$post_detail['taxcode']					= $taxcode;
@@ -884,8 +891,8 @@ class payment_voucher_model extends wc_model
 					$post_application['apvoucherno']		= $payable;
 					$post_application['discount']			= $discount;
 					$post_application['amount']		 		= $amount;
-					$post_application['currencycode']		= 'PHP';
-					$post_application['exchangerate']		= '1.00';
+					$post_application['currencycode']		= $currencycode;
+					$post_application['exchangerate']		= $exchangerate;
 					$post_application['convertedamount']	= $amount;
 					$post_application['stat']			 	= "posted";
 
@@ -1860,5 +1867,25 @@ class payment_voucher_model extends wc_model
 			}
 		}
 
+	}
+
+	public function getCurrencyCode() {
+		$result = $this->db->setTable('currency')
+		->setFields("currencycode ind, currencycode val")
+		->runSelect()
+		->getResult();
+		
+		return $result;
+	}
+
+	public function getExchangeRate($currencycode) {
+		$result = $this->db->setTable('exchangerate')
+		->setFields("exchangerate")
+		->setWhere("exchangecurrencycode = '$currencycode'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
+		
+		return $result;
 	}
 }

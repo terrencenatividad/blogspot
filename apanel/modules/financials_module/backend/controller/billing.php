@@ -122,10 +122,10 @@ class controller extends wc_controller {
 			'BILL #'	=> $voucherno,
 			'TERMS'		=> $vendordetails->terms
 		);
-
+		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
 		$print = new billing_print_model();
 		$print->setDocumentType('Billing')
-				->setFooterDetails(array('Approved By', 'Checked By'))
+				->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 				->setCustomerDetails($vendordetails)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()
@@ -135,13 +135,15 @@ class controller extends wc_controller {
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'Price', 'Tax', 'Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R', 'R'))
-				->setSummaryWidth(array('170', '30'));
+				->setSummaryWidth(array('120', '50', '30'))
+				->setSummaryAlign(array('J','R','R'));
 		
 		$documentcontent	= $this->billing_model->getDocumentContent($voucherno);
 		$detail_height = 37;
 
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
+		$vat_zerorated	= 0;
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount	= 0;
@@ -149,46 +151,58 @@ class controller extends wc_controller {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
-			
-			if ($documentinfo->discountrate == 0 && $documentinfo->discount) {
-				$documentinfo->discountrate = $documentinfo->discount / ($documentinfo->amount + $documentinfo->vat) * 100;
+			// echo $row->taxrate;
+			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
+			// $vatable_sales	+= ($row->taxrate > 0) ? $row->amount : 0;
+			// $vat_exempt		+= ($row->taxrate == 0) ? $row->amount : 0;
+			if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
+				$vatable_sales += $row->Amount;
 			}
-
-			$vatable_sales	+= ($row->taxrate) ? $row->Amount : 0;
-			$vat_exempt		+= ($row->taxrate) ? 0 : $row->Amount;
-			$discount		+= number_format(($row->Amount + $row->Tax) * $documentinfo->discountrate / 100, 2, '.', '');
+			else {
+				if ($row->taxcode == '' || $row->taxcode == 'none' || $row->taxcode == 'ES') {
+					$vat_exempt += $row->Amount;
+				}
+				else {
+					$vat_zerorated += $row->Amount;
+				}
+			}
+			$discount		+= isset($row->discount) ? $row->discount : 0;
 			$tax			+= $row->Tax;
+			$total_amount	+= 0;
 			$row->Quantity	= number_format($row->Quantity);
-			$row->Price		= $row->basecurrency . ' ' . number_format($row->Price, 2);
-			$row->Tax		= $row->basecurrency . ' ' . number_format($row->Tax, 2);
-			$row->Amount	= $row->basecurrency . ' ' . number_format($row->Amount, 2);
+			$row->Price		= number_format($row->Price, 2);
+			$row->Amount	= number_format($row->Amount, 2);
+			$row->Tax	= number_format($row->Tax, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
-				$summary = array(
-					'VATable Sales'		=> $row->basecurrency . ' ' . number_format($vatable_sales, 2),
-					'VAT-Exempt Sales'	=> $row->basecurrency . ' ' . number_format($vat_exempt, 2),
-					'Total Sales'		=> $row->basecurrency . ' ' . number_format($vatable_sales + $vat_exempt, 2),
-					'Tax'				=> $row->basecurrency . ' ' . number_format($tax, 2),
-					'Discount'			=> $row->basecurrency . ' ' . number_format($discount, 2),
-					'Total Amount'		=> $row->basecurrency . ' ' . number_format($total_amount, 2)
+				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
+				$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales', number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax', number_format($tax, 2)),
+					array('','Total Amount', number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount', number_format($discount, 2))
 				);
 				$print->drawSummary($summary);
 				$vatable_sales	= 0;
 				$vat_exempt		= 0;
+				$vat_zerorated	= 0;
 				$discount		= 0;
 				$tax			= 0;
 				$total_amount	= 0;
 			}
 		}
-		$total_amount = $vatable_sales + $vat_exempt - $discount + $tax;
-		$summary = array(
-			'VATable Sales'		=> $row->basecurrency . ' ' . number_format($vatable_sales, 2),
-			'VAT-Exempt Sales'	=> $row->basecurrency . ' ' . number_format($vat_exempt, 2),
-			'Total Sales'		=> $row->basecurrency . ' ' . number_format($vatable_sales + $vat_exempt, 2),
-			'Tax'				=> $row->basecurrency . ' ' . number_format($tax, 2),
-			'Discount'			=> $row->basecurrency . ' ' . number_format($discount, 2),
-			'Total Amount'		=> $row->basecurrency . ' ' . number_format($total_amount, 2)
+		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
+		$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales', number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2)),
+					array('','Tax', number_format($tax, 2)),
+					array('','Total Amount', number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount', number_format($discount, 2))
 		);
 		$print->drawSummary($summary);
 

@@ -40,6 +40,7 @@ class controller extends wc_controller {
 		$search		= $data['search'];
 		$checked	= $data['checked'];
 		$pagination	= $this->depreciation_run->getAsset($this->fields);
+		
 		$table		= '';
 		if (empty($pagination)) {
 			$table = '<tr><td colspan="2" class="text-center"><b>No Records Found</b></td></tr>';
@@ -70,7 +71,7 @@ class controller extends wc_controller {
 				}
 				foreach ($comp as $row) {
 					$table .= '<tr>';
-					$table .= '<td class="text-left">'.$row->depreciation_date.'</td>';
+					$table .= '<td class="text-left">'.date("M d, Y", strtotime($row->depreciation_date)).'</td>';
 					$table .= '<td class="text-right">'.number_format($row->depreciation_amount, 2).'</td>';
 					$table .= '<td class="text-right">'.number_format($row->accumulated_dep, 2).'</td>';
 					$table .= '<td class="text-left">'.$row->a_segment5 . ' - '. $row->asset.'</td>';
