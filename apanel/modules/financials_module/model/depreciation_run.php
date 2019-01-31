@@ -6,27 +6,28 @@ class depreciation_run extends wc_model {
 		'assetclass',
 		'ac.id'
 	);
-		
+	$date = $this->date->dateDbFormat();
 	$condition = '';
 	$result = $this->db->setTable('depreciation_schedule d')
 						->setFields($fields)
 						->leftJoin('asset_master am ON am.asset_number = d.asset_id')
 						->leftJoin("cost_center c ON c.id = am.department")
 						->leftJoin('asset_class ac ON ac.id = am.asset_class')
-						->setWhere(1)
+						->setWhere("MONTH(depreciation_date) <= MONTH('$date') AND YEAR(depreciation_date) <= YEAR('$date')")
 						->setGroupBy('assetclass')
 						->runSelect()
 						->getResult();
-						
+					
 		return $result;
 	}
 
 	public function getAssetDetails($id) {
-		$result = $this->db->setTable('asset_master a') 
+	$date = $this->date->dateDbFormat();
+	$result = $this->db->setTable('asset_master a') 
 						->setFields('a.department, a.asset_number, a.department, a.useful_life, a.capitalized_cost, a.balance_value, a.salvage_value,c.name')
 						->leftJoin('depreciation_schedule d ON asset_id = a.asset_number')
 						->leftJoin("cost_center c ON c.id = a.department")
-						->setWhere("asset_class = '$id'")
+						->setWhere("asset_class = '$id' AND MONTH(depreciation_date) <= MONTH('$date') AND YEAR(depreciation_date) <= YEAR('$date')")
 						->setGroupBy('asset_number')
 						->runSelect()
 						->getResult();
@@ -35,7 +36,8 @@ class depreciation_run extends wc_model {
 	}
 
 	public function getDepreciationDetails($id) {
-		$fields = array(
+	$date = $this->date->dateDbFormat();
+	$fields = array(
 			'coa.accountname asset',
 			'asd.accountname accdep',
 			'dsa.accountname depexp',
@@ -51,7 +53,7 @@ class depreciation_run extends wc_model {
 						->leftJoin('chartaccount coa ON coa.id = d.gl_asset')
 						->leftJoin('chartaccount asd ON asd.id = d.gl_accdep')
 						->leftJoin('chartaccount dsa ON dsa.id = d.gl_depexpense')
-						->setWhere("d.asset_id = '$id'")
+						->setWhere("d.asset_id = '$id' AND MONTH(depreciation_date) <= MONTH('$date') AND YEAR(depreciation_date) <= YEAR('$date')")
 						->runSelect()
 						->getResult();
 
