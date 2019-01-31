@@ -471,13 +471,18 @@ function addVoucherDetails(details, index) {
 									->setSplit('', 'col-md-12')
 									->setName('issueqty[]')
 									->setClass('issueqty text-right')
-									->setAttribute(array('data-max' => '` + (parseFloat(details.maxqty) || 20) + `', 'data-value' => '` + (parseFloat(details.issueqty) || 0) + `'))
+									->setAttribute(array(
+									'data-max' 		=> '\' + (parseFloat(details.maxqty) || 0) + \'',
+									'data-value' 	=> '\' + (parseFloat(details.maxqty) || 0) + \'')
+									)
 									->setValidation('required integer')
 									->setValue('` + (addComma(details.issueqty) || 0) + `')
 									->draw($show_input);
 							?>';
+
 	} else {
 		issueqty_element = '<button type="button" class="btn btn-flat btn-success btnserial" data-serialid="'+details.serialnumbers+'" data-maxitem="'+parseFloat(details.maxqty)+'">Select item<span class="pull-right">0</span></button>';
+		issueqty_element += '<input type="hidden" class="issueqty" name="issueqty[]">';
 	}
 
 	var row = `
@@ -584,7 +589,7 @@ function addVoucherDetails(details, index) {
 
 			<td class="text-right">
 				` + issueqty_element + `
-				<input type='hidden' class='netamount' name='netamount[]' value = 0>
+				<input type='hidden' class='netamount' name='netamount[]' value=0>
 				` + otherdetails + `
 			</td>
 			<td>
@@ -816,11 +821,12 @@ function getSerialList(sourceno, linenum, serialid) {
 				serials 	: serialid, 
 				showinput 	: show_input
 			};
-
 	$.post('<?=MODULE_URL;?>ajax/getSerialItemList', data, function(data){
-		console.log(data.linenum);
+console.log(data);
+		
 		$('#serial_tableList tbody').html(data.table);
 		$('button.btnselectserial').attr('data-linenum',data.linenum);
+		console.log(data);
 	});
 }
 
@@ -829,6 +835,7 @@ $('#tableList').on('click', '.btnserial', function(){
 	var linenum 	= $(this).closest('tr').find('.linenum').val();;
 	var serialid 	= $(this).data('serialid');
 	$('#serial_tableList').modal('show');
+
 
 	getSerialList(sourceno, linenum, serialid);
 	
@@ -890,7 +897,6 @@ function saveSelectedSerial(checkbox){
 				selected_serial.splice(indexof,1);
 			}
 		}
-		$('.serialnumbers').val(selected_serial);
 	});
 }
 
@@ -977,6 +983,8 @@ $('.btnselectserial').on('click', function(){
 
 	row.find('.serialnumbers').val(selected_serial.join(','));
 	row.find('.btnserial span').text(selected_serial.length);
+	row.find('.issueqty').val(selected_serial.length);
+	row.find('.issueqty').trigger('blur');
 
 	$('#serial_tableList').modal('hide');
 })
@@ -1004,6 +1012,9 @@ $('#tableList tbody').on('blur recompute', '.issueqty', function(e) {
 
 
 $('tbody').on('ifUnchecked', '.chkitem', function() {
+	selected_serial = [];
+	$(this).closest('tr').find('.btnserial').attr('disabled', true);
+	$(this).closest('tr').find('.btnserial span').text(selected_serial.length);
 	$(this).closest('tr').find('.issueqty').attr('readonly', 'readonly').val(0);
 
 	$(this).closest('tr').find('.replacement').iCheck('uncheck').attr('disabled', true).iCheck('update');
@@ -1015,6 +1026,7 @@ $('tbody').on('ifUnchecked', '.chkitem', function() {
 $('tbody').on('ifChecked', '.chkitem', function() {
 	var n = $(this).closest('tr').find('.issueqty');
 	n.removeAttr('readonly', '').val(addComma(n.attr('data-value')));
+	$(this).closest('tr').find('.btnserial').attr('disabled', false);
 
 	$(this).closest('tr').find('.replacement').attr('disabled', false).iCheck('update');
 	$(this).closest('tr').find('.defective').attr('disabled', false).iCheck('update');
@@ -1024,7 +1036,6 @@ $('tbody').on('ifChecked', '.chkitem', function() {
 
 $('form').on('click', '[type="submit"]', function(e) {
 	e.preventDefault();
-	console.log('wasda');
 	var form_element = $(this).closest('form');
 	var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
 
