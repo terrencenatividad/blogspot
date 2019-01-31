@@ -2500,9 +2500,6 @@
 						} else if(data.error != '') {
 							$('#accountchecker-modal').modal('show');
 							$('#accounterror').html(data.error);
-						} else if(data.accountchecker != ''){
-							$('#accountchecker-modal').modal('show');
-							$('#accounterror').html(data.accountchecker);
 						} else if(data.date_checker != ''){
 							$('#accountchecker-modal').modal('show');
 							$('#accounterror').html(data.date_checker);
