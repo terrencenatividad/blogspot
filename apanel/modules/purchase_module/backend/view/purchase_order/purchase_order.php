@@ -2132,7 +2132,9 @@ $(document).ready(function(){
 		var budgetcode = $(this).val();
 		var itemcode   = $(this).closest('tr').find('.itemcode').val();
 
-		checkifpairexistsinbudget(itemcode, budgetcode, budgetfield, 'budget');
+		if(itemcode){
+			checkifpairexistsinbudget(itemcode, budgetcode, budgetfield, 'budget');
+		}
 		// budgetfield.closest('tr').find('.form-group').removeClass('has-error');
 		// $('.budget-error').addClass('hidden');
 	});	
