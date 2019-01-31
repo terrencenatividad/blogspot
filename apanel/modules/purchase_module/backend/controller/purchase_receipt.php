@@ -300,7 +300,7 @@ class controller extends wc_controller {
 
 		$print = new purchase_print_model();
 		$print->setDocumentType('Purchase Receipt')
-				->setFooterDetails(array('Approved By', 'Checked By'))
+				->setFooterDetails(array('Approved By', 'Checked By', 'Received By'))
 				->setVendorDetails($vendordetails)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndConditon()
