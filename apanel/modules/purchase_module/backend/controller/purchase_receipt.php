@@ -514,7 +514,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									//->addEdit($row->stat != 'Received' && $restrict_pr)
+									->addEdit($row->stat == 'Received')
 									// ->addDelete($row->stat == 'Received' && $restrict_pr)
 									->addPrint()
 									//->addCheckbox($row->stat == 'Received' && $restrict_pr)
