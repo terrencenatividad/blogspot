@@ -32,7 +32,8 @@ class controller extends wc_controller
 			'budget_code',
 			'accountcode',
 			'description',
-			'amount'
+			'amount',
+			'effectivity_date'
 		);
 
 		$this->budgetreport = array(
@@ -130,6 +131,7 @@ class controller extends wc_controller
 		$budget['period_start'] = $year . '-01-01';
 		$budget['period_end'] = $year . '-12-31';
 		$budget['budget_code'] = $this->seq->getValue('BUD');
+		$budget_details['effectivity_date'] = $effectivity_date;
 		$budget_details['amount'] = str_replace(',', '', $budget_details['amount']);
 		$budget_details['budget_code'] = $budget['budget_code'];
 		
