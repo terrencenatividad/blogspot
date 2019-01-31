@@ -44,9 +44,8 @@
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
 					<tr class="info">
-						<th class="col-md-1">Code</th>
-						<th class="col-md-2">Description</th>
-						<th class="col-md-2">Effectivity Date</th>
+						<th class="col-md-3">Code</th>
+						<th class="col-md-4">Description</th>
 						<th class="col-md-2">Budget</th>
 						<th class="col-md-2">Actual</th>
 						<th class="col-md-1">Variance</th>
@@ -57,7 +56,7 @@
 				</tbody>
 				<tfoot>
 					<tr>
-						<td colspan = "3"></td>
+						<td colspan = "2"></td>
 						<td class = "text-right"><strong>Total : </strong><span class = "total_amount"></span></td>
 						<td class = "text-right"><b>Total : </b><span class = "total_actual"></span></td>
 						<td class = "text-right"><b>Total : </b><span class="total_variance"></span></td>
