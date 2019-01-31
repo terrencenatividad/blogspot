@@ -73,7 +73,7 @@ class controller extends wc_controller {
 			'taxcode',
 			'taxrate',
 			'taxamount'	=> 'taxamount',
-			'amount'	=> 'amount',
+			'detail_amount'	=> 'amount',
 			'convreceiptqty',
 			'convuom',
 			'conversion',
@@ -564,6 +564,9 @@ class controller extends wc_controller {
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$data['voucherno']);
 		$attachment_update['reference'] = $data['voucherno'];
 		$attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
+		// retrieve  freight, insurance, packaging 
+		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
+		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;
 
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);

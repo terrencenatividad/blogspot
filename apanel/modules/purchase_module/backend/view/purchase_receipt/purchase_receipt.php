@@ -1428,37 +1428,43 @@
 			if ($('#tableList tbody tr .unitprice').length) {
 				var total_amount = 0;
 				var total_tax = 0;
-				var amount 		=	0;
 				$('#tableList tbody tr').each(function() {
+					var amount =	0;	
 					var price = removeComma($(this).find('.unitprice').val());
 					var quantity = removeComma($(this).find('.receiptqty').val()) || 1;
 					var exchangerate = removeComma($(this).find('.exchangerate').val());
 					var total_purchase = removeComma($(this).find('.total_amount').val() * exchangerate);
-					var freight = removeComma($(this).find('.freight').val() * exchangerate);
-					var insurance = removeComma($(this).find('.insurance').val() * exchangerate);
-					var packaging = removeComma($(this).find('.packaging').val() * exchangerate);
+					var freight = removeComma($(this).find('.freight').val() * exchangerate) || 0;
+					var insurance = removeComma($(this).find('.insurance').val() * exchangerate) || 0;
+					var packaging = removeComma($(this).find('.packaging').val() * exchangerate) || 0;
 					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 1;
 					var tax = $(this).find('.taxcode').val();
 					var taxrate = taxrates[tax] || 0;
 					
-					computed_forex_total = (total_purchase/count_of_items) || 1;
-					console.log("forex "+computed_forex_total);
-					console.log('charges '+charges/exchangerate);
-					amount = (((computed_forex_total/total_purchase)*(charges))/quantity);
-					console.log('quant '+quantity);
-					console.log("AMOUNT = "+amount);
-					// console.log("Price = "+price);
-					// console.log("quantity = "+quantity);
-					// console.log("charges = "+charges);
-					// console.log("exchangerate = "+exchangerate);
-					// console.log("total_purchase = "+total_purchase);
-					// console.log("Amount = "+amount);
+					// if(parseFloat(freight) != 0 || parseFloat(insurance) != 0 || parseFloat(packaging) != 0){
+						computed_forex_total = (total_purchase/count_of_items) || 1;
+						amount = (((computed_forex_total/total_purchase)*(charges))/quantity);
+					// } else{
+					// 	amount = (price * quantity) * exchangerate; 
+					// }
+					var computebase = price*quantity*exchangerate;
+					var withmiscfee = ((computebase/total_purchase)*charges)/quantity;
+
+					amount = withmiscfee;
+					console.log("Price = "+price);
+					console.log("Quantity = "+quantity);
+					console.log("Exchange Rate = "+exchangerate);
+					console.log("Computed Base = "+computebase);
+
+
+					console.log("Total Purchase = "+total_purchase);
+					console.log("Computed Amount = "+amount);
+
 					var taxamount = (taxrate > 0) ? removeComma(addComma(amount + (amount * parseFloat(taxrate)))) * exchangerate : 0;
-					//amount = amount - taxamount;
+					
 					total_amount += amount;
-					// total_amount += amount;
 					total_tax += taxamount;
-					// console.log("Total_amount = "+total_amount);
+
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
 
