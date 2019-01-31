@@ -280,16 +280,18 @@ class billing_model extends wc_model {
 		$ids = preg_split("/[\s,]+/", $result->job_orderno);
 		$jo	= "'" . implode("','", $ids) . "'";
 		if ($jo != '') {
-			$result		= $this->db->setTable('job_order')
-								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat = 'completed' AND job_order_no NOT IN ($jo)". $condition)
+			$result		= $this->db->setTable('job_order jo')
+								->setFields('jo.job_order_no, jo.transactiondate, jo.service_quotation, sq.discounttype')
+								->leftJoin('servicequotation sq ON sq.voucherno = jo.service_quotation AND sq.companycode = jo.companycode')
+								->setWhere("jo.customer = '$customer' AND jo.stat = 'completed' AND job_order_no NOT IN ($jo)". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
 		else {
-			$result		= $this->db->setTable('job_order')
-								->setFields('job_order_no, transactiondate, service_quotation')
-								->setWhere("customer = '$customer' AND stat = 'completed'". $condition)
+			$result		= $this->db->setTable('job_order jo')
+								->setFields('jo.job_order_no, jo.transactiondate, jo.service_quotation, sq.discounttype')
+								->leftJoin('servicequotation sq ON sq.voucherno = jo.service_quotation AND sq.companycode = jo.companycode')
+								->setWhere("jo.customer = '$customer' AND jo.stat = 'completed'". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
@@ -299,12 +301,13 @@ class billing_model extends wc_model {
 
 	public function getJobOrderDetails($job_order_no) {
 		$result		= $this->db->setTable('job_order_details jod')
-								->setFields("jod.itemcode, detailparticular, linenum, quantity issueqty, uom issueuom, i.item_ident_flag")
+								->setFields("jod.itemcode, jod.detailparticular, jod.linenum, jod.quantity issueqty, jod.uom issueuom, i.item_ident_flag, sqd.unitprice, sqd.taxcode, sqd.taxrate, sqd.taxamount, sqd.discountrate, sqd.discounttype, sqd.discountamount")
 								->innerJoin('job_order jo ON jod.job_order_no = jo.job_order_no AND jod.companycode = jo.companycode')
 								->leftJoin('items i ON i.itemcode = jod.itemcode')
 								->leftJoin('invfile inv ON jod.itemcode = inv.itemcode AND jod.warehouse = inv.warehouse AND jod.companycode = inv.companycode')
 								->leftJoin('itemtype it ON it.id = i.typeid AND it.companycode = i.companycode')
-								->setWhere("jo.job_order_no = '$job_order_no' AND it.label LIKE '%service%' AND parentline = 0")
+								->leftJoin('servicequotation_details sqd ON sqd.voucherno = jo.service_quotation AND sqd.itemcode = jod.itemcode AND sqd.companycode = jod.companycode')
+								->setWhere("jo.job_order_no = '$job_order_no' AND it.label LIKE '%service%' AND jod.parentline = 0")
 								->runSelect()
 								->getResult();
 

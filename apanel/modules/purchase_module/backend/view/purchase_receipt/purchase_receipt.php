@@ -1423,12 +1423,15 @@
 		displayHeader(header_values);
 		function recomputeAll() {
 			var taxrates = <?php echo $taxrates ?>;
+			var count_of_items = $('#tableList tbody tr .unitprice').length || 0;
+			var computed_forex_total = 0;
 			if ($('#tableList tbody tr .unitprice').length) {
 				var total_amount = 0;
 				var total_tax = 0;
+				var amount 		=	0;
 				$('#tableList tbody tr').each(function() {
 					var price = removeComma($(this).find('.unitprice').val());
-					var quantity = removeComma($(this).find('.receiptqty').val());
+					var quantity = removeComma($(this).find('.receiptqty').val()) || 1;
 					var exchangerate = removeComma($(this).find('.exchangerate').val());
 					var total_purchase = removeComma($(this).find('.total_amount').val() * exchangerate);
 					var freight = removeComma($(this).find('.freight').val() * exchangerate);
@@ -1438,13 +1441,24 @@
 					var tax = $(this).find('.taxcode').val();
 					var taxrate = taxrates[tax] || 0;
 					
-					//var amount = (price * quantity) * exchangerate;
-					var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
+					computed_forex_total = (total_purchase/count_of_items) || 1;
+					console.log("forex "+computed_forex_total);
+					console.log('charges '+charges/exchangerate);
+					amount = (((computed_forex_total/total_purchase)*(charges))/quantity);
+					console.log('quant '+quantity);
+					console.log("AMOUNT = "+amount);
+					// console.log("Price = "+price);
+					// console.log("quantity = "+quantity);
+					// console.log("charges = "+charges);
+					// console.log("exchangerate = "+exchangerate);
+					// console.log("total_purchase = "+total_purchase);
+					// console.log("Amount = "+amount);
 					var taxamount = (taxrate > 0) ? removeComma(addComma(amount + (amount * parseFloat(taxrate)))) * exchangerate : 0;
 					//amount = amount - taxamount;
 					total_amount += amount;
+					// total_amount += amount;
 					total_tax += taxamount;
-					
+					// console.log("Total_amount = "+total_amount);
 					$(this).find('.taxrate').val(taxrate);
 					$(this).find('.taxamount').val(taxamount);
 

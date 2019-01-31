@@ -199,6 +199,7 @@ class import_purchaseorder extends wc_model
 		->leftJoin("uom u ON u.uomcode = pd.receiptuom")
 		->setFields($detail_fields)
 		->setWhere($condition)
+		->setOrderBy('pd.linenum')
 		->runSelect()
 		->getResult();
 
