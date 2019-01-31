@@ -776,7 +776,7 @@ class import_purchaseorder extends wc_model
 			$errmsg[] 		= "The system has encountered an error in saving. Our team is currently checking on this.<br/>";
 		}
 
-		return array('errmsg' =>$errmsg, 'warning' => $warning, 'checkamount' => $checkamount, 'error' => $error, 'accountcode' => $accountcode, 'date_checker' => $date_checker);
+		return array('errmsg' =>$errmsg, 'checkamount' => $checkamount, 'error' => $error, 'accountcode' => $accountcode, 'date_checker' => $date_checker);
 	}
 
 	public function updateActual($fields, $voucherno) {
