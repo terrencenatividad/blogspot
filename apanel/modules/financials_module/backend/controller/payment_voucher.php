@@ -119,6 +119,8 @@ class controller extends wc_controller
 		$data["task"] 		          = "create";
 		$data["ajax_post"] 	          = "";
 		$data["row_ctr"] 			  = 0;
+		$data["currencycode"]    	  = 'PHP';
+		$data['currencycodes'] 		  = $this->payment_voucher->getCurrencyCode();
 		$data["exchangerate"]         = "1.00";
 		$data["row"] 			  		= 1;
 		$data["transactiondate"]      	= $this->date->dateFormat();
@@ -276,6 +278,7 @@ class controller extends wc_controller
 		$data["vendorcode"]        	= $vendor_details[0]->partnername;
 		$data["v_convertedamount"] 	= $data["main"]->convertedamount;
 		$data["exchangerate"]      	= $data["main"]->exchangerate;
+		$data["currencycode"]      	= $data["main"]->currencycode;
 		$data["transactiondate"]   	= $this->date->dateFormat($transactiondate);
 		$data["referenceno"]       	= $data["main"]->referenceno;
 		$data["paymenttype"]       	= $data["main"]->paymenttype;
@@ -287,6 +290,8 @@ class controller extends wc_controller
 		$data["tinno"] 		   	   	= $data["vend"]->tinno;
 		$data["address1"] 	       	= $data["vend"]->address1;
 		$data["terms"] 	   		   	= $data["vend"]->terms;
+
+		$data['currencycodes'] 		  = $this->payment_voucher->getCurrencyCode();
 
 		/**
 		* Get the total forex amount applied
@@ -408,6 +413,8 @@ class controller extends wc_controller
 		$acc_entry_join 			  = "chartaccount coa2 ON coa2.parentaccountcode = coa.id";
 		$acc_entry_order 			  = "coa.segment5, coa2.segment5";
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
+
+		$data['currencycodes'] 		  = $this->payment_voucher->getCurrencyCode();
 		
 		// Header Data
 		$voucherno 					= $data["main"]->voucherno;
@@ -415,6 +422,7 @@ class controller extends wc_controller
 		$data["referenceno"]     	= $data["main"]->referenceno;
 		$data["vendorcode"]      	= $data["main"]->vendor;
 		$data["exchangerate"]    	= $data["main"]->exchangerate;
+		$data["currencycode"]    	= $data["main"]->currencycode;
 		$data["transactiondate"] 	= $this->date->dateFormat();
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
@@ -1022,14 +1030,16 @@ class controller extends wc_controller
 		$data       	= $this->input->post(array("vendor", "voucherno"));
 		$task       	= $this->input->post("task");
 		$search			= $this->input->post('search');
-
+		$currencycode	= $this->input->post('currencycode');
+		$exchangerate	= $this->input->post('exchangerate');
+		$exchangerate	= str_replace(',','',$exchangerate);
 		$vno 			= $this->input->post('vno');
 		
 		$check_rows 	= (isset($vno) && (!empty($vno))) ? trim($vno) : "";
 		$check_rows  	= str_replace('\\', '', $check_rows);
 		$decode_json    = json_decode($check_rows,true);	
 
-		$pagination     = $this->payment_voucher->retrieveAPList($data,$search);
+		$pagination     = $this->payment_voucher->retrieveAPList($data, $search, $currencycode);
 
 		$table             = "";
 		$j 	               = 1;
@@ -1238,6 +1248,10 @@ class controller extends wc_controller
 	{
 		$checkrows       = $this->input->post("checkrows");
 		$cheques       	 = $this->input->post("cheques");
+		$currencycode    = $this->input->post("currencycode");
+		$exchangerate	= $this->input->post('exchangerate');
+		$exchangerate	= str_replace(',','',$exchangerate);
+
 		$invoice_data 	= (isset($checkrows) && (!empty($checkrows))) ? trim($checkrows) : "";
 		$invoice_data  	= str_replace('\\', '', $invoice_data);
 		$decode_json    = json_decode($invoice_data, true);
@@ -1323,6 +1337,8 @@ class controller extends wc_controller
 				$totaldebit    	   += $credit;
 
 				// $discount_class 	=	($discount_code == $accountcode) 	?	"discount_row" : "";
+
+				$basecurrency = $exchangerate * $debit;
 				
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "checkbox-select remove-margin text-center '.$toggle_wtax.'">';
@@ -1381,7 +1397,8 @@ class controller extends wc_controller
 				</td>';
 				$table  .=  '<td class = "remove-margin">'
 				.$ui->formField('text')
-				->setSplit('', 'col-md-12')
+				->setSplit('col-md-2', 'col-md-10')
+				->setLabel('<span class="label label-default currency_symbol">'.$currencycode.'</span>')
 				->setName('debit['.$row.']')
 				->setId('debit['.$row.']')
 				->setClass('debit text-right')
@@ -1391,12 +1408,24 @@ class controller extends wc_controller
 				'</td>';
 				$table 	.= '<td class = "remove-margin">'
 				.$ui->formField('text')
-				->setSplit('', 'col-md-12')
+				->setSplit('col-md-2', 'col-md-10')
+				->setLabel('<span class="label label-default currency_symbol">'.$currencycode.'</span>')
 				->setName('credit['.$row.']')
 				->setClass("text-right account_amount credit")
 				->setId('credit['.$row.']')
 				->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('credit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 				->setValue($credit)
+				->draw($show_input).
+				'</td>';
+				$table 	.= '<td class = "remove-margin">'
+				.$ui->formField('text')
+				->setSplit('col-md-2', 'col-md-10')
+				->setLabel('<span class="label label-default base_symbol">PHP</span>')
+				->setName('currencyamount['.$row.']')
+				->setClass("text-right currencyamount")
+				->setId('currencyamount['.$row.']')
+				->setAttribute(array("maxlength" => "20", "readonly"))
+				->setValue(number_format($basecurrency, 2))
 				->draw($show_input).
 				'</td>';
 				$table  .= '<td class="text-center">
@@ -1784,6 +1813,12 @@ class controller extends wc_controller
 		->setDocumentInfoPayor($data_payor)
 		->setDetails($data)
 		->Output();
+	}
+
+	private function ajax_get_currency_val() {
+		$currencycode = $this->input->post('currencycode');
+		$result = $this->payment_voucher->getExchangeRate($currencycode);
+		return array("exchangerate" => ($result) ? $result->exchangerate : '1.00');
 	}
 
 }
