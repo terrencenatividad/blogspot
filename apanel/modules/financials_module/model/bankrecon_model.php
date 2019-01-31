@@ -805,7 +805,7 @@ class bankrecon_model extends wc_model {
 		$result5	= $this->db->setTable('pv_details pvd')
 								->setFields("pvd.companycode, pvd.voucherno, '' chequenumber, IF(pvd.debit > 0, pvd.debit, pvd.credit) amount, pv.transactiondate transactiondate, pvd.updatedate, 'Expense' nature, 'PVD' transtype")
 								->innerJoin('paymentvoucher pv ON pvd.voucherno = pv.voucherno AND pvd.companycode = pv.companycode')
-								->setWhere("accountcode = '$accountcode'  AND pvd.stat = 'uncleared' AND pv.stat = 'posted' AND pv.transactiondate <= '$periodto' AND pvd.voucherno NOT IN($voucherno) AND pv.paymenttype != 'cheque'")
+								->setWhere("accountcode = '$accountcode'  AND pvd.checkstat = 'uncleared' AND pv.stat = 'posted' AND pv.transactiondate <= '$periodto' AND pvd.voucherno NOT IN($voucherno) AND pv.paymenttype != 'cheque'")
 								->buildSelect();
 
 		$query = $result1 . ' UNION ALL ' . $result2 . ' UNION ALL ' . $result3 . ' UNION ALL ' . $result4 . ' UNION ALL ' . $result5;
