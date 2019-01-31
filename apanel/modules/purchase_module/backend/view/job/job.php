@@ -157,11 +157,7 @@
                     <div class="col-md-12 text-center">
                         <?php
                         if($show_input){
-                        ?>
-                        <div class="btn-group">
-                            <button type="button" data-moduleurl="<?=MODULE_URL?>" class="btn btn-primary btn-flat" id="btnSave">Save</button>
-                        </div>
-                        <?php
+                            echo $ui->drawSubmitDropdown($show_input); 
                         }
                         ?>
                         &nbsp;&nbsp;&nbsp;
@@ -466,7 +462,9 @@
         });
 
 
-        $('#jobForm #btnSave').on('click', function () {
+        $('#jobForm').on('click', '[type="submit"]', function (e) {
+            e.preventDefault();
+            var submit_data = '&' + $(this).attr('name') + '=' + $(this).val();
             no_error        = true;
             error_message   = "";
             
@@ -497,13 +495,13 @@
                         $(this).find("input.quantity").removeAttr("name");
                     }
                 });
-                if ($('#jobform').find('.form-group.has-error').length == 0) {
-                    $.post('<?=MODULE_URL?>ajax/<?=$task?>', $("#jobForm").serialize(),
+                if ($('#jobform').find('.form-group.has-error').length == 0) {console.log('sample');
+                            
+                    $.post('<?=MODULE_URL?>ajax/<?=$task?>', $("#jobForm").serialize() + submit_data,
                         function (data) {
-                            console.log(data);
                             if (data.query1 && data.query2 && data.query3 && data.delquery1 && data.delquery2 || data.query1 && data.query2 && data.query3 && task == "save") {
                                 $('#delay_modal').modal('show');
-                                setTimeout(function () {window.location = "<?=MODULE_URL?>";}, 1000);
+                                setTimeout(function () {window.location = data.redirect;}, 1000);
                             }
                             
                         });
@@ -511,7 +509,7 @@
             }
             else
                 $('#warning_modal').modal('show').find('#warning_message').html(error_message);
-            console.log(no_error);
+            console.log(submit_data);
             console.log($("#jobForm").serialize());
             
         });

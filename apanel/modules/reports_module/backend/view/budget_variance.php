@@ -69,7 +69,7 @@
 	<div id="pagination"></div>	
 </section>
 <script type="text/javascript">
-	var ajax = {};
+	var ajax = filterFromURL();
 	var ajax_call = '';
 	ajax.limit = 10;
 
@@ -86,6 +86,14 @@
 	}
 	getList();
 
+	tableSort('#tableList', function(value, getlist) {
+		ajax.sort = value;
+		ajax.page = 1;
+		if (getlist) {
+			getList();
+		}
+	});
+
 	$('#pagination').on('click', 'a', function(e) {
 		e.preventDefault();
 		var li = $(this).closest('li');
@@ -101,10 +109,12 @@
 	});
 	$("#budget_type").on("change",function(){
 		ajax.budget_type = $(this).val();
+		ajax.page = 1;
 		getList();
 	});
 	$("#date").on("change",function(){
 		ajax.date = $(this).val();
+		ajax.page = 1;
 		getList();
 	});
 </script>

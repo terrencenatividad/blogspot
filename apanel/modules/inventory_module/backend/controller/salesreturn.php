@@ -49,6 +49,7 @@ class controller extends wc_controller {
 			'convuom',
 			'convissueqty',
 			'conversion',
+			'serialnumbers',
 			'unitprice',
 			'taxcode',
 			'taxrate',
@@ -318,6 +319,7 @@ class controller extends wc_controller {
 			$arr_transtype[] 		= 'SR';
 			$arr_stat[] 	 		= 'Returned';
 		}
+
 		$values2 = array(
 					'voucherno' 		=> $arr_voucherno,
 					'transtype' 		=> $arr_transtype,
@@ -499,13 +501,16 @@ class controller extends wc_controller {
 		$show_input = $this->input->post('showinput');
 		$sourceno 	= $this->input->post('sourceno');
 		$serials 	= $this->sr_model->getSerialItemList($serialids);
-		$taggedserials = $this->sr_model->getTaggedSerial($sourceno);
+		$taggedserials = $this->sr_model->getTaggedSerial($sourceno, $linenum);
 		$table 		= '';
+
 		foreach ($serials as $key => $row) {
 			$state = '';
-			foreach ($taggedserials as $value) {
-				if ($row->id == $value) {
-					$state = 'disabled';
+			if (!empty($taggedserials)) {
+				foreach ($taggedserials as $key => $value) {
+					if ($row->id == $value) {
+						$state = 'disabled';
+					}
 				}
 			}
 			$table .= '<tr>';

@@ -215,36 +215,36 @@ class inventory_model extends wc_model {
 	public function recomputePriceAverage() {
 		$fields = 'b.itemcode, b.companycode, b.entereddate';
 		$bb = $this->db->setTable('inv_beg_balance b')
-						->setFields($fields . ", unitprice price, quantity, 'IN' movement, b.voucherno documentno, 'BEG_BAL' doctype")
+						->setFields($fields . ", unitprice price, quantity, 'IN' movement, b.voucherno documentno, 'BEG_BAL' doctype, b.amount")
 						->setGroupBy('b.itemcode')
 						->buildSelect();
 
 		$dr = $this->db->setTable('deliveryreceipt a')
 						->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'OUT' movement, a.voucherno documentno, 'DEL_REC' doctype")
+						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'OUT' movement, a.voucherno documentno, 'DEL_REC' doctype, b.amount")
 						->setWhere("(a.stat = 'Delivered' OR a.stat = 'With Invoice') AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$sr = $this->db->setTable('returns a')
 						->innerJoin('returns_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'IN' movement, a.voucherno documentno, 'INV_RET' doctype")
+						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'IN' movement, a.voucherno documentno, 'INV_RET' doctype, b.amount")
 						->setWhere("a.stat = 'Returned' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$pr = $this->db->setTable('purchasereceipt a')
 						->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'IN' movement, a.voucherno documentno, 'PUR_REC' doctype")
+						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'IN' movement, a.voucherno documentno, 'PUR_REC' doctype, b.amount")
 						->setWhere("a.stat = 'Received' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$pt = $this->db->setTable('purchasereturn a')
 						->innerJoin('purchasereturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'OUT' movement, a.voucherno documentno, 'PUR_RET' doctype")
+						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'OUT' movement, a.voucherno documentno, 'PUR_RET' doctype, b.amount")
 						->setWhere("a.stat = 'Returned' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 
 		$ia = $this->db->setTable('inventoryadjustments b')
-						->setFields($fields . ", unitprice price, (increase + decrease) quantity, IF((increase + decrease) > 0, 'IN', 'OUT') movement, b.voucherno documentno, 'INV_ADJ' doctype")
+						->setFields($fields . ", unitprice price, (increase + decrease) quantity, IF((increase + decrease) > 0, 'IN', 'OUT') movement, b.voucherno documentno, 'INV_ADJ' doctype, (increase + decrease) * unitprice amount")
 						->setWhere('unitprice > 0')
 						->buildSelect();
 
@@ -272,9 +272,17 @@ class inventory_model extends wc_model {
 			$previous_average	= $previous_price_average[$row->itemcode];
 			$stock_quantity		= $row->quantity * (($row->movement == 'IN') ? 1 : -1);
 			if (($previous_quantity + $stock_quantity) == 0) {
-				$price_average	= ($previous_quantity * $previous_average) + ($row->price * $stock_quantity);
+				if($row->doctype == "PUR_REC" ){
+					$price_average	= ($previous_quantity * $previous_average) + $row->amount;
+				} else {
+					$price_average	= ($previous_quantity * $previous_average) + ($row->price * $stock_quantity);
+				}
 			} else {
-				$price_average	= (($previous_quantity * $previous_average) + ($row->price * $stock_quantity)) / ($previous_quantity + $stock_quantity);
+				if($row->doctype == "PUR_REC" ){
+					$price_average	= (($previous_quantity * $previous_average) + ($row->amount)) / ($previous_quantity + $stock_quantity);
+				} else {
+					$price_average	= (($previous_quantity * $previous_average) + ($row->price * $stock_quantity)) / ($previous_quantity + $stock_quantity);
+				}
 			}
 			$price_average		= ($row->movement == 'IN') ? $price_average : $previous_average;
 			$values[] = array(

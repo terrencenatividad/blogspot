@@ -1007,7 +1007,7 @@ class controller extends wc_controller
 		// 	} 
 		// }
 
-		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, 'warning' => $warning, 'accountchecker' => $accountchecker, 'error' => $error, 'date_checker' => $date_checker);
+		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg, 'warning' => $warning, 'error' => $error, 'date_checker' => $date_checker);
 		return $dataArray;
 	}
 

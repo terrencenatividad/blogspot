@@ -582,6 +582,9 @@
 											$('#accountcodes').val('none');
 											$('#description').val('');
 											$('#amount').val('');
+											var date = (new Date()).toString().split(' ').splice(1,3).join(' ');
+											$('#effectivity_date').val(date);
+											$('#transactiondate').val(date);
 										});
 									} else {
 										$('#supplementForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
@@ -674,15 +677,7 @@
 								});
 
 
-								tableSort('#tableList', function(value, x) 
-								{
-									ajax.sort = value;
-									ajax.page = 1;
-									if (x) 
-									{
-										showList();
-									}
-								});
+								
 								$( "#table_search" ).keyup(function() 
 								{
 									var search = $( this ).val();

@@ -791,8 +791,7 @@ class controller extends wc_controller
 			'check'		=> $checker,
 			'warning'  	=> $warning,
 			'error'		=> $error,
-			'date_check'	=> $date_check,
-			'accountchecker' => $accountchecker
+			'date_check'	=> $date_check
 		);
 	}
 
