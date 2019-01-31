@@ -255,7 +255,7 @@ class inventory_model extends wc_model {
 							->setOrderBy('itemcode, entereddate, movement')
 							->runSelect()
 							->getResult();
-		echo $this->db->getQuery();
+		// echo $this->db->getQuery();
 		$previous_stock_quantity	= array();
 		$previous_price_average		= array();
 		$values						= array();
