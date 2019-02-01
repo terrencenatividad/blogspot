@@ -65,12 +65,17 @@ class inventory_model extends wc_model {
 						->setFields($this->createFields('si', 'convissueqty'))
 						->setWhere("a.stat = 'open' OR a.stat = 'posted'")
 						->buildSelect();
-						
-		$sr = $this->db->setTable('returns a')
-						->innerJoin('returns_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+			
+		$sr = $this->db->setTable('inventory_salesreturn a')
+						->innerJoin('inventory_salesreturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 						->setFields($this->createFields('sr', 'convissueqty'))
 						->setWhere("a.stat = 'Returned'")
-						->buildSelect();
+						->buildSelect();			
+		// $sr = $this->db->setTable('returns a')
+		// 				->innerJoin('returns_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+		// 				->setFields($this->createFields('sr', 'convissueqty'))
+		// 				->setWhere("a.stat = 'Returned'")
+		// 				->buildSelect();
 		
 		$xr = $this->db->setTable('returns a')
 						->innerJoin('returns_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
