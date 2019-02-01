@@ -207,12 +207,10 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                	<?php if($task == 'view_approval'): ?>
-                		<button id="btn_modal_close" class="btn btn-primary btn-flat">Confirm</button>
-                	<?php else: ?>
+                	<?php if($task != 'view_approval'): ?>
                     <button id="btn_serial_select" class="btn btn-primary btn-flat">Confirm</button>
-                    <button id="btn_modal_close" class="btn btn-default btn-flat">Cancel</button>
                 	<?php endif;?>
+                    <button id="btn_modal_close" class="btn btn-default btn-flat">Cancel</button>
                 </div>
             </div>
         </div>

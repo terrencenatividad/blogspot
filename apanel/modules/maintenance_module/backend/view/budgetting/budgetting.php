@@ -183,9 +183,9 @@
 															<thead>
 																<tr class="info">
 																	<th class="col-md-4 text-center">Account</th>
-																	<th class="col-md-4 text-center">Description</th>
+																	<th class="col-md-5 text-center">Description</th>
 																	<th class="col-md-3 text-center">Amount</th>
-																	<th class="col-md-4 text-center"></th>
+																	<!-- <th class="col-md-4 text-center"></th> -->
 																</tr>
 															</thead>
 															<tbody>
@@ -219,9 +219,6 @@
 																		->setValidation('decimal required')
 																		->draw($show_input);	
 																		?></td>
-																		<td class="text-center">
-																			<button type="button" class="btn btn-danger btn-flat confirm-delete" style="outline:none;"><span class="glyphicon glyphicon-trash"></span></button>
-																		</td>
 																	</tr>
 																<?php } else { ?>
 																	<?php if(isset($budget_details)) : ?>
@@ -259,11 +256,6 @@
 																				->setValidation('decimal required')
 																				->draw($show_input);	
 																				?></td>
-																				<?php if($ajax_task != 'ajax_view') : ?>
-																					<td class="text-center">
-																						<button type="button" class="btn btn-danger btn-flat confirm-delete" style="outline:none;"><span class="glyphicon glyphicon-trash"></span></button>
-																					<?php endif; ?>
-																				</td>
 																			</tr>
 																		<?php endforeach; ?>
 																	<?php endif; ?>
