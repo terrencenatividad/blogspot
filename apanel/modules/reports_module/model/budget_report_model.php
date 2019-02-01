@@ -79,7 +79,9 @@ class budget_report_model extends wc_model {
 			"IF(br.budget_check = 'Monitored', br.september, '-') as september",
 			"IF(br.budget_check = 'Monitored', br.october, '-') as october",
 			"IF(br.budget_check = 'Monitored', br.november, '-') as november",
-			"IF(br.budget_check = 'Monitored', br.december, '-') as december"
+			"IF(br.budget_check = 'Monitored', br.december, '-') as december",
+			"br.january + br.february + br.march + br.april + br.may + br.june + br.july + br.august + br.september + br.october + 
+			br.november + br.december as total"
 		);
 
 		$condition = '';
