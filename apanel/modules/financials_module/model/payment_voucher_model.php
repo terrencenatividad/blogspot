@@ -427,7 +427,7 @@ class payment_voucher_model extends wc_model
 		$mainFields	= array(
 			"main.voucherno as voucherno", "main.transactiondate as transactiondate",
 			"main.convertedamount as amount", "(main.convertedamount - COALESCE(SUM(app.convertedamount),0) - COALESCE(SUM(app.discount),0)) as balance", "main.referenceno as referenceno",
-			"SUM(app.convertedamount) as payment"
+			"SUM(app.convertedamount) as payment", "main.exchangerate as exchangerate"
 		);
 		$mainJoin	= "pv_application AS app ON app.apvoucherno = main.voucherno AND app.stat IN('open','posted') $pva_cond";
 		$groupBy 	= "main.voucherno";

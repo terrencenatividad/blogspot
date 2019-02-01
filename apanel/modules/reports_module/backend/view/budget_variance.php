@@ -45,10 +45,10 @@
 				<thead>
 					<tr class="info">
 						<th class="col-md-3">Code</th>
-						<th class="col-md-4">Description</th>
+						<th class="col-md-3">Description</th>
 						<th class="col-md-2">Budget</th>
 						<th class="col-md-2">Actual</th>
-						<th class="col-md-1">Variance</th>
+						<th class="col-md-2">Variance</th>
 					</tr>
 				</thead>
 				<tbody>
