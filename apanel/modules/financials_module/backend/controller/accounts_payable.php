@@ -86,6 +86,21 @@ class controller extends wc_controller
 	public function create()
 	{	
 		$this->view->title			= 'Create Accounts Payable';
+		$this->view->addCSS(array(
+			'jquery.fileupload.css'
+		)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$data = $this->input->post($this->fields);
 		$data["ui"]                 = $this->ui;
 		$data['show_input']         = true;
@@ -110,6 +125,21 @@ class controller extends wc_controller
 	public function view($id)
 	{
 		$this->view->title         = 'View Accounts Payable';
+		$this->view->addCSS(array(
+			'jquery.fileupload.css'
+		)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$data         			   = (array) $this->accounts_payable->getAPById($this->fields, $id);
 		$details = $this->accounts_payable->getAPDetails($id);
 		$vendor = $data['vendor'];
@@ -164,6 +194,17 @@ class controller extends wc_controller
 		$data['duedate'] = $this->date->dateFormat($data['duedate']);
 		$data['asset_list'] = $this->accounts_payable->retrieveAssetId();
 		$data['voucherno'] = $id;
+
+		$attachment						= $this->accounts_payable->getAttachmentFile($id);
+		$data['attachment_url']			= '';
+		$data['attachment_filename']	= '';
+		$data['attachment_filetype']	= '';
+		if (isset($attachment->attachment_url)) {
+			$data['attachment_url'] 		= $attachment->attachment_url;
+			$data['attachment_filename']	= $attachment->attachment_name;
+			$data['attachment_filetype']	= $attachment->attachment_type;
+		} 
+
 		$this->view->load('accounts_payable/accounts_payable_view', $data);
 	}
 
@@ -1971,5 +2012,54 @@ class controller extends wc_controller
 		$result 	= !empty($ret_result) ? 1 : 0;
 
 		return $dataArray = array("result"=>$result);
+	}
+
+	private function ajax_upload_file() {
+		$post_data 		= $this->input->post();
+		$upload_handler	= new UploadHandler();
+		$reference 		= $post_data['reference'];
+		if ($reference == '') {
+			$post_data['reference'] = $this->accounts_payable->getLatestAPRecord();
+		}
+		$task 			= $post_data['task'];
+		$upload_result 	= false;
+		unset($post_data['task']);
+		
+		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
+			if(!isset($upload_handler->response['files'][0]->error)){
+				
+				/**
+				 * Generate Attachment Id
+				 * @param table
+				 * @param group fields
+				 * @param custom condition
+				 */
+				// if ($task=='edit') 
+				$attachment_id = $this->accounts_payable->getCurrentId("accountspayable_attachments", $reference);
+				if ($attachment_id=='0'){
+					$attachment_id = $this->accounts_payable->getNextId("accountspayable_attachments","attachment_id");
+				}
+				// else
+					// $attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
+
+				foreach($upload_handler->response['files'] as $key => $row) {
+					$post_data['attachment_id'] 	= $attachment_id;
+					$post_data['attachment_name'] 	= $row->name;
+					$post_data['attachment_type'] 	= $row->type;
+					$post_data['attachment_url']	= $row->url;
+				}
+
+				if ($task == 'edit')
+					$upload_result 	= $this->accounts_payable->replaceAttachment($post_data);
+				else
+					$upload_result 	= $this->accounts_payable->uploadAttachment($post_data);
+
+			}else{
+				if($upload_handler->response['files'][0]->name == "Sorry, but file already exists"){
+					// var_dump($upload_handler);
+				}
+				$upload_result 	= false;
+			}
+		}
 	}
 }

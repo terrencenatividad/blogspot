@@ -675,7 +675,7 @@ class sales_invoice extends wc_model
 											->getResult();
 		}
 		else {
-			$header_fields 	= 	"jo.customer, jo.notes remarks, sq.t_vat taxamount, sq.t_discount discountamount";
+			$header_fields 	= 	"jo.customer, jo.notes remarks, sq.t_vat taxamount, sq.t_discount discountamount, sq.discounttype discounttype";
 			$condition 		=	" jo.job_order_no = '$code' ";
 			$retrieved_data['header'] 	= 	$this->db->setTable('job_order jo')
 													->setFields($header_fields)

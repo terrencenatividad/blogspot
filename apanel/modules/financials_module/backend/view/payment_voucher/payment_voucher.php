@@ -15,6 +15,7 @@
 			<input type = "hidden" id = "book_ids" name = "book_ids" >
 			<input type = "hidden" id = "book_last" name = "book_last" >
 			<input type = "hidden" id = "book_end" name = "book_end" >
+			<input class = "form_iput" value = "" name = "h_curr_code" id = "h_curr_code" type="hidden">
 			<div class="box box-primary">
 				<div class="box-body">
 					<div class = "row">
@@ -110,9 +111,6 @@
 										->draw($show_input);
 										?>
 									</div>
-								</div>
-
-								<div class = "row">
 									<div class="col-md-6">
 										<?php
 										echo $ui->formField('text')
@@ -1495,6 +1493,23 @@
 	</div>
 </div>
 
+<div class="modal fade" id="changeCurrencyCodeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+			</div>
+			<div class="modal-body" id="message">
+				Changing the current currency will clear out the accounting and check details section. Do you wish to proceed?
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+				<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 <script>
 	<?php if ($task == 'create'):?>
@@ -2830,7 +2845,7 @@ function getPVDetails(){
 				// }
 				// load payables
 				$("#entriesTable tbody").html(data.table);
-				$("#pv_amount").html(total_payment);
+				//$("#pv_amount").html(total_payment);
 				// display total of debit
 				addAmountAll("debit");
 				
@@ -4558,13 +4573,9 @@ $(document).ready(function() {
 			$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 			$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
 			$(this).closest('tr').find('.asterisk').html('');
-			// sumDebit();
-			// sumCredit();
 			sumCurrencyAmount();
 		} else {
 			$(this).closest('tr').find('.credit').removeAttr('readonly');
-			// sumDebit();
-			// sumCredit();
 			sumCurrencyAmount();
 		}
 	});
@@ -4578,13 +4589,9 @@ $(document).ready(function() {
 			$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
 			$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
 			$(this).closest('tr').find('.asterisk').html('');
-			// sumCredit();
-			// sumDebit();
 			sumCurrencyAmount();
 		} else {
 			$(this).closest('tr').find('.debit').removeAttr('readonly');
-			// sumDebit();
-			// sumCredit();
 			sumCurrencyAmount();
 		}
 	});
@@ -4604,4 +4611,38 @@ $(document).ready(function() {
 		});
 		$('#total_currency').val(addComma(total_currency));
 	}
+
+	$( "#currencycode" ).on('select2:selecting',function(e) {
+		var curr_code	=  $(this).val();	
+		var new_code	= e.params.args.data.id;
+		if( curr_code != "" ){
+			e.preventDefault();
+			$('#changeCurrencyCodeModal').modal('show');
+			$(this).select2('close');
+		}
+		$('#h_curr_code').val(new_code);
+	});
+
+	$('#changeCurrencyCodeModal').on('click','#disc_yes',function(){
+		var code = $('#h_curr_code').val();
+		$('#currencycode').val(code).trigger('change');
+		
+		$('#ap_items .clone').each(function(index) {
+			if (index > 0) {
+				$(this).remove();
+			}
+		});
+		
+		setChequeZero()
+		clearChequePayment();
+
+		$('#change_vendor_modal').modal('hide');
+		
+		container = [];
+		clearPayment();
+	});
+
+	$('#changeCurrencyCodeModal').on('click','#disc_no',function(){
+		$('#changeCurrencyCodeModal').modal('hide');
+	});
 </script>

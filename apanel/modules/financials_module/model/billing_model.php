@@ -245,7 +245,7 @@ class billing_model extends wc_model {
 
 	public function getDocumentContent($voucherno) {
 		$result = $this->db->setTable('billing_details bill')
-							->setFields("itemcode, detailparticular description, issueqty 'Quantity', unitprice 'Price', amount 'Amount', taxamount 'Tax', bill.taxrate")
+							->setFields("itemcode, detailparticular description, issueqty 'Quantity', unitprice 'Price', taxamount 'Tax', amount 'Amount', bill.taxrate, taxcode")
 							->leftJoin('fintaxcode f ON bill.taxcode = f.fstaxcode AND f.companycode = bill.companycode')
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
