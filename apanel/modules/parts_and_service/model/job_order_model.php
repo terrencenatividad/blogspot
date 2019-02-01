@@ -486,6 +486,18 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
+	public function getIssuedQty($job_order_no) {
+		$result = $this->db->setTable('job_release')
+							->setFields('SUM(quantity) issuedqty, itemcode, linenum')
+							->setWhere("job_order_no = '$job_order_no' AND stat != 'cancelled'")
+							->setGroupBy('itemcode')
+							->setOrderBy('linenum')
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
 	public function updateIssueParts($job_release_no,$data) {
 		$this->db->setTable('job_release')
 					->setWhere("job_release_no = '$job_release_no'")
@@ -587,17 +599,16 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function retrieveIssuedQty($itemcode,$job_order_no)
-	{
-		$result = $this->db->setTable('job_release')
-							->setFields("SUM(quantity) issuedqty")
-							->setWhere("itemcode = '$itemcode' AND job_order_no = '$job_order_no' AND stat != 'cancelled'")
-							->setLimit('1')
-							->runSelect()
-							->getRow();
-		// echo $this->db->getQuery();
-		return $result;
-	}
+	// public function retrieveIssuedQty($itemcode,$job_order_no)
+	// {
+	// 	$result = $this->db->setTable('job_release')
+	// 						->setFields("SUM(quantity) issuedqty")
+	// 						->setWhere("itemcode = '$itemcode' AND job_order_no = '$job_order_no' AND stat != 'cancelled'")
+	// 						->setOrderBy('linenum')
+	// 						->runSelect()
+	// 						->getResult();
+	// 	return $result;
+	// }
 
 	public function retrieveBundleDetails($itemcode) {
 		// $query 		=	"SELECT * FROM 

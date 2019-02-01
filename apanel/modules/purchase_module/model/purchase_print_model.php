@@ -350,7 +350,7 @@ class purchase_print_model extends fpdf {
 	}
 	
 	public function drawSummary($summary) {
-		$summary_height	= count($summary) * 5;
+		$summary_height	= count($summary) * 6;
 		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 2;
 		// $this->Line(8, $summary_start, 29, $summary_start);
 		$this->summary_start 	=	$summary_start;

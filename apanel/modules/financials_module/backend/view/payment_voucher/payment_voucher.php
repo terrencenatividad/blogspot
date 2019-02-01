@@ -173,11 +173,7 @@
 										->setName('remarks')
 										->setId('remarks')
 										->setValue($particulars)
-										->setAttribute(
-											array(
-												'rows' => 5
-											)
-										)
+										->setMaxLength(300)
 										->draw($show_input);
 										?>
 									</div>
@@ -1820,11 +1816,16 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 				var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
 				var ca = checker['acc-' + $(this).val()] || '0.00';
 				ca = removeComma(ca);
+				var exchangerate = $('#exchangerate').val();
+				var currencycode = $('#currencycode').val();
+				exchangerate = removeComma(exchangerate);
 				if($(this).val() == ""){
 					ca = '0.00';
 				}
 				if(ischeck == 'yes'){
 					$(this).closest('tr').find('.account_amount').val(addComma(ca));
+					$(this).closest('tr').find('.currencyamount').val(addComma(ca * exchangerate));
+					$('#entriesTable tbody tr td .form-group').find('.currency_symbol').html(currencycode);
 				}
 				$(this).closest('tr').find('.h_accountcode').val($(this).val());	
 			}	
@@ -1982,7 +1983,7 @@ function resetIds() {
 		row.cells[5].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[7].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].id 	= 'currencyamount['+x+']';
+		row.cells[8].getElementsByTagName("input")[0].id 	= 'currencyamount['+x+']';
 		
 		row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
@@ -1993,11 +1994,11 @@ function resetIds() {
 		row.cells[5].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[7].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].name 	= 'currencyamount['+x+']';
+		row.cells[8].getElementsByTagName("input")[0].name 	= 'currencyamount['+x+']';
 		
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[9].getElementsByTagName("button")[0].setAttribute('id',x);
 		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+		row.cells[9].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
 	}
@@ -4295,6 +4296,8 @@ $(document).ready(function() {
 
 		var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
 		ParentRow.after(clone_acct);
+		var currencycode = $('#currencycode').val();
+		$('#entriesTable tbody tr td .form-group').find('.currency_symbol').html(currencycode);
 		setZero();
 		drawTemplate();
 	});
