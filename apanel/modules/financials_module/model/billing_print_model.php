@@ -294,6 +294,9 @@ class billing_print_model extends fpdf {
 					$this->setFont('Times','',9);
 				}
 			}
+			if ($key == 3) {
+				$align = 'R';
+			}
 			$this->MultiCell($width, 6, $array_values[$key], 0, $align);
 			$y2 = $this->GetY();
 			if (($y2 - $y) > $h) {
