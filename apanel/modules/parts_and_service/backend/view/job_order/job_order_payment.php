@@ -954,13 +954,13 @@
 			}
 		});
 
-		$('#tableSerialList').on('ifChecked', '.check_id', function () {
-			var serialnum = $(this).val();
-			if($.inArray(serialnum, checked_serials) == -1) {
-				checked_serials.push(serialnum);
-			}
-			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
-		});
+		// $('#tableSerialList').on('ifChecked', '.check_id', function () {
+		// 	var serialnum = $(this).val();
+		// 	if($.inArray(serialnum, checked_serials) == -1) {
+		// 		checked_serials.push(serialnum);
+		// 	}
+		// 	itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+		// });
 
 		$('#tableSerialList').on('ifUnchecked', '.check_id', function () {
 			var remove_this  =   $(this).val(); 
@@ -989,6 +989,7 @@
 			getList();
 		});
 		function getList() {
+			checked_serials = [];
 			var jobno = $('#job_order_no').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_load_issue', 'jobno='+ jobno + '<?=$ajax_post?>' , function(data) {
 				$('#issuedPartsList tbody').html(data.issuedparts);
@@ -1058,7 +1059,7 @@
 			var jobreleaseno = $('#job_release_no').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', form.serialize() + '&jobreleaseno='+ jobreleaseno + '<?=$ajax_post?>', function(data) {
 				getList();
-				$('.quantity').val('0');
+				$('.quantity').val('0');	
 				$('#isyu').show();
 				$('#save').addClass('hidden');	
 				$('#task').val('');	
