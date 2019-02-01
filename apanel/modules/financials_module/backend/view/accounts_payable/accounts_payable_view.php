@@ -90,6 +90,11 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-md-12">
+                                    <h4>Attachment : <a target="_blank" href="<?php echo $attachment_url ?>"><?php echo $attachment_filename ?></a></h4>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-8">
                                     <h4><strong><?php echo $vendor; ?></strong></h4>
                                 </div>

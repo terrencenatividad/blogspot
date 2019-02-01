@@ -2316,6 +2316,133 @@ class accounts_payable extends wc_model
 		->runSelect()
 		->getRow();
 		return $result;
-	}      
+	}
+	
+	public function getLatestAPRecord() {
+		$getRow = $this->db->setTable('accountspayable')
+							->setFields('voucherno')
+							->setOrderBy('accountspayable.entereddate DESC')
+							->runSelect()
+							->getRow();
 
+		$result = $getRow->voucherno;
+
+		return $result;
+	}
+
+	public function getNextId($table,$field,$subcon = "") {
+		$result = $this->db->setTable($table)
+			->setFields('MAX('.$field.') as current')
+			->setWhere(" $field != '' " . $subcon)
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->current += 1;
+		} else {
+			$return = '1';
+		}
+		return $return;
+	}
+
+	public function getCurrentId($table,$voucherno) {
+		$result = $this->db->setTable($table)
+			->setFields('attachment_id')
+			->setWhere("reference='$voucherno'")
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->attachment_id;
+		} else {
+			$return = '0';
+		}
+		return $return;
+	}
+
+	public function uploadAttachment($data) {
+		$reference = $data['reference'];
+		$filename = $data['attachment_name'];
+		
+		$getFiles = $this->db->setTable('accountspayable_attachments')
+							->setFields("COUNT('attachment_id') count")
+							->setWhere("reference = '$reference'")
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+
+		if ($getFiles) {
+			$this->deleteAttachment($reference, $filename);
+		}
+
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setValues($data)
+							->runInsert();
+		
+		if ($result) {
+			$this->log->saveActivity("Approve [$reference] with attachment");		
+		}
+		return $result;
+	}
+
+	public function deleteAttachment($reference, $filename) {
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setFields('attachment_name')
+							->setWhere("reference='$reference'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+		if ($result) {
+			unlink('files/'.$result->attachment_name);
+		}
+		
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setWhere("reference='$reference' AND attachment_name != '$filename'")
+							->runDelete();
+
+		return $result;
+	}
+
+	public function deleteExistingFile($filename){
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setFields('attachment_name')
+							->setWhere("attachment_name='$filename'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result) {
+			unlink('files/'.$result->attachment_name);
+		} 
+		
+		return $result;
+	}
+
+	public function replaceAttachment($data) {
+		$reference = $data['reference'];
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setValues($data)
+							->setWhere("reference='$reference'")
+							->runUpdate();
+		if ($result) {
+			$this->log->saveActivity("Update attachment with [$reference]");		
+		}
+		return $result;
+	}
+
+	public function getAttachmentFile($voucherno) {
+		
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setFields(array('attachment_name','attachment_url', 'attachment_type'))
+							->setWhere("reference = '$voucherno'")
+							->setOrderBy('attachment_id DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+		
+		return $result;
+	}
 }
