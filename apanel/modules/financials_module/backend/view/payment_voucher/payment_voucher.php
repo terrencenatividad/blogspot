@@ -173,11 +173,7 @@
 										->setName('remarks')
 										->setId('remarks')
 										->setValue($particulars)
-										->setAttribute(
-											array(
-												'rows' => 5
-											)
-										)
+										->setMaxLength(300)
 										->draw($show_input);
 										?>
 									</div>
