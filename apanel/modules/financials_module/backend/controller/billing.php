@@ -171,8 +171,8 @@ class controller extends wc_controller {
 			$total_amount	+= 0;
 			$row->Quantity	= number_format($row->Quantity);
 			$row->Price		= number_format($row->Price, 2);
+			$row->Tax		= number_format($row->Tax, 2);
 			$row->Amount	= number_format($row->Amount, 2);
-			$row->Tax	= number_format($row->Tax, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
