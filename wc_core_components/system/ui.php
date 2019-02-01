@@ -634,7 +634,7 @@ class ui {
 		$value = ($this->add_hidden !== true && $this->add_hidden !== false && ! $this->draw ) ? $this->add_hidden : $this->value;
 		$id = '';
 		$id = ($this->add_hidden && $this->draw && isset($this->attribute['id'])) ? ' id="' . $this->attribute['id'] . '_static"' : '';
-		return '<p class="form-control-static"' . $id .$attr. '>' . $value . '</p>';
+		return '<p class="form-control-static"' . $id .$attr. ' style="word-wrap: break-word;">' . $value . '</p>';
 	}
 
 }

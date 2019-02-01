@@ -476,7 +476,7 @@ function addVoucherDetails(details, index) {
 									'data-value' 	=> '\' + (parseFloat(details.maxqty) || 0) + \'')
 									)
 									->setValidation('required integer')
-									->setValue('` + (addComma(details.issueqty) || 0) + `')
+									->setValue('` + addComma(0) + `')
 									->draw($show_input);
 							?>';
 
@@ -643,7 +643,7 @@ function addVoucherDetails(details, index) {
 						->setSplit('', 'col-md-12')
 						->setName('amount[]')
 						->setClass('amount')
-						->setValue('` + details.amount + `')
+						->setValue('` + addComma(0) + `')
 						->addHidden()
 						->draw($show_input);
 				?>
@@ -762,23 +762,24 @@ function recomputeAll() {
 
 	$.each($('#tableList tbody tr'), function(){
 		if ($(this).find('.chkitem').is(':checked')) {
+			var srcqty 			= removeComma($(this).find('.srcqty').val());
 			var qty 			= removeComma($(this).find('.issueqty').val());
 			var unitprice 		= removeComma($(this).find('.unitprice').val());
 			var amount 			= unitprice * qty;
 			var discounttype 	= $(this).find('.discounttype').val();
 			var discountrate 	= removeComma($(this).find('.discountrate').val());
 			var discountamount 	= 0;
-			if (discounttype == 'perc') {
-				discountamount = amount * discountrate;
-			} else {
-				discountamount = discountrate;
-			}
+			
+			discountamount = discountrate * (qty / srcqty);
+			
+			console.log(discountamount);
 			var netamount 	= amount - discountamount;
 			var taxcode 	= $(this).find('.taxcode').val();
 			var taxrate 	= removeComma($(this).find('.taxrate').val());
 			var taxamount 	= netamount * taxrate;
 
 			$(this).find('[name="amount[]"]').text(addComma(netamount));
+			$(this).find('[name="discountrate[]"]').text(addComma(discountamount));
 			$(this).find('.amount')			.val(amount);
 			$(this).find('.netamount')		.val(netamount);
 			$(this).find('.discountamount')	.val(discountamount);
@@ -1016,7 +1017,7 @@ $('tbody').on('ifUnchecked', '.chkitem', function() {
 	$(this).closest('tr').find('.btnserial').attr('disabled', true);
 	$(this).closest('tr').find('.btnserial span').text(selected_serial.length);
 	$(this).closest('tr').find('.issueqty').attr('readonly', 'readonly').val(0);
-
+	$(this).closest('tr').find('[name="discountrate[]"]').text('0.00');
 	$(this).closest('tr').find('.replacement').iCheck('uncheck').attr('disabled', true).iCheck('update');
 	$(this).closest('tr').find('.defective').iCheck('uncheck').attr('disabled', true).iCheck('update');
 	$(this).closest('tr').find('[name="amount[]"]').text('0.00');
