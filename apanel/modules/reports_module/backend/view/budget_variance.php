@@ -77,9 +77,9 @@
 			$('#tableList tbody').html(data.table);
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
-			$('.total_amount').html(addComma(data.total_amount));
-			$('.total_actual').html(addComma(data.total_actual));
-			$('.total_variance').html(addComma(data.total_variance));
+			$('.total_amount').html(data.total_amount);
+			$('.total_actual').html(data.total_actual);
+			$('.total_variance').html(data.total_var);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});
 	}

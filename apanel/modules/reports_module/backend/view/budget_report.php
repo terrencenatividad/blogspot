@@ -58,7 +58,7 @@
 				<tfoot>
 					<tr>
 						<td colspan="2" class="text-right"><strong>Total</strong></td>
-						<td class = "text-right year_total"></td>
+						<td class = "text-right budget_total"></td>
 						<td class = "text-right jan"></td>
 						<td class = "text-right feb"></td>
 						<td class = "text-right mar"></td>
@@ -88,6 +88,7 @@
 			$('#tableList tbody').html(data.table);
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
+			$('.budget_total').html(addComma(data.budget_total));
 			$('.jan').html(addComma(data.jan));
 			$('.feb').html(addComma(data.feb));
 			$('.mar').html(addComma(data.mar));
@@ -101,15 +102,6 @@
 			$('.nov').html(addComma(data.nov));
 			$('.dec').html(addComma(data.dec));
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-			$('#tableList tbody tr input.monthly_total').each(function() {
-				var val = parseInt($(this).val());
-				if($(this).val() == '-') {
-					val = 0;
-				}
-				total += +val;
-				$('.all_total').html('<strong>'+addComma(total)+'</strong>');
-			});
-			total = 0;
 		});
 	}
 	getList();
