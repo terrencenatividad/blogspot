@@ -107,9 +107,53 @@ class controller extends wc_controller {
 
 	public function edit($voucherno) {
 		$this->view->title			= 'Edit Sales Return';
-		$this->fields[]				= 'stat';
+
+		$fields1 = array('source_no',
+						'customer',
+						'transactiondate', 
+						'remarks', 
+						'reason',
+						'amount total_amount',
+						'discountamount total_discount',
+						'taxamount total_tax',
+						'netamount ',
+						'vat_sales',
+						'vat_exempt',
+						'vat_zerorated',
+						'stat'
+					);
+		$fields2			= array(
+			'main.itemcode',
+			'main.detailparticular',
+			'main.warehouse',
+			'main.linenum',
+			'main.issueqty',
+			'tbl.issueqty srcqty',
+			'main.issueuom',
+			'main.convuom',
+			'main.convissueqty',
+			'main.conversion',
+			'main.serialnumbers',
+			'main.unitprice',
+			'main.taxcode',
+			'main.taxrate',
+			'main.taxamount',
+			'main.discounttype',
+			'tbl.discountrate',
+			'tbl.discountamount',
+			'main.defective', 
+			'main.replacement', 
+			'main.amount', 
+			'main.netamount'
+		);
+		
+
+		$data				= (array)$this->sr_model->getSRheader($voucherno, $fields1);
+		$details 			= $this->sr_model->getSRdetails($voucherno, $fields2, $data['source_no']);
+		
 		$data['ui']					= $this->ui;
-		$data						= (array) $this->sr_model->getSalesReturn($this->fields, $voucherno);
+		
+		$data['voucherno'] 			= $voucherno;
 		$data['total_sales'] 		= $data['vat_sales'] + $data['vat_exempt'] + $data['vat_zerorated'];
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
@@ -117,8 +161,8 @@ class controller extends wc_controller {
 		$data['warehouse_list']		= $this->sr_model->getWarehouseList();
 		$data["item_list"]			= $this->sr_model->getItemList();
 		$data['taxrate_list'] 		= $this->sr_model->getTaxRateList();
-		$data['header_values']		= json_encode($this->sr_model->getSalesReturn($this->fields, $voucherno));
-		$data['voucher_details']	= json_encode($this->sr_model->getSalesReturnDetails($this->fields2, $voucherno, false));
+		$data['header_values']		= json_encode($data);
+		$data['voucher_details']	= json_encode($details);
 		$data['ajax_task']			= 'ajax_edit';
 		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= true;
@@ -131,20 +175,43 @@ class controller extends wc_controller {
 	}
 
 	public function view($voucherno) {
-		$this->view->title			= 'View Return';
-		$this->fields[]				= 'stat';
-		$data						= (array) $this->sr_model->getReturnById($this->fields, $voucherno);
+		$this->view->title			= 'View Sales Return';
+
+		$fields1 = array('source_no',
+						'customer',
+						'transactiondate', 
+						'remarks', 
+						'reason',
+						'amount total_amount',
+						'discountamount total_discount',
+						'taxamount total_tax',
+						'netamount total_netamount',
+						'vat_sales',
+						'vat_exempt',
+						'vat_zerorated',
+						'stat'
+					);
+		$fields2 = $this->fields2;
+		array_push($fields2, 'discountamount', 'defective', 'replacement', 'amount', 'netamount');
+
+
+		$data				= (array)$this->sr_model->getSRheader($voucherno, $fields1);
+		$details 			= $this->sr_model->getSRdetails($voucherno, $fields2);
+		
+		$data['ui']					= $this->ui;
+
+		$data['voucherno'] 			= $voucherno;
 		$data['total_sales'] 		= $data['vat_sales'] + $data['vat_exempt'] + $data['vat_zerorated'];
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
-		$data['ajax_task']			= '';
-		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->sr_model->getCustomerList();
 		$data['warehouse_list']		= $this->sr_model->getWarehouseList();
 		$data["item_list"]			= $this->sr_model->getItemList();
 		$data['taxrate_list'] 		= $this->sr_model->getTaxRateList();
-		$data['header_values']		= json_encode($this->sr_model->getReturnById($this->fields_header, $voucherno));
-		$data['voucher_details']	= json_encode($this->sr_model->getReturnDetails($this->fields2, $voucherno));
+		$data['header_values']		= json_encode($data);
+		$data['voucher_details']	= json_encode($details);
+		$data['ajax_task']			= 'view';
+		$data['ajax_post']			= "&voucherno_ref=$voucherno";
 		$data['show_input']			= false;
 		// Closed Date
 		$close_date 				= $this->restrict->getClosedDate();
@@ -274,7 +341,10 @@ class controller extends wc_controller {
 						'total_amount',
 						'total_discount',
 						'total_tax',
-						'total_netamount'
+						'total_netamount',
+						'vat_sales',
+						'vat_exempt',
+						'vat_zerorated'
 					);
 		$fields2 = $this->fields2;
 		array_push($fields2, 'discountamount', 'defective', 'replacement', 'amount', 'netamount');
@@ -311,9 +381,12 @@ class controller extends wc_controller {
 						'discounttype' 		=> $details['discounttype'][0],
 						'discountamount' 	=> $header['total_discount'],
 						'netamount' 		=> $header['total_netamount'],
-						'taxamount' 		=> $header['total_tax']
+						'taxamount' 		=> $header['total_tax'],
+						'vat_sales' 		=> str_replace(',', '', $header['vat_sales']),
+						'vat_exempt' 		=> str_replace(',', '', $header['vat_exempt']),
+						'vat_zerorated' 	=> str_replace(',', '', $header['vat_zerorated'])
 					);
-
+		var_dump($values);
 		foreach ($details['itemcode'] as $key => $value) {
 			$arr_voucherno[] 	= $voucherno; 
 			$arr_transtype[] 		= 'SR';
@@ -366,7 +439,7 @@ class controller extends wc_controller {
 		}
 
 		if ($result) {
-			$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
+			//$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
 				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
 										->setDetails($values['customer'])
@@ -466,7 +539,9 @@ class controller extends wc_controller {
 	private function ajax_load_invoice_details() {
 		$voucherno	= $this->input->post('voucherno');
 		$result  	= $this->sr_model->getSource($voucherno);
-
+		foreach ($result['details'] as $key => $row) {
+			$result['details'][$key]->issueqty = $row->maxqty;
+		}
 		$table		= '';
 		$success	= true;
 
