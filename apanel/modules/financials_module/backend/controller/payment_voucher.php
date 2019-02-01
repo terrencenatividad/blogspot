@@ -1078,8 +1078,9 @@ class controller extends wc_controller
 				$restrict_pv 	= $this->restrict->setButtonRestriction($date);
 				$date			= $this->date->dateFormat($date);
 				$voucher		= $pagination->result[$i]->voucherno;
-				$balance		= $pagination->result[$i]->balance; 
-				$totalamount	= $pagination->result[$i]->amount;
+				$exrate			= $pagination->result[$i]->exchangerate;
+				$totalamount	= $pagination->result[$i]->amount / $exrate;
+				$balance		= $pagination->result[$i]->balance / $exrate;
 				$referenceno	= $pagination->result[$i]->referenceno;
 				$voucher_checked = (in_array($voucher , $voucher_array)) ? 'checked' : '';
 				$amt_checked = (in_array($voucher , $amt_array)) ? $amt_checked : '';

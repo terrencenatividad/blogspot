@@ -44,6 +44,7 @@ class controller extends wc_controller {
 			$total_amount += $row->amount;
 			$total_actual += $row->actual ;
 			$total_variance += $row->variance;
+			$total_var = ($total_variance < 0) ? '('.number_format($total_variance, 2).')' : number_format($total_variance,2);
 			$table .= '<tr>';
 			$table .= '<td>' . $row->segment5 . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
@@ -55,9 +56,9 @@ class controller extends wc_controller {
 
 		$pagination->table	= $table;
 		$pagination->csv	= $this->get_export();
-		$pagination->total_amount = $total_amount;
-		$pagination->total_actual = $total_actual;
-		$pagination->total_variance = $total_variance;
+		$pagination->total_amount =  number_format($total_amount, 2);
+		$pagination->total_actual = number_format($total_actual, 2);
+		$pagination->total_var = str_replace('-','',$total_var);
 		return $pagination;
 	}
 
@@ -80,7 +81,13 @@ class controller extends wc_controller {
 		if (empty($result)) {
 			$csv .= 'No Records Found';
 		}
+		$total_amount = 0;
+		$total_actual = 0;
+		$total_variance = 0;
 		foreach ($result as $key => $row) {
+			$total_amount += $row->amount;
+			$total_actual += $row->actual ;
+			$total_variance += $row->variance;
 			$csv .= "\n";
 			$csv .= '"' . $row->segment5 . '",';
 			$csv .= '"' . $row->description . '",';
@@ -88,6 +95,12 @@ class controller extends wc_controller {
 			$csv .= '"' . $row->actual . '",';
 			$csv .= '"' . $row->variance . '",';
 		}
+		$csv .= "\n";
+		$csv .= ',';
+		$csv .= 'TOTAL,';
+		$csv .= '"' . $total_amount . '",';
+		$csv .= '"' . $total_actual . '",';
+		$csv .= '"' . $total_variance . '",';
 		
 		return $csv;
 	}
