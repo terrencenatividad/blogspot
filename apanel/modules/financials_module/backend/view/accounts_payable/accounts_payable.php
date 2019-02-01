@@ -280,7 +280,26 @@
 							</div>
 
 							<div class="row">
-								<div class="col-md-6"></div>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('text')
+										->setLabel('Attachment')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('file')
+										->setId('file')
+										->setAttribute(array('readonly'))
+										->setAddon('file')
+										->setValue('')
+										->setAttribute(
+											array(
+												'href' => '',
+												'target'=> "_blank",
+											))
+										// ->setValidation('required')
+										->draw($show_input);											
+									?>
+									
+								</div>
 								<div class="col-md-6">
 									<?php
 									echo $ui->formField('text')
@@ -712,6 +731,20 @@
 						<div class = "col-md-12">&nbsp;</div>
 					</div>
 				</form>
+				<div class="hidden">
+					<form method="post" id="attachments_form" enctype="multipart/form-data">
+					<input type="hidden" name="attachment" id='input_attachment'>
+						<?php
+							echo $ui->setElement('file')
+							->setId('files')
+							->setName('files')
+							->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+							// ->setValidation('required')
+							->draw();
+						?>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+					</form>
+				</div>	
 			</div>
 		</div>
 	</section>
@@ -1730,6 +1763,7 @@
 								$('#errors').html(data.warning);
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1744,6 +1778,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
+									$('#attach_button').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1754,6 +1789,7 @@
 							$('#error-modal').modal('show');
 						}
 					});
+					
 				} else {
 					$('#error-modal').modal('show');
 				}
@@ -1787,6 +1823,7 @@
 								$('#errors').html(data.warning);
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1801,6 +1838,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
+									$('#attach_button').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1844,6 +1882,7 @@
 								$('#errors').html(data.warning);
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1858,6 +1897,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
+									$('#attach_button').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1885,4 +1925,94 @@
 				checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
 			}
 		});	
+		
+		function uploadAttachment(){
+			$('#attach_button').click();
+		}
+
+		$(function () {
+			'use strict';
+
+			$('#file').on('focus', function(){
+				var vendor = $('#vendor').val();
+				// ajax.vendor = vendor;
+				// console.log(vendor);
+				if (vendor == '') {
+					$('#vendor').trigger('blur');
+				} else {
+					$('#files').click();
+				}			
+			});
+
+			$('#attachments_form').fileupload({
+				url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+				maxFileSize: 3000000,
+				disableExifThumbnail :true,
+				previewThumbnail:false,
+				autoUpload:false,
+				add: function (e, data) {            
+					$("#attach_button").off('click').on('click', function () {
+						data.submit();
+					});
+				},
+			});
+
+			$('#attachments_form').addClass('fileupload-processing');
+			$.ajax({
+				url: $('#attachments_form').fileupload('option', 'url'),
+				dataType: 'json',
+				context: $('#attachments_form')[0]
+			}).always(function () {
+				$(this).removeClass('fileupload-processing');
+			}).done(function (result) {
+				$(this).fileupload('option', 'done')
+					.call(this, $.Event('done'), {
+						result: result
+					});
+			});
+
+			$('#attachments_form').bind('fileuploadadd', function (e, data) {
+				var filename = data.files[0].name;
+				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+				$('#file').val(filename).trigger('blur');
+			});
+			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+				// var source_no = $('#source_no').val();
+				var task = "create";
+				data.formData = {reference: '', task: task};
+				<? if($ajax_task == 'ajax_edit') {?>
+					var voucher_no = $('#voucherno').val();
+					var task = "edit";
+					data.formData = {reference: voucher_no, task: task};
+				<? }?>
+				
+			});
+			$('#attachments_form').bind('fileuploadalways', function (e, data) {
+				var error = data.result['files'][0]['error'];
+				var form_group = $('#attachments_form #files').closest('.form-group');
+				if(!error){
+					// var source_no = $('#source_no').val();
+					var voucherno =  $('#voucherno').val();
+					// $('#attach_modal').modal('hide');
+					<?php if (!$show_input) { ?>
+					// $('#attachment_success').modal('show');
+					setTimeout(function() {							
+						window.location = '<?=MODULE_URL?>view/'+voucherno;						
+					}, 1000)
+					<?php } ?>
+
+					var msg = data.result['files'][0]['name'];
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+
+					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+					// $('#file').val('').trigger('blur');
+					// getList();
+				}else{
+					var msg = data.result['files'][0]['name'];
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(msg);
+				}
+			});
+		});
 	</script>
