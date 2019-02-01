@@ -1515,7 +1515,7 @@ function cancelTransaction(vno)
 }
 
 /** FINALIZE SAVING **/
-function finalizeTransaction(type, error, warning, checkamount, date_checker)
+function finalizeTransaction(type, error, checkamount, date_checker)
 {
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
@@ -1556,9 +1556,6 @@ function finalizeTransaction(type, error, warning, checkamount, date_checker)
 			} else if(error != '') {
 				$('#accountchecker-modal').modal('show');
 				$('#accounterror').html(error);
-			} else if(warning != ''){
-				$('#accountchecker-modal').modal('show');
-				$('#accounterror').html(warning);
 			} else if(date_checker != ''){
 				$('#accountchecker-modal').modal('show');
 				$('#accounterror').html(date_checker);
@@ -2022,7 +2019,6 @@ $(document).ready(function(){
 		if('<?= $task ?>' == "create")
 		{
 			var error = '';
-			var warning = '';
 			var checkamount = '';
 			var date_checker = '';
 			$("#purchase_order_form").on('change blur',function()
@@ -2036,7 +2032,6 @@ $(document).ready(function(){
 						var parse = JSON.stringify(data.msg);
 						var parsed = JSON.parse(parse);
 						error = parsed['error'];
-						warning = parsed['warning'];
 						checkamount = parsed['checkamount'];
 						date_checker = parsed['date_checker'];
 					});
@@ -2046,20 +2041,20 @@ $(document).ready(function(){
 			//Final Saving
 			$('#purchase_order_form #btnSave').click(function(){
 
-				finalizeTransaction("final", error, warning, checkamount, date_checker);
+				finalizeTransaction("final", error, checkamount, date_checker);
 
 			});
 
 			//Save & Preview
 			$("#purchase_order_form #save_preview").click(function()
 			{
-				finalizeTransaction("final_preview", error, warning, checkamount, date_checker);
+				finalizeTransaction("final_preview", error, checkamount, date_checker);
 			});
 
 			//Save & New
 			$("#purchase_order_form #save_new").click(function()
 			{
-				finalizeTransaction("final_new", error, warning, checkamount, date_checker);
+				finalizeTransaction("final_new", error, checkamount, date_checker);
 			});
 		}
 		else if('<?= $task ?>' == "edit")
