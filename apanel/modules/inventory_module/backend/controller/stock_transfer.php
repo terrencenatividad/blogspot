@@ -309,11 +309,7 @@ class controller extends wc_controller
 
 		$print = new print_inventory_model();
 		$print->setDocumentType('Transfer - Request')
-			  ->setFooterDetails(
-					array(
-						'Prepared By' => $documentinfo->prepared_by, 
-						'Checked By' => '')
-					)
+			  ->setFooterDetails(array('Approved By', 'Checked By'))
 			  ->setCustomerDetails($documentinfo)
 			  ->setDocumentDetails($documentdetails)
 			  // ->addTermsAndCondition()
@@ -363,11 +359,7 @@ class controller extends wc_controller
 
 		$print = new print_inventory_model();
 		$print->setDocumentType('Transfer - Approved')
-				->setFooterDetails(
-					array(
-						'Approved By' => $documentinfo->approved_by, 
-						'Checked By' => '')
-					)
+				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($documentinfo)
 				->setDocumentDetails($documentdetails)
 				// ->addTermsAndCondition()

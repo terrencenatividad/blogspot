@@ -679,7 +679,8 @@
 									->draw();
 
 							echo $ui->setElement('hidden')
-									->setClass('exchangerate')	
+									->setName('exchangerate[]')
+									->setClass('exchangerate')
 									->setValue('` + (parseFloat(details.exchangerate) || 0) + `')
 									->draw();
 									
@@ -1440,25 +1441,8 @@
 					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 0;
 					var tax = $(this).find('.taxcode').val();
 					var taxrate = taxrates[tax] || 0;
-					console.log(freight+" - "+insurance+" - "+packaging+" - "+charges);
-					var computebase = price*quantity*exchangerate;
-					var withmiscfee = ((computebase/total_purchase)*charges)/quantity;
-					if(parseFloat(freight) != 0 || parseFloat(insurance) != 0 || parseFloat(packaging) != 0){
-						amount = withmiscfee;
-					} else{
-						console.log('else');
-						amount = computebase;
-					}
-					console.log("Price = "+price);
-					console.log("Quantity = "+quantity);
-					console.log("Exchange Rate = "+exchangerate);
-					console.log("Computed Base = "+computebase);
-					console.log("Charges = "+charges);
-
-
-					console.log("Total Purchase = "+total_purchase);
-					console.log("Computed Amount = "+amount);
-
+					
+					var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
 					var taxamount = (taxrate > 0) ? removeComma(addComma(amount + (amount * parseFloat(taxrate)))) * exchangerate : 0;
 					
 					total_amount += amount;
