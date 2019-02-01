@@ -1816,11 +1816,16 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 				var ischeck 	=	$(this).closest('tr').find('.ischeck').val();
 				var ca = checker['acc-' + $(this).val()] || '0.00';
 				ca = removeComma(ca);
+				var exchangerate = $('#exchangerate').val();
+				var currencycode = $('#currencycode').val();
+				exchangerate = removeComma(exchangerate);
 				if($(this).val() == ""){
 					ca = '0.00';
 				}
 				if(ischeck == 'yes'){
 					$(this).closest('tr').find('.account_amount').val(addComma(ca));
+					$(this).closest('tr').find('.currencyamount').val(addComma(ca * exchangerate));
+					$('#entriesTable tbody tr td .form-group').find('.currency_symbol').html(currencycode);
 				}
 				$(this).closest('tr').find('.h_accountcode').val($(this).val());	
 			}	
