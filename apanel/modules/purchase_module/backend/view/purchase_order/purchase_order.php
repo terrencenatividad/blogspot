@@ -1611,7 +1611,6 @@ function finalizeEditTransaction()
 					var parse = JSON.stringify(data.msg);
 					var parsed = JSON.parse(parse);
 					error = parsed['error'];
-					warning = parsed['warning'];
 					checkamount = parsed['checkamount'];
 					errmsg = parsed['errmsg'];
 					date_checker = parsed['date_checker'];
@@ -1638,9 +1637,6 @@ function finalizeEditTransaction()
 					} else if(error != '') {
 						$('#accountchecker-modal').modal('show');
 						$('#accounterror').html(error);
-					} else if(warning != ''){
-						$('#accountchecker-modal').modal('show');
-						$('#accounterror').html(warning);
 					} else if(date_checker != ''){
 						$('#accountchecker-modal').modal('show');
 						$('#accounterror').html(date_checker);
