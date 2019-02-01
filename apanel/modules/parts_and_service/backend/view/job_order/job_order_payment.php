@@ -459,7 +459,7 @@
 							echo $ui->formField('hidden')
 								->setName('h_issuedqty[]')
 								->setClass('h_issuedqty')
-								->setValue('` + details.issuedqty + `')
+								->setValue('` + (details.issuedqty || 0) + `')
 								->draw(true);
 							echo $ui->formField('hidden')
 								->setClass('checked')
@@ -736,13 +736,29 @@
 
 		$('#isyu').on('click',function(e){
 			var form = $('form').serialize();
+			var jobno = $('#job_order_no').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_create_issue', form + '<?=$ajax_post?>' , function(data) {
+					// window.location	= "<?=MODULE_URL?>payment/"+jo;
 					getList();		
 					$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
 					$('.quantity').val('0');
 					$('#isyu').show();
 					$('#save').addClass('hidden');	
 			});
+
+			// $.post('<?=MODULE_URL?>ajax/ajax_check_issuedqty', 'job_order_no=' + jobno , function(data) {
+			// 	var asd  = $('#tableList tbody').find('.linenum').val();				
+			// 				var content = data.result;	
+			// 				content.forEach(function(element) {
+			// 					$('#tableList tbody tr').each(function(aaa){
+			// 						var linenums = $(this).data('linenum');
+			// 						if(element.linenum == linenums) {
+			// 							$(this).find('.h_issuedqty').val(element.issuedqty);
+			// 						}
+			// 					});
+			// 				});
+					
+			// });
 		});
 
 		$('#tableList tbody').on('blur', '.quantity', function(e) {		
@@ -754,7 +770,6 @@
 			var orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
 			var issuedqty 	=	removeComma($(this).closest('tr').find('.h_issuedqty').val());
 			var issueqtyleft = parseInt(orderqty) - parseInt(issuedqty);
-
 			if ($(this).closest('tr').hasClass('items')) {
 				if (value < 1) 
 					$(this).parent().parent().addClass('has-error');
@@ -923,12 +938,12 @@
 				$('#modal_close').hide();
 				$('#btn_close').hide();
 			}
-			else if (count == 0 && type == 'mainitem') {
-				$('#warning_counter .modal-body').html('There is no selected serial number.')
-				$('#warning_counter').modal('show');
-				$('#modal_close').hide();
-				$('#btn_close').hide();
-			}
+			// else if (count == 0 && type == 'mainitem') {
+			// 	$('#warning_counter .modal-body').html('There is no selected serial number.')
+			// 	$('#warning_counter').modal('show');
+			// 	$('#modal_close').hide();
+			// 	$('#btn_close').hide();
+			// }
 			else {
 				if (type == 'mainitem') {
 					itemrow.closest('tr').find('.quantity').val(count);
@@ -939,13 +954,13 @@
 			}
 		});
 
-		$('#tableSerialList').on('ifChecked', '.check_id', function () {
-			var serialnum = $(this).val();
-			if($.inArray(serialnum, checked_serials) == -1) {
-				checked_serials.push(serialnum);
-			}
-			itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
-		});
+		// $('#tableSerialList').on('ifChecked', '.check_id', function () {
+		// 	var serialnum = $(this).val();
+		// 	if($.inArray(serialnum, checked_serials) == -1) {
+		// 		checked_serials.push(serialnum);
+		// 	}
+		// 	itemrow.closest('tr').find('.serialnumbers').val(checked_serials);
+		// });
 
 		$('#tableSerialList').on('ifUnchecked', '.check_id', function () {
 			var remove_this  =   $(this).val(); 
@@ -974,23 +989,44 @@
 			getList();
 		});
 		function getList() {
+			checked_serials = [];
 			var jobno = $('#job_order_no').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_load_issue', 'jobno='+ jobno + '<?=$ajax_post?>' , function(data) {
 				$('#issuedPartsList tbody').html(data.issuedparts);
 			});
+			$.post('<?=MODULE_URL?>ajax/ajax_check_issuedqty', 'job_order_no=' + jobno , function(data) {
+				if(data.result == 'hmm'){
+					$('.h_issuedqty').val('0');					
+				}
+				var asd  = $('#tableList tbody').find('.linenum').val();				
+							var content = data.result;	
+							content.forEach(function(element) {
+								$('#tableList tbody tr').each(function(aaa){
+									var linenums = $(this).data('linenum');
+									if(element.linenum == linenums) {
+										$(this).find('.h_issuedqty').val(element.issuedqty);
+									}
+								});
+							});
+					
+			});
 		}
+		
 		$('#issuedPartsList tbody').on('click','.deleteip', function(){
 			var id = $(this).closest('tr').data('id');
 			var jv = $(this).closest('tr').data('jv');
 			var sn = $(this).closest('tr').data('serialnumbers');
+			var jobno = $('#job_order_no').val();
 			$('#delete_modal').modal('show');
 			$('#delete_yes').on('click', function(){
 				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id, function(data) {
-				$('#delete_modal').modal('hide');					
-			});
-			getList();
+					getList();
+					$('#delete_modal').modal('hide');	
+				});
+						
 			});
 		});
+
 		$('#issuedPartsList tbody').on('click','.editip', function(){
 			$('#task').val('ajax_edit');
 			var jobreleaseno = $(this).closest('tr').data('id');
@@ -1019,15 +1055,30 @@
 		$('#save').on('click', function(){
 			var form = $('form');			
 							
+			var jobno 		 = $('#job_order_no').val();
 			var jobreleaseno = $('#job_release_no').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', form.serialize() + '&jobreleaseno='+ jobreleaseno + '<?=$ajax_post?>', function(data) {
 				getList();
-				$('.quantity').val('0');
+				$('.quantity').val('0');	
 				$('#isyu').show();
 				$('#save').addClass('hidden');	
 				$('#task').val('');	
 				$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
 			});
+
+			// $.post('<?=MODULE_URL?>ajax/ajax_check_issuedqty', 'job_order_no=' + jobno , function(data) {
+			// 	var asd  = $('#tableList tbody').find('.linenum').val();				
+			// 				var content = data.result;	
+			// 				content.forEach(function(element) {
+			// 					$('#tableList tbody tr').each(function(aaa){
+			// 						var linenums = $(this).data('linenum');
+			// 						if(element.linenum == linenums) {
+			// 							$(this).find('.h_issuedqty').val(element.issuedqty);
+			// 						}
+			// 					});
+			// 				});
+					
+			// });
 		});
 	</script>
 	<?php if ($show_input): ?>

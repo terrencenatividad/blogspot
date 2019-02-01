@@ -122,7 +122,7 @@ class billing_model extends wc_model {
 		$sort = ($sort) ? $sort : 'b.transactiondate desc';
 		$condition = "b.stat != 'temporary'";
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno'));
+			$condition .= ' AND ' . $this->generateSearch($search, array('b.voucherno', 'p.partnername'));
 		}
 		if ($filter && $filter != 'all') {
 			$condition .= " AND IF(b.stat = 'Cancelled', b.stat, IF(balance = 0, 'Paid', IF(balance = netamount, 'Unpaid', 'With Partial Payment'))) = '$filter'";

@@ -98,14 +98,14 @@ class purchase_receipt_model extends wc_model {
 	}
 
 	private function getAmounts(&$data, &$data2) {
-		$this->cleanNumber($data, array('amount', 'netamount', 'discountamount', 'taxamount', 'wtaxamount'));
+		$this->cleanNumber($data, array('amount', 'netamount', 'discountamount', 'total_tax', 'wtaxamount'));
 		$this->cleanNumber($data2, array('receiptqty', 'unitprice', 'taxamount', 'amount'));
 		foreach ($data2['itemcode'] as $key => $value) {
 			$data2['convreceiptqty'][$key]	= $data2['receiptqty'][$key] * $data2['conversion'][$key];
 		}
 		$data['amount']		= (is_array($data2['amount'])) ? array_sum($data2['amount']) : intval($data2['amount']);
-		$data['taxamount']	= (is_array($data2['taxamount'])) ? array_sum($data2['taxamount']) : intval($data2['taxamount']);
-		$data['netamount']	= $data['amount'] + $data['taxamount'] - intval($data['discountamount']) - intval($data['wtaxamount']);
+		$data['total_tax']	= (is_array($data2['taxamount'])) ? array_sum($data2['taxamount']) : intval($data2['taxamount']);
+		$data['netamount']	= $data['amount'] + $data['total_tax'] - intval($data['discountamount']) - intval($data['wtaxamount']);
 		// var_dump($data['wtaxamount']);
 	}
 
@@ -117,7 +117,7 @@ class purchase_receipt_model extends wc_model {
 		$this->db->setTable('purchasereceipt_details')
 					->setWhere("voucherno = '$voucherno'")
 					->runDelete();
-		
+
 		$result = $this->db->setTable('purchasereceipt_details')
 							->setValuesFromPost($data)
 							->runInsert();

@@ -45,10 +45,10 @@
 				<thead>
 					<tr class="info">
 						<th class="col-md-3">Code</th>
-						<th class="col-md-4">Description</th>
+						<th class="col-md-3">Description</th>
 						<th class="col-md-2">Budget</th>
 						<th class="col-md-2">Actual</th>
-						<th class="col-md-1">Variance</th>
+						<th class="col-md-2">Variance</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -77,9 +77,9 @@
 			$('#tableList tbody').html(data.table);
 			$('#tableList tfoot').html(data.footer);
 			$('#pagination').html(data.pagination);
-			$('.total_amount').html(addComma(data.total_amount));
-			$('.total_actual').html(addComma(data.total_actual));
-			$('.total_variance').html(addComma(data.total_variance));
+			$('.total_amount').html(data.total_amount);
+			$('.total_actual').html(data.total_actual);
+			$('.total_variance').html(data.total_var);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});
 	}
