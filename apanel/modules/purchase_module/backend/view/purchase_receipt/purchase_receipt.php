@@ -131,7 +131,7 @@
 													'target'=> "_blank",
 												))
 											// ->addHidden($source_no)
-											// ->setValidation('required')
+											->setValidation('required')
 											->draw($show_input);
 											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
@@ -315,147 +315,148 @@
 			</div>
 		</div>
 		<?php endif;?>
-	</section>
-	<div id="purchase_list_modal" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Purchase Order List</h4>
-				</div>
-				<div class="modal-body">
-					<div class="row">
-						<div class="col-md-4 col-md-offset-8">
-							<div class="input-group">
-								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
-								<div class="input-group-addon">
-									<i class="fa fa-search"></i>
+	
+		<div id="purchase_list_modal" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Purchase Order List</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-4 col-md-offset-8">
+								<div class="input-group">
+									<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
+									<div class="input-group-addon">
+										<i class="fa fa-search"></i>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="modal-body no-padding">
-					<table id="purchase_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
-						<thead>
-							<tr class="info">
-								<th class="col-xs-3">PO No.</th>
-								<th class="col-xs-3">Transaction Date</th>
-								<th class="col-xs-6">Notes</th>
-								<!-- <th class="col-xs-2 text-right">Amount</th> -->
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td colspan="4" class="text-center">Loading Items</td>
-							</tr>
-						</tbody>
-					</table>
-					<div id="pagination"></div>
+					<div class="modal-body no-padding">
+						<table id="purchase_tableList" class="table table-hover table-clickable table-sidepad no-margin-bottom">
+							<thead>
+								<tr class="info">
+									<th class="col-xs-3">PO No.</th>
+									<th class="col-xs-3">Transaction Date</th>
+									<th class="col-xs-6">Notes</th>
+									<!-- <th class="col-xs-2 text-right">Amount</th> -->
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td colspan="4" class="text-center">Loading Items</td>
+								</tr>
+							</tbody>
+						</table>
+						<div id="pagination"></div>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<div id="serialize_modal" class="modal fade" tabindex="-1" role="dialog" data-item="" data-itemcode="">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<?php if ($show_input) { ?>
-						<h4 class="modal-title">Input Serial Numbers</h4>
-					<?php } else { ?>
-						<h4 class="modal-title">View Serial Numbers</h4>
+		<div id="serialize_modal" class="modal fade" tabindex="-1" role="dialog" data-item="" data-itemcode="">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<?php if ($show_input) { ?>
+							<h4 class="modal-title">Input Serial Numbers</h4>
+						<?php } else { ?>
+							<h4 class="modal-title">View Serial Numbers</h4>
+						<?php } ?>
+					</div>
+
+					<div class="modal-body no-padding">
+						<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
+							<thead>
+								<tr class="info">
+									<th class="col-xs-1 text-center">Item No.</th>
+									<th class="col-xs-2 text-center">Item Name</th>
+									<th class="col-xs-3 text-center snHeader">Serial Number</th>
+									<th class="col-xs-3 text-center enHeader">Engine Number</th>
+									<th class="col-xs-3 text-center cnHeader">Chassis Number</th>
+									<th class="col-xs-1 text-center"></th>
+								</tr>
+							</thead>
+							<tbody id="serialize_tbody" data-item-ident-flag="">
+								
+							</tbody>
+							<?php if ($show_input) {?>
+							<tfoot class="summary">
+								<tr>
+									<td colspan="4">
+										<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
+									</td>	
+								</tr>
+
+							</tfoot>
+							<?php } ?>
+						</table>
+					</div>
+					<?php if ($show_input) {?>
+					<div class="modal-footer text-center">
+						<button type="button" class="btn btn-primary save_serials">Save</button>
+						<button type="button" class="btn btn-default close_serials" data-dismiss="modal">Close</button>
+					</div>
 					<?php } ?>
 				</div>
-
-				<div class="modal-body no-padding">
-					<table id="serialize_tableList" class="table table-hover table-sidepad no-margin-bottom">
-						<thead>
-							<tr class="info">
-								<th class="col-xs-1 text-center">Item No.</th>
-								<th class="col-xs-2 text-center">Item Name</th>
-								<th class="col-xs-3 text-center snHeader">Serial Number</th>
-								<th class="col-xs-3 text-center enHeader">Engine Number</th>
-								<th class="col-xs-3 text-center cnHeader">Chassis Number</th>
-								<th class="col-xs-1 text-center"></th>
-							</tr>
-						</thead>
-						<tbody id="serialize_tbody" data-item-ident-flag="">
-							
-						</tbody>
-						<?php if ($show_input) {?>
-						<tfoot class="summary">
-							<tr>
-								<td colspan="4">
-									<a type="button" class="btn btn-link add-data" style="text-decoration:none; outline:none;" href="javascript:void(0);">Add a New Line</a>
-								</td>	
-							</tr>
-
-						</tfoot>
-						<?php } ?>
-					</table>
-				</div>
-				<?php if ($show_input) {?>
-				<div class="modal-footer text-center">
-					<button type="button" class="btn btn-primary save_serials">Save</button>
-					<button type="button" class="btn btn-default close_serials" data-dismiss="modal">Close</button>
-				</div>
-				<?php } ?>
-			</div>
-		</div>					
-	</div>
-
-	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-md" role="document">
-		<div class="modal-content">
-		<form method = "post" id="attachments_form" enctype="multipart/form-data">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Attach File for <span id="modal-voucher"></span></h4>
-			</div>
-			<div class="modal-body">
-				<div class="form-group">
-					<input type="hidden" name="voucherno" id='input_voucherno'>
-					<?php
-						echo $ui->setElement('file')
-								->setId('files')
-								->setName('files')
-								->setAttribute(array('accept' => '.pdf, .jpg, .png'))
-								->setValidation('required')
-								->draw();
-					?>
-				</div>
-				<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
-			</div>
-			<div class="modal-footer">
-				<div class="col-md-12 col-sm-12 col-xs-12 text-center">
-					<div class="btn-group">
-					<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
-					</div>
-					&nbsp;&nbsp;&nbsp;
-					<div class="btn-group">
-					<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
-					</div>
-				</div>
-			</div>
-		</form>
+			</div>					
 		</div>
-	</div>
-	<div id="attach_success" class="modal fade" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-sm" role="document">
+
+		<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
+			<form method = "post" id="attachments_form" enctype="multipart/form-data">
 				<div class="modal-header">
-					<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Attach File for <span id="modal-voucher"></span></h4>
 				</div>
 				<div class="modal-body">
-					<p>You have successfully updated the attached file.</p>
+					<div class="form-group">
+						<input type="hidden" name="voucherno" id='input_voucherno'>
+						<?php
+							echo $ui->setElement('file')
+									->setId('files')
+									->setName('files')
+									->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+									->setValidation('required')
+									->draw();
+						?>
+					</div>
+					<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
 				</div>
 				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+						<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</form>
+			</div>
+		</div>
+		<div id="attach_success" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-sm" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+					</div>
+					<div class="modal-body">
+						<p>You have successfully updated the attached file.</p>
+					</div>
+					<div class="modal-footer">
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	</section>
 	<script>
 		$(function(){
 		$('#Attachment').hide();
