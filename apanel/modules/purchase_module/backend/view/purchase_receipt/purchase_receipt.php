@@ -131,7 +131,7 @@
 													'target'=> "_blank",
 												))
 											// ->addHidden($source_no)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
@@ -206,7 +206,7 @@
 									<?php
 										echo $ui->formField('text')
 												->setSplit('', 'col-md-12 hidden')
-												->setName('taxamount')
+												->setName('total_tax')
 												->setClass('total_tax')
 												->setValue(((empty($taxamount)) ? '0.00' : number_format($taxamount, 2)))
 												->addHidden()
@@ -1443,7 +1443,7 @@
 					var taxrate = taxrates[tax] || 0;
 					
 					var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
-					var taxamount = (taxrate > 0) ? removeComma(addComma(amount + (amount * parseFloat(taxrate)))) * exchangerate : 0;
+					var taxamount = (taxrate > 0) ? removeComma(addComma((((price * quantity) * exchangerate) * parseFloat(taxrate)))) : 0;
 					
 					total_amount += amount;
 					total_tax += taxamount;

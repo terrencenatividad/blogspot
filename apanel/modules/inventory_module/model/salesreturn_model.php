@@ -379,7 +379,7 @@
 			return $result;
 		}
 
-		public function createClearingEntries($voucherno) {
+		public function createClearingEntries($voucherno, $sourcetype) {
 			$exist = $this->db->setTable('journalvoucher')
 								->setFields('voucherno')
 								->setWhere("referenceno = '$voucherno'")
@@ -398,26 +398,32 @@
 				'stat'
 			);
 			$detail_fields = array(
-				'IF(i.inventory_account > 0, i.inventory_account, ic.inventory_account) accountcode',
-				'SUM(CASE WHEN defective="Yes" AND srd.replacement="Yes" THEN netamount ELSE 0 END) total1',
-				'SUM(CASE WHEN defective="No" AND srd.replacement="No" THEN netamount ELSE 0 END) total2'
+				'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="Yes" THEN netamount ELSE 0 END) total1',
+				'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="No" THEN netamount ELSE 0 END) total2',
+				'SUM(CASE WHEN srd.defective="No" AND srd.replacement="No" THEN netamount ELSE 0 END) total3'
 			);
 
 			$data	= (array) $this->getSalesReturnById($header_fields, $voucherno);
 
-			$average_query = $this->db->setTable('price_average p1')
-										->setFields('p1.*')
-										->leftJoin('price_average p2 ON p1.itemcode = p2.itemcode AND p1.linenum < p2.linenum')
-										->setWhere('p2.linenum IS NULL')
-										->buildSelect();
+			// $average_query = $this->db->setTable('price_average p1')
+			// 							->setFields('p1.*')
+			// 							->leftJoin('price_average p2 ON p1.itemcode = p2.itemcode AND p1.linenum < p2.linenum')
+			// 							->setWhere('p2.linenum IS NULL')
+			// 							->buildSelect();
 			
+			// $details = $this->db->setTable('inventory_salesreturn_details srd')
+			// 					->setFields($detail_fields)
+			// 					->innerJoin('items i ON i.itemcode = srd.itemcode AND i.companycode = srd.companycode')
+			// 					->leftJoin('itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode')
+			// 					->leftJoin("($average_query) ac ON ac.itemcode = srd.itemcode")
+			// 					->setWhere("srd.voucherno = '$voucherno'")
+			// 					->setGroupBy('accountcode')
+			// 					->runSelect()
+			// 					->getResult();
+
 			$details = $this->db->setTable('inventory_salesreturn_details srd')
 								->setFields($detail_fields)
-								->innerJoin('items i ON i.itemcode = srd.itemcode AND i.companycode = srd.companycode')
-								->leftJoin('itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode')
-								->leftJoin("($average_query) ac ON ac.itemcode = srd.itemcode")
 								->setWhere("srd.voucherno = '$voucherno'")
-								->setGroupBy('accountcode')
 								->runSelect()
 								->getResult();
 			var_dump($details);

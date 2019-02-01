@@ -366,7 +366,7 @@ class controller extends wc_controller {
 		}
 
 		if ($result) {
-
+			$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
 				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
 										->setDetails($values['customer'])

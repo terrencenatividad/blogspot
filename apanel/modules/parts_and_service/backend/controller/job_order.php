@@ -870,4 +870,19 @@ class controller extends wc_controller {
 		// var_dump($result);
 		return $dataArray = array('result' => $result);
 	}
+
+	private function ajax_check_issuedqty() {
+		$job_order_no	= $this->input->post('job_order_no');
+		$result		= $this->job_order->getIssuedQty($job_order_no);
+		
+		foreach ($result as $row) {
+			$qty = $row->issuedqty;
+		}
+		
+		if(empty($result)){
+			return array('result' => 'hmm');
+		}
+		
+		return array('result' => $result);
+	}
 }
