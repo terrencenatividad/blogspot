@@ -731,20 +731,7 @@
 						<div class = "col-md-12">&nbsp;</div>
 					</div>
 				</form>
-				<div class="hidden">
-					<form method="post" id="attachments_form" enctype="multipart/form-data">
-					<input type="hidden" name="attachment" id='input_attachment'>
-						<?php
-							echo $ui->setElement('file')
-							->setId('files')
-							->setName('files')
-							->setAttribute(array('accept' => '.pdf, .jpg, .png'))
-							// ->setValidation('required')
-							->draw();
-						?>
-						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
-					</form>
-				</div>	
+				
 			</div>
 		</div>
 	</section>
@@ -1298,6 +1285,44 @@
 	->setHeader('Add New Supplier')
 	->draw();
 	?>
+
+		<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+			<form method = "post" id="attachments_form" enctype="multipart/form-data">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Attach Image or PDF</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<input type="hidden" name="voucherno" id='input_voucherno'>
+						<?php
+							echo $ui->setElement('file')
+									->setId('files')
+									->setName('files')
+									->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+									->setValidation('required')
+									->draw();
+						?>
+					</div>
+					<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+				</div>
+				<div class="modal-footer">
+					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+						<div class="btn-group">
+						<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button">Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal">Attach</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+						<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</form>
+			</div>
+		</div>
 	<script>
 		function computeDueDate()
 		{
@@ -1940,7 +1965,9 @@
 				if (vendor == '') {
 					$('#vendor').trigger('blur');
 				} else {
-					$('#files').click();
+						// $('#modal-voucher').html(source_no);
+						$('#attach_modal').modal('show');
+					// $('#files').click();
 				}			
 			});
 
@@ -1992,10 +2019,10 @@
 				var form_group = $('#attachments_form #files').closest('.form-group');
 				if(!error){
 					// var source_no = $('#source_no').val();
-					var voucherno =  $('#voucherno').val();
-					// $('#attach_modal').modal('hide');
+					var voucherno =  $('#input_voucherno').val();
+					$('#attach_modal').modal('hide');
 					<?php if (!$show_input) { ?>
-					// $('#attachment_success').modal('show');
+					$('#attachment_success').modal('show');
 					setTimeout(function() {							
 						window.location = '<?=MODULE_URL?>view/'+voucherno;						
 					}, 1000)

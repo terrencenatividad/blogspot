@@ -2024,9 +2024,10 @@ class controller extends wc_controller
 		$task 			= $post_data['task'];
 		$upload_result 	= false;
 		unset($post_data['task']);
-
+		
 		if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
 			if(!isset($upload_handler->response['files'][0]->error)){
+				
 				/**
 				 * Generate Attachment Id
 				 * @param table
@@ -2054,6 +2055,9 @@ class controller extends wc_controller
 					$upload_result 	= $this->accounts_payable->uploadAttachment($post_data);
 
 			}else{
+				if($upload_handler->response['files'][0]->name == "Sorry, but file already exists"){
+					// var_dump($upload_handler);
+				}
 				$upload_result 	= false;
 			}
 		}
