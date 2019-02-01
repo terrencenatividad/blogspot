@@ -499,6 +499,7 @@ class job_order_model extends wc_model
 	}
 
 	public function updateIssueParts($job_release_no,$data) {
+		$data['stat'] = 'released';
 		$this->db->setTable('job_release')
 					->setWhere("job_release_no = '$job_release_no'")
 					->runDelete();
@@ -506,7 +507,7 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable('job_release')
 							->setValuesFromPost($data)
 							->runInsert();
-
+							
 		foreach ($data['serialnumbers'] as $row) {
 			if ($row != "") {
 				$ids = explode(",", $row);
