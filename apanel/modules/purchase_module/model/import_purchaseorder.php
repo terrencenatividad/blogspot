@@ -452,7 +452,7 @@ class import_purchaseorder extends wc_model
 
 				foreach($postValue as $postValueIndex => $postValueIndexValue)
 				{
-					if($postIndex == 'quantity' || $postIndex == 'onhandqty' || $postIndex == 'discount' || $postIndex == 'foreignamount' || $postIndex == 'h_amount' || $postIndex == 'baseamount' || $postIndex == 'b_amount' || $postIndex == 'taxamount' || $postIndex == 'itemprice')
+					if($postIndex == 'quantity' || $postIndex == 'onhandqty' || $postIndex == 'discount' || $postIndex == 'discounttype' || $postIndex == 'foreignamount' || $postIndex == 'h_amount' || $postIndex == 'baseamount' || $postIndex == 'b_amount' || $postIndex == 'taxamount' || $postIndex == 'itemprice')
 					{
 						$a = str_replace(',', '', $postValueIndexValue);
 					}
@@ -517,6 +517,7 @@ class import_purchaseorder extends wc_model
 				$data_insert['receiptqty']			= $quantity;
 				$data_insert['unitprice']	  		= $price;
 				$data_insert['discount']	  		= $discount;
+				$data_insert['discounttype']	  	= $discounttype;
 				$data_insert['amount']	  			= $amount;
 				$data_insert['convertedamount']	  	= $convamount;
 				$data_insert['stat']	  			= $status;

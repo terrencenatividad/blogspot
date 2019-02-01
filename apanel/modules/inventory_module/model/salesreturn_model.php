@@ -208,7 +208,7 @@
 									'linenum',
 									'serialnumbers',
 									'issueqty - IFNULL('.$sql.', 0) maxqty',
-									'issueqty',
+									'issueqty srcqty',
 									'issueuom',
 									'convuom',
 									'convissueqty',
@@ -248,8 +248,9 @@
 									'warehouse',
 									'linenum',
 									'serialno serialnumbers',
+									'tbl.issueqty origqty',
 									'issueqty - IFNULL('.$sql.', 0) maxqty',
-									'issueqty',
+									'issueqty srcqty',
 									'issueuom',
 									'convuom',
 									'convissueqty',
@@ -304,23 +305,15 @@
 		public function saveSalesReturn($header, $details) {
 			$this->getAmounts($header, $details);
 
-			//$result = $this->db->setTable('inventory_salesreturn')
-								// ->setValues($header)
-								// ->runInsert();
-			
-			//if ($result) {
-				//$this->log->saveActivity("Create Sales Return [{$header['voucherno']}]");
+			$result = $this->db->setTable('inventory_salesreturn')
+								->setValues($header)
+								->runInsert();
+			if ($result) {
+				$this->log->saveActivity("Create Sales Return [{$header['voucherno']}]");
+				$result = $this->updateSalesReturnDetails($details, $header['voucherno']);
+			}
 				
-				//$result = $this->updateSalesReturnDetails($details, $header['voucherno']);
-				
-				//$serialupdate = $this->updateItemSerialized($details['serialnumbers'], 'Available');
-
-				
-				
-			//}
-				$jv = $this->createClearingEntries($header['voucherno']);
-			
-			return $jv;
+			return $result;
 		}
 
 		public function updateSalesReturnDetails($details, $voucherno) {
@@ -406,7 +399,8 @@
 			);
 			$detail_fields = array(
 				'IF(i.inventory_account > 0, i.inventory_account, ic.inventory_account) accountcode',
-				'SUM(IFNULL(price_average, 0) * srd.issueqty) credit'
+				'SUM(CASE WHEN defective="Yes" AND srd.replacement="Yes" THEN netamount ELSE 0 END) total1',
+				'SUM(CASE WHEN defective="No" AND srd.replacement="No" THEN netamount ELSE 0 END) total2'
 			);
 
 			$data	= (array) $this->getSalesReturnById($header_fields, $voucherno);
@@ -426,7 +420,7 @@
 								->setGroupBy('accountcode')
 								->runSelect()
 								->getResult();
-			var_dump($detail_fields);
+			var_dump($details);
 			return $details;
 			$sr_stat = (isset($data['stat'])) ? $data['stat'] : '';
 			$data['stat'] = 'posted';

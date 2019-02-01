@@ -355,7 +355,16 @@ class controller extends wc_controller {
 	RUN DATABASE OPERATIONS
 */
 		$result		= $this->sr_model->saveSalesReturn($values, $values2);
-		
+		$updateserial = false;
+		foreach ($details['serialnumbers'] as $key => $value) {
+			if($value != ''){
+				$updateserial = true;
+			}
+		}
+		if ($updateserial) {
+			$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
+		}
+
 		if ($result) {
 
 			if ($this->inventory_model) {
@@ -369,6 +378,7 @@ class controller extends wc_controller {
 										->generateBalanceTable();
 			}
 		}
+		//$jv = $this->sr_model->createClearingEntries($header['voucherno']);
 /*
 	END : RUN DATABASE OPERATIONS
 */
