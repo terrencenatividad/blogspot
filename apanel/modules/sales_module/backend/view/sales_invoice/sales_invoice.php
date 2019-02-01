@@ -12,7 +12,7 @@
 			</form>
 
 			<form method = "post" class="form-horizontal" id="sales_invoice_form">
-				<input class = "form_iput" value="<?=$discounttype?>" name = "discounttype" id = "discounttype" type="text">
+				<input class = "form_iput" value="<?=$discounttype?>" name = "discounttype" id = "discounttype" type="hidden">
 				<input class = "form_iput" value="<?=$srctranstype?>" name = "srctranstype" id = "srctranstype" type="hidden">
 				
 				<div class = "row">
