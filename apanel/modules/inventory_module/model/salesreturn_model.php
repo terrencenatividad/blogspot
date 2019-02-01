@@ -399,8 +399,9 @@
 			);
 			$detail_fields = array(
 				'IF(i.inventory_account > 0, i.inventory_account, ic.inventory_account) accountcode',
-				'SUM(CASE WHEN defective="Yes" AND srd.replacement="Yes" THEN netamount ELSE 0 END) total1',
-				'SUM(CASE WHEN defective="No" AND srd.replacement="No" THEN netamount ELSE 0 END) total2'
+				'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="Yes" THEN netamount ELSE 0 END) total1',
+				'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="No" THEN netamount ELSE 0 END) total2',
+				'SUM(CASE WHEN srd.defective="No" AND srd.replacement="No" THEN netamount ELSE 0 END) total3'
 			);
 
 			$data	= (array) $this->getSalesReturnById($header_fields, $voucherno);
