@@ -173,7 +173,7 @@ class controller extends wc_controller {
 			'Asset Class',
 			'Description',
 			'Asset Location',
-			'Department',
+			'Budget Center',
 			'Accountable Person',
 			'Capitalized Cost',
 			'Commissioning Date',

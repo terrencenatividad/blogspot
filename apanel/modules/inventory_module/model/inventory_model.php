@@ -155,11 +155,11 @@ class inventory_model extends wc_model {
 
 		$inv_check = $this->db->setTable("($inner_query) i")
 								->leftJoin('invdtlfile id ON i.ic = id.itemcode AND i.companycode = id.companycode AND i.wh = id.warehouse')
-								->setFields('i.ic itemcode, i.wh warehouse, beginningQty, IFNULL(bb, 0) - IFNULL(beginningQty, 0) bb, salesorderQty, IFNULL(so, 0) - IFNULL(salesorderQty, 0) so, deliveredQty,  IFNULL(dr, 0) - IFNULL(deliveredQty, 0) dr, salesinvoiceQty, IFNULL(si, 0) - IFNULL(salesinvoiceQty, 0) si, salesreturnQty, IFNULL(sr, 0) - IFNULL(salesreturnQty, 0) sr, salesscrapQty, IFNULL(xr, 0) - IFNULL(salesscrapQty, 0) xr, purchaseorderQty, IFNULL(po, 0) - IFNULL(purchaseorderQty, 0) po, purchasereceiptQty,  IFNULL(pr, 0) - IFNULL(purchasereceiptQty, 0) pr, purchasereturnQty, IFNULL(pt, 0) - IFNULL(purchasereturnQty, 0) pt, adjustmentsQty, IFNULL(ia, 0) - IFNULL(adjustmentsQty, 0) ia, transferedQty, IFNULL(st, 0) - IFNULL(transferedQty, 0) st, IFNULL(jo, 0) - IFNULL(joborderQty, 0) jo, IFNULL(jr, 0) - IFNULL(jobreleasedQty, 0) jr')
+								->setFields('i.ic itemcode, i.wh warehouse, beginningQty, IFNULL(bb, 0) - IFNULL(beginningQty, 0) bb, salesorderQty, IFNULL(so, 0) - IFNULL(salesorderQty, 0) so, deliveredQty,  IFNULL(dr, 0) - IFNULL(deliveredQty, 0) dr, salesinvoiceQty, IFNULL(si, 0) - IFNULL(salesinvoiceQty, 0) si, salesreturnQty, IFNULL(sr, 0) - IFNULL(salesreturnQty, 0) sr, salesscrapQty, IFNULL(xr, 0) - IFNULL(salesscrapQty, 0) xr, purchaseorderQty, IFNULL(po, 0) - IFNULL(purchaseorderQty, 0) po, purchasereceiptQty,  IFNULL(pr, 0) - IFNULL(purchasereceiptQty, 0) pr, purchasereturnQty, IFNULL(pt, 0) - IFNULL(purchasereturnQty, 0) pt, adjustmentsQty, IFNULL(ia, 0) - IFNULL(adjustmentsQty, 0) ia, transferedQty, IFNULL(st, 0) - IFNULL(transferedQty, 0) st, joborderQty, IFNULL(jo, 0) - IFNULL(joborderQty, 0) jo, jobreleasedQty, IFNULL(jr, 0) - IFNULL(jobreleasedQty, 0) jr')
 								->setHaving('bb != 0 OR so != 0 OR dr != 0 OR si != 0 OR sr != 0 OR xr != 0 OR po != 0 OR pr != 0 OR pt != 0 OR ia != 0 OR st != 0 OR jo != 0 OR jr != 0')
 								->runSelect()
 								->getResult();
-
+								
 		if (empty($inv_check)) {
 			$check_transactions = $this->db->setTable("($inner_query) i")
 											->setFields('*')
@@ -182,13 +182,14 @@ class inventory_model extends wc_model {
 			$result = $this->db->setTable('invdtlfile')
 							->setWhere('companycode IS NOT NULL')
 							->runDelete();
+
 							
 			if ($result) {
 				$result = $this->db->setTable('invdtlfile')
 									->setFields($fields)
 									->setInsertSelect($inner_query)
 									->runInsert(false);
-				
+									
 				if ($result) {
 					$result = $this->db->setTable('invfile')
 								->setWhere('companycode IS NOT NULL')
@@ -219,36 +220,36 @@ class inventory_model extends wc_model {
 	public function recomputePriceAverage() {
 		$fields = 'b.itemcode, b.companycode, b.entereddate';
 		$bb = $this->db->setTable('inv_beg_balance b')
-						->setFields($fields . ", unitprice price, quantity, 'IN' movement, b.voucherno documentno, 'BEG_BAL' doctype, b.amount")
+						->setFields($fields . ", unitprice price, quantity, 'IN' movement, b.voucherno documentno, 'BEG_BAL' doctype, b.amount, '' source_no ")
 						->setGroupBy('b.itemcode')
 						->buildSelect();
 
 		$dr = $this->db->setTable('deliveryreceipt a')
 						->innerJoin('deliveryreceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'OUT' movement, a.voucherno documentno, 'DEL_REC' doctype, b.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'OUT' movement, a.voucherno documentno, 'DEL_REC' doctype, b.amount, '' source_no ")
 						->setWhere("(a.stat = 'Delivered' OR a.stat = 'With Invoice') AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$sr = $this->db->setTable('returns a')
 						->innerJoin('returns_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'IN' movement, a.voucherno documentno, 'INV_RET' doctype, b.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convissueqty quantity, 'IN' movement, a.voucherno documentno, 'INV_RET' doctype, b.amount, '' source_no ")
 						->setWhere("a.stat = 'Returned' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$pr = $this->db->setTable('purchasereceipt a')
 						->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'IN' movement, a.voucherno documentno, 'PUR_REC' doctype, b.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'IN' movement, a.voucherno documentno, 'PUR_REC' doctype, IF(SUBSTRING(a.source_no,1,3)='IPO' AND SUBSTRING(a.source_no,1,3)!='' ,(b.amount-(b.exchangerate*b.convreceiptqty*(unitprice / conversion)))/convreceiptqty,b.amount) as amount, SUBSTRING(a.source_no, 1, 3) source_no")
 						->setWhere("a.stat = 'Received' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 						
 		$pt = $this->db->setTable('purchasereturn a')
 						->innerJoin('purchasereturn_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
-						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'OUT' movement, a.voucherno documentno, 'PUR_RET' doctype, b.amount")
+						->setFields($fields . ", (unitprice / conversion) price, convreceiptqty quantity, 'OUT' movement, a.voucherno documentno, 'PUR_RET' doctype, b.amount, '' source_no ")
 						->setWhere("a.stat = 'Returned' AND unitprice > 0 AND conversion > 0")
 						->buildSelect();
 
 		$ia = $this->db->setTable('inventoryadjustments b')
-						->setFields($fields . ", unitprice price, (increase + decrease) quantity, IF((increase + decrease) > 0, 'IN', 'OUT') movement, b.voucherno documentno, 'INV_ADJ' doctype, (increase + decrease) * unitprice amount")
+						->setFields($fields . ", unitprice price, (increase + decrease) quantity, IF((increase + decrease) > 0, 'IN', 'OUT') movement, b.voucherno documentno, 'INV_ADJ' doctype, (increase + decrease) * unitprice amount , '' source_no ")
 						->setWhere('unitprice > 0')
 						->buildSelect();
 
@@ -259,7 +260,7 @@ class inventory_model extends wc_model {
 							->setOrderBy('itemcode, entereddate, movement')
 							->runSelect()
 							->getResult();
-		
+		// echo $this->db->getQuery();
 		$previous_stock_quantity	= array();
 		$previous_price_average		= array();
 		$values						= array();

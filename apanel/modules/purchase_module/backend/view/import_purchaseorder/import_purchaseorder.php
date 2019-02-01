@@ -121,10 +121,10 @@
 							<div class = "col-md-6 department_div">
 								<?php
 								echo $ui->formField('dropdown')
-								->setLabel('Department:')
+								->setLabel('Budget Center:')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('department')
-								->setPlaceholder('Select Department')
+								->setPlaceholder('Select Budget Center')
 								->setList($department_list)
 								->setId('department')
 								->setValue($department)

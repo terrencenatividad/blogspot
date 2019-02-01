@@ -27,7 +27,7 @@
 					<div class="col-md-2">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Filter Department')
+								->setPlaceholder('Filter Budget Center')
 								->setName('department')
 								->setId('department')
 								->setList($dept_list)
@@ -58,7 +58,7 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Department',array('class'=>'col-md-2'),'sort','am.department')
+									->addHeader('Budget Center',array('class'=>'col-md-2'),'sort','am.department')
 									->addHeader("Asset Number",array('class'=>'col-md-2'),'sort','am.asset_number')
 									->addHeader("Serial Number / Engine Number",array('class'=>'col-md-2'),'sort','am.serial_number')
 									->addHeader('Asset Class',array('class'=>'col-md-2'),'sort','assetclass')

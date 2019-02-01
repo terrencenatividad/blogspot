@@ -27,7 +27,7 @@
 					<div class="col-md-2">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Filter Department')
+								->setPlaceholder('Filter Budget Center')
 								->setName('department')
 								->setId('department')
 								->setList($dept_list)

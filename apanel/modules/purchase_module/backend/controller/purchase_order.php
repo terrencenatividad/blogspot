@@ -834,7 +834,7 @@ class controller extends wc_controller
 		
 		$result = $this->po->processTransaction($data_post, "edit", $voucher);
 		
-		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['warning']))
+		if(!empty($result['errmsg']) && !empty($result['error']) && !empty($result['date_checker']))
 		{
 			$msg = $result;
 		}

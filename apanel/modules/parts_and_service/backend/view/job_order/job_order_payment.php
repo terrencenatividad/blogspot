@@ -465,6 +465,11 @@
 								->setClass('checked')
 								->setValue('')
 								->draw(true);
+							echo $ui->formField('hidden')
+								->setName('unchecked[]')
+								->setClass('unchecked')
+								->setValue('')
+								->draw(true);
 						
 						?>
 					</td>
@@ -558,9 +563,9 @@
 									->draw(true);
 							?>
 							` + otherdetails + `
-						</td>`;
+						<input type="hidden" class="h_quantity"></td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn mainitem quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn mainitem quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/><input type="hidden" class="h_quantity"></td>`;
 					}
 					}
 					
@@ -741,9 +746,11 @@
 		});
 
 		$('#tableList tbody').on('blur', '.quantity', function(e) {		
+			var task		= $('#task').val();
 			var itemcode 	= $(this).closest('tr').find('.h_itemcode').val();
 			var jobno		= $('#job_order_no').val();
 			var value 		=	removeComma($(this).val());
+			var editqty 	= $(this).closest('tr').find('.h_quantity').val();
 			var orderqty 	=	removeComma($(this).closest('tr').find('.h_orderqty').val());
 			var issuedqty 	=	removeComma($(this).closest('tr').find('.h_issuedqty').val());
 			var issueqtyleft = parseInt(orderqty) - parseInt(issuedqty);
@@ -754,11 +761,21 @@
 				else
 					$(this).parent().parent().removeClass('has-error');
 			}
+
+			if(task != 'ajax_edit'){
+				if(value > issueqtyleft){
+					$(this).val(issueqtyleft);
+					// value = issueqtyleft;
+				}
+			}else{
+				issueqtyleft = parseInt(editqty) + parseInt(issueqtyleft);
+				if(value > issueqtyleft){
+					$(this).val(issueqtyleft);
+					// value = issueqtyleft;
+				}
+			}
 			
-			// if(value > issueqtyleft){
-			// 	$(this).val(issueqtyleft);
-			// 	value = issueqtyleft;
-			// }
+			
 
 			// if ($(this).closest('tr').data('isbundle') == 1) {
 			// 	var linenum = $(this).closest('tr').data('linenum');
@@ -778,14 +795,17 @@
 		var itemrow = '';
 		var task = '';
 		var type = '';
-		var quantityleft = '';
+		var issueqtyleft = '';
 		$('#tableList tbody').on('click', '.serialbtn', function() {
 			itemrow = $(this);
 			linenum = $(this).closest('tr').find('span').attr('id')
 			itemcode = $(this).closest('tr').find('.h_itemcode').val();
 			description = $(this).closest('tr').find('.h_detailparticular').val();
 			serials = $(this).closest('tr').find('.serialnumbers').val();
-			quantityleft = $(this).closest('tr').find('.h_orderqty').val();
+			orderqty 	 =	removeComma($(this).closest('tr').find('.h_orderqty').val());
+			editqty 	 =	removeComma($(this).closest('tr').find('.h_quantity').val());
+			issuedqty 	 =	removeComma($(this).closest('tr').find('.h_issuedqty').val());
+			issueqtyleft = parseInt(orderqty) - parseInt(issuedqty) + parseInt(editqty);
 			check_num = $(this).val();
 			if ($(this).hasClass('mainitem')) {
 				type = 'mainitem';
@@ -793,10 +813,10 @@
 			else {
 				type = 'itempart';
 			}
-			tagSerial(itemcode, description, serials, check_num, type, quantityleft);	
+			tagSerial(itemcode, description, serials, check_num, type, issueqtyleft);	
 		});
 
-		function tagSerial(itemcode, description, serials, check_num, type, quantityleft) {
+		function tagSerial(itemcode, description, serials, check_num, type, issueqtyleft) {
 			$('#serialModal').modal('show');
 			$('#serialModal #checkcount').val(check_num);
 			$("#serialModal #sec_itemcode").val(itemcode).prop('disabled', 'disabled').css('border', 'white').css('background', 'white');
@@ -875,7 +895,7 @@
 			allserials = [];
 			var count = 0;
 			var checkcount = $('#checkcount').val();
-			qtyleft =  removeComma(quantityleft);
+			qtyleft =  removeComma(issueqtyleft);
 			$('#tableSerialList tbody tr input[type="checkbox"]:checked').each(function() {
 				var serialed = $(this).val();
 				if($.inArray(serialed, checked_serials) == -1) {
@@ -986,6 +1006,8 @@
 									if(element.linenum == linenums) {
 										$(this).find('.quantity').val(element.quantity);
 										$(this).find('.serialnumbers').val(element.serialnumbers);
+										$(this).find('.unchecked').val(element.serialnumbers);
+										$(this).find('.h_quantity').val(element.quantity);
 									}
 								});
 							});
@@ -1003,6 +1025,7 @@
 				$('.quantity').val('0');
 				$('#isyu').show();
 				$('#save').addClass('hidden');	
+				$('#task').val('');	
 				$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
 			});
 		});

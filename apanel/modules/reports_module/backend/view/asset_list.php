@@ -27,7 +27,7 @@
 					<div class="col-md-2">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Filter Department')
+								->setPlaceholder('Filter Budget Center')
 								->setName('department')
 								->setId('department')
 								->setList($dept_list)
@@ -77,7 +77,7 @@
 									->addHeader("Asset Class",array('class'=>'col-md-1'),'sort','assetclass')
 									->addHeader('Description',array('class'=>'col-md-1'),'sort','description')
 									->addHeader('Asset Location',array('class'=>'col-md-1'),'sort','asset_location')
-									->addHeader('Department',array('class'=>'col-md-1'),'sort','department')
+									->addHeader('Budget Center',array('class'=>'col-md-1'),'sort','department')
 									->addHeader('Accountable Person',array('class'=>'col-md-1'),'sort','accountable_person')
 									->draw();
 						?>

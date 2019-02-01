@@ -47,7 +47,6 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$table .= '<td>' . $row->segment5 . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
-			$table .= '<td>' . $this->date->dateFormat($row->effectivity_date, 1) . '</td>';
 			$table .= '<td class = "amount text-right">' . number_format($row->amount, 2) . '</td>';
 			$table .= '<td class = "actual text-right">' . number_format($row->actual, 2) . '</td>';
 			$table .= '<td class = "variance text-right" data-val = '.$row->variance.' >' . str_replace('-','',$variance) . '</td>';
@@ -71,7 +70,6 @@ class controller extends wc_controller {
 		$header = array(
 			'Account Code',
 			'Description',
-			'Effectivity Date',
 			'Budget',
 			'Actual',
 			'Variance'
@@ -86,7 +84,6 @@ class controller extends wc_controller {
 			$csv .= "\n";
 			$csv .= '"' . $row->segment5 . '",';
 			$csv .= '"' . $row->description . '",';
-			$csv .= '"' . $row->effectivity_date . '",';
 			$csv .= '"' . $row->amount . '",';
 			$csv .= '"' . $row->actual . '",';
 			$csv .= '"' . $row->variance . '",';
