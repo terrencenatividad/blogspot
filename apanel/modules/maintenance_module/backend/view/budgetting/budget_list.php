@@ -573,6 +573,15 @@
 									});
 								}
 
+								function getBudgetAccountsPaginate(page) {
+									$.post('<?=MODULE_URL?>ajax/ajax_get_supplements', {id:id, page : page}, function(data) {
+										if(data) {
+											$('#list_supplements').html(data.table);
+											$('#pagination_supplement').html(data.pagination);
+										}
+									});
+								}
+
 								$('#confirmSupplement').on('click', function(e) {
 									e.preventDefault();
 									$('#supplementForm').find('.form-group').find('input, textarea, select').trigger('blur');
@@ -866,6 +875,15 @@
 			if (li.not('.active').length && li.not('.disabled').length) {
 				ajax.page = $(this).attr('data-page');
 				showList();
+			}
+		});
+
+		$('#pagination_supplement').on('click', 'a', function(e) {
+			e.preventDefault();
+			var li = $(this).closest('li');
+			var page = $(this).attr('data-page');
+			if (li.not('.active').length && li.not('.disabled').length) {
+				getBudgetAccountsPaginate(page);
 			}
 		});
 
