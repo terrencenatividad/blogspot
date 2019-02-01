@@ -1982,7 +1982,7 @@ function resetIds() {
 		row.cells[5].getElementsByTagName("input")[1].id 	= 'ischeck['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].id 	= 'debit['+x+']';
 		row.cells[7].getElementsByTagName("input")[0].id 	= 'credit['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].id 	= 'currencyamount['+x+']';
+		row.cells[8].getElementsByTagName("input")[0].id 	= 'currencyamount['+x+']';
 		
 		row.cells[0].getElementsByTagName("input")[0].name 	= 'wtax['+x+']';
 		row.cells[2].getElementsByTagName("input")[0].name 	= 'taxcode['+x+']';
@@ -1993,11 +1993,11 @@ function resetIds() {
 		row.cells[5].getElementsByTagName("input")[1].name 	= 'ischeck['+x+']';
 		row.cells[6].getElementsByTagName("input")[0].name 	= 'debit['+x+']';
 		row.cells[7].getElementsByTagName("input")[0].name 	= 'credit['+x+']';
-		row.cells[7].getElementsByTagName("input")[0].name 	= 'currencyamount['+x+']';
+		row.cells[8].getElementsByTagName("input")[0].name 	= 'currencyamount['+x+']';
 		
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('id',x);
+		row.cells[9].getElementsByTagName("button")[0].setAttribute('id',x);
 		row.cells[4].getElementsByTagName("select")[0].setAttribute('data-id',x);
-		row.cells[8].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
+		row.cells[9].getElementsByTagName("button")[0].setAttribute('onClick','confirmDelete('+x+')');
 
 		x++;
 	}
@@ -4295,6 +4295,8 @@ $(document).ready(function() {
 
 		var ParentRow = $("#entriesTable tbody tr:not(.added_row)").last();
 		ParentRow.after(clone_acct);
+		var currencycode = $('#currencycode').val();
+		$('#entriesTable tbody tr td .form-group').find('.currency_symbol').html(currencycode);
 		setZero();
 		drawTemplate();
 	});
