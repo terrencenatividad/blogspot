@@ -103,9 +103,7 @@ class depreciation_run extends wc_model {
 		);
 		$sort = ($sort) ? $sort : 'asset_number asc';
 		$condition = '';
-		if ($search) {
-			$condition = $this->generateSearch($search, array('asset_number','asset_name'));
-		}
+	
 		if($checked){
 			$condition .=  " am.id IN ($checked) ";
 		}
