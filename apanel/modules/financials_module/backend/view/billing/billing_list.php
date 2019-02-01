@@ -90,7 +90,7 @@
 								->addHeader('Customer', array('class' => 'col-md-3'), 'sort', 'customer')
 								->addHeader('Amount', array('class' => 'col-md-2 text-right'), 'sort', 'b.netamount')	
 								->addHeader('Balance', array('class' => 'col-md-2 text-right'), 'sort', 'balance')
-								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'b.stat', 'desc')
+								->addHeader('Status', array('style' => 'width: 15px'), 'sort', 'stat', 'desc')
 								->draw();
 					?>
 					<tbody>
