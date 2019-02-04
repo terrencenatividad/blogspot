@@ -211,6 +211,21 @@ class controller extends wc_controller
 	public function edit($id)
 	{
 		$this->view->title         = 'Edit Accounts Payable';
+		$this->view->addCSS(array(
+			'jquery.fileupload.css'
+		)
+		);  
+		$this->view->addJS(
+			array(
+				'jquery.dirrty.js',
+				'jquery.ui.widget.js',
+				'jquery.iframe-transport.js',
+				'jquery.fileupload.js',
+				'jquery.fileupload-process.js',
+				'jquery.fileupload-validate.js',
+				'jquery.fileupload-ui.js'
+			)
+		);
 		$data         			   = (array) $this->accounts_payable->getAPById($this->fields, $id);
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$details = $this->accounts_payable->getAPDetails($id);
@@ -237,6 +252,15 @@ class controller extends wc_controller
 		$data['voucherno'] = $id;
 		$data['asset_list'] = $this->accounts_payable->retrieveAssetId();
 		$data['show_input'] 	   = true;
+		$attachment						= $this->accounts_payable->getAttachmentFile($id);
+		$data['attachment_url']			= '';
+		$data['attachment_filename']	= '';
+		$data['attachment_filetype']	= '';
+		if (isset($attachment->attachment_url)) {
+			$data['attachment_url'] 		= $attachment->attachment_url;
+			$data['attachment_filename']	= $attachment->attachment_name;
+			$data['attachment_filetype']	= $attachment->attachment_type;
+		} 
 		$this->view->load('accounts_payable/accounts_payable_edit', $data);
 	}
 
@@ -2049,15 +2073,17 @@ class controller extends wc_controller
 					$post_data['attachment_url']	= $row->url;
 				}
 
-				if ($task == 'edit')
+				if ($task == 'edit') {
 					$upload_result 	= $this->accounts_payable->replaceAttachment($post_data);
+					
+					}
 				else
 					$upload_result 	= $this->accounts_payable->uploadAttachment($post_data);
 
 			}else{
-				if($upload_handler->response['files'][0]->name == "Sorry, but file already exists"){
-					// var_dump($upload_handler);
-				}
+				// if($upload_handler->response['files'][0]->name == "Sorry, but file already exists"){
+					
+				// }
 				$upload_result 	= false;
 			}
 		}

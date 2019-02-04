@@ -1951,9 +1951,9 @@
 			}
 		});	
 		
-		function uploadAttachment(){
-			$('#attach_button').click();
-		}
+		// function uploadAttachment(){
+		// 	$('#attach_button').click();
+		// }
 
 		$(function () {
 			'use strict';
