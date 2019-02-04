@@ -1612,8 +1612,20 @@ class controller extends wc_controller
 		$getBank = $this->payment_voucher->getbankid($data['bank']);
 		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
-		$ret_nums = array('nums' => $nums);
-		return $ret_nums;
+		$table = '';
+		if(empty($nums->result)) {
+			$table = false;
+		} else {
+			foreach($nums->result as $row) {
+				$table .= '<tr class = "clickme" style = "cursor : pointer;">';
+				$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
+				$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
+				$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';
+				$table .= '</tr>';
+			}
+		}
+		$nums->table = $table;
+		return $nums;
 	}
 
 }
