@@ -296,7 +296,7 @@ class controller extends wc_controller {
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'PR #'	=> $voucherno,
 			'PO #'	=> $documentinfo->referenceno,
-			''		=> '',
+			'INVOICE NO.'		=> $documentinfo->invoiceno,
 			'TERMS'	=> $vendordetails->terms
 		);
 
@@ -343,7 +343,7 @@ class controller extends wc_controller {
 				$print->setHeaderWidth(array(30, 90, 20, 20, 40))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first))
-						->setRowAlign(array('L', 'L', 'C', 'C', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));		
 			} else if ($serial_total == 2) {
