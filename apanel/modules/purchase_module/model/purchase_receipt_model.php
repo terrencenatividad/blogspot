@@ -608,7 +608,7 @@ class purchase_receipt_model extends wc_model {
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('purchasereceipt pr')
 							->innerJoin('partners p ON p.partnercode = pr.vendor AND p.companycode = pr.companycode AND p.partnertype = "supplier"')
-							->setFields("pr.transactiondate documentdate, pr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) vendor, source_no referenceno, pr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, discountrate, netamount net, taxamount vat, wtaxrate")
+							->setFields("pr.transactiondate documentdate, pr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) vendor, source_no referenceno, pr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, discountrate, netamount net, total_tax vat, wtaxrate")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
 							->getRow();
