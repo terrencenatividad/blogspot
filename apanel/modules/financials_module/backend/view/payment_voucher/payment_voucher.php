@@ -1523,6 +1523,23 @@
 	</div>
 </div>
 
+<div class="modal fade" id="changeCurrencyCodeModal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				Confirmation
+			</div>
+			<div class="modal-body" id="message">
+				Changing the current currency will clear out the accounting and check details section. Do you wish to proceed?
+			</div>
+			<div class="modal-footer text-center">
+				<button type="button" class="btn btn-info btn-flat" id="disc_yes" data-dismiss='modal'>Yes</button>
+				<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 <script>
 	<?php if ($task == 'create'):?>
@@ -2867,7 +2884,7 @@ function getPVDetails(){
 				// }
 				// load payables
 				$("#entriesTable tbody").html(data.table);
-				$("#pv_amount").html(total_payment);
+				//$("#pv_amount").html(total_payment);
 				// display total of debit
 				addAmountAll("debit");
 				
@@ -4595,13 +4612,9 @@ $(document).ready(function() {
 			$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 			$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
 			$(this).closest('tr').find('.asterisk').html('');
-			// sumDebit();
-			// sumCredit();
 			sumCurrencyAmount();
 		} else {
 			$(this).closest('tr').find('.credit').removeAttr('readonly');
-			// sumDebit();
-			// sumCredit();
 			sumCurrencyAmount();
 		}
 	});
@@ -4615,13 +4628,9 @@ $(document).ready(function() {
 			$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
 			$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
 			$(this).closest('tr').find('.asterisk').html('');
-			// sumCredit();
-			// sumDebit();
 			sumCurrencyAmount();
 		} else {
 			$(this).closest('tr').find('.debit').removeAttr('readonly');
-			// sumDebit();
-			// sumCredit();
 			sumCurrencyAmount();
 		}
 	});

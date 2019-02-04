@@ -1198,7 +1198,7 @@ echo $ui->loadElement('modal')
 				if ($(this).html() != '' && $(this).html() != '0.00') {
 					var credits = removeComma($(this).html());
 					var credit_currency = credits * rate;
-					$(this).closest('tr').find('#currencyamount').html(addComma(credit_currency));
+					$(this).closest('tr').find('#currencyamount').html('('+addComma(credit_currency)+')');
 				}
 			});
 			SumCurrencyonView();
@@ -1233,7 +1233,7 @@ echo $ui->loadElement('modal')
 				$(this).closest('tr').find('.currency_symbol').html('<?=$currency ?>');
 
 			});
-			$('#total_currency').html(addComma(total_currency));
+			$('#total_currency').html(addComma(0));
 		}
 
 		function SumCurrencyonEdit() {

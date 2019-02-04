@@ -25,7 +25,7 @@ class controller extends wc_controller {
 			'discountrate',
 			'discountamount',
 			'netamount',
-			'taxamount',
+			'total_tax',
 			'wtaxcode',
 			'wtaxamount',
 			'wtaxrate',
@@ -296,7 +296,7 @@ class controller extends wc_controller {
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
 			'PR #'	=> $voucherno,
 			'PO #'	=> $documentinfo->referenceno,
-			''		=> '',
+			'INVOICE NO.'		=> $documentinfo->invoiceno,
 			'TERMS'	=> $vendordetails->terms
 		);
 
@@ -308,10 +308,10 @@ class controller extends wc_controller {
 				// ->addTermsAndConditon()
 				->addReceived();
 
-		$print->setHeaderWidth(array(50, 80, 50, 20))
+		$print->setHeaderWidth(array(50, 110, 20, 20))
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'C', 'C'))
+				->setRowAlign(array('L', 'L', 'R', 'C'))
 				->setSummaryAlign(array('J'))	
 				->setSummaryWidth(array('200'));
 		
@@ -340,10 +340,10 @@ class controller extends wc_controller {
 			if ($serial_total == 1) {
 			// 1 SERIAL FIELD ONLY
 				$first = ($serial == '1') ? 'S/N' : (($engine == '1') ? 'E/N' : 'C/N');
-				$print->setHeaderWidth(array(30, 70, 40, 20, 40))
+				$print->setHeaderWidth(array(30, 90, 20, 20, 40))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first))
-						->setRowAlign(array('L', 'L', 'C', 'C', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));		
 			} else if ($serial_total == 2) {
@@ -362,7 +362,7 @@ class controller extends wc_controller {
 				$print->setHeaderWidth(array(30, 50, 20, 10, 45, 45))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second))
-						->setRowAlign(array('L', 'L', 'C', 'C', 'L', 'L', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'C', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			} else if ($serial_total == 3) {
@@ -370,7 +370,7 @@ class controller extends wc_controller {
 				$print->setHeaderWidth(array(30, 50, 20, 10, 30, 30, 30))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
-						->setRowAlign(array('L', 'L', 'C', 'C', 'L', 'L', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'C', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			}
@@ -516,7 +516,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Received')
+									//->addEdit($row->stat == 'Received')
 									// ->addDelete($row->stat == 'Received' && $restrict_pr)
 									->addPrint()
 									//->addCheckbox($row->stat == 'Received' && $restrict_pr)

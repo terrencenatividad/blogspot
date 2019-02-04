@@ -277,14 +277,8 @@
 										->setValue(number_format($total_amount,2))
 										->draw($show_input);
 							?>
-							<?php
-								echo $ui->formField('hidden')
-										->setSplit('', '')
-										->setName('total_netamount')
-										->setId('total_netamount')
-										->setValue(number_format($total_netamount,2))
-										->draw($show_input);
-							?>
+							<input type="hidden" name="total_netamount" value="<?=$total_netamount?>">
+							
 						</td>
 					</tr>
 					
@@ -473,10 +467,10 @@ function addVoucherDetails(details, index) {
 									->setClass('issueqty text-right')
 									->setAttribute(array(
 									'data-max' 		=> '\' + (parseFloat(details.maxqty) || 0) + \'',
-									'data-value' 	=> '\' + (parseFloat(details.maxqty) || 0) + \'')
+									'data-value' 	=> '\' + (parseFloat(details.issueqty) || 0) + \'')
 									)
 									->setValidation('required integer')
-									->setValue('` + addComma(0) + `')
+									->setValue('\' + addComma(details.issueqty) + \'')
 									->draw($show_input);
 							?>';
 
@@ -724,6 +718,7 @@ function displayDetails(details) {
 		details.forEach(function(details, index) {
 			addVoucherDetails(details, index);
 		});
+		recomputeAll();
 	} else if (min_row == 0) {
 		$('#tableList tbody').append(`
 			<tr>
@@ -772,7 +767,7 @@ function recomputeAll() {
 			
 			discountamount = discountrate * (qty / srcqty);
 			
-			console.log(discountamount);
+			console.log(qty/srcqty);
 			var netamount 	= amount - discountamount;
 			var taxcode 	= $(this).find('.taxcode').val();
 			var taxrate 	= removeComma($(this).find('.taxrate').val());
@@ -823,11 +818,10 @@ function getSerialList(sourceno, linenum, serialid) {
 				showinput 	: show_input
 			};
 	$.post('<?=MODULE_URL;?>ajax/getSerialItemList', data, function(data){
-console.log(data);
 		
 		$('#serial_tableList tbody').html(data.table);
 		$('button.btnselectserial').attr('data-linenum',data.linenum);
-		console.log(data);
+
 	});
 }
 
@@ -908,7 +902,7 @@ function checkSelectedSerial(checkbox){
 
 		for(var i=0; i<selected_serial.length; i++){
             if (serialid == selected_serial[i]) 
-            {console.log(serialid);
+            {
                 $(this).iCheck("check").iCheck('update');
             }
         }
@@ -1063,9 +1057,9 @@ $('form').on('click', '[type="submit"]', function(e) {
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
 				if (data.success) {
 					$('#delay_modal').modal('show');
-							setTimeout(function() {							
-								window.location = data.redirect;						
-							}, 1000);
+					setTimeout(function() {							
+						window.location = data.redirect;						
+					}, 1000);
 				} else {
 					$('#submit_container [type="submit"]').attr('disabled', false);
 				}

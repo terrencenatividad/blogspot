@@ -665,7 +665,7 @@ class controller extends wc_controller
 		$deliveries = $this->invoice->retrieveDeliveries($sourceno, $voucher);
 		$customer 		= $deliveries['header']->customer;
 		$notes 			= $deliveries['header']->remarks;
-		$discounttype	= isset($deliveries['header']->discounttype) ? $deliveries['header']->discounttype : 0 ; 
+		$discounttype	= isset($deliveries['header']->discounttype) ? $deliveries['header']->discounttype : '' ; 
 		$discountamount	= isset($deliveries['header']->discountamount) ? $deliveries['header']->discountamount : 0 ; 
 
 		$item_entry_data    = array("itemcode ind","CONCAT(itemcode,' - ',itemname) val");
@@ -692,7 +692,7 @@ class controller extends wc_controller
 				$uom 				= strtoupper($val->issueuom);
 				$itemdiscount 		= 0;
 				$discountedamount 	= 0;
-
+				$discounttype 		= $val->discounttype;
 				$result 	.= '<tr class="clone" valign="middle">';
 
 				$result 	.= '<td>';
@@ -838,7 +838,7 @@ class controller extends wc_controller
 				$row++;
 			}
 		}
-
+		
 		return array(
 			'customer' 			=> $customer,
 			'notes' 			=> $notes,

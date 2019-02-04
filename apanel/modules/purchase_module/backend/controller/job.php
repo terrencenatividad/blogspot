@@ -228,6 +228,7 @@
             $serial         = $this->input->post("txtserial");
             $desc           = $this->input->post("txtdesc");
             $is_multiple    = (count($itemcode)>1) ? true : false;
+            $submit         = $this->input->post("submit");
 
             for ($i=0 ; $i<count($itemcode) ; $i++) {
                 $job_static[$i]            = $this->input->post("txtjob");
@@ -272,8 +273,14 @@
                 $result2 = $this->job->saveFromPost("job_ipo", $values);
             }
             
-
+            $redirect_url = MODULE_URL;
+            if ($submit == 'save_new') {
+             $redirect_url = MODULE_URL . 'create';
+            } else if ($submit == 'save_preview') {
+             $redirect_url = MODULE_URL . 'view/' . $job_notarray;
+            }
             $query_result = array(
+                'redirect'  => $redirect_url,
                 'delquery1' => $delete_result,
                 'delquery2' => $delete_result2,
                 'query1' => $result,
