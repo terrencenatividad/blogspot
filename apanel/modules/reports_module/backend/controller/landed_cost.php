@@ -151,10 +151,11 @@ class controller extends wc_controller {
 			
 			// CALCULATE TOTAL PURCHASE AMOUNT OF ALL IPO IN JOB
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
-			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+			$total_cost_job = $query_cost_job->total; //total cost of all items in job in base currency
 
 			// CALCULATE RATIO FOR IMPORTATION COST
-			$item_job_ratio = $total_item_cost / $total_cost_job; //ratio of item to all items in job
+			$total_item_cost_base = $total_item_cost * $exchange_rate;
+			$item_job_ratio = $total_item_cost_base / $total_cost_job; //ratio of item to all items in job
 
 			// CALCULATE IMPORTATION COST
 			$importation_cost_unit =  ($item_job_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
@@ -211,7 +212,7 @@ class controller extends wc_controller {
 
 		$retrieved = $this->landed_cost->exportUnitCostLanded($datefilterFrom,$datefilterTo,$import_purchase_order,$supplier,$job,$item);
 		
-		$header	= array('Item','Description','IPO Number','IPO Date','Qty/Unit','IPO Receipt Date','Unit Cost Foreign Currency','Unit Cost Base Currency','Job Number','Importation Cost per Unit','Landed Cost per Unit','Total Landed Cost','Job Status');
+		$header	= array('Item','Description','IPO Number','IPO Date','Qty/Unit','IPO Receipt Date','Foreign Currency','Unit Cost Foreign Currency','Unit Cost Base Currency','Job Number','Importation Cost per Unit','Landed Cost per Unit','Total Landed Cost','Job Status');
 
 		$import_purchase_order_export = "";
 		($import_purchase_order == "") ? $import_purchase_order_export = "All" : $import_purchase_order_export = $import_purchase_order;
@@ -288,8 +289,9 @@ class controller extends wc_controller {
 			$csv .= '"' .$transaction_date_display. '",';
 			$csv .= '"' .$job_item_quantity.' '.$uom. '",';
 			$csv .= '"' .$receipt_date_display. '",';
-			$csv .= '"' .$exchange_curr.' '.number_format($unit_cost_foreign,2). '",';
-			$csv .= '"' .$base_curr.' '.number_format($unit_cost_base,2). '",';
+			$csv .= '"' .$exchange_curr.' ",';
+			$csv .= '"'	.number_format($unit_cost_foreign,2). '",';
+			$csv .= '"'	.number_format($unit_cost_base,2). '",';
 
 			// IMPORTATION COST CALCULATION
 			$item_cost = $row->convertedamount / $ipo_item_quantity;
@@ -303,33 +305,34 @@ class controller extends wc_controller {
 			$query_DM_debit = $this->landed_cost->getSumOfDm($job_no);
 
 			// CALCULATE IMPORTATION COSTS
-			$ap_debit = $query_AP_debit->debit;
-			$cm_credit = $query_CM_credit->credit;
-			$dm_debit = $query_DM_debit->debit;
-			$total_importation_cost = $ap_debit + $dm_debit - $cm_credit; //importation cost/fees from AP,CM,DM
-			// $total_importation_cost_query = $this->landed_cost->getImportCost($job_no);
-			// $total_importation_cost = $total_importation_cost_query->import_cost;
+			// $ap_debit = $query_AP_debit->debit;
+			// $cm_credit = $query_CM_credit->credit;
+			// $dm_debit = $query_DM_debit->debit;
+			// $total_importation_cost = $ap_debit + $dm_debit - $cm_credit; //importation cost/fees from AP,CM,DM
+			$total_importation_cost_query = $this->landed_cost->getImportCost($job_no);
+			$total_importation_cost = $total_importation_cost_query->import_cost;
 			
 			// CALCULATE TOTAL PURCHASE AMOUNT OF ALL IPO IN JOB
 			$query_cost_job = $this->landed_cost->getTotalCostOfJob($job_no);
-			$total_cost_job = $query_cost_job->total; //total cost of all items in job
+			$total_cost_job = $query_cost_job->total; //total cost of all items in job in base currency
 
 			// CALCULATE RATIO FOR IMPORTATION COST
-			$item_job_ratio = $total_item_cost / $total_cost_job; //ratio of item to all items in job
+			$total_item_cost_base = $total_item_cost * $exchange_rate;
+			$item_job_ratio = $total_item_cost_base / $total_cost_job; //ratio of item to all items in job
 
 			// CALCULATE IMPORTATION COST
 			$importation_cost_unit =  ($item_job_ratio * $total_importation_cost) / $job_item_quantity; //sprintf("%7.2f",$quantity);
 
 			$csv .= '"' .$job_no. '",';
-			$csv .= '"' .$base_curr.' '.number_format($importation_cost_unit,2). '",';
+			$csv .= '"'	.number_format($importation_cost_unit,2). '",';
 			
 			// LANDED COST CALCS STAGING
 			$landed_cost_unit = $unit_cost_base + $importation_cost_unit;
 			$total_landed_cost = $landed_cost_unit * $job_item_quantity;
 			$job_stat = $row->job_stat;
 
-			$csv .= '"' .$base_curr.' '.number_format($landed_cost_unit,2). '",';
-			$csv .= '"' .$base_curr.' '.number_format($total_landed_cost,2). '",';
+			$csv .= '"'	.number_format($landed_cost_unit,2). '",';
+			$csv .= '"'	.number_format($total_landed_cost,2). '",';
 			$csv .= '"'.$job_stat. '",';
 			$csv .= "\n";
 			}
