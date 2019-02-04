@@ -316,47 +316,46 @@ class controller extends wc_controller
 				$date = $entereddate[0];
 				$book_date = str_replace('-', '', $date);
 				$get_cancelled = $this->bank->get_cancel($row->bank_id, $row->firstchequeno, $row->lastchequeno);
-				if($row->stat == 'open'){
-					$next = $row->nextchequeno;
-					$check_stat = '<span class="label label-success">'.strtoupper('AVAILABLE').'</span>';
-				} else if($row->stat == 'closed'){
-					$next = '';
-					$check_stat = '<span class="label label-info">'."USED".'</span>';
+				$status = '';
+				// var_dump($row->lastchequeno . ' ' . $row->nextchequeno);
+				if($row->check_status == 'active') {
+					$status = '<span class="label label-success">'.strtoupper($row->check_status).'</span>';
+				} else if($row->check_status == 'inactive'){
+					$status = '<span class="label label-warning">'.strtoupper($row->check_status).'</span>';
 				}
-				$check = '';
-				if(!empty($get_cancelled)) {
-					if($row->id == $get_cancelled[0]->bank_id) {
-						$check_stat = '<span class="label label-danger">'."CANCELLED".'</span>';
-						$check = 'cancel';	
-					}
+				if($row->lastchequeno == $row->nextchequeno) {
+					$status = '<span class="label label-info"></span>';
 				}
-				$show_button = ($next == $row->firstchequeno);
-				$show_cancel = ($row->stat == 'closed');
+
+				$show_activate = ($row->check_status == 'active');
+				$show_deactivate = ($row->check_status == 'inactive');
+				$show_button = ($row->lastchequeno == $row->nextchequeno);
 
 				$dropdown = $this->ui->loadElement('check_task')
 				->addOtherTask(
 					'Edit Check Series',
-					'pencil'
+					'pencil',
+					!$show_button
 				)
 				->addOtherTask(
 					'Delete Check Series',
 					'trash',
-					$show_button
+					!$show_button
 				)
 				->addOtherTask(
 					'Activate',
 					'arrow-up',
-					$show_button
+					!$show_activate
 				)
 				->addOtherTask(
 					'Deactivate',
 					'arrow-down',
-					$show_button
+					!$show_deactivate
 				)
 				->setValue($row->booknumber)
 				->draw();
 
-				$check = (!$show_button && $show_cancel) ? '' : $dropdown;
+				$check = ($show_button) ? '' : $dropdown;
 
 				$table .= '<tr>';
 				$table .= ' <td align = "center">' .$check. '</td>';
@@ -364,8 +363,8 @@ class controller extends wc_controller
 				$table .= '<td>' . $row->accountno . '</td>';
 				$table .= '<td id="booknumber">' . $book_date. ' - ' .$row->booknumber . '</td>';
 				$table .= '<td id="start_check" class="start_check" value="' . $row->firstchequeno. '-' .$row->lastchequeno. '">' . $row->firstchequeno. '-' .$row->lastchequeno. '</td>';
-				$table .= '<td class="next">' . $next. '</td>';
-				$table .= '<td>' . $check_stat. '</td>';
+				$table .= '<td class="next">' . $row->nextchequeno. '</td>';
+				$table .= '<td>' . $status. '</td>';
 				$table .= '</tr>';
 
 
@@ -393,7 +392,6 @@ class controller extends wc_controller
 						$table .= '<td>' . $value->lastcancelled . '</td>';
 						$table .= '<td>' . $this->date->dateFormat($book_date) . '</td>';
 						$table .= '<td>' . $value->remarks. '</td>';
-						$table	.= '<td><span class="label label-danger ">CANCELLED</span></td>';
 						$table .= '</tr>';
 					}
 				} 
@@ -407,6 +405,24 @@ class controller extends wc_controller
 		$list->table 	=	$table;
 
 		return $list;
+	}
+
+	private function activate_check() {
+		$booknumber = $this->input->post('id');
+		$stat = array('check_status');
+		$post = $this->input->post($stat);
+		$post['check_status'] = 'active';
+		$update_stat = $this->bank->activateCheck($post, $booknumber);
+		return $update_stat;
+	}
+
+	private function deactivate_check() {
+		$booknumber = $this->input->post('id');
+		$stat = array('check_status');
+		$post = $this->input->post($stat);
+		$post['check_status'] = 'inactive';
+		$update_stat = $this->bank->deactivateCheck($post, $booknumber);
+		return $update_stat;
 	}
 
 	public function edit_check(){

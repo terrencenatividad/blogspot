@@ -6,9 +6,9 @@
 		<div id = "errmsg"></div>
 	</div> -->
 
-    <div class="box box-primary">
-        <div class="box-body">
-            <form method = "post" id = "checkForm" class="form-horizontal">
+	<div class="box box-primary">
+		<div class="box-body">
+			<form method = "post" id = "checkForm" class="form-horizontal">
 				<input type="hidden" name="bank_id" id="id" value="<?=$id?>">
 				<input type="hidden" id="old_first" value="">
 				<input type="hidden" id="old_last" value="">
@@ -22,15 +22,15 @@
 
 					<div class="col-md-6">
 						<?php
-							echo $ui->formField('text')
-									->setLabel('Book Number:')
-                                    ->setSplit('col-md-3', 'col-md-6')
-									->setName('booknumber')
-									->setId('booknumber')
+						echo $ui->formField('text')
+						->setLabel('Book Number:')
+						->setSplit('col-md-3', 'col-md-6')
+						->setName('booknumber')
+						->setId('booknumber')
 									// ->setValidation('required num')
-									->setMaxLength(20)
-									->setValue($booknumber)
-									->draw($show_input);
+						->setMaxLength(20)
+						->setValue($booknumber)
+						->draw($show_input);
 						?>
 					</div>
 				</div>
@@ -38,31 +38,31 @@
 				<div class="row">
 					<div class="col-md-6">
 						<?php
-							echo $ui->formField('text')
-									->setLabel('First Check Number')
-									->setSplit('col-md-3', 'col-md-6')
-									->setName('firstchequeno')
-									->setClass('firstchequeno')
-									->setId('firstchequeno')
-									->setValidation('required num')
-									->setMaxLength(16)
-									->setValue($firstchequeno)
-									->draw($show_input);
+						echo $ui->formField('text')
+						->setLabel('First Check Number')
+						->setSplit('col-md-3', 'col-md-6')
+						->setName('firstchequeno')
+						->setClass('firstchequeno')
+						->setId('firstchequeno')
+						->setValidation('required num')
+						->setMaxLength(16)
+						->setValue($firstchequeno)
+						->draw($show_input);
 						?>
 					</div>
 
 					<div class="col-md-6">
 						<?php
-							echo $ui->formField('text')
-									->setLabel('Last Check Number')
-									->setSplit('col-md-3', 'col-md-6')
-									->setName('lastchequeno')
-									->setClass('lastchequeno')
-									->setId('lastchequeno')
-									->setValidation('required num')
-									->setMaxLength(16)
-									->setValue($lastchequeno)
-									->draw($show_input);
+						echo $ui->formField('text')
+						->setLabel('Last Check Number')
+						->setSplit('col-md-3', 'col-md-6')
+						->setName('lastchequeno')
+						->setClass('lastchequeno')
+						->setId('lastchequeno')
+						->setValidation('required num')
+						->setMaxLength(16)
+						->setValue($lastchequeno)
+						->draw($show_input);
 						?>
 					</div>
 				</div>
@@ -73,21 +73,21 @@
 				<div class="row">
 					<div class="col-md-12 text-center">
 						
-							<div class="btn-group">
-								<button type="button" class="btn btn-primary btn-flat" id="btnSave">Save</button>
-							</div>
-							<div class="btn-group">
-								<button type="button" class="btn btn-primary btn-flat" id="btnEdit">Save</button>
-							</div>
-							&nbsp;&nbsp;&nbsp;
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnSave">Save</button>
+						</div>
+						<div class="btn-group">
+							<button type="button" class="btn btn-primary btn-flat" id="btnEdit">Save</button>
+						</div>
+						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
 							<button type="button" class="btn btn-default btn-flat" id="btnCancel">Cancel</button>
 						</div>
 					</div>	
 				</div>
 			</form>
-        </div>
-    </div>
+		</div>
+	</div>
 
 	<div class="table table-condensed table-bordered table-hover">
 		<table id = "bank_check" class="table table-hover">
@@ -118,64 +118,64 @@
 	<div class="modal-dialog" style = "width: 300px;">
 		<div class="modal-content">
 			<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title">Confirmation</h4>
-			</div>
-			<div class="modal-body">
-				<p>Are you sure you want to delete this record?</p>
-			</div>
-			<div class="modal-footer text-center">
-				<button type="button" id="delete_yess" class="btn btn-outline btn-flat" onclick="">Yes</button>
-				<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Confirmation</h4>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure you want to delete this record?</p>
+				</div>
+				<div class="modal-footer text-center">
+					<button type="button" id="delete_yess" class="btn btn-outline btn-flat" onclick="">Yes</button>
+					<button type="button" class="btn btn-outline btn-flat" data-dismiss="modal">No</button>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<div class="modal fade" id="set_modal" tabindex="-1" data-backdrop="static">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-			Confirmation
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-			</div>
-			<div class="modal-body">
-				Are you sure you want to set this as your default check book?
+	<div class="modal fade" id="set_modal" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to set this as your default check book?
 
-				<input type="hidden" id=""/>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+					<input type="hidden" id=""/>
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
+							</div>
+							&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">No</button>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<div id="modal_checker" class="modal">
-	<div class="modal-dialog" style = "width: 300px;">
-		<div class="modal-content">
-			<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title">Confirmation</h4>
-			</div>
-			<div class="modal-body">
-				
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
+	<div id="modal_checker" class="modal">
+		<div class="modal-dialog" style = "width: 300px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Confirmation</h4>
+					</div>
+					<div class="modal-body">
+
+					</div>
+					<div class="modal-footer">
+						<div class="row row-dense">
+							<div class="col-md-12 center">
 						<!-- <div class="btn-group">
 							<button type="button" class="btn btn-primary btn-flat" id="set_yes">Yes</button>
 						</div> -->
@@ -190,25 +190,79 @@
 	</div>
 </div>
 
-<div id="modal_checker_on_range" class="modal">
+<div id="activate_modal" class="modal fade" tabindex="-1" data-backdrop="static">
 	<div class="modal-dialog" style = "width: 300px;">
 		<div class="modal-content">
 			<div class="modal-header">
-			<h4 class="modal-title">Confirmation</h4>
-			
-			
-			</div>
-			<div class="modal-body">
-				<p id="msg1"></p>
-				<p id="msg2"></p>
-			</div>
-			<div class="modal-footer">
-				<div class="row row-dense">
-					<div class="col-md-12 center">
-						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-flat" id="clear_checks" data-dismiss="modal">Ok</button>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Confirmation</h4>
+				</div>
+				<div class="modal-body">
+					<h4>Are you sure you want to activate this check series?</h4>
+				</div>
+				<div class="modal-footer">
+					<div class="row row-dense">
+						<div class="col-md-12 center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-flat" id="act_yes">Yes</button>
+							</div>
+							&nbsp;&nbsp;&nbsp;
+							<div class="btn-group text-center">
+								<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+							</div>
 						</div>
-						&nbsp;&nbsp;&nbsp;
+					</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+
+	<div id="deactivate_modal" class="modal fade" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog" style = "width: 300px;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Confirmation</h4>
+					</div>
+					<div class="modal-body">
+						<h4>Are you sure you want to deactivate this check series?</h4>
+					</div>
+					<div class="modal-footer">
+						<div class="row row-dense">
+							<div class="col-md-12 center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary btn-flat" id="deact_yes">Yes</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
+								<div class="btn-group text-center">
+									<button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+
+		<div id="modal_checker_on_range" class="modal">
+			<div class="modal-dialog" style = "width: 300px;">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Confirmation</h4>
+					</div>
+					<div class="modal-body">
+						<p id="msg1"></p>
+						<p id="msg2"></p>
+					</div>
+					<div class="modal-footer">
+						<div class="row row-dense">
+							<div class="col-md-12 center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-primary btn-flat" id="clear_checks" data-dismiss="modal">Ok</button>
+								</div>
+								&nbsp;&nbsp;&nbsp;
 						<!-- <div class="btn-group text-center">
 							<button type="button"  class="btn btn-default btn-flat" data-dismiss="modal">Ok</button>
 						</div> -->
@@ -247,42 +301,42 @@
 							<div class = 'panel-body'>
 								<div class = 'col-md-12 no-padding'>
 									<?php
-										echo $ui->formField('text')
-												->setLabel('First Number')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('firstcancelled')
-												->setId('firstcancelled')
-												->setValidation('required num')
-												->setMaxLength(16)
-												->setValue("")
-												->draw();
+									echo $ui->formField('text')
+									->setLabel('First Number')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('firstcancelled')
+									->setId('firstcancelled')
+									->setValidation('required num')
+									->setMaxLength(16)
+									->setValue("")
+									->draw();
 									?>
 								</div>
 								<br><br><br>
 								<div class = 'col-md-12 no-padding'>
 									<?php
-										echo $ui->formField('text')
-												->setLabel('Last Number')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('lastcancelled')
-												->setId('lastcancelled')
-												->setValidation('required num')
-												->setMaxLength(16)
-												->setValue("")
-												->draw();
+									echo $ui->formField('text')
+									->setLabel('Last Number')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('lastcancelled')
+									->setId('lastcancelled')
+									->setValidation('required num')
+									->setMaxLength(16)
+									->setValue("")
+									->draw();
 									?>
 								</div>
 								<br><br><br>
 								<div class = 'col-md-12 no-padding'>
 									<?php
-										echo $ui->formField('textarea')
-												->setLabel('Reason')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('remarks')
-												->setId('remarks')
-												->setValidation('required')
-												->setValue("")
-												->draw();
+									echo $ui->formField('textarea')
+									->setLabel('Reason')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('remarks')
+									->setId('remarks')
+									->setValidation('required')
+									->setValue("")
+									->draw();
 									?>
 								</div>
 
@@ -308,10 +362,41 @@
 
 
 <script>
-var ajax = {};
-var book = {};
-var cancel = {}; 
-$('#checkForm').on('click',"#btnSave",function(){
+	var activate_id = '';
+	var dectivate_id = '';
+	$('#bank_check').on('click', '.activate', function() {
+		activate_id = $(this).data('id');
+		$('#activate_modal').modal('show');
+	});
+
+	$('#bank_check').on('click', '.deactivate', function() {
+		deactivate_id = $(this).data('id');
+		$('#deactivate_modal').modal('show');
+	});
+
+	$('#act_yes').on('click', function() {
+		$.post('<?=BASE_URL?>maintenance/bank/ajax/activate_check', '&id=' + activate_id, function(data) {
+			if(data) {
+				$('#activate_modal').modal('hide');
+				showList();
+			}
+		});
+	});
+
+	$('#deact_yes').on('click', function() {
+		$.post('<?=BASE_URL?>maintenance/bank/ajax/deactivate_check', '&id=' + deactivate_id, function(data) {
+			if(data) {
+				$('#deactivate_modal').modal('hide');
+				showList();
+			}
+		});
+	});
+
+
+	var ajax = {};
+	var book = {};
+	var cancel = {}; 
+	$('#checkForm').on('click',"#btnSave",function(){
 	// $('#checkForm #booknumber').trigger('blur');
 	// $('#checkForm #firstchequeno').trigger('blur');
 	// $('#checkForm #lastchequeno').trigger('blur');
@@ -327,7 +412,7 @@ $('#checkForm').on('click',"#btnSave",function(){
 			{
 				$('#btnSave').html('Saving...').attr('disabled', 'disabled');
 				setTimeout(function() {
-				 window.location = self.location;
+					window.location = self.location;
 				},500);
 			}
 		});
@@ -337,7 +422,7 @@ $('#checkForm').on('click',"#btnSave",function(){
 // $('#checkForm #booknumber').on('blur',function(){
 	
 // 	ajax.old_code 	= 	$('#checkForm #booknumber').val();
-	
+
 // 	ajax.curr_code 	=	$(this).val();
 
 // 	var task 		=	'<?=$task?>';
@@ -377,7 +462,7 @@ function showList(){
 	$.post('<?=BASE_URL?>maintenance/bank/ajax/check_list', ajax, function(data)
 	{
 		$('#bank_check #check_container').html(data.table);
-        $('#pagination').html(data.pagination);
+		$('#pagination').html(data.pagination);
 		if (ajax.page > data.page_limit && data.page_limit > 0) {
 			ajax.page = data.page_limit;
 			getList();
@@ -453,24 +538,24 @@ $(document).ready(function()
 		var formData =	new FormData();
 		formData.append('file',$('#import_csv')[0].files[0]);
 		ajax_call 	=	$.ajax({
-							url : '<?=MODULE_URL?>ajax/save_import',
-							data:	formData,
-							cache: 	false,
-							processData: false, 
-							contentType: false,
-							type: 	'POST',
-							success: function(response){
-								if(response && response.errmsg == ""){
-									$('#import-modal').modal('hide');
-									 
-									$("#errmsg").html('');
-									showList();
-								}else{
-									$('#import-modal').modal('hide');
-									show_error(response.errmsg);
-								}
-							},
-						});
+			url : '<?=MODULE_URL?>ajax/save_import',
+			data:	formData,
+			cache: 	false,
+			processData: false, 
+			contentType: false,
+			type: 	'POST',
+			success: function(response){
+				if(response && response.errmsg == ""){
+					$('#import-modal').modal('hide');
+
+					$("#errmsg").html('');
+					showList();
+				}else{
+					$('#import-modal').modal('hide');
+					show_error(response.errmsg);
+				}
+			},
+		});
 	});
 
 	$('#importForm').on('change', '#import_csv', function() {
@@ -478,7 +563,7 @@ $(document).ready(function()
 		$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
 	});
 
-    $('#import-modal').on('show.bs.modal', function() {
+	$('#import-modal').on('show.bs.modal', function() {
 		var form_csv = $('#import_csv').val('').closest('.form-group').find('.form-control').html('').closest('.form-group').html();
 		$('#import_csv').closest('.form-group').html(form_csv);
 	});
@@ -509,9 +594,9 @@ $(function() {
 
 // Sorting Script
 tableSort('#bank_check', function(value) {
-  ajax.sort = value;
-  ajax.page = 1;
-  showList();
+	ajax.sort = value;
+	ajax.page = 1;
+	showList();
 });
 
 
@@ -534,21 +619,21 @@ $('#check_container').on('click', '.edit_check_series', function(){
 	bookno =  $(this).closest('tr').find('#start_check').html();
 	var result = bookno.split('-');
 	ajax.booknumber = result[0];
-		$.post('<?=BASE_URL?>maintenance/bank/ajax/edit_check', ajax ,  function(data){
-			if (data){
-				$('#checkForm #booknumber').val(data.booknumber);
-				$('#firstchequeno').val(data.firstchequeno);
-				$('#lastchequeno').val(data.lastchequeno);
-				$('#old_first').val(data.firstchequeno);
-				$('#old_last').val(data.lastchequeno);
-				$('#task').val(data.task);
-				var task = data.task;
-				if (task == 'update_check'){
-					$('#btnSave').hide();
-					$('#btnEdit').show();
-				}
+	$.post('<?=BASE_URL?>maintenance/bank/ajax/edit_check', ajax ,  function(data){
+		if (data){
+			$('#checkForm #booknumber').val(data.booknumber);
+			$('#firstchequeno').val(data.firstchequeno);
+			$('#lastchequeno').val(data.lastchequeno);
+			$('#old_first').val(data.firstchequeno);
+			$('#old_last').val(data.lastchequeno);
+			$('#task').val(data.task);
+			var task = data.task;
+			if (task == 'update_check'){
+				$('#btnSave').hide();
+				$('#btnEdit').show();
 			}
-		});
+		}
+	});
 });
 
 $('#checkForm #btnEdit').on('click',function(){
@@ -570,15 +655,15 @@ $('#check_container').on('click', '.delete_check_series', function(){
 	bookno =  $(this).closest('tr').find('#start_check').html();
 	var result = bookno.split('-');
 	ajax.booknumber = result[0];
-		if( id != "" )
-		{
-			$(".delete-modal").modal("show");
-			$( "#delete_yess" ).click(function() {
-				$.post('<?=BASE_URL?>maintenance/bank/ajax/delete_check', ajax ,  function(data){
-						window.location = self.location;
-				});
+	if( id != "" )
+	{
+		$(".delete-modal").modal("show");
+		$( "#delete_yess" ).click(function() {
+			$.post('<?=BASE_URL?>maintenance/bank/ajax/delete_check', ajax ,  function(data){
+				window.location = self.location;
 			});
-		}
+		});
+	}
 });
 
 $('#check_container').on('click', '.set_as_default_check', function(){
@@ -586,15 +671,15 @@ $('#check_container').on('click', '.set_as_default_check', function(){
 	bookno =  $(this).closest('tr').find('#start_check').html();
 	var result = bookno.split('-');
 	ajax.booknumber = result[0];
-		if( id != "" )
-		{
-			$("#set_modal").modal("show");
-			$( "#set_yes" ).click(function() {
-				$.post('<?=BASE_URL?>maintenance/bank/ajax/set_check', ajax ,  function(data){
-						window.location = self.location;
-				});
+	if( id != "" )
+	{
+		$("#set_modal").modal("show");
+		$( "#set_yes" ).click(function() {
+			$.post('<?=BASE_URL?>maintenance/bank/ajax/set_check', ajax ,  function(data){
+				window.location = self.location;
 			});
-		}
+		});
+	}
 });
 
 $('#checkForm #firstchequeno, #lastchequeno').on('blur' ,function(){
@@ -649,7 +734,7 @@ $('#check_container').on('click', '.cancel_check_range', function(){
 		$("#cancel_checks").modal("show");
 		$( "#set_yes" ).click(function() {
 			$.post('<?=BASE_URL?>maintenance/bank/ajax/set_check', ajax ,  function(data){
-					window.location = self.location;
+				window.location = self.location;
 			});
 		});
 	}
