@@ -1366,7 +1366,7 @@
 					$('#entriesTable #accountcode\\[2\\]').val('').trigger('change');
 					$('.chequenumber').val('');
 				}
-			})
+			});
 
 			cheque_arr = [];
 
