@@ -69,7 +69,8 @@ class job_order_model extends wc_model
 				'stat',
 				'converteddebit convertedcredit',
 				'convertedcredit converteddebit',
-				'detailparticulars'
+				'detailparticulars',
+				'source'
 			);
 
 			$detail = $this->db->setTable('journaldetails')
@@ -152,6 +153,7 @@ class job_order_model extends wc_model
 					$details[$key]->convertedcredit		= $row->credit;
 					$details[$key]->detailparticulars	= '';
 					$details[$key]->stat				= $data['stat'];
+					$details[$key]->source				= 'jo_release';
 
 					$details[$key]	= (array) $details[$key];
 					$total_amount	+= $row->credit;
@@ -167,7 +169,8 @@ class job_order_model extends wc_model
 					'converteddebit'	=> $total_amount,
 					'convertedcredit'	=> 0,
 					'detailparticulars'	=> '',
-					'stat'				=> $data['stat']
+					'stat'				=> $data['stat'],
+					'source'			=> 'jo_release'
 				);
 			}
 			$detail_insert  = false;
