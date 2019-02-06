@@ -388,7 +388,7 @@ class budgetting extends wc_model
 		->runDelete();
 
 		if ($result) {
-			$this->log->saveActivity("Update Content [$id]");
+			$this->log->saveActivity("Edited Budget [$budget_code]");
 		}
 
 		return $result;
@@ -478,10 +478,15 @@ class budgetting extends wc_model
 		$result = $this->db->setTable('budget')
 		->setValues($budget)
 		->runInsert();
+		$budget_code = $budget['budget_code'];
 
 		$result = $this->db->setTable('budget_details')
 		->setValuesFromPost($budget_details)
 		->runInsert();
+
+		if ($result) {
+			$this->log->saveActivity("Created Budget [$budget_code]");
+		}
 
 		// echo $this->db->getQuery();
 

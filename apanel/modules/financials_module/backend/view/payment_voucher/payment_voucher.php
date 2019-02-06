@@ -1748,7 +1748,6 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 		{ bank: val_bank, curr_seq: num } 
 		).done(function(data){
 			if(data.table){
-				// curr_bank_seq[val] = data.nums;
 				var row = $("#chequeTable tbody tr").length;
 				$('#table_chequelist tbody').html(data.table);
 				$('#cheque_pagination').html(data.pagination);

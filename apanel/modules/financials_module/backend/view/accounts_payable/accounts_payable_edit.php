@@ -1595,9 +1595,10 @@
 								if(data.warning != '') {
 									$('#warning-modal').modal('show');
 									$('#errors').html(data.warning);
+									$('#errors').append('<br><i>Notify Department Head<i/>');
 									$('#warning-modal').on('hidden.bs.modal', function() {
 										if(data.success) {
-											uploadAttachment();
+											$('#attach_button').click();
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
@@ -1607,12 +1608,13 @@
 								} else if(data.error != '') {
 									$('#accountchecker-modal').modal('show');
 									$('#accounterror').html(data.error);
+									$('#accounterror').append('<br><i>Notify Department Head<i/>');
 								} else if(data.date_check != ''){
 									$('#accountchecker-modal').modal('show');
 									$('#accounterror').html(data.date_check);
 								} else {
 									if(data.success) {
-										uploadAttachment();
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1654,9 +1656,10 @@
 								if(data.warning != '') {
 									$('#warning-modal').modal('show');
 									$('#errors').html(data.warning);
+									$('#errors').append('<br><i>Notify Department Head<i/>');
 									$('#warning-modal').on('hidden.bs.modal', function() {
 										if(data.success) {
-											uploadAttachment();
+											$('#attach_button').click();
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
@@ -1666,15 +1669,13 @@
 								} else if(data.error != '') {
 									$('#accountchecker-modal').modal('show');
 									$('#accounterror').html(data.error);
-								} else if(data.accountchecker != ''){
-									$('#accountchecker-modal').modal('show');
-									$('#accounterror').html(data.accountchecker);
+									$('#accounterror').append('<br><i>Notify Department Head<i/>');
 								} else if(data.date_check != ''){
 									$('#accountchecker-modal').modal('show');
 									$('#accounterror').html(data.date_check);
 								} else {
 									if(data.success) {
-										uploadAttachment();
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1716,9 +1717,10 @@
 								if(data.warning != '') {
 									$('#warning-modal').modal('show');
 									$('#errors').html(data.warning);
+									$('#errors').append('<br><i>Notify Department Head<i/>');
 									$('#warning-modal').on('hidden.bs.modal', function() {
 										if(data.success) {
-											uploadAttachment();
+											$('#attach_button').click();
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
@@ -1728,15 +1730,13 @@
 								} else if(data.error != '') {
 									$('#accountchecker-modal').modal('show');
 									$('#accounterror').html(data.error);
-								} else if(data.accountchecker != ''){
-									$('#accountchecker-modal').modal('show');
-									$('#accounterror').html(data.accountchecker);
+									$('#accounterror').append('<br><i>Notify Department Head<i/>');
 								} else if(data.date_check != ''){
 									$('#accountchecker-modal').modal('show');
 									$('#accounterror').html(data.date_check);
 								} else {
 									if(data.success) {
-										uploadAttachment();
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
