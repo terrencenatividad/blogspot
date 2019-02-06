@@ -1789,36 +1789,35 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bankdetail bd')
 		->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 		->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
-		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' ")
+		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' and bd.check_status = 'active'")
 		->setOrderBy('firstchequeno')
-		->runSelect()
-		->getResult();
+		->runPagination();
 
-		$last_num	= $curr_seq;
-		$curr		= 0;
-		$nums		= array();
-		$real_nums	= array();
-		foreach ($result as $check) {
-			if ($curr != $check->firstchequeno) {
-				$curr = $check->firstchequeno;
-				$nums[$check->nextchequeno] = true;
-				// for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
-				// 	$nums[$x] = true;
-				// }
-			}
-			for ($i = $check->firstcancelled; $i <= $check->lastcancelled; $i++) {
-				unset($nums[$i]);
-			}
-			if ($curr != $check->firstchequeno && $last_num > 0) {
-				break;
-			}
-		}
-		foreach ($nums as $key => $val) {
-			if ($key > $last_num) {
-				return $key;
-			}
-		}
-		return false;
+		// $last_num	= $curr_seq;
+		// $curr		= 0;
+		// $nums		= array();
+		// $real_nums	= array();
+		// foreach ($result as $check) {
+		// 	if ($curr != $check->firstchequeno) {
+		// 		$curr = $check->firstchequeno;
+		// 		$nums[$check->nextchequeno] = true;
+		// 		// for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
+		// 		// 	$nums[$x] = true;
+		// 		// }
+		// 	}
+		// 	for ($i = $check->firstcancelled; $i <= $check->lastcancelled; $i++) {
+		// 		unset($nums[$i]);
+		// 	}
+		// 	if ($curr != $check->firstchequeno && $last_num > 0) {
+		// 		break;
+		// 	}
+		// }
+		// foreach ($nums as $key => $val) {
+		// 	if ($key > $last_num) {
+		// 		return $key;
+		// 	}
+		// }
+		return $result;
 	}
 
 	public function update_checks($book_last_num, $book_id, $bank, $book_end){
