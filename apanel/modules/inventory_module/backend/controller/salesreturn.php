@@ -116,7 +116,7 @@ class controller extends wc_controller {
 						'amount total_amount',
 						'discountamount total_discount',
 						'taxamount total_tax',
-						'netamount ',
+						'netamount total_netamount',
 						'vat_sales',
 						'vat_exempt',
 						'vat_zerorated',
@@ -133,7 +133,8 @@ class controller extends wc_controller {
 			'main.convuom',
 			'main.convissueqty',
 			'main.conversion',
-			'main.serialnumbers',
+			'main.serialnumbers selectedserial',
+			'tbl.serialnumbers',
 			'main.unitprice',
 			'main.taxcode',
 			'main.taxrate',
@@ -346,9 +347,28 @@ class controller extends wc_controller {
 						'vat_exempt',
 						'vat_zerorated'
 					);
-		$fields2 = $this->fields2;
-		array_push($fields2, 'discountamount', 'defective', 'replacement', 'amount', 'netamount');
-
+		$fields2 = array('itemcode',
+						'detailparticular',
+						'warehouse',
+						'linenum',
+						'issueqty',
+						'issueuom',
+						'convuom',
+						'convissueqty',
+						'conversion',
+						'serialnumbers',
+						'unitprice',
+						'taxcode',
+						'taxrate',
+						'taxamount',
+						'discounttype',
+						'discountrate',
+						'discountamount', 
+						'defective', 
+						'replacement', 
+						'amount', 
+						'netamount'
+					);
 
 		$header				= $this->input->post($fields1);
 		$details 			= $this->input->post($fields2);
@@ -359,8 +379,8 @@ class controller extends wc_controller {
 /*
 	PREPARE DATA FOR QUERY
 */
-		$seq				= new seqcontrol();
-		$voucherno			= $seq->getValue('SR');
+		$seq 				= new seqcontrol();
+		$voucherno 			= $seq->getValue('SR');
 		$transactiondate 	= $this->date->dateDbFormat($header['transactiondate']);
 		$fiscalyear 		= date('Y', strtotime($header['transactiondate']));
 		$period 			= date('n', strtotime($header['transactiondate']));
@@ -386,7 +406,7 @@ class controller extends wc_controller {
 						'vat_exempt' 		=> str_replace(',', '', $header['vat_exempt']),
 						'vat_zerorated' 	=> str_replace(',', '', $header['vat_zerorated'])
 					);
-		var_dump($values);
+
 		foreach ($details['itemcode'] as $key => $value) {
 			$arr_voucherno[] 	= $voucherno; 
 			$arr_transtype[] 		= 'SR';
@@ -428,17 +448,21 @@ class controller extends wc_controller {
 	RUN DATABASE OPERATIONS
 */
 		$result		= $this->sr_model->saveSalesReturn($values, $values2);
-		$updateserial = false;
-		foreach ($details['serialnumbers'] as $key => $value) {
-			if($value != ''){
-				$updateserial = true;
-			}
-		}
-		if ($updateserial) {
-			$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
-		}
 
 		if ($result) {
+			$updateserial = false;
+			foreach ($details['serialnumbers'] as $key => $row) {
+				if($row != ''){
+					$updateserial = true;
+				}
+			}
+
+			if ($updateserial) {
+				$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
+				
+			}
+			$updateDRSerial = $this->sr_model->updateDRSerial($header['source_no'], $details['linenum'], $details['serialnumbers']);
+
 			//$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
 				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
@@ -469,27 +493,171 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_edit() {
-		$data						= array_merge($this->input->post($this->fields), $this->input->post($this->fields_header));
-		unset($data['voucherno']);
-		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
-		$voucherno					= $this->input->post('voucherno_ref');
-		$data2						= $this->getItemDetails();
-		$data2						= $this->cleanData($data2);
+		/*
+	GET DATA FROM POST
+*/
+		$fields1 = array('voucherno',
+						'source_no',
+						'customer',
+						'transactiondate', 
+						'remarks', 
+						'reason',
+						'total_discount',
+						'total_amount',
+						'total_discount',
+						'total_tax',
+						'total_netamount',
+						'vat_sales',
+						'vat_exempt',
+						'vat_zerorated'
+					);
+		$fields2 = array('itemcode',
+						'detailparticular',
+						'warehouse',
+						'linenum',
+						'issueqty',
+						'issueuom',
+						'convuom',
+						'convissueqty',
+						'conversion',
+						'serialnumbers',
+						'allserial',
+						'unitprice',
+						'taxcode',
+						'taxrate',
+						'taxamount',
+						'discounttype',
+						'discountrate',
+						'discountamount', 
+						'defective', 
+						'replacement', 
+						'amount', 
+						'netamount'
+					);
 
-		$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
-								->preparePreviousValues();
+		$header				= $this->input->post($fields1);
+		$details 			= $this->input->post($fields2);
+		$voucherno			= $this->input->post('voucherno');
+/*
+	END : GET DATA FROM POST
+*/
 
-		$result						= $this->sr_model->updateReturn($data, $data2, $voucherno);
+/*
+	PREPARE DATA FOR QUERY
+*/
+		$transactiondate 	= $this->date->dateDbFormat($header['transactiondate']);
+		$fiscalyear 		= date('Y', strtotime($header['transactiondate']));
+		$period 			= date('n', strtotime($header['transactiondate']));
+
+		$values = array(
+						'voucherno' 		=> $voucherno,
+						'source_no' 		=> $header['source_no'],
+						'transactiondate' 	=> $transactiondate,
+						'customer' 			=> $header['customer'],
+						'warehouse' 		=> $details['warehouse'][0],
+						'fiscalyear' 		=> $fiscalyear,
+						'period' 			=> $period,
+						'transtype' 		=> 'SR',
+						'stat'     			=> 'Returned',
+						'remarks'  			=> $header['remarks'],
+						'reason' 			=> $header['reason'],
+						'amount' 			=> $header['total_amount'],
+						'discounttype' 		=> $details['discounttype'][0],
+						'discountamount' 	=> $header['total_discount'],
+						'netamount' 		=> $header['total_netamount'],
+						'taxamount' 		=> $header['total_tax'],
+						'vat_sales' 		=> str_replace(',', '', $header['vat_sales']),
+						'vat_exempt' 		=> str_replace(',', '', $header['vat_exempt']),
+						'vat_zerorated' 	=> str_replace(',', '', $header['vat_zerorated'])
+					);
 		
-		if ($result && $this->inventory_model) {
-			$this->inventory_model->computeValues()
-									->setDetails($data['customer'])
+		foreach ($details['itemcode'] as $key => $value) {
+			$arr_voucherno[] 	= $voucherno; 
+			$arr_transtype[] 		= 'SR';
+			$arr_stat[] 	 		= 'Returned';
+		}
+
+		$values2 = array(
+					'voucherno' 		=> $arr_voucherno,
+					'transtype' 		=> $arr_transtype,
+					'linenum' 			=> $details['linenum'],
+					'itemcode' 			=> $details['itemcode'],
+					'warehouse' 		=> $details['warehouse'],
+					'detailparticular' 	=> $details['detailparticular'],
+					'defective' 		=> $details['defective'],
+					'replacement' 		=> $details['replacement'],
+					'serialnumbers' 	=> $details['serialnumbers'],
+					'issueuom' 			=> $details['issueuom'],
+					'issueqty' 			=> $details['issueqty'],
+					'convissueqty' 		=> $details['convissueqty'],
+					'convuom' 			=> $details['convuom'],
+					'conversion' 		=> $details['conversion'],
+					'unitprice'     	=> $details['unitprice'],
+					'discounttype' 		=> $details['discounttype'],
+					'discountrate'		=> $details['discountrate'],
+					'discountamount' 	=> $details['discountamount'],
+					'taxcode'  			=> $details['taxcode'],
+					'taxrate' 			=> $details['taxrate'],
+					'taxamount' 		=> $details['taxamount'],
+					'amount' 			=> $details['amount'],
+					'netamount' 		=> $details['netamount'],
+					'stat' 				=> $arr_stat
+				);
+
+/*
+	END : PREPARE DATA FOR QUERY
+*/
+
+/*
+	RUN DATABASE OPERATIONS
+*/
+		if ($this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
+								->preparePreviousValues();
+		}
+
+		$result		= $this->sr_model->saveSalesReturn($values, $values2);
+
+
+		if ($result) {
+			$updateserial = false;
+			foreach ($details['serialnumbers'] as $key => $row) {
+				if($row != ''){
+					$updateserial = true;
+				}
+			}
+
+			if ($updateserial) {
+				$serialupdate = $this->sr_model->updateItemSerialized($details['allserial'], 'Not Available');
+
+				if ($serialupdate) {
+					$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
+				}
+			}
+			$updateDRSerial = $this->sr_model->updateDRSerial($header['source_no'], $details['linenum'], $details['serialnumbers']);
+			//$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
+			if ($this->inventory_model) {
+				
+				$this->inventory_model->computeValues()
+									->setDetails($values['customer'])
 									->logChanges();
 
-			$this->inventory_model->generateBalanceTable();
+				$this->inventory_model->generateBalanceTable();
+			}
 		}
+		//$jv = $this->sr_model->createClearingEntries($header['voucherno']);
+/*
+	END : RUN DATABASE OPERATIONS
+*/
+
+		$redirect_url = MODULE_URL;
+		// if ($submit == 'save_new') {
+		// 	$redirect_url = MODULE_URL . 'create';
+		// } else if ($submit == 'save_preview') {
+		// 	$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		// }
 		return array(
-			'redirect'	=> MODULE_URL,
+			'redirect'	=> $redirect_url,
 			'success'	=> $result
 		);
 	}
@@ -585,8 +753,10 @@ class controller extends wc_controller {
 		$linenum 	= $this->input->post('linenum');
 		$show_input = $this->input->post('showinput');
 		$sourceno 	= $this->input->post('sourceno');
+		$task 		= $this->input->post('task');
+		$voucherno 	= $this->input->post('voucherno');
 		$serials 	= $this->sr_model->getSerialItemList($serialids);
-		$taggedserials = $this->sr_model->getTaggedSerial($sourceno, $linenum);
+		$taggedserials = $this->sr_model->getTaggedSerial($voucherno, $sourceno, $linenum);
 		$table 		= '';
 
 		foreach ($serials as $key => $row) {
