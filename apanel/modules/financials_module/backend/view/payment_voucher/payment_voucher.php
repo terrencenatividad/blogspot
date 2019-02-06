@@ -1716,13 +1716,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 	$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , 
 		{ bank: val, curr_seq: num } 
 		).done(function(data){
-<<<<<<< HEAD
 			if(data.table){
-=======
-			console.log(data);
-			if (data.nums != false){
-				curr_bank_seq[val] = data.nums;
->>>>>>> a19b71ddfe1776f2b4a54cd52d4990dfb51bcf73
 				var row = $("#chequeTable tbody tr").length;
 				cheque_element.closest('tr').find('.chequenumber').val(data.nums);
 			} else {
