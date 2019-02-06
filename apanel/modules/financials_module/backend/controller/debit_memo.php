@@ -144,6 +144,13 @@ class controller extends wc_controller {
 		$documentinfo		= $this->dm_model->getDocumentInfo($voucherno);
 		$documentdetails	= $this->dm_model->getDocumentDetails($voucherno);
 		$documentvendor   	= $this->dm_model->getVendor($voucherno);
+		foreach ($documentdetails as $key => $row) {
+			$row->debit 			= 0;	
+			$row->credit 			= 0;
+			$row->convertedcredit 	= 0;
+			$row->converteddebit 	= 0;
+			$row->currency 			= 0;
+		}
 		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Debit Memo')
 				->setDocumentInfo($documentinfo)

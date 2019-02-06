@@ -20,7 +20,7 @@ class job_order_model extends wc_model
 		$header_fields = array(
 			'job_release_no referenceno',
 			// 'customer',
-			// 'transactiondate',
+			'transactiondate',
 			// 'fiscalyear',
 			// 'period',
 			'stat'
@@ -112,6 +112,7 @@ class job_order_model extends wc_model
 			$data['transtype']		= 'IT';
 			$data['currencycode']	= 'PHP';
 			$data['exchangerate']	= '1';
+			$data['source']			= 'jo_release';
 		}
 
 		$header = $this->db->setTable('journalvoucher')

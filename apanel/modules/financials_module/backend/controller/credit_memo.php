@@ -159,6 +159,13 @@ class controller extends wc_controller {
 	public function print_preview($voucherno) {
 		$documentinfo		= $this->cm_model->getDocumentInfo($voucherno);
 		$documentdetails	= $this->cm_model->getDocumentDetails($voucherno);
+		foreach ($documentdetails as $key => $row) {
+			$row->debit 			= 0;	
+			$row->credit 			= 0;
+			$row->convertedcredit 	= 0;
+			$row->converteddebit 	= 0;
+			$row->currency 			= 0;
+		}
 		$documentvendor   	= $this->cm_model->getVendor($voucherno);
 		$print = new print_payables_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Credit Memo')
