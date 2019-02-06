@@ -543,10 +543,10 @@ class purchase_order extends wc_model
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
 							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
-							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$transactiondate'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TMP_%'  GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -558,17 +558,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								}
@@ -578,10 +578,10 @@ class purchase_order extends wc_model
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
 							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
-							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$transactiondate'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TMP_%'  GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -592,17 +592,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									}
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									}
 								}
@@ -629,10 +629,10 @@ class purchase_order extends wc_model
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
 							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
-							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$transactiondate'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TMP_%'  GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -643,17 +643,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								}
@@ -663,10 +663,10 @@ class purchase_order extends wc_model
 							$accountcode = $expenseaccount;
 							$getbudgetaccount = $this->db->setTable('budget_details as bd')
 							->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
-							->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
+							->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
+							->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$transactiondate'")
 							->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+							->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TMP_%'  GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 							->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 							->setGroupBy('bs.accountcode')
 							->runSelect()
@@ -677,17 +677,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									} 
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									}
 								}
@@ -915,7 +915,8 @@ class purchase_order extends wc_model
 	public function checkifaccountisinbudget($accountcode){
 		$result = $this->db->setTable('budget_details bd')
 		->setFields("bd.budget_code")
-		->setWhere("bd.accountcode = '$accountcode'")
+		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+		->setWhere("bd.accountcode = '$accountcode' AND b.status = 'approved'")
 		->runSelect()
 		->getResult();
 		return $result;

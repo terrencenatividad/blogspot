@@ -1855,6 +1855,7 @@ function finalizeTransaction(type, error, checkamount, date_checker)
 			if(checkamount != '') {
 				$('#warning-modal').modal('show');
 				$('#errors').html(checkamount);
+				$('#errors').append('<br><i>Notify Department Head<i/>');
 				$('#warning-modal').on('hidden.bs.modal', function() {
 					$('#delay_modal').modal('show');
 					setTimeout(function() {
@@ -1864,6 +1865,7 @@ function finalizeTransaction(type, error, checkamount, date_checker)
 			} else if(error != '') {
 				$('#accountchecker-modal').modal('show');
 				$('#accounterror').html(error);
+				$('#accounterror').append('<br><i>Notify Department Head<i/>');
 			}else if(date_checker != ''){
 				$('#accountchecker-modal').modal('show');
 				$('#accounterror').html(date_checker);
@@ -1926,6 +1928,7 @@ function finalizeEditTransaction()
 					if(checkamount != '') {
 						$('#warning-modal').modal('show');
 						$('#errors').html(checkamount);
+						$('#errors').append('<br><i>Notify Department Head<i/>');
 						$('#warning-modal').on('hidden.bs.modal', function() {
 							if(errmsg == '') {
 								if( btn == 'final' ) {
@@ -1945,6 +1948,7 @@ function finalizeEditTransaction()
 					} else if(error != '') {
 						$('#accountchecker-modal').modal('show');
 						$('#accounterror').html(error);
+						$('#accounterror').append('<br><i>Notify Department Head<i/>');
 					} else if(date_checker != ''){
 						$('#accountchecker-modal').modal('show');
 						$('#accounterror').html(date_checker);

@@ -649,7 +649,7 @@ class controller extends wc_controller
 					}
 				} else if(empty($date_check)) {
 					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$count]);
-					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count]);
+					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count], $ap['transactiondate']);
 					$accountname = $get_accountname->accountname;
 					if(!$get_amount) {
 						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$count]. '.';
@@ -946,7 +946,7 @@ class controller extends wc_controller
 					}
 				} else if(empty($date_check)) {
 					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$count]);
-					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count]);
+					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count], $ap['transactiondate']);
 					$accountname = $get_accountname->accountname;
 					if(!$get_amount) {
 						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$count]. '.';
@@ -966,7 +966,7 @@ class controller extends wc_controller
 								if($check) {
 									if($codes['amount'] > $amount) {
 										$warning[0] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$count] . 
-										' ' . $accountname . ' account <br>';
+										' ' . $accountname . ' account. <br>';
 										$actualbudget['voucherno'] = $ap['voucherno'];
 										$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
 										$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
@@ -982,7 +982,7 @@ class controller extends wc_controller
 								} else {
 									if(str_replace(',', '', $ap_details['debit'][$count]) > $amount) {
 										$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$count] . 
-										' ' . $accountname . ' account <br>';
+										' ' . $accountname . ' account. <br>';
 										$actualbudget['voucherno'] = $ap['voucherno'];
 										$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
 										$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
@@ -1150,8 +1150,7 @@ class controller extends wc_controller
 			'check'		=> $check,
 			'warning'  	=> $warning,
 			'error'		=> $error,
-			'date_check'	=> $date_check,
-			'accountchecker' => $accountchecker
+			'date_check'	=> $date_check
 		);
 	}
 

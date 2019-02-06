@@ -1786,6 +1786,7 @@
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
 								$('#errors').html(data.warning);
+								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
 										$('#attach_button').click();
@@ -1798,6 +1799,7 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
+								$('#accounterror').append('<br><i>Notify Department Head<i/>');
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1846,6 +1848,7 @@
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
 								$('#errors').html(data.warning);
+								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
 										$('#attach_button').click();
@@ -1858,6 +1861,7 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
+								$('#accounterror').append('<br><i>Notify Department Head<i/>');
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1905,6 +1909,7 @@
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
 								$('#errors').html(data.warning);
+								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
 										$('#attach_button').click();
@@ -1917,6 +1922,7 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
+								$('#accounterror').append('<br><i>Notify Department Head<i/>');
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);

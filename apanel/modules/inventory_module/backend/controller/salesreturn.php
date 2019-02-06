@@ -665,7 +665,9 @@ class controller extends wc_controller {
 	private function ajax_delete() {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
-			$result = $this->sr_model->deleteReturn($delete_id);
+			//$result 			= $this->sr_model->deleteSalesReturn($delete_id);
+			$result_serial 		= $this->sr_model->revertItemSerialized($delete_id);
+			$result_dr 			= $this->sr_model->revertDRchanges($delete_id);
 		}
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
@@ -676,7 +678,9 @@ class controller extends wc_controller {
 			$this->inventory_model->generateBalanceTable();
 		}
 		return array(
-			'success' => $result
+			'success' 			=> $result,
+			'revert serialized' => $result_serial,
+			'revert drtable' 	=> $result_dr;
 		);
 	}
 

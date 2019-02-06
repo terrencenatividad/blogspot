@@ -183,9 +183,9 @@
 															<thead>
 																<tr class="info">
 																	<th class="col-md-4 text-center">Account</th>
-																	<th class="col-md-5 text-center">Description</th>
+																	<th class="col-md-4 text-center">Description</th>
 																	<th class="col-md-3 text-center">Amount</th>
-																	<!-- <th class="col-md-4 text-center"></th> -->
+																	<th class="col-md-4 text-center"></th>
 																</tr>
 															</thead>
 															<tbody>
@@ -219,6 +219,9 @@
 																		->setValidation('decimal required')
 																		->draw($show_input);	
 																		?></td>
+																		<td class="text-center">
+																			<button type="button" class="btn btn-danger btn-flat confirm-delete" style="outline:none;"><span class="glyphicon glyphicon-trash"></span></button>
+																		</td>
 																	</tr>
 																<?php } else { ?>
 																	<?php if(isset($budget_details)) : ?>
@@ -245,13 +248,13 @@
 																				->setValue($row->description)
 																				->draw($show_input);	
 																				?></td>
-																				<td><?
+																				<td class = "text-right"><?
 																				echo $ui->formField('text')
 																				->setPlaceholder('0.00')
 																				->setSplit('', 'col-md-12')
 																				->setName('amount[]')
 																				->setId('amount')
-																				->setClass('text-right amount')
+																				->setClass('amount')
 																				->setValue($row->amount)
 																				->setValidation('decimal required')
 																				->draw($show_input);	
@@ -261,6 +264,13 @@
 																	<?php endif; ?>
 																<?php } ?>
 															</tbody>
+															<tfoot>
+																<tr>
+																	<?php if($ajax_task != 'ajax_view') : ?>
+																		<td><a href="javascript:void(0)" class = "add-data">Add a New Line</a></td>
+																	<?php endif; ?>
+																</tr>
+															</tfoot>
 														</table>
 													</div>
 													<div id="Supplements" class="tab-pane table-responsive">

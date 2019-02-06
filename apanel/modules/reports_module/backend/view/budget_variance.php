@@ -3,6 +3,16 @@
 		<div class="box-header pb-none">
 			<div class="row">
 				<div class="col-md-3">
+					<div class="form-group">
+						<div class="input-group">
+							<input type="text" name="date" id="date" class="form-control" value = "" data-daterangefilter="month" autocomplete="off">
+							<span class="input-group-addon">
+								<i class="glyphicon glyphicon-calendar"></i>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
 					<?php
 					echo $ui->formField('dropdown')
 					->setPlaceholder('Filter Budget Center')
@@ -23,16 +33,6 @@
 					->setNone('Filter: All')
 					->draw();
 					?>
-				</div>
-				<div class="col-md-3">
-					<div class="form-group">
-						<div class="input-group">
-							<input type="text" name="date" id="date" class="form-control" value = "" data-daterangefilter="month" autocomplete="off">
-							<span class="input-group-addon">
-								<i class="glyphicon glyphicon-calendar"></i>
-							</span>
-						</div>
-					</div>
 				</div>
 				<div class="col-md-3 text-right">
 					<a href="" id="export_csv" download="Budget_Variance.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
