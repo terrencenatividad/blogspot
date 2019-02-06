@@ -1957,6 +1957,8 @@
 		// 	$('#attach_button').click();
 		// }
 
+		$('label[for=files]').css({"display": "inline-block","text-overflow": "ellipsis","overflow": "hidden"});
+
 		$(function () {
 			'use strict';
 
