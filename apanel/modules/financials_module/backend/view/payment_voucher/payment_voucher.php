@@ -4644,5 +4644,7 @@ $(document).ready(function() {
 
 	$('#changeCurrencyCodeModal').on('click','#disc_no',function(){
 		$('#changeCurrencyCodeModal').modal('hide');
-	});
+	}); 
+
+	//pv
 </script>
