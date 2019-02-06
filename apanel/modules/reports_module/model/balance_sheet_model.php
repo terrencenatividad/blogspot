@@ -233,55 +233,58 @@ class balance_sheet_model extends wc_model {
 		}
 
 		$col = array();
-		foreach ($data[$data_key] as $key => $accounts) {
-			$col				= array();
-			$total				= 0;
-			$accountname		= $accounts->accountname;
-			$accountclasscode	= $accounts->accountclasscode;
-			$parentaccount		= ($accounts->parentnature) ? $accounts->parentnature : $accounts->accountnature;
-			$accounttype		= '';
-			$accountclass		= '';
-			foreach ($data as $x) {
-				if (isset($x[$key])) {
-					$account	= $x[$key];
-					$tot = ($accounts->accountnature == 'Debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
-					if ($accounts->accountnature != $parentaccount) {
-						$tot = $tot * -1;
+		if($data[$data_key]){
+			foreach ($data[$data_key] as $key => $accounts) {
+				$col				= array();
+				$total				= 0;
+				$accountname		= $accounts->accountname;
+				$accountclasscode	= $accounts->accountclasscode;
+				$parentaccount		= ($accounts->parentnature) ? $accounts->parentnature : $accounts->accountnature;
+				$accounttype		= '';
+				$accountclass		= '';
+				foreach ($data as $x) {
+					if (isset($x[$key])) {
+						$account	= $x[$key];
+						$tot = ($accounts->accountnature == 'Debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
+						if ($accounts->accountnature != $parentaccount) {
+							$tot = $tot * -1;
+						}
+						$total	+= $tot;
+						$col[]	= $tot;
+					} else {
+						$col[]	= 0;
 					}
-					$total	+= $tot;
-					$col[]	= $tot;
+				}
+				if (in_array($accountclasscode, $asset1_array)) {
+					$accounttype	= 'Assets';
+					$accountclass	= 'Current Assets';
+				} else if (in_array($accountclasscode, $asset2_array)) {
+					$accounttype	= 'Assets';
+					$accountclass	= 'Non - Current Assets';
+				} else if (in_array($accountclasscode, $liability1_array)) {
+					$accounttype	= 'Liabilities';
+					$accountclass	= 'Current Liabilities';
+				} else if (in_array($accountclasscode, $liability2_array)) {
+					$accounttype	= 'Liabilities';
+					$accountclass	= 'Non - Current Liabilities';
+				} else if (in_array($accountclasscode, $equity_array)) {
+					$accounttype	= 'Equity';
+					$accountclass	= '';
+				} else if ($accountclasscode == 'Current') {
+					$accounttype	= 'Equity';
+					$accountclass	= '';
+				} else if ($accountclasscode == 'Previous') {
+					$accounttype	= 'Equity';
+					$accountclass	= '';
 				} else {
-					$col[]	= 0;
+					$total = 0;
+				}
+				if (($total !== 0 && ! empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
+					$y[$accounttype][$accountclass][$accountname] = $col;
 				}
 			}
-			if (in_array($accountclasscode, $asset1_array)) {
-				$accounttype	= 'Assets';
-				$accountclass	= 'Current Assets';
-			} else if (in_array($accountclasscode, $asset2_array)) {
-				$accounttype	= 'Assets';
-				$accountclass	= 'Non - Current Assets';
-			} else if (in_array($accountclasscode, $liability1_array)) {
-				$accounttype	= 'Liabilities';
-				$accountclass	= 'Current Liabilities';
-			} else if (in_array($accountclasscode, $liability2_array)) {
-				$accounttype	= 'Liabilities';
-				$accountclass	= 'Non - Current Liabilities';
-			} else if (in_array($accountclasscode, $equity_array)) {
-				$accounttype	= 'Equity';
-				$accountclass	= '';
-			} else if ($accountclasscode == 'Current') {
-				$accounttype	= 'Equity';
-				$accountclass	= '';
-			} else if ($accountclasscode == 'Previous') {
-				$accounttype	= 'Equity';
-				$accountclass	= '';
-			} else {
-				$total = 0;
-			}
-			if (($total !== 0 && ! empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
-				$y[$accounttype][$accountclass][$accountname] = $col;
-			}
 		}
+		
 		return $y;
 	}
 
