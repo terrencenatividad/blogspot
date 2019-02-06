@@ -691,9 +691,7 @@
 										</ul>
 									</div>
 									&nbsp;&nbsp;&nbsp;
-									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" id = "btnCancel">Cancel</button>
-									</div>
+									<?php echo $ui->drawCancel(); ?>
 								</div>
 							<?php  } else if($ajax_task == 'ajax_view') { ?>
 								<div class="col-md-12 col-sm-12 text-center">
@@ -703,9 +701,7 @@
 										<?php endif; ?>
 									</div>
 									&nbsp;&nbsp;&nbsp;
-									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" id = "btnCancel">Cancel</button>
-									</div>
+									<?php echo $ui->drawCancel(); ?>
 								</div>
 							<?php  } ?>
 						</div>
