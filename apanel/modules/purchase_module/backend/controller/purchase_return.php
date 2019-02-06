@@ -31,7 +31,7 @@ class controller extends wc_controller {
 			'header_discounttype'	=> 'discounttype',
 			'header_discountamount'	=> 'discountamount',
 			'header_netamount'		=> 'netamount',
-			'header_taxamount'		=> 'taxamount',
+			'header_taxamount'		=> 'total_tax',
 			'header_wtaxcode'		=> 'wtaxcode',
 			'header_wtaxamount'		=> 'wtaxamount',
 			'header_wtaxrate'		=> 'wtaxrate',
