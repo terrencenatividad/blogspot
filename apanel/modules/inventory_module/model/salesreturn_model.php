@@ -98,7 +98,7 @@
 			} else{
 				$table = 'deliveryreceipt_details tbl';
 			}
-			$fields[] = 'tbl.issueqty - (SELECT SUM(issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno=srd.voucherno WHERE srd.voucherno != "'. $voucherno .'" AND sr.source_no="'. $sourceno .'" AND srd.itemcode=main.itemcode AND srd.linenum=main.linenum) maxqty';
+			$fields[] = 'tbl.issueqty - IFNULL((SELECT SUM(issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno=srd.voucherno WHERE srd.voucherno != "'. $voucherno .'" AND sr.source_no="'. $sourceno .'" AND srd.itemcode=main.itemcode AND srd.linenum=main.linenum), 0) maxqty';
 			
 			$result = $this->db->setTable('inventory_salesreturn_details main')
 								->setFields($fields)
@@ -262,18 +262,32 @@
 		public function saveSalesReturn($header, $details) {
 			$this->getAmounts($header, $details);
 
+			$exist = $this->db->setTable('inventory_salesreturn')
+								->setValues(array('voucherno'=>''))
+								->setWhere("voucherno='".$header['voucherno']."'")
+								->runSelect()
+								->getRow();
+								
+
 			$result = $this->db->setTable('inventory_salesreturn')
-								->setValues($header)
-								->runInsert();
+								->setValues($header);
+			if ($exist) {
+				$result = $this->db->setWhere("voucherno='".$header['voucherno']."'")
+								->runUpdate();
+			} else {
+				$result = $this->db->runInsert();
+			}
+
 			if ($result) {
 				$this->log->saveActivity("Create Sales Return [{$header['voucherno']}]");
-				$result = $this->updateSalesReturnDetails($details, $header['voucherno']);
+				$result = $this->updateSalesReturnDetails($details, $header['voucherno'], $header['source_no']);
 			}
 				
 			return $result;
 		}
 
-		public function updateSalesReturnDetails($details, $voucherno) {
+		public function updateSalesReturnDetails($details, $voucherno, $sourceno) {
+			$drvalue = array();
 			$this->db->setTable('inventory_salesreturn_details')
 						->setWhere("voucherno = '$voucherno'")
 						->runDelete();
@@ -282,14 +296,40 @@
 			$result = $this->db->setTable('inventory_salesreturn_details')
 								->setValuesFromPost($details)
 								->runInsert();
-
+			if ($result) {
+				for($ctr = 0; $ctr<count($details['linenum']); $ctr++){
+					$drvalue["returnedqty"] = $details['issueqty'][$ctr];
+					$linenum = $details['linenum'][$ctr];
+					$drupdate = $this->db->setTable('deliveryreceipt_details')
+									->setValues($drvalue)
+									->setWhere("voucherno = '$sourceno' AND linenum='$linenum'")
+									->runUpdate();
+				}
+				
+			}
 			return $result;
 		}
 
-		public function updateItemSerialized($serialids, $stat) {
-			$update_arr['stat'] = 'Available';
+		public function updateDRSerial($sourceno, $linenum, $serialid){
+			$update_arr = array();
+			foreach ($linenum as $key => $value) {
+				$update_arr['return_serialnumbers'] = $serialid[$key];
+				$where_linenum = $linenum[$key];
+				$result = $this->db->setTable('deliveryreceipt_details')
+									->setValues($update_arr)
+									->setWhere("voucherno='$sourceno' AND linenum='$where_linenum'")
+									->runUpdate();
+			}
+			return $result;
+		}
 
-			$serialids = implode(',',$serialids);
+		public function updateItemSerialized($detail_serial, $stat) {
+			$update_arr['stat'] = $stat;
+
+			$serialids 		= $this->parseSerialsToArray($detail_serial);
+			
+			$serialids 		= implode(',',$serialids);
+
 			$result = $this->db->setTable('items_serialized')
 						->setFields('stat')
 						->setValues($update_arr)
@@ -297,6 +337,20 @@
 						->runUpdate();
 
 			return $result;
+		}
+
+		private function parseSerialsToArray($array){
+			$new_array = array();
+			foreach ($array as $key => $value) {
+				if($array[$key] != ''){
+					$temp 	= explode(',', $array[$key]);
+
+					foreach ($temp as $key => $value) {
+						array_push($new_array, $value);
+					}
+				}
+			}
+			return $new_array;
 		}
 
 		private function getAmounts(&$header, &$details) {
@@ -554,13 +608,14 @@
 			return $serialno;
 		}
 
-		public function getTaggedSerial($sourceno, $linenum) {
-			$serialno = array();
+		public function getTaggedSerial($voucherno, $sourceno, $linenum) {
+			$serialno 		= array();
 			$explode_serial = array();
+
 			$result = $this->db->setTable('inventory_salesreturn_details srd')
 								->setFields('serialnumbers')
 								->leftJoin('inventory_salesreturn sr ON sr.voucherno = srd.voucherno')
-								->setWhere("source_no='$sourceno' AND linenum='$linenum'")
+								->setWhere("srd.voucherno!='$voucherno' AND source_no='$sourceno' AND linenum='$linenum'")
 								->runSelect()
 								->getRow();
 
