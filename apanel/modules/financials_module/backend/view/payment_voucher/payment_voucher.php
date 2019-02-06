@@ -1756,6 +1756,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 			} else {
 				$('#nocheckModal').modal('show');
 				$('#entriesTable #accountcode\\[2\\]').val('').trigger('change');
+				$('.chequenumber').val('');
 			}
 		}).fail(function(xhr, status, error) {
 			console.log('debug mode : ');
@@ -1806,7 +1807,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 		drawTemplate(); 
 	});
 
-$('#table_chequelist tbody').on('click', function() {
+$('#table_chequelist #cheque_list_container').on('click', 'tr', function() {
 	var num = $(this).find('.nextchequeno').html();
 	curr_bank_seq[val_bank] = num;
 	cheque_element.closest('tr').find('.chequenumber').val(num);
