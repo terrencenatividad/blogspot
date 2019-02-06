@@ -390,6 +390,92 @@
 			return $result;
 		}
 
+		public function deleteSalesReturn($voucherno) {
+			$update_value = array('stat' => 'Cancelled');
+			$where = implode(',', $voucherno);
+			$result = $this->db->setTable('inventory_salesreturn')
+								->setValues($update_value)
+								->setWhere("voucherno IN ('$where')")
+								->runUpdate();
+
+			return $result;
+		}
+
+		public function revertItemSerialized($voucherno) {
+			$serial_value = array('stat' => 'Not Available');
+			$where = '';
+			foreach ($voucherno as $key => $value) {
+				$sr_rows = $this->db->setTable('inventory_salesreturn_details srd')
+								->setFields('source_no, linenum, serialnumbers')
+								->leftJoin('inventory_salesreturn sr ON sr.voucherno=srd.voucherno')
+								->setWhere("srd.voucherno='$value'")
+								->runSelect()
+								->getResult();
+
+				foreach ($sr_rows as $key => $row) {
+					if ($row->serialnumbers != '') {
+
+						$dr_values['serialnumbers'] = $row->serialnumbers;
+						$sourceno 	= $row->source_no;
+						$linenum 	= $row->linenum;
+
+						$update_dr 	= $this->db->setTable('deliveryreceipt_details')
+												->setValues($dr_values)
+												->setWhere("voucherno='$sourceno' AND linenum='$linenum'" )
+												->runUpdate();
+
+						if ($update_dr) {
+							$where .= $row->serialnumbers;
+							$where .= ',';
+						}
+					}
+				}
+			}
+			$where = substr($where, 0, -1);
+
+			$result = $this->db->setTable('items_serialized')
+							->setValues($serial_value)
+							->setWhere("voucherno IN ('$where')")
+							->runUpdate();
+
+			return $result;
+		}
+
+		public function revertDRchanges($voucherno) {
+			$result = true;
+			foreach ($voucherno as $key => $value) {
+				$sr_rows = $this->db->setTable('inventory_salesreturn_details srd')
+									->leftJoin('inventory_salesreturn sr ON sr.voucherno=srd.voucherno')
+									->setFields('sr.source_no, linenum, issueqty')
+									->setWhere("srd.voucherno='$value'")
+									->runSelect()
+									->getResult();
+
+				foreach ($sr_rows as $key => $row) {
+					$sourceno 	= $row->source_no;
+					$linenum 	= $row->linenum;
+					$issueqty 	= $row->issueqty;
+
+					$dr_row 	= $this->db->setTable('deliveryreceipt_details')
+									->setFields('returnedqty')
+									->setWhere("voucherno='$sourceno' AND linenum='$linenum'")
+									->runSelect()
+									->getRow();
+					$dr_value['returnedqty'] = $dr_row->returnedqty - $issueqty;
+					$update 	= $this->db->setTable('deliveryreceipt_details')
+									->setValues($dr_value)
+									->setWhere("voucherno='$sourceno' AND linenum='$linenum'")
+									->runUpdate();
+									
+					if ($update) {
+						$result = false;
+					}
+				}
+			}
+
+			return $kwan;
+		}
+
 		public function createClearingEntries($voucherno, $sourcetype) {
 			$exist = $this->db->setTable('journalvoucher')
 								->setFields('voucherno')
