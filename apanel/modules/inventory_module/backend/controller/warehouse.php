@@ -331,7 +331,6 @@
 						if( $count > 0 )
 						{
 							$errmsg[]	= "Warehouse Code [<strong>$warehousecode</strong>] on row $line already exists.<br/>";
-							$errmsg		= array_filter($errmsg);
 						}
 
 						if( !in_array($warehousecode, $list) ){
@@ -340,19 +339,16 @@
 						else
 						{
 							$errmsg[]	= "Warehouse Code [<strong>$warehousecode</strong>] on row $line has a duplicate within the document.<br/>";
-							$errmsg		= array_filter($errmsg);
 						}
 
-						//var_dump($errmsg);
 						$warehousecode_[] 	= $warehousecode;
 						$warehousename_[]	= $warehousename;
 
 						$line++;
 					}
 				}
-
+				$errmsg 			= array_filter($errmsg);
 				$proceed 	=	false;
-
 				if( empty($errmsg) )
 				{
 					$post = array(

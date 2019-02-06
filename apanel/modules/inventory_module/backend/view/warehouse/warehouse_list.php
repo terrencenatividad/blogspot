@@ -243,7 +243,7 @@
 								contentType: false,
 								type: 	'POST',
 								success: function(response){
-									if(response && response.errmsg == ""){
+									if(response.proceed && response.errmsg == ""){
 										$('#import-modal').modal('hide');
 										$(".alert-warning").addClass("hidden");
 										$("#errmsg").html('');
