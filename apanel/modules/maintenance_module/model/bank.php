@@ -194,6 +194,8 @@ class bank extends wc_model
 		return $result;
 
 	}
+
+
 	public function getAccountname($id){
 		$result = $this->db->setTable('bank b')
 		->setFields('id, shortname, firstchequeno, lastchequeno ')
@@ -203,13 +205,12 @@ class bank extends wc_model
 		->getResult();
 
 		return $result;
-
-
 	}
+
 	public function checkListing($search="", $sort ,$limit, $id){
 		$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-		$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname","has_cancelled");
+		$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname","has_cancelled", "bd.check_status");
 
 		$result = $this->db->setTable('bankdetail bd')
 		->setFields($fields)
@@ -246,6 +247,27 @@ class bank extends wc_model
 		}
 
 		return $result;
+	}
+
+	public function activateCheck($fields, $booknumber){
+		$result 			   = $this->db->setTable('bankdetail')
+		->setValues($fields)
+		->setWhere("booknumber = '$booknumber'")
+		->setLimit(1)
+		->runUpdate();
+		return $result;
+
+	}
+
+	public function deactivateCheck($fields, $booknumber){
+		$result 			   = $this->db->setTable('bankdetail')
+		->setValues($fields)
+		->setWhere("booknumber = '$booknumber'")
+		->setLimit(1)
+		->runUpdate();
+
+		return $result;
+
 	}
 
 	public function deactivateBank($id, $data){

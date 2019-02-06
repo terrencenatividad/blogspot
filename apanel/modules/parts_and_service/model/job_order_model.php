@@ -20,7 +20,7 @@ class job_order_model extends wc_model
 		$header_fields = array(
 			'job_release_no referenceno',
 			// 'customer',
-			// 'transactiondate',
+			'transactiondate',
 			// 'fiscalyear',
 			// 'period',
 			'stat'
@@ -69,7 +69,8 @@ class job_order_model extends wc_model
 				'stat',
 				'converteddebit convertedcredit',
 				'convertedcredit converteddebit',
-				'detailparticulars'
+				'detailparticulars',
+				'source'
 			);
 
 			$detail = $this->db->setTable('journaldetails')
@@ -111,6 +112,7 @@ class job_order_model extends wc_model
 			$data['transtype']		= 'IT';
 			$data['currencycode']	= 'PHP';
 			$data['exchangerate']	= '1';
+			$data['source']			= 'jo_release';
 		}
 
 		$header = $this->db->setTable('journalvoucher')
@@ -152,6 +154,7 @@ class job_order_model extends wc_model
 					$details[$key]->convertedcredit		= $row->credit;
 					$details[$key]->detailparticulars	= '';
 					$details[$key]->stat				= $data['stat'];
+					$details[$key]->source				= 'jo_release';
 
 					$details[$key]	= (array) $details[$key];
 					$total_amount	+= $row->credit;
@@ -167,7 +170,8 @@ class job_order_model extends wc_model
 					'converteddebit'	=> $total_amount,
 					'convertedcredit'	=> 0,
 					'detailparticulars'	=> '',
-					'stat'				=> $data['stat']
+					'stat'				=> $data['stat'],
+					'source'			=> 'jo_release'
 				);
 			}
 			$detail_insert  = false;
@@ -486,7 +490,20 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
+	public function getIssuedQty($job_order_no) {
+		$result = $this->db->setTable('job_release')
+							->setFields('SUM(quantity) issuedqty, itemcode, linenum')
+							->setWhere("job_order_no = '$job_order_no' AND stat != 'cancelled'")
+							->setGroupBy('itemcode')
+							->setOrderBy('linenum')
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
 	public function updateIssueParts($job_release_no,$data) {
+		$data['stat'] = 'released';
 		$this->db->setTable('job_release')
 					->setWhere("job_release_no = '$job_release_no'")
 					->runDelete();
@@ -494,7 +511,7 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable('job_release')
 							->setValuesFromPost($data)
 							->runInsert();
-
+							
 		foreach ($data['serialnumbers'] as $row) {
 			if ($row != "") {
 				$ids = explode(",", $row);
@@ -587,17 +604,16 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function retrieveIssuedQty($itemcode,$job_order_no)
-	{
-		$result = $this->db->setTable('job_release')
-							->setFields("SUM(quantity) issuedqty")
-							->setWhere("itemcode = '$itemcode' AND job_order_no = '$job_order_no' AND stat != 'cancelled'")
-							->setLimit('1')
-							->runSelect()
-							->getRow();
-		// echo $this->db->getQuery();
-		return $result;
-	}
+	// public function retrieveIssuedQty($itemcode,$job_order_no)
+	// {
+	// 	$result = $this->db->setTable('job_release')
+	// 						->setFields("SUM(quantity) issuedqty")
+	// 						->setWhere("itemcode = '$itemcode' AND job_order_no = '$job_order_no' AND stat != 'cancelled'")
+	// 						->setOrderBy('linenum')
+	// 						->runSelect()
+	// 						->getResult();
+	// 	return $result;
+	// }
 
 	public function retrieveBundleDetails($itemcode) {
 		// $query 		=	"SELECT * FROM 

@@ -368,7 +368,7 @@ class controller extends wc_controller {
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Issue Parts', 'bookmark')
+									->addOtherTask('Issue Parts', 'bookmark', $iscomplete)
 									->addOtherTask('Tag as Complete', 'bookmark', $iscomplete)
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
@@ -869,5 +869,20 @@ class controller extends wc_controller {
 
 		// var_dump($result);
 		return $dataArray = array('result' => $result);
+	}
+
+	private function ajax_check_issuedqty() {
+		$job_order_no	= $this->input->post('job_order_no');
+		$result		= $this->job_order->getIssuedQty($job_order_no);
+		
+		foreach ($result as $row) {
+			$qty = $row->issuedqty;
+		}
+		
+		if(empty($result)){
+			return array('result' => 'hmm');
+		}
+		
+		return array('result' => $result);
 	}
 }

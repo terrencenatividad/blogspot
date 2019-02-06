@@ -71,8 +71,8 @@
 						<?php
 							echo $ui->loadElement('table')
 									->setHeaderClass('info')
-									->addHeader('Asset Number',array('class'=>'col-md-1'),'sort','asset_number')
-									->addHeader('Sub-Number',array('class'=>'col-md-1'),'sort','sub_number')
+									->addHeader('Asset Number - Sub-Number',array('class'=>'col-md-1'),'sort','asset_number')
+									// ->addHeader('Sub-Number',array('class'=>'col-md-1'),'sort','sub_number')
 									->addHeader('Serial Number/ Engine Number',array('class'=>'col-md-1'),'sort','serial_number')
 									->addHeader("Asset Class",array('class'=>'col-md-1'),'sort','assetclass')
 									->addHeader('Description',array('class'=>'col-md-1'),'sort','description')

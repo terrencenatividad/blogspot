@@ -90,6 +90,7 @@ class controller extends wc_controller {
 			$date1 = new DateTime($start);
 			$date2 = $date1->diff(new DateTime($datetoday));
 			$dep   =  $date2->m;
+			$sub_number = '';
 			if($tab == 'Depreciation'){
 				if($retdate > $datetoday){
 					$status = 'Active';
@@ -117,10 +118,14 @@ class controller extends wc_controller {
 				$totalaccdep		  += $accumuluateddep;
 				$totalbookval		  += $bookvalue;
 			}else{
+				
+				if($row->sub_number != ''){
+					$sub_number.= ' - ' . $row->sub_number;
+				}
+				
 				$table .= '<tr>';
-				$table .= '<td class="text-left">' . $row->asset_number . '</td>';
-				$table .= '<td class="text-left">' . $row->sub_number . '</td>';
-				$table .= '<td class="text-left">' . $row->serial_number . '</td>';
+				$table .= '<td class="text-left">' . $row->asset_number . $sub_number . '</td>';
+				$table .= '<td class="text-left">' . $row->serial_number .'</td>';
 				$table .= '<td class="text-left">' . $row->assetclass . '</td>';
 				$table .= '<td class="text-left">' . $row->description . '</td>';
 				$table .= '<td class="text-left">' . $row->asset_location . '</td>';
@@ -128,14 +133,13 @@ class controller extends wc_controller {
 				$table .= '<td class="text-left">' . $row->accountable_person . '</td>';
 				$table .= '</tr>';
 			}
-			
-			
+
 		}
 
 		$footer = '';
 		if($tab == 'Depreciation'){
 			$footer .= '<tr>';
-			$footer .= '<td colspan="1" class="text-left"><b> Total:' . '</b></td>';
+			$footer .= '<td colspan="1" class="text-left"><b> Grand Total:' . '</b></td>';
 			$footer .= '<td colspan="1" class="text-right"><b> ' . number_format($totalcapitalizedcost, 2) . '</b></td>';
 			$footer .= '<td colspan="3" class="text-right"><b> ' . number_format($totaldepamount, 2) . '</b></td>';
 			$footer .= '<td colspan="4" class="text-right"><b> ' . number_format($totalaccdep, 2) . '</b></td>';

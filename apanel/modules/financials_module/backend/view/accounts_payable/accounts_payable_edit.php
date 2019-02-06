@@ -281,9 +281,30 @@
 									?>
 								</div>
 							</div>
-
+							
+							
 							<div class="row">
-								<div class="col-md-6"></div>
+								<div class="col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('Attachment')
+									->setSplit('col-md-4', 'col-md-8')
+									->setName('file')
+									->setId('file')
+									->setAttribute(array('readonly'))
+									->setAddon('file')
+									->setValue($attachment_filename)
+									->setAttribute(
+										array(
+											'href' => '',
+											'target'=> "_blank",
+										))
+										// ->setValidation('required')
+									->draw($show_input);											
+									?>
+									
+								</div>
+
 								<div class="col-md-6">
 									<?php
 									echo $ui->formField('text')
@@ -1149,545 +1170,586 @@
 			</div>
 		</div>
 	</div>
+	
+	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-md" role="document">
+			<div class="modal-content">
+				<form method = "post" id="attachments_form" enctype="multipart/form-data">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Attach Image or PDF</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<input type="hidden" name="voucherno" id='input_voucherno'>
+							<?php
+							echo $ui->setElement('file')
+							->setId('files')
+							->setName('files')
+							->setAttribute(array('accept' => '.pdf, .jpg, .png'))
+							->setValidation('required')
+							->draw();
+							?>
+						</div>
+						<p class="help-block">The file to be imported shall not exceed the size of <strong>3mb</strong> and must be a <strong>PDF, PNG or JPG</strong> file.</p>
+					</div>
+					<div class="modal-footer">
+						<div class="col-md-12 col-sm-12 col-xs-12 text-center">
+							<div class="btn-group">
+								<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button">Attach</button>
+								<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal">Attach</button>
+							</div>
+							&nbsp;&nbsp;&nbsp;
+							<div class="btn-group">
+								<button type="button" class="btn btn-default btn-sm btn-flat" data-dismiss="modal">Cancel</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
 
-	<script>
-		$(document).ready(function() {
-			$('.debit').each(function() {
-				if(removeComma($(this).val()) == '0') {
-					$(this).closest('tr').find('.credit').removeAttr('readonly');
-					$(this).attr('readonly', 'readonly');
-				} else {
-					$(this).removeAttr('readonly');
-					$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
-				}
-			});
-		});
-
-		$('#btnCancel').click(function() 
-		{
-			$('#cancelModal').modal('show');
-		});
-
-		$('#btnCancelYes').on('click', function() {
-			window.location = '<?= MODULE_URL ?>';
-		});
-
-		$(document).ready(function() {
-			if($('#jobs_tagged').val() != '') {
-				job = $('#jobs_tagged').val().split(',');	
-			}
-		});
-
-		var job = [];
-		$('#job').on('click', function() {
-			$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job, function(data) {
-				if(data) {
-					$('#jobModal').modal('show');
-					$('#jobsTable tbody').html(data.table);
-					$('#paginate').html(data.pagination);
-				}
-			});
-		});
-
-		$('#assetid').on('change', function() {
-			var asset = $(this).val();
-			$('#job').attr('disabled', 'disabled');
-			$.post('<?=MODULE_URL?>ajax/ajax_get_asset_details', '&asset=' + asset, function(data) {
-				if(data) {
-					$('#itemsTable tbody tr.clone select:first').val(data).trigger('change').select2({width: "100%"});
-				}
-			});
-		});
-
-		<?php if($ajax_post != 'create') : ?>
+		<script>
 			$(document).ready(function() {
-				sumDebit();
-				sumCredit();
-				sumCurrencyAmount();
-				if($('#assetid').val() != '') {
-					$('#job').attr('disabled', 'disabled');
-				} else if($('#jobs_tagged').val() != '') {
-					$('#assetid').attr('disabled', 'disabled');
-				}
-			});
-		<?php endif; ?>
-
-		function consoler($console) {
-			console.log($console);
-		}
-
-		$('#paginate').on('click', 'a', function(e) {
-			e.preventDefault();
-			$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
-				var get = $(this).val();
-				if($.inArray(get, job) == -1) {
-					job.push(get);
-				}
-			});
-			var li = $(this).closest('li');
-			if (li.not('.active').length && li.not('.disabled').length) {
-				page = $(this).attr('data-page');
-				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job + '&page=' + page, function(data) {
-					if(data) {
-						$('#jobsTable tbody').html(data.table);
-						$('#paginate').html(data.pagination);
-						$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
-							if(jQuery.inArray($(this).val(), job) != -1) {
-								$(this).closest('tr').iCheck('check');
-							}
-						});
+				$('.debit').each(function() {
+					if(removeComma($(this).val()) == '0') {
+						$(this).closest('tr').find('.credit').removeAttr('readonly');
+						$(this).attr('readonly', 'readonly');
+					} else {
+						$(this).removeAttr('readonly');
+						$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 					}
 				});
-			}
-		});
+			});
 
-		var debit_currency = 0;
-		var credit_currency = 0;
-		$('#itemsTable').on('blur', '.debit', function() {
-			var rate = removeComma($('#exchangerate').val());
-			var debit = removeComma($(this).val());
-			if(debit != '0') {
-				debit_currency = debit * rate;
-				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
-				$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
-				$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
-				$(this).closest('tr').find('.asterisk').html('');
-				sumDebit();
-				sumCredit();
-				sumCurrencyAmount();
-			} else {
-				$(this).closest('tr').find('.credit').removeAttr('readonly');
-				//$(this).closest('tr').find('.currencyamount').val('0.00');
-				sumDebit();
-				sumCredit();
-				sumCurrencyAmount();
-			}
-		});
+			$('#btnCancel').click(function() 
+			{
+				$('#cancelModal').modal('show');
+			});
 
-		$('#itemsTable').on('blur', '.credit', function() {
-			var rate = removeComma($('#exchangerate').val());
-			var credit = removeComma($(this).val());
-			if(credit != '0') {
-				credit_currency = credit * rate;
-				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
-				$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
-				$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
-				$(this).closest('tr').find('.asterisk').html('');
-				sumCredit();
-				sumDebit();
-				sumCurrencyAmount();
-			} else {
-				$(this).closest('tr').find('.debit').removeAttr('readonly');
-				//$(this).closest('tr').find('.currencyamount').val('0.00');
-				sumDebit();
-				sumCredit();
-				sumCurrencyAmount();
-			}
-		});
+			$('#btnCancelYes').on('click', function() {
+				window.location = '<?= MODULE_URL ?>';
+			});
 
-		$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
-			if(!$(this).is(':checked')) {
-				job.splice( $.inArray($(this).val(),job) ,1 );
-			}
-		});
+			$(document).ready(function() {
+				if($('#jobs_tagged').val() != '') {
+					job = $('#jobs_tagged').val().split(',');	
+				}
+			});
 
-		var ctr = 0;
-		$('#confirmJob').on('click',function(e) {
-			e.preventDefault();
-			$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
-				if($(this).is(':checked')) {
-					ctr++;
+			var job = [];
+			$('#job').on('click', function() {
+				$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job, function(data) {
+					if(data) {
+						$('#jobModal').modal('show');
+						$('#jobsTable tbody').html(data.table);
+						$('#paginate').html(data.pagination);
+					}
+				});
+			});
+
+			$('#assetid').on('change', function() {
+				var asset = $(this).val();
+				$('#job').attr('disabled', 'disabled');
+				$.post('<?=MODULE_URL?>ajax/ajax_get_asset_details', '&asset=' + asset, function(data) {
+					if(data) {
+						$('#itemsTable tbody tr.clone select:first').val(data).trigger('change').select2({width: "100%"});
+					}
+				});
+			});
+
+			<?php if($ajax_post != 'create') : ?>
+				$(document).ready(function() {
+					sumDebit();
+					sumCredit();
+					sumCurrencyAmount();
+					if($('#assetid').val() != '') {
+						$('#job').attr('disabled', 'disabled');
+					} else if($('#jobs_tagged').val() != '') {
+						$('#assetid').attr('disabled', 'disabled');
+					}
+				});
+			<?php endif; ?>
+
+			function consoler($console) {
+				console.log($console);
+			}
+
+			$('#paginate').on('click', 'a', function(e) {
+				e.preventDefault();
+				$('#jobsTable tbody tr td input[type="checkbox"]:checked').each(function() {
 					var get = $(this).val();
 					if($.inArray(get, job) == -1) {
 						job.push(get);
 					}
-					$('#job_text').html(job.length);
-					$('#assetid').attr('disabled', 'disabled');
-				} else {
-					$('#job_text').html(job.length);
-				}
-
-				if($(this).is(':checked') == 'false') {
-					$('#job_text').html('0');
-				}
-			});
-			if(ctr == 0) {
-				$('#job_text').html('0');
-			}
-			$('#jobModal').modal('hide');
-		});
-
-		$('#vendor').on('change', function() {
-			var vendor = $(this).val();
-			$.post('<?=MODULE_URL?>ajax/ajax_get_details', '&vendor=' + vendor, function(data) {
-				if(data) {
-					$('#vendor_tin').val(data.tinno);
-					$('#vendor_terms').val(data.terms);
-					$('#vendor_address').val(data.address1);
-				}
-			});
-		});
-
-		function sumDebit() {
-			var total_debit = 0;
-			var debit = 0;
-			var curr_val = 0;
-			$('.debit').each(function() {
-				debit = removeComma($(this).val());
-				total_debit += +debit;
-			});
-			$('#total_debit').val(addComma(total_debit));
-		}
-
-		function sumCredit() {
-			var total_credit = 0;
-			var credit = 0;
-			var curr_val = 0;
-			$('.credit').each(function() {
-				credit = removeComma($(this).val());
-				total_credit += +credit;
-			});
-			$('#total_credit').val(addComma(total_credit));
-		}
-
-		function sumCurrencyAmount() {
-			var total_currency = 0;
-			var currency = 0;
-			$('.currencyamount').each(function() {
-				currency = removeComma($(this).val());
-				if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
-					total_currency += -currency;
-				}else{
-					total_currency += +currency;
-				}
-			});
-			$('#total_currency').val(addComma(total_currency));
-		}
-
-		function checkifpairexistsinbudget(accountcode, budget, field, type){
-			$.post('<?=MODULE_URL?>ajax/checkifpairexistsinbudget', "accountcode=" + accountcode + "&budgetcode=" + budget, function(data) {
-				if(data.result == 1) {
-					$('#accountchecker-modal').modal('hide');
-					$('#accounterror').html('');
-					if(type == "budget") {
-						field.closest('.form-group').removeClass('has-error');
-					} else {
-						field.closest('tr').find('.budgetcode').find('.form-group').removeClass('has-error');
-					}
-				} else {
-					$('#accountchecker-modal').modal('show');
-					$('#accounterror').html("The account is not in your Budget Code.");
-					if(type == "budget") {
-						field.closest('.form-group').addClass('has-error');
-					} else {
-						field.closest('tr').find('.budgetcode').find('.form-group').addClass('has-error');
-					}
-				}
-			});
-		}
-
-		$('#currencycode').on('change', function() {
-			var currencycode = $(this).val();
-			$('#itemsTable tbody tr td .form-group').find('.currency_symbol').html(currencycode);
-			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
-				if(data) {
-					$('#exchangerate').val(data.exchangerate);	
-					$('.debit').each(function() {
-						if($(this).val() != '0.00') {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
-						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
+				});
+				var li = $(this).closest('li');
+				if (li.not('.active').length && li.not('.disabled').length) {
+					page = $(this).attr('data-page');
+					$.post('<?=MODULE_URL?>ajax/ajax_list_jobs', '&jobs_tagged=' + job + '&page=' + page, function(data) {
+						if(data) {
+							$('#jobsTable tbody').html(data.table);
+							$('#paginate').html(data.pagination);
+							$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+								if(jQuery.inArray($(this).val(), job) != -1) {
+									$(this).closest('tr').iCheck('check');
+								}
+							});
 						}
 					});
+				}
+			});
+
+			var debit_currency = 0;
+			var credit_currency = 0;
+			$('#itemsTable').on('blur', '.debit', function() {
+				var rate = removeComma($('#exchangerate').val());
+				var debit = removeComma($(this).val());
+				if(debit != '0') {
+					debit_currency = debit * rate;
+					$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
+					$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+					$(this).closest('tr').find('.credit').attr('data-validation', 'decimal');
+					$(this).closest('tr').find('.asterisk').html('');
 					sumDebit();
 					sumCredit();
 					sumCurrencyAmount();
-				}
-			});
+				} else {
+					$(this).closest('tr').find('.credit').removeAttr('readonly');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
+				sumDebit();
+				sumCredit();
+				sumCurrencyAmount();
+			}
 		});
 
-		var row = '';
-		$('.accountcode').on('change', function() {
-			var accountcode = $(this).val();
-			var id 			= $(this).attr("id");
-			var acctfield 	= $(this);
-			var budget 		= $(this).closest('tr').find('.budgetcode').val();
-			row = $(this).closest('tr');
-			$.post('<?=MODULE_URL?>ajax/ajax_check_cwt', '&accountcode=' + accountcode, function(data) {
-				if(data.checker == 'true') {
-					$('#atcModal').modal('show');
-					$('#tax_account').html(data.ret);
-					$('#tax_amount').val('');
-				} else {
-					$(this).closest('tr').find('.checkbox-select').show();
-					$(this).closest('tr').find('.edit-button').hide();
-				}
-			}).done(function(){
-				if(budget==""){
-					$.post('<?=MODULE_URL?>ajax/checkifacctisinbudget', "accountcode=" + accountcode, function(data) {
-						if(data.result == 1){
-							acctfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
-						} else {
-							acctfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
-						}
-					});
-				} else {
-					checkifpairexistsinbudget(accountcode, budget, acctfield, 'item');
-				}
-			});
-		});
-
-		var creditamt = 0;
-		var taxaccount = 0;
-		var taxamount = 0;
-		$('#tax_apply').on('click', function() {
-			taxaccount = $('#tax_account').val();
-			taxamount = $('#tax_amount').val();
-
-			$.post('<?=MODULE_URL?>ajax/ajax_get_taxrate', {taxaccount : taxaccount, taxamount : taxamount } ,function(data) {
-				if(data) {
-					creditamt = taxamount * data.tax_rate;
-					row.find('.taxcode').val(taxaccount);
-					row.find('.taxbase_amount').val(taxamount);
-					row.find('.edit-button').show().attr('data-amount', taxamount);
-					row.find('.edit-button').attr('data-account', taxaccount);
-					row.find('.credit').val(addComma(Math.round(creditamt)));
-					row.find('.currencyamount').val(addComma(Math.round($('#exchangerate').val() * creditamt)));
-					row.find('.credit').attr('readonly', 'readonly');
-					row.find('.checkbox-select').hide();
-					$('#atcModal').modal('hide');
+			$('#itemsTable').on('blur', '.credit', function() {
+				var rate = removeComma($('#exchangerate').val());
+				var credit = removeComma($(this).val());
+				if(credit != '0') {
+					credit_currency = credit * rate;
+					$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
+					$(this).closest('tr').find('.debit').attr('readonly', 'readonly');
+					$(this).closest('tr').find('.debit').attr('data-validation', 'decimal');
+					$(this).closest('tr').find('.asterisk').html('');
 					sumCredit();
+					sumDebit();
 					sumCurrencyAmount();
+				} else {
+					$(this).closest('tr').find('.debit').removeAttr('readonly');
+				//$(this).closest('tr').find('.currencyamount').val('0.00');
+				sumDebit();
+				sumCredit();
+				sumCurrencyAmount();
+			}
+		});
+
+			$('#jobsTable').on('ifToggled', 'input[type="checkbox"]', function() {
+				if(!$(this).is(':checked')) {
+					job.splice( $.inArray($(this).val(),job) ,1 );
 				}
 			});
-		});
 
-		$('#itemsTable').on('click', '.edit-button', function() {
-			$('#atcModal').modal('show');
-			$('#tax_amount').val($(this).attr('data-amount'));
-			$('#tax_account').val($(this).attr('data-account')).trigger('change');
-		});
+			var ctr = 0;
+			$('#confirmJob').on('click',function(e) {
+				e.preventDefault();
+				$('#jobsTable tbody tr td input[type="checkbox"]').each(function() {
+					if($(this).is(':checked')) {
+						ctr++;
+						var get = $(this).val();
+						if($.inArray(get, job) == -1) {
+							job.push(get);
+						}
+						$('#job_text').html(job.length);
+						$('#assetid').attr('disabled', 'disabled');
+					} else {
+						$('#job_text').html(job.length);
+					}
 
-		$("#itemsTable").on('ifToggled','.wtax',function() {
-			$('#tax_amount').val('');
-			row = $(this).closest('tr');
-		});
-
-		var data_id = 2;
-		$('.add-data').on('click', function() {
-			$('#itemsTable tbody tr.clone select').select2('destroy');
-
-			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
-
-			var ParentRow = $("#itemsTable tbody tr.clone").last();
-
-			clone.clone(true).insertAfter(ParentRow);
-
-			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
-			$('#itemsTable tbody tr.clone #detailparticulars').last().val('');
-			$('#itemsTable tbody tr.clone #debit').last().val('');
-			$('#itemsTable tbody tr.clone #credit').last().val('');
-			$('#itemsTable tbody tr.clone .edit-button').last().hide();
-			$('#itemsTable tbody tr.clone .checkbox-select').last().show();
-			$('#itemsTable tbody tr.clone .linenum').last().val(++data_id);
-		});
-
-		var deleterow = '';
-		$('.confirm-delete').on('click', function() {
-			var one = 0;
-			$('#itemsTable tbody tr td .confirm-delete').each(function() {
-				one++;
+					if($(this).is(':checked') == 'false') {
+						$('#job_text').html('0');
+					}
+				});
+				if(ctr == 0) {
+					$('#job_text').html('0');
+				}
+				$('#jobModal').modal('hide');
 			});
 
-			if(one >= 3) {
-				$('#deleteItemModal').modal('show');
-				deleterow = $(this).closest('tr');
-			}
-		});
-
-		$('#btnYes').on('click', function() {
-			deleterow.remove();
-			$('#deleteItemModal').modal('hide');
-		});	
-		var accountcodes = [];
-		var good = true;
-		$('#save_preview').click(function(e) {
-			e.preventDefault();
-			$('#button_trigger').val('save_preview');
-			$('.accountcode :selected').each(function() {
-				accountcodes.push($(this).val());
+			$('#vendor').on('change', function() {
+				var vendor = $(this).val();
+				$.post('<?=MODULE_URL?>ajax/ajax_get_details', '&vendor=' + vendor, function(data) {
+					if(data) {
+						$('#vendor_tin').val(data.tinno);
+						$('#vendor_terms').val(data.terms);
+						$('#vendor_address').val(data.address1);
+					}
+				});
 			});
-			if($('#total_debit').val() != $('#total_credit').val()) {
-				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
-				good = false;
-			} else {
-				good = true;
+
+			function sumDebit() {
+				var total_debit = 0;
+				var debit = 0;
+				var curr_val = 0;
+				$('.debit').each(function() {
+					debit = removeComma($(this).val());
+					total_debit += +debit;
+				});
+				$('#total_debit').val(addComma(total_debit));
 			}
+
+			function sumCredit() {
+				var total_credit = 0;
+				var credit = 0;
+				var curr_val = 0;
+				$('.credit').each(function() {
+					credit = removeComma($(this).val());
+					total_credit += +credit;
+				});
+				$('#total_credit').val(addComma(total_credit));
+			}
+
+			function sumCurrencyAmount() {
+				var total_currency = 0;
+				var currency = 0;
+				$('.currencyamount').each(function() {
+					currency = removeComma($(this).val());
+					if(removeComma($(this).closest('tr').find('.credit').val()) > 0){
+						total_currency += -currency;
+					}else{
+						total_currency += +currency;
+					}
+				});
+				$('#total_currency').val(addComma(total_currency));
+			}
+
+			function checkifpairexistsinbudget(accountcode, budget, field, type){
+				$.post('<?=MODULE_URL?>ajax/checkifpairexistsinbudget', "accountcode=" + accountcode + "&budgetcode=" + budget, function(data) {
+					if(data.result == 1) {
+						$('#accountchecker-modal').modal('hide');
+						$('#accounterror').html('');
+						if(type == "budget") {
+							field.closest('.form-group').removeClass('has-error');
+						} else {
+							field.closest('tr').find('.budgetcode').find('.form-group').removeClass('has-error');
+						}
+					} else {
+						$('#accountchecker-modal').modal('show');
+						$('#accounterror').html("The account is not in your Budget Code.");
+						if(type == "budget") {
+							field.closest('.form-group').addClass('has-error');
+						} else {
+							field.closest('tr').find('.budgetcode').find('.form-group').addClass('has-error');
+						}
+					}
+				});
+			}
+
+			$('#currencycode').on('change', function() {
+				var currencycode = $(this).val();
+				$('#itemsTable tbody tr td .form-group').find('.currency_symbol').html(currencycode);
+				$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
+					if(data) {
+						$('#exchangerate').val(data.exchangerate);	
+						$('.debit').each(function() {
+							if($(this).val() != '0.00') {
+								$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * $(this).val()));
+							} else {
+								$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
+							}
+						});
+						sumDebit();
+						sumCredit();
+						sumCurrencyAmount();
+					}
+				});
+			});
+
+			var row = '';
+			$('.accountcode').on('change', function() {
+				var accountcode = $(this).val();
+				var id 			= $(this).attr("id");
+				var acctfield 	= $(this);
+				var budget 		= $(this).closest('tr').find('.budgetcode').val();
+				row = $(this).closest('tr');
+				$.post('<?=MODULE_URL?>ajax/ajax_check_cwt', '&accountcode=' + accountcode, function(data) {
+					if(data.checker == 'true') {
+						$('#atcModal').modal('show');
+						$('#tax_account').html(data.ret);
+						$('#tax_amount').val('');
+					} else {
+						$(this).closest('tr').find('.checkbox-select').show();
+						$(this).closest('tr').find('.edit-button').hide();
+					}
+				}).done(function(){
+					if(budget==""){
+						$.post('<?=MODULE_URL?>ajax/checkifacctisinbudget', "accountcode=" + accountcode, function(data) {
+							if(data.result == 1){
+								acctfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
+							} else {
+								acctfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
+							}
+						});
+					} else {
+						checkifpairexistsinbudget(accountcode, budget, acctfield, 'item');
+					}
+				});
+			});
+
+			var creditamt = 0;
+			var taxaccount = 0;
+			var taxamount = 0;
+			$('#tax_apply').on('click', function() {
+				taxaccount = $('#tax_account').val();
+				taxamount = $('#tax_amount').val();
+
+				$.post('<?=MODULE_URL?>ajax/ajax_get_taxrate', {taxaccount : taxaccount, taxamount : taxamount } ,function(data) {
+					if(data) {
+						creditamt = taxamount * data.tax_rate;
+						row.find('.taxcode').val(taxaccount);
+						row.find('.taxbase_amount').val(taxamount);
+						row.find('.edit-button').show().attr('data-amount', taxamount);
+						row.find('.edit-button').attr('data-account', taxaccount);
+						row.find('.credit').val(addComma(Math.round(creditamt)));
+						row.find('.currencyamount').val(addComma(Math.round($('#exchangerate').val() * creditamt)));
+						row.find('.credit').attr('readonly', 'readonly');
+						row.find('.checkbox-select').hide();
+						$('#atcModal').modal('hide');
+						sumCredit();
+						sumCurrencyAmount();
+					}
+				});
+			});
+
+			$('#itemsTable').on('click', '.edit-button', function() {
+				$('#atcModal').modal('show');
+				$('#tax_amount').val($(this).attr('data-amount'));
+				$('#tax_account').val($(this).attr('data-account')).trigger('change');
+			});
+
+			$("#itemsTable").on('ifToggled','.wtax',function() {
+				$('#tax_amount').val('');
+				row = $(this).closest('tr');
+			});
+
+			var data_id = 2;
+			$('.add-data').on('click', function() {
+				$('#itemsTable tbody tr.clone select').select2('destroy');
+
+				var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
+
+				var ParentRow = $("#itemsTable tbody tr.clone").last();
+
+				clone.clone(true).insertAfter(ParentRow);
+
+				$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+				$('#itemsTable tbody tr.clone #detailparticulars').last().val('');
+				$('#itemsTable tbody tr.clone #debit').last().val('');
+				$('#itemsTable tbody tr.clone #credit').last().val('');
+				$('#itemsTable tbody tr.clone .edit-button').last().hide();
+				$('#itemsTable tbody tr.clone .checkbox-select').last().show();
+				$('#itemsTable tbody tr.clone .linenum').last().val(++data_id);
+			});
+
+			var deleterow = '';
+			$('.confirm-delete').on('click', function() {
+				var one = 0;
+				$('#itemsTable tbody tr td .confirm-delete').each(function() {
+					one++;
+				});
+
+				if(one >= 3) {
+					$('#deleteItemModal').modal('show');
+					deleterow = $(this).closest('tr');
+				}
+			});
+
+			$('#btnYes').on('click', function() {
+				deleterow.remove();
+				$('#deleteItemModal').modal('hide');
+			});	
+			var accountcodes = [];
+			var good = true;
+			$('#save_preview').click(function(e) {
+				e.preventDefault();
+				$('#button_trigger').val('save_preview');
+				$('.accountcode :selected').each(function() {
+					accountcodes.push($(this).val());
+				});
+				if($('#total_debit').val() != $('#total_credit').val()) {
+					$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
+					good = false;
+				} else {
+					good = true;
+				}
+				
+				$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
+				if ($('#payableForm').find('.form-group.has-error').length == 0) {
+					if(good == true) {
+						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+							if(data.check) {
+								if(data.warning != '') {
+									$('#warning-modal').modal('show');
+									$('#errors').html(data.warning);
+									$('#errors').append('<br><i>Notify Department Head<i/>');
+									$('#warning-modal').on('hidden.bs.modal', function() {
+										if(data.success) {
+											$('#attach_button').click();
+											$('#delay_modal').modal('show');
+											setTimeout(function() {
+												window.location = data.redirect;
+											},500);
+										}
+									});
+								} else if(data.error != '') {
+									$('#accountchecker-modal').modal('show');
+									$('#accounterror').html(data.error);
+									$('#accounterror').append('<br><i>Notify Department Head<i/>');
+								} else if(data.date_check != ''){
+									$('#accountchecker-modal').modal('show');
+									$('#accounterror').html(data.date_check);
+								} else {
+									if(data.success) {
+										$('#attach_button').click();
+										$('#delay_modal').modal('show');
+										setTimeout(function() {
+											window.location = data.redirect;
+										},500);
+									}
+								}
+							} else {
+								$('#error-modal').modal('show');
+							}
+						});
+					} else {
+						$('#error-modal').modal('show');
+					}
+				} else {
+					$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
+				}
+			});
 			
-			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
-			if ($('#payableForm').find('.form-group.has-error').length == 0) {
-				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
-						if(data.check) {
-							if(data.warning != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.warning);
-								$('#warning-modal').on('hidden.bs.modal', function() {
+			$('#payableForm #save_new').click(function(e) {
+				e.preventDefault();
+				$('#button_trigger').val('save_new');
+				$('.accountcode :selected').each(function() {
+					accountcodes.push($(this).val());
+				});
+
+				if($('#total_debit').val() != $('#total_credit').val()) {
+					$('#error-modal').modal('show');
+					$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
+					good = false;
+				} else {
+					good = true;
+				}
+
+				$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
+				if ($('#payableForm').find('.form-group.has-error').length == 0) {
+					if(good == true) {
+						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+							if(data.check) {
+								if(data.warning != '') {
+									$('#warning-modal').modal('show');
+									$('#errors').html(data.warning);
+									$('#errors').append('<br><i>Notify Department Head<i/>');
+									$('#warning-modal').on('hidden.bs.modal', function() {
+										if(data.success) {
+											$('#attach_button').click();
+											$('#delay_modal').modal('show');
+											setTimeout(function() {
+												window.location = data.redirect;
+											},500);
+										}
+									});
+								} else if(data.error != '') {
+									$('#accountchecker-modal').modal('show');
+									$('#accounterror').html(data.error);
+									$('#accounterror').append('<br><i>Notify Department Head<i/>');
+								} else if(data.date_check != ''){
+									$('#accountchecker-modal').modal('show');
+									$('#accounterror').html(data.date_check);
+								} else {
 									if(data.success) {
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
 										},500);
 									}
-								});
-							} else if(data.error != '') {
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != '') {
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.accountchecker);
-							} else if(data.date_check != ''){
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.date_check);
-							} else {
-								if(data.success) {
-									$('#delay_modal').modal('show');
-									setTimeout(function() {
-										window.location = data.redirect;
-									},500);
 								}
+							} else {
+								$('#error-modal').modal('show');
 							}
-						} else {
-							$('#error-modal').modal('show');
-						}
-					});
+						});
+					} else {
+						$('#error-modal').modal('show');
+					}
 				} else {
-					$('#error-modal').modal('show');
+					$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
-			} else {
-				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
-			}
-		});
-		
-		$('#payableForm #save_new').click(function(e) {
-			e.preventDefault();
-			$('#button_trigger').val('save_new');
-			$('.accountcode :selected').each(function() {
-				accountcodes.push($(this).val());
 			});
 
-			if($('#total_debit').val() != $('#total_credit').val()) {
-				$('#error-modal').modal('show');
-				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
-				good = false;
-			} else {
-				good = true;
-			}
+			$('#payableForm #save_exit').click(function(e) {
+				e.preventDefault();
+				$('#button_trigger').val('save_exit');
+				$('.accountcode :selected').each(function() {
+					accountcodes.push($(this).val());
+				});
 
-			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
-			if ($('#payableForm').find('.form-group.has-error').length == 0) {
-				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
-						if(data.check) {
-							if(data.warning != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.warning);
-								$('#warning-modal').on('hidden.bs.modal', function() {
+				if($('#total_debit').val() != $('#total_credit').val()) {
+					$('#error-modal').modal('show');
+					$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
+					good = false;
+				} else {
+					good = true;
+				}
+
+				$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
+				if ($('#payableForm').find('.form-group.has-error').length == 0) {
+					if(good == true) {
+						$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+							if(data.check) {
+								if(data.warning != '') {
+									$('#warning-modal').modal('show');
+									$('#errors').html(data.warning);
+									$('#errors').append('<br><i>Notify Department Head<i/>');
+									$('#warning-modal').on('hidden.bs.modal', function() {
+										if(data.success) {
+											$('#attach_button').click();
+											$('#delay_modal').modal('show');
+											setTimeout(function() {
+												window.location = data.redirect;
+											},500);
+										}
+									});
+								} else if(data.error != '') {
+									$('#accountchecker-modal').modal('show');
+									$('#accounterror').html(data.error);
+									$('#accounterror').append('<br><i>Notify Department Head<i/>');
+								} else if(data.date_check != ''){
+									$('#accountchecker-modal').modal('show');
+									$('#accounterror').html(data.date_check);
+								} else {
 									if(data.success) {
+										$('#attach_button').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
 										},500);
 									}
-								});
-							} else if(data.error != '') {
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != ''){
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.accountchecker);
-							} else if(data.date_check != ''){
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.date_check);
-							} else {
-								if(data.success) {
-									$('#delay_modal').modal('show');
-									setTimeout(function() {
-										window.location = data.redirect;
-									},500);
 								}
+							} else {
+								$('#error-modal').modal('show');
 							}
-						} else {
-							$('#error-modal').modal('show');
-						}
-					});
+						});
+					} else {
+						$('#error-modal').modal('show');
+					}
 				} else {
-					$('#error-modal').modal('show');
+					$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
-			} else {
-				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
-			}
-		});
-
-		$('#payableForm #save_exit').click(function(e) {
-			e.preventDefault();
-			$('#button_trigger').val('save_exit');
-			$('.accountcode :selected').each(function() {
-				accountcodes.push($(this).val());
 			});
-
-			if($('#total_debit').val() != $('#total_credit').val()) {
-				$('#error-modal').modal('show');
-				$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
-				good = false;
-			} else {
-				good = true;
-			}
-
-			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
-			if ($('#payableForm').find('.form-group.has-error').length == 0) {
-				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
-						if(data.check) {
-							if(data.warning != '') {
-								$('#warning-modal').modal('show');
-								$('#errors').html(data.warning);
-								$('#warning-modal').on('hidden.bs.modal', function() {
-									if(data.success) {
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
-									}
-								});
-							} else if(data.error != '') {
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.error);
-							} else if(data.accountchecker != ''){
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.accountchecker);
-							} else if(data.date_check != ''){
-								$('#accountchecker-modal').modal('show');
-								$('#accounterror').html(data.date_check);
-							} else {
-								if(data.success) {
-									$('#delay_modal').modal('show');
-									setTimeout(function() {
-										window.location = data.redirect;
-									},500);
-								}
-							}
-						} else {
-							$('#error-modal').modal('show');
-						}
-					});
-				} else {
-					$('#error-modal').modal('show');
-				}
-			} else {
-				$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
-			}
-		});
 		// For Validation of Budget Code
 		$('#itemsTable').on('change','.budgetcode',function(){
 			var budgetfield= $(this);
@@ -1698,4 +1760,100 @@
 				checkifpairexistsinbudget(accountcode, budgetcode, budgetfield, 'budget');
 			}
 		});	
+
+		function uploadAttachment(){
+			var original_filename = "<?php echo $attachment_filename?>";
+			var filename = $('#file').val();
+			if (original_filename != filename) {
+				$('#attach_button').click();
+			}
+		}
+
+		$(function () {
+			'use strict';
+
+			$('#file').on('focus', function(){
+				var vendor = $('#vendor').val();
+				// ajax.vendor = vendor;
+				// console.log(vendor);
+				if (vendor == '') {
+					$('#vendor').trigger('blur');
+				} else {
+						// $('#modal-voucher').html(source_no);
+						$('#attach_modal').modal('show');
+					// $('#files').click();
+				}			
+			});
+
+			$('#attachments_form').fileupload({
+				url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
+				maxFileSize: 3000000,
+				disableExifThumbnail :true,
+				previewThumbnail:false,
+				autoUpload:false,
+				add: function (e, data) {            
+					$("#attach_button").off('click').on('click', function () {
+						data.submit();
+					});
+				},
+			});
+
+			$('#attachments_form').addClass('fileupload-processing');
+			$.ajax({
+				url: $('#attachments_form').fileupload('option', 'url'),
+				dataType: 'json',
+				context: $('#attachments_form')[0]
+			}).always(function () {
+				$(this).removeClass('fileupload-processing');
+			}).done(function (result) {
+				$(this).fileupload('option', 'done')
+				.call(this, $.Event('done'), {
+					result: result
+				});
+			});
+
+			$('#attachments_form').bind('fileuploadadd', function (e, data) {
+				var filename = data.files[0].name;
+				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+				$('#file').val(filename).trigger('blur');
+			});
+			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
+				// var source_no = $('#source_no').val();
+				var task = "create";
+				data.formData = {reference: '', task: task};
+				<? if($ajax_task == 'ajax_edit') {?>
+					var voucher_no = $('#voucher_no').val();
+					var task = "edit";
+					data.formData = {reference: voucher_no, task: task};
+				<? }?>
+				
+			});
+			$('#attachments_form').bind('fileuploadalways', function (e, data) {
+				var error = data.result['files'][0]['error'];
+				var form_group = $('#attachments_form #files').closest('.form-group');
+				if(!error){
+					// var source_no = $('#source_no').val();
+					var voucherno =  $('#input_voucherno').val();
+					$('#attach_modal').modal('hide');
+					<?php if (!$show_input) { ?>
+						$('#attachment_success').modal('show');
+						setTimeout(function() {							
+							window.location = '<?=MODULE_URL?>view/'+voucherno;						
+						}, 1000)
+					<?php } ?>
+
+					var msg = data.result['files'][0]['name'];
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+
+					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+					// $('#file').val('').trigger('blur');
+					// getList();
+				}else{
+					var msg = data.result['files'][0]['name'];
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(msg);
+				}
+			});
+		});
 	</script>

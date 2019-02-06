@@ -94,7 +94,7 @@ class controller extends wc_controller
 		// $data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Cash Account Options
-		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_fields 	  	= "b.id ind , CONCAT(shortname,' - ' ,accountno ) val";
 		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
 		$cash_order_by 		 	  	= "id desc";
 		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
@@ -856,6 +856,27 @@ class controller extends wc_controller
 
 	}
 
+	private function checkifacctisinbudget(){
+		$accountcode = $this->input->post('accountcode');
+
+		// Check if Account is used in a Budget
+		$ret_result = $this->payment_voucher->checkifaccountisinbudget($accountcode);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+
+	private function checkifpairexistsinbudget() {
+		$accountcode= $this->input->post('accountcode');
+		$budget 	= $this->input->post('budgetcode');
+
+		// Check if Budget_Accountcode pair exists
+		$ret_result = $this->payment_voucher->checkifpairexistsinbudget($accountcode, $budget);
+		$result 	= !empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+	
 	private function apply_payments()
 	{
 		$warning = array();
@@ -878,7 +899,7 @@ class controller extends wc_controller
 						}
 					} else if(empty($date_checker)) {
 						$getaccount = $this->payment_voucher->getAccountName($data_post['h_accountcode'][$arr]);
-						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['h_accountcode'][$arr]);
+						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['h_accountcode'][$arr], $date);
 						$accountname = $getaccount->accountname;
 						if(!$checkaccount) {
 							$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.</br>';
@@ -1611,9 +1632,21 @@ class controller extends wc_controller
 		$data = $this->input->post(array('bank', 'curr_seq'));
 		$getBank = $this->payment_voucher->getbankid($data['bank']);
 		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
-		$ret_nums = array('nums' => $nums);
-		return $ret_nums;
+		$nums = $this->payment_voucher->getNextCheckNum($data['bank'], $data['curr_seq']);
+		$table = '';
+		if(empty($nums->result)) {
+			$table = false;
+		} else {
+			foreach($nums->result as $row) {
+				$table .= '<tr class = "clickme" style = "cursor : pointer;">';
+				$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
+				$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
+				$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';
+				$table .= '</tr>';
+			}
+		}
+		$nums->table = $table;
+		return $nums;
 	}
 
 }

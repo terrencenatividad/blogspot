@@ -1134,6 +1134,7 @@ function computeAmount()
 			if(parseFloat(discount) > 0){
 				itemdiscount 	= (discounttype == 'amt') ? parseFloat(discount) : parseFloat(amount) * (parseFloat(discount)/100);
 				discountedamount= parseFloat(amount) - parseFloat(itemdiscount);
+				console.log(discounttype);
 			} else {
 				itemdiscount 	= 0;
 				discountedamount= parseFloat(amount);

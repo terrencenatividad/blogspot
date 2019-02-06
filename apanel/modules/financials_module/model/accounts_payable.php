@@ -63,18 +63,19 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function getBudgetAmount($budgetcode, $accountcode)
+	public function getBudgetAmount($budgetcode, $accountcode, $effectivity_date)
 	{
 		$result = $this->db->setTable('budget_details as bd')
 		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
-		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved'")
+		->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
+		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$effectivity_date'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TEMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->setGroupBy('bd.accountcode, bd.budget_code')
 		->runSelect()
 		->getRow();
+		// var_dump($effectivity_date);
 		
 		return $result;
 	}
@@ -2303,7 +2304,8 @@ class accounts_payable extends wc_model
 	public function checkifaccountisinbudget($accountcode){
 		$result = $this->db->setTable('budget_details bd')
 		->setFields("bd.budget_code")
-		->setWhere("bd.accountcode = '$accountcode'")
+		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+		->setWhere("bd.accountcode = '$accountcode' AND b.status = 'approved'")
 		->runSelect()
 		->getResult();
 		return $result;
@@ -2316,6 +2318,133 @@ class accounts_payable extends wc_model
 		->runSelect()
 		->getRow();
 		return $result;
-	}      
+	}
+	
+	public function getLatestAPRecord() {
+		$getRow = $this->db->setTable('accountspayable')
+							->setFields('voucherno')
+							->setOrderBy('accountspayable.entereddate DESC')
+							->runSelect()
+							->getRow();
 
+		$result = $getRow->voucherno;
+
+		return $result;
+	}
+
+	public function getNextId($table,$field,$subcon = "") {
+		$result = $this->db->setTable($table)
+			->setFields('MAX('.$field.') as current')
+			->setWhere(" $field != '' " . $subcon)
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->current += 1;
+		} else {
+			$return = '1';
+		}
+		return $return;
+	}
+
+	public function getCurrentId($table,$voucherno) {
+		$result = $this->db->setTable($table)
+			->setFields('attachment_id')
+			->setWhere("reference='$voucherno'")
+			->runSelect()
+			->getRow();
+
+		if ($result) {
+			$return = $result->attachment_id;
+		} else {
+			$return = '0';
+		}
+		return $return;
+	}
+
+	public function uploadAttachment($data) {
+		$reference = $data['reference'];
+		$filename = $data['attachment_name'];
+		
+		$getFiles = $this->db->setTable('accountspayable_attachments')
+							->setFields("COUNT('attachment_id') count")
+							->setWhere("reference = '$reference'")
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+
+		if ($getFiles) {
+			$this->deleteAttachment($reference, $filename);
+		}
+
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setValues($data)
+							->runInsert();
+		
+		if ($result) {
+			$this->log->saveActivity("Approve [$reference] with attachment");		
+		}
+		return $result;
+	}
+
+	public function deleteAttachment($reference, $filename) {
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setFields('attachment_name')
+							->setWhere("reference='$reference'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+		if ($result) {
+			unlink('files/'.$result->attachment_name);
+		}
+		
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setWhere("reference='$reference' AND attachment_name != '$filename'")
+							->runDelete();
+
+		return $result;
+	}
+
+	public function deleteExistingFile($filename){
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setFields('attachment_name')
+							->setWhere("attachment_name='$filename'")
+							->setOrderBy('entereddate DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+		if ($result) {
+			unlink('files/'.$result->attachment_name);
+		} 
+		
+		return $result;
+	}
+
+	public function replaceAttachment($data) {
+		$reference = $data['reference'];
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setValues($data)
+							->setWhere("reference='$reference'")
+							->runUpdate();
+		if ($result) {
+			$this->log->saveActivity("Update attachment with [$reference]");		
+		}
+		return $result;
+	}
+
+	public function getAttachmentFile($voucherno) {
+		
+		$result = $this->db->setTable('accountspayable_attachments')
+							->setFields(array('attachment_name','attachment_url', 'attachment_type'))
+							->setWhere("reference = '$voucherno'")
+							->setOrderBy('attachment_id DESC')
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+							// echo $this->db->getQuery();
+		
+		return $result;
+	}
 }

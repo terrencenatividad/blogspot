@@ -275,6 +275,8 @@
 		});
 
 		$('#simulate').on('click', function(){
+			ajax.search = '';
+			$('#table_search').val('');
 			$('#assetmodal').modal('show');
 			getAssetList();
 		});

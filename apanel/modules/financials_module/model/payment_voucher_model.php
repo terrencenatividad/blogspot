@@ -41,6 +41,25 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function checkifaccountisinbudget($accountcode){
+		$result = $this->db->setTable('budget_details bd')
+		->setFields("bd.budget_code")
+		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
+		->setWhere("bd.accountcode = '$accountcode' AND b.status = 'approved'")
+		->runSelect()
+		->getResult();
+		return $result;
+	}
+
+	public function checkifpairexistsinbudget($accountcode, $budget){
+		$result = $this->db->setTable('budget_details bd')
+		->setFields("bd.id")
+		->setWhere("bd.accountcode = '$accountcode' AND bd.budget_code = '$budget'")
+		->runSelect()
+		->getRow();
+		return $result;
+	}
+
 	public function updateActualBudget($voucherno, $fields)
 	{
 		unset($fields['id']);
@@ -52,13 +71,13 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function getAmountAndAccount($budgetcode, $accountcode)
+	public function getAmountAndAccount($budgetcode, $accountcode, $transactiondate)
 	{
 		$result = $this->db->setTable('budget_details as bd')
 		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
-		->leftJoin('budget as b ON bd.budget_code = b.budget_code')
-		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode'")
-		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+		->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
+		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$transactiondate'")
+		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno NOT LIKE '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->setGroupBy('bd.accountcode, bd.budget_code')
@@ -1789,36 +1808,35 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bankdetail bd')
 		->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 		->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
-		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' ")
+		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' and bd.check_status = 'active'")
 		->setOrderBy('firstchequeno')
-		->runSelect()
-		->getResult();
+		->runPagination();
 
-		$last_num	= $curr_seq;
-		$curr		= 0;
-		$nums		= array();
-		$real_nums	= array();
-		foreach ($result as $check) {
-			if ($curr != $check->firstchequeno) {
-				$curr = $check->firstchequeno;
-				$nums[$check->nextchequeno] = true;
-				// for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
-				// 	$nums[$x] = true;
-				// }
-			}
-			for ($i = $check->firstcancelled; $i <= $check->lastcancelled; $i++) {
-				unset($nums[$i]);
-			}
-			if ($curr != $check->firstchequeno && $last_num > 0) {
-				break;
-			}
-		}
-		foreach ($nums as $key => $val) {
-			if ($key > $last_num) {
-				return $key;
-			}
-		}
-		return false;
+		// $last_num	= $curr_seq;
+		// $curr		= 0;
+		// $nums		= array();
+		// $real_nums	= array();
+		// foreach ($result as $check) {
+		// 	if ($curr != $check->firstchequeno) {
+		// 		$curr = $check->firstchequeno;
+		// 		$nums[$check->nextchequeno] = true;
+		// 		// for ($x = $check->nextchequeno; $x <= $check->lastchequeno; $x++) {
+		// 		// 	$nums[$x] = true;
+		// 		// }
+		// 	}
+		// 	for ($i = $check->firstcancelled; $i <= $check->lastcancelled; $i++) {
+		// 		unset($nums[$i]);
+		// 	}
+		// 	if ($curr != $check->firstchequeno && $last_num > 0) {
+		// 		break;
+		// 	}
+		// }
+		// foreach ($nums as $key => $val) {
+		// 	if ($key > $last_num) {
+		// 		return $key;
+		// 	}
+		// }
+		return $result;
 	}
 
 	public function update_checks($book_last_num, $book_id, $bank, $book_end){
