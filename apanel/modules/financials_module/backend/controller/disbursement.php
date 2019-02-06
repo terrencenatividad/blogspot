@@ -856,6 +856,27 @@ class controller extends wc_controller
 
 	}
 
+	private function checkifacctisinbudget(){
+		$accountcode = $this->input->post('accountcode');
+
+		// Check if Account is used in a Budget
+		$ret_result = $this->payment_voucher->checkifaccountisinbudget($accountcode);
+		$result 	=	!empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+
+	private function checkifpairexistsinbudget() {
+		$accountcode= $this->input->post('accountcode');
+		$budget 	= $this->input->post('budgetcode');
+
+		// Check if Budget_Accountcode pair exists
+		$ret_result = $this->payment_voucher->checkifpairexistsinbudget($accountcode, $budget);
+		$result 	= !empty($ret_result) ? 1 : 0;
+
+		return $dataArray = array("result"=>$result);
+	}
+	
 	private function apply_payments()
 	{
 		$warning = array();
@@ -878,7 +899,7 @@ class controller extends wc_controller
 						}
 					} else if(empty($date_checker)) {
 						$getaccount = $this->payment_voucher->getAccountName($data_post['h_accountcode'][$arr]);
-						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['h_accountcode'][$arr]);
+						$checkaccount = $this->payment_voucher->getAmountAndAccount($data_post['budgetcode'][$arr], $data_post['h_accountcode'][$arr], $date);
 						$accountname = $getaccount->accountname;
 						if(!$checkaccount) {
 							$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$data_post['budgetcode'][$arr]. '.</br>';

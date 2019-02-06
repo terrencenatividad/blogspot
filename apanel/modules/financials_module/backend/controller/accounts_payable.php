@@ -649,7 +649,7 @@ class controller extends wc_controller
 					}
 				} else if(empty($date_check)) {
 					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$count]);
-					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count]);
+					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count], $ap['transactiondate']);
 					$accountname = $get_accountname->accountname;
 					if(!$get_amount) {
 						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$count]. '.';
@@ -946,7 +946,7 @@ class controller extends wc_controller
 					}
 				} else if(empty($date_check)) {
 					$get_accountname = $this->accounts_payable->getAccountName($ap_details['accountcode'][$count]);
-					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count]);
+					$get_amount = $this->accounts_payable->getBudgetAmount($ap_details['budgetcode'][$count], $ap_details['accountcode'][$count], $ap['transactiondate']);
 					$accountname = $get_accountname->accountname;
 					if(!$get_amount) {
 						$accountchecker[] = 'The account ' . $accountname . ' is not in your budget code ' .$ap_details['budgetcode'][$count]. '.';
@@ -1150,8 +1150,7 @@ class controller extends wc_controller
 			'check'		=> $check,
 			'warning'  	=> $warning,
 			'error'		=> $error,
-			'date_check'	=> $date_check,
-			'accountchecker' => $accountchecker
+			'date_check'	=> $date_check
 		);
 	}
 

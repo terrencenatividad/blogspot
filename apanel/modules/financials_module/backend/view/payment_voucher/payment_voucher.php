@@ -1723,7 +1723,12 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 				cheque_element.closest('tr').find('.chequenumber').val(data.nums);
 			} else {
 				$('#nocheckModal').modal('show');
+<<<<<<< HEAD
 				$('#chequeTable #accountcode\\['+row+'\\]').val('');
+=======
+				$('#entriesTable #accountcode\\[2\\]').val('').trigger('change');
+				$('.chequenumber').val('');
+>>>>>>> e43db8723671fd2a7f399f9aff017ab10e1cf5dd
 			}
 		}).fail(function(xhr, status, error) {
 			console.log('debug mode : ');
@@ -1774,6 +1779,16 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 		drawTemplate(); 
 	});
 
+<<<<<<< HEAD
+=======
+$('#table_chequelist #cheque_list_container').on('click', 'tr', function() {
+	var num = $(this).find('.nextchequeno').html();
+	curr_bank_seq[val_bank] = num;
+	cheque_element.closest('tr').find('.chequenumber').val(num);
+	$('#chequeList').modal('hide');
+});
+
+>>>>>>> e43db8723671fd2a7f399f9aff017ab10e1cf5dd
 
 	$('#check_yes').on('click', function(){
 		storechequetobank();
