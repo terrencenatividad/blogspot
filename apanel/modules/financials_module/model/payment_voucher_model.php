@@ -74,10 +74,10 @@ class payment_voucher_model extends wc_model
 	public function getAmountAndAccount($budgetcode, $accountcode, $transactiondate)
 	{
 		$result = $this->db->setTable('budget_details as bd')
-		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount  - IF(IFNULL(ac.allocated, 0) = 0, 0, ac.allocated) - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 		->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
 		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$transactiondate'")
-		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno NOT LIKE '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+		->leftJoin("(SELECT SUM(actual) as actual, SUM(allocated) as allocated, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno NOT LIKE '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->setGroupBy('bd.accountcode, bd.budget_code')
@@ -1768,10 +1768,10 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bank b')
 		->setFields("b.id id")
 		->innerJoin("chartaccount c on c.segment5 = b.gl_code")
-		->setWhere("c.id = '$ca' ")
+		->setWhere("b.accountno = '$ca' ")
 		->runSelect()
 		->setLimit(1)
-		->getResult();
+		->getRow();
 		return $result;
 	}
 

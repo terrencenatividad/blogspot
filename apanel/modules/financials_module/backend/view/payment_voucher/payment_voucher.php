@@ -1676,7 +1676,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 			$('#entriesTable tbody tr.clone select').select2('destroy');
 		}
 
-		val_bank = $(this).val();
+		val_bank = $('.cheque_account :selected').text();
 		$('#current_bank').val(val_bank);
 		var num = curr_bank_seq[val_bank] || 0;
 
@@ -1746,7 +1746,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 	$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , 
 		{ bank: val_bank, curr_seq: num } 
 		).done(function(data){
-			if(data.table){
+			if (data.table){
 				var row = $("#chequeTable tbody tr").length;
 				$('#table_chequelist tbody').html(data.table);
 				$('#cheque_pagination').html(data.pagination);
@@ -1762,6 +1762,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 			console.log('status : '+status);
 			console.log('error : '+error);
 		});
+
 
 		cheque_arr = [];
 
@@ -1795,7 +1796,6 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
 			row++;
-			
 		});
 
 		accounts.push(val_bank);
