@@ -710,9 +710,7 @@
 										</ul>
 									</div>
 									&nbsp;&nbsp;&nbsp;
-									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" id = "btnCancel">Cancel</button>
-									</div>
+									<?php echo $ui->drawCancel(); ?>
 								</div>
 							<?php  } else if($ajax_task == 'ajax_view') { ?>
 								<div class="col-md-12 col-sm-12 text-center">
@@ -722,9 +720,7 @@
 										<?php endif; ?>
 									</div>
 									&nbsp;&nbsp;&nbsp;
-									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" id = "btnCancel">Cancel</button>
-									</div>
+									<?php echo $ui->drawCancel(); ?>
 								</div>
 							<?php  } ?>
 						</div>
@@ -1786,6 +1782,7 @@
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
 								$('#errors').html(data.warning);
+								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
 										$('#attach_button').click();
@@ -1798,6 +1795,7 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
+								$('#accounterror').append('<br><i>Notify Department Head<i/>');
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1846,6 +1844,7 @@
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
 								$('#errors').html(data.warning);
+								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
 										$('#attach_button').click();
@@ -1858,6 +1857,7 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
+								$('#accounterror').append('<br><i>Notify Department Head<i/>');
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1905,6 +1905,7 @@
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
 								$('#errors').html(data.warning);
+								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
 										$('#attach_button').click();
@@ -1917,6 +1918,7 @@
 							} else if(data.error != '') {
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.error);
+								$('#accounterror').append('<br><i>Notify Department Head<i/>');
 							} else if(data.date_check != ''){
 								$('#accountchecker-modal').modal('show');
 								$('#accounterror').html(data.date_check);
@@ -1954,6 +1956,8 @@
 		// function uploadAttachment(){
 		// 	$('#attach_button').click();
 		// }
+
+		$('label[for=files]').css({"display": "inline-block","text-overflow": "ellipsis","overflow": "hidden"});
 
 		$(function () {
 			'use strict';

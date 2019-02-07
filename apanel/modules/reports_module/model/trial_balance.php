@@ -425,6 +425,8 @@ class trial_balance extends wc_model {
 		$result 			=	0;
 		$amount 			= 	0;
 		$firstdayofdate 	=	"";
+		$stat 				= 	"temporary";
+		$transtype 			=	"JV";
 
 		/**FORMAT DATES**/
 		if($source == "closing") {
@@ -473,8 +475,8 @@ class trial_balance extends wc_model {
 		$reference	=	($source == "closing") ? "Closing for $str_month, $year" : "Year-end Closing for $year";
 
 		$header['voucherno'] 		=	$generatedvoucher;
-		$header['transtype'] 		=	"JV";
-		$header['stat'] 			=	"temporary";
+		$header['transtype'] 		=	$transtype;
+		$header['stat'] 			=	$stat;
 		$header['transactiondate'] 	=	$lastdayofdate;
 		$header['fiscalyear'] 		=	$year;
 		$header['period'] 			= 	$month;
@@ -506,6 +508,8 @@ class trial_balance extends wc_model {
 				$accounts['linenum'] 			=	$linenum;
 				$accounts['detailparticulars'] 	= 	$detailparticular;
 				$accounts['source'] 			=	$source;
+				$accounts['stat'] 				= 	$stat;
+				$accounts['transtype'] 			= 	$transtype;
 	
 				if( $amount > 0 ){
 					$credit 			= 	$prev_carry	+ $amount;
@@ -536,6 +540,8 @@ class trial_balance extends wc_model {
 					$closing['amount'] 				=  	-($retained);
 					$closing['detailparticulars'] 	= 	$detailparticular;
 					$closing['source'] 				=	$source;
+					$closing['stat'] 				=	$stat;
+					$closing['transtype'] 			=	$transtype;
 
 					$result 			=	$this->create_jvdetails_debit($closing);
 				} else {
@@ -545,6 +551,8 @@ class trial_balance extends wc_model {
 					$closing['amount'] 				=  	$retained;
 					$closing['detailparticulars'] 	= 	$detailparticular;
 					$closing['source'] 				=	$source;
+					$closing['stat'] 				=	$stat;
+					$closing['transtype'] 			=	$transtype;
 	
 					$result 			=	$this->create_jvdetails_credit($closing);
 				}
@@ -571,10 +579,12 @@ class trial_balance extends wc_model {
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
 		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
 		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
+		$stat 				=	isset($data['stat']) 				? 	$data['stat'] 				:	"";
+		$transtype 			=	isset($data['transtype']) 			? 	$data['transtype'] 			:	"";
 		// echo "Account = ".$account."\n";
 
 		$details['voucherno'] 			=	$generatedvoucher;
-		$details['transtype'] 			=	'JV';
+		$details['transtype'] 			=	$transtype;
 		$details['linenum'] 			=	$linenum;
 		$details['accountcode'] 		= 	$account;
 		$details['debit'] 				=  	$amount;
@@ -584,7 +594,7 @@ class trial_balance extends wc_model {
 		$details['convertedcredit'] 	= 	0;
 		$details['source'] 				= 	$source;
 		$details['detailparticulars'] 	= 	$detailparticular;
-		$details['stat'] 				= 	"temporary";
+		$details['stat'] 				= 	$stat;
 		// var_dump($details);
 		$result 	=	 $this->insertdata('journaldetails',$details);
 
@@ -606,10 +616,12 @@ class trial_balance extends wc_model {
 		$detailparticular 	=	isset($data['detailparticular']) 	? 	$data['detailparticular'] 	:	"";
 		$linenum 			=	isset($data['linenum']) 			? 	$data['linenum'] 			:	"";
 		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
+		$stat 				=	isset($data['stat']) 				? 	$data['stat'] 				:	"";
+		$transtype 			=	isset($data['transtype']) 			? 	$data['transtype'] 			:	"";
 		// echo "Account = ".$account."\n";
 
 		$details['voucherno'] 			=	$generatedvoucher;
-		$details['transtype'] 			=	'JV';
+		$details['transtype'] 			=	$transtype;
 		$details['linenum'] 			=	$linenum;
 		$details['accountcode'] 		= 	$account;
 		$details['debit'] 				=  	0;
@@ -619,7 +631,7 @@ class trial_balance extends wc_model {
 		$details['convertedcredit'] 	= 	$amount;
 		$details['source'] 				= 	$source;
 		$details['detailparticulars'] 	= 	$detailparticular;
-		$details['stat'] 				= 	"temporary";
+		$details['stat'] 				= 	$stat;
 
 		$result 						=	$this->insertdata('journaldetails',$details);
 
@@ -978,21 +990,6 @@ class trial_balance extends wc_model {
 								// echo $this->db->getQuery();
 		return $result;
 	}
-
-	// public function getAccountsOfReleasedItem($startdate, $enddate){
-	// 	$result 	=	$this->db->setTable("job_order jo")
-	// 							->leftJoin("job_order_details jod ON jo.job_order_no = jod.job_order_no AND jo.companycode = jod.companycode")
-	// 							->leftJoin("job_release jr ON jo.job_order_no = jr.job_order_no AND jr.stat!='cancelled' AND jo.companycode = jr.companycode")
-	// 							->leftJoin("items i ON i.itemcode = jod.itemcode AND i.companycode = jod.companycode")
-	// 							->leftJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode")
-	// 							->setFields("jr.job_release_no releaseno, jo.job_order_no orderno, ic.id, 1000 amount")
-	// 							->setWhere("jo.stat IN ('partial','prepared') AND (jo.transactiondate>='$startdate' AND jo.transactiondate<='$enddate')")
-	// 							->setGroupBy('ic.id')
-	// 							->runSelect()
-	// 							->getResult();
-	// 							// echo $this->db->getQuery();
-	// 	return $result;
-	// }
 	
 	public function getAccountsOfReleasedItem($startdate, $enddate){
 		// SELECT jr.job_release_no releaseno,  jo.job_order_no orderno,  SUM(jv.amount) totalamount 
@@ -1021,10 +1018,33 @@ class trial_balance extends wc_model {
 								->leftJoin('fintaxcode fs ON fs.salesAccount = jv.accountcode AND fs.companycode = jv.companycode AND fs.fstaxcode = "IC"')
 								->setFields("jr.job_release_no releaseno, jo.job_order_no orderno, SUM(jv.amount) totalamount, jv.accountcode invacct")
 								->setWhere("jo.stat IN ('partial','prepared') AND (jo.transactiondate>='$startdate' AND jo.transactiondate<='$enddate')")
+								->setGroupBy("jr.job_release_no")
 								->runSelect()
 								->getResult();
 								// echo $this->db->getQuery();
 		return $result;
+	}
+
+	public function getAccountsFromPartialReleasedJob($voucher) {
+		// $jv_query 	=	$this->db->setTable("journalvoucher jv")
+		// 						 ->leftJoin("journaldetails jvd ON jvd.voucherno = jv.voucherno AND jv.companycode = jvd.companycode")
+		// 						 ->setFields("jv.referenceno, jv.companycode, SUM(COALESCE(jvd.debit,0)) amount, jvd.accountcode")
+		// 						 ->setWhere("jv.source = 'jo_release' AND jv.stat NOT IN ('cancelled')")
+		// 						 ->setGroupBy('jvd.accountcode')
+		// 						 ->buildSelect();
+
+		$query 		=	$this->db->setTable('job_release jr')
+								 ->leftJoin("items i ON i.itemcode = jr.itemcode AND i.companycode = jr.companycode ")
+								 ->leftJoin("itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode ")
+								 ->leftJoin("journalvoucher jv ON jv.referenceno = jr.job_release_no AND jv.companycode = jr.companycode ")
+								 ->setFields("SUM(jv.amount) totalamount, IF(i.revenue_account IS NULL, i.revenue_account, ic.revenue_account) credit_account, IF(i.receivable_account IS NULL, i.receivable_account, ic.receivable_account) debit_account")
+								 ->setWhere("jr.job_release_no = '$voucher'")
+								 ->setGroupBy("credit_account, debit_account")
+								 ->runSelect()
+								 ->getRow();
+								 
+								//  echo $this->db->getQuery();
+		return $query;
 	}
 
 	public function save_accrual_journal_voucher($data){	
@@ -1032,11 +1052,12 @@ class trial_balance extends wc_model {
 		$lastdayofdate 		=	isset($data['datefrom']) 			?	$data['datefrom'] 			: 	"";
 		$source 			=	isset($data['source']) 				? 	$data['source'] 			:	"";
 		$sourceno 			=	isset($data['sourceno']) 			? 	$data['sourceno'] 			:	"";
-		$type 				=	isset($data['type']) 				? 	$data['type'] 				:	"reversed_jv";
+		$type 				=	isset($data['type']) 				? 	$data['type'] 				:	"reversed_ajv";
 
 		$result 			=	0;
 		$amount 			= 	0;
-		$firstdayofdate 	=	"";
+		$year 				=	"";
+		$month 	 			=	"";
 
 		/**FORMAT DATES**/
 		if($source == "closing") {
@@ -1045,10 +1066,17 @@ class trial_balance extends wc_model {
 			$month 				=	date('m', strtotime($lastdayofdate));
 			$year 				=	date('Y', strtotime($lastdayofdate));
 
-			$firstdayofdate 	=	date($year.'-'.$month.'-01');
+			$firstdayofdate 	=	date($year.'-'.$month.'-1');
 			$nextmonth 			=	date('Y-m-d', strtotime('+1 month', strtotime($firstdayofdate)));
 			$next_m  			= 	date('m', strtotime($nextmonth));
 			$next_y 			= 	date('Y', strtotime($nextmonth));
+			// echo $next_m."\n";
+			// echo $type."|";
+			if($type == "reversed_ajv") {
+				$month 				= 	$next_m;
+				$year 				=	$next_y;
+			}
+			// echo $month;
 		} else {
 			$exploded_date		=	explode(' - ',$lastdayofdate);
 			$firstdayofdate 	=	$exploded_date[0];
@@ -1057,28 +1085,42 @@ class trial_balance extends wc_model {
 			$lastdayofdate 		=	date("Y-m-d", strtotime($lastdayofdate));
 			$month 				=	date('m', strtotime($lastdayofdate));
 			$year 				=	date('Y', strtotime($lastdayofdate));
+
+			if($type == "reversed_jv") {
+				$month 			= 	date('m', strtotime($firstdayofdate));
+				$year 			=	date('Y', strtotime($firstdayofdate));
+			}
 		}
  
 		$str_month 	=	date('F', strtotime($lastdayofdate));
 		$str_n_month=	date('F', strtotime($nextmonth));
-		
-		// Cost of Goods Account 
-		$ret_cog_acct 		= $this->retrieveAccount("ACOG");
-		$cog_acct 			= isset($ret_cog_acct->salesAccount) ? $ret_cog_acct->salesAccount 	:	"";
+
+		$transtype 	=	"IT";
 
 		// Accrual Entry
-		// if($type == "accrual_jv"){
-			$getaccts 	= 	$this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
-			$releaseno 	=	isset($getaccts[0]->releaseno) 	?	$getaccts[0]->releaseno 	:	"";
-			$orderno 	=	isset($getaccts[0]->orderno) 	?	$getaccts[0]->orderno 		:	"";
-			$totalamount=	isset($getaccts[0]->totalamount)? 	$getaccts[0]->totalamount 	: 	0;
-			$accountcode= 	isset($getaccts[0]->invacct)	? 	$getaccts[0]->invacct 		:	"";		
+		$getpartials 	= 	$this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
+		
+		// var_dump($getpartials);
+		foreach($getpartials as $key=>$row){
+			$releaseno 	= isset($row->releaseno)		?	$row->releaseno 	:	"";
+			$orderno	= isset($row->orderno)			?	$row->orderno 		:	"";
+			$totalamt 	= isset($row->totalamount)		?	$row->totalamount 	:	0;
+			$invacct 	= isset($row->invacct) 			?	$row->invacct 		:	"";
+
+			$ret_jr		= $this->getAccountsFromPartialReleasedJob($releaseno);
+			// var_dump($ret_jr);
+
+			$totalamount 	=	isset($ret_jr->totalamount) 	? $ret_jr->totalamount 		: 0;
+			$credit_acct 	=	isset($ret_jr->credit_account)	? $ret_jr->credit_account 	: "";
+			$debit_acct 	=	isset($ret_jr->debit_account) 	? $ret_jr->debit_account 	: "";
 
 			$reference		= ($type == "accrual_jv") ? "Accrual Entry for $str_month, $year" : "Reversed Accrual Entry for $str_n_month, $year";
 			$accrual_source = $type;
 
+			// Get Job Order Details -- items 
+
 			$header['voucherno'] 		=	$generatedvoucher;
-			$header['transtype'] 		=	"JV";
+			$header['transtype'] 		=	$transtype;
 			$header['stat'] 			=	"posted";
 			$header['transactiondate'] 	=	$lastdayofdate;
 			$header['fiscalyear'] 		=	$year;
@@ -1090,35 +1132,35 @@ class trial_balance extends wc_model {
 			$header['referenceno'] 		=	$reference;
 			$header['source'] 			=	$accrual_source;
 			$header['sourceno'] 		=	$sourceno;
-	
+
 			$result 					=	$this->insertdata('journalvoucher',$header);
-	
+
 			if($result){
 				$debit 					= $total_debit 	= 0;
 				$credit 				= $total_credit = 0;
 				$retained 				= 0;
 				$linenum 				= 1;
-	
-				// $prev_carry 					= $this->getPrevCarry($accountcode,$firstdayofdate);
-				// $amount							= $this->getCurrent($accountcode,$firstdayofdate,$lastdayofdate);
+		
 				$accounts['voucher'] 			=	$generatedvoucher;
 				$accounts['source'] 			=	$accrual_source;
 				$accounts['amount'] 			=	$totalamount;
+				$accounts['stat'] 				=	$header['stat'];
+				$accounts['transtype'] 			=	$header['transtype'];
 
 				if($type == "accrual_jv"){
-					$accounts['account'] 			=	$cog_acct;
+					$accounts['account'] 			=	$debit_acct;
 					$accounts['linenum'] 			=	1;
 					$result  						=	$this->create_jvdetails_debit($accounts);
 
-					$accounts['account'] 			=	$accountcode;
+					$accounts['account'] 			=	$credit_acct;
 					$accounts['linenum'] 			=	2;
 					$result  						=	$this->create_jvdetails_credit($accounts);
 				} else {
-					$accounts['account'] 			=	$accountcode;
+					$accounts['account'] 			=	$debit_acct;
 					$accounts['linenum'] 			=	1;
 					$result  						=	$this->create_jvdetails_debit($accounts);
 
-					$accounts['account'] 			=	$cog_acct;
+					$accounts['account'] 			=	$credit_acct;
 					$accounts['linenum'] 			=	2;
 					$result  						=	$this->create_jvdetails_credit($accounts);
 				
@@ -1128,61 +1170,14 @@ class trial_balance extends wc_model {
 					}
 				}
 			}
-		// } else { // Reverse Accrual Entry
 
-		return array(
-			'result'=>$result,
-			'voucherno'=>$generatedvoucher
-		);
-		// 	$getaccts 	= 	$this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
-		// 	$releaseno 	=	isset($getaccts[0]->releaseno) 	?	$getaccts[0]->releaseno 	:	"";
-		// 	$orderno 	=	isset($getaccts[0]->orderno) 	?	$getaccts[0]->orderno 		:	"";
-		// 	$totalamount=	isset($getaccts[0]->totalamount)? 	$getaccts[0]->totalamount 	: 	0;
-		// 	$accountcode= 	isset($getaccts[0]->invacct)	? 	$getaccts[0]->invacct 		:	"";		
+			return array(
+				'result'=>$result,
+				'voucherno'=>$generatedvoucher
+			);
+		
 
-		// 	$reference		= "Accrual Entry for $str_month, $year";
-		// 	$accrual_source = $type;
-
-		// 	$header['voucherno'] 		=	$generatedvoucher;
-		// 	$header['transtype'] 		=	"JV";
-		// 	$header['stat'] 			=	"posted";
-		// 	$header['transactiondate'] 	=	$lastdayofdate;
-		// 	$header['fiscalyear'] 		=	$year;
-		// 	$header['period'] 			= 	$month;
-		// 	$header['currencycode'] 	= 	"PHP";
-		// 	$header['exchangerate'] 	=	1;
-		// 	$header['amount'] 	 		=	$totalamount;
-		// 	$header['convertedamount'] 	=	$totalamount;
-		// 	$header['referenceno'] 		=	$reference;
-		// 	$header['source'] 			=	$accrual_source;
-	
-		// 	$result 					=	$this->insertdata('journalvoucher',$header);
-	
-		// 	if($result){
-		// 		$debit 					= $total_debit 	= 0;
-		// 		$credit 				= $total_credit = 0;
-		// 		$retained 				= 0;
-		// 		$linenum 				= 1;
-	
-		// 		// $prev_carry 					= $this->getPrevCarry($accountcode,$firstdayofdate);
-		// 		// $amount							= $this->getCurrent($accountcode,$firstdayofdate,$lastdayofdate);
-	
-		// 		$accounts['voucher'] 			=	$generatedvoucher;
-		// 		$accounts['account'] 			=	$cog_acct;
-		// 		$accounts['linenum'] 			=	1;
-		// 		$accounts['source'] 			=	$accrual_source;
-		// 		$accounts['amount'] 			=	$totalamount;
-		// 		$result  						=	$this->create_jvdetails_debit($accounts);
-
-		// 		$accounts['voucher'] 			=	$generatedvoucher;
-		// 		$accounts['account'] 			=	$accountcode;
-		// 		$accounts['linenum'] 			=	2;
-		// 		$accounts['source'] 			=	$accrual_source;
-		// 		$accounts['amount'] 			=	$totalamount;
-		// 		$result  						=	$this->create_jvdetails_credit($accounts);
-		// 	}
-		// } 
-	
+		}	
 	}
 
 }	

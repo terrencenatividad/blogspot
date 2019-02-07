@@ -1140,6 +1140,35 @@
 				</div>
 			</div>
 
+			<div class="modal fade" id="chequeList" tabindex="-1" data-backdrop="static">
+				<div class="modal-dialog modal-md">
+					<div class="modal-content">
+						<div class="modal-header">
+							Cheque List
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+							<div class="table-responsive">
+								<table class="table table-condensed table-bordered table-hover" id="table_chequelist">
+									<thead>
+										<tr class="info">
+											<th class="col-md-1 text-center">First Cheque No.</th>
+											<th class="col-md-1 text-center">Last Cheque No.</th>
+											<th class="col-md-1 text-center">Next Cheque No.</th>
+										</tr>
+									</thead>
+									<tbody id="cheque_list_container">
+									</tbody>
+								</table>
+							</div>
+							<div id="cheque_pagination"></div>
+						</div>
+						<div class="modal-footer">
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<script>
 
 				function checkifpairexistsinbudget(accountcode, budget, field, type){
@@ -1312,7 +1341,8 @@
 			});
 		}
 		// console.log(new_cheque);
-		
+		var cheque_element = '';
+		var val_bank = '';
 		$('#chequeTable .cheque_account').on('change', function()  {
 			storedescriptionstoarray();
 			storechequetobank();
@@ -1320,22 +1350,23 @@
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
 
-			var cheque_element = $(this);
-			var val = $(this).val();
-			$('#current_bank').val(val);
-			var num = curr_bank_seq[val] || 0;
+			val_bank = $(this).val();
+			$('#current_bank').val(val_bank);
+			var num = curr_bank_seq[val_bank] || 0;
+			cheque_element = $(this);
 			
-			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val, curr_seq: num } ).done(function(data){
-				if (data.nums != false){
-				// storechequetobank();
-				curr_bank_seq[val] = data.nums;
-				var row = $("#chequeTable tbody tr").length;
-				cheque_element.closest('tr').find('.chequenumber').val(data.nums);
-			} else {
-				$('#nocheckModal').modal('show');
-				$('#chequeTable #accountcode\\['+row+'\\]').val('');
-			}
-		})
+			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val_bank, curr_seq: num } ).done(function(data){
+				if(data.table){
+					var row = $("#chequeTable tbody tr").length;
+					$('#table_chequelist tbody').html(data.table);
+					$('#cheque_pagination').html(data.pagination);
+					$('#chequeList').modal('show');
+				} else {
+					$('#nocheckModal').modal('show');
+					$('#entriesTable #accountcode\\[2\\]').val('').trigger('change');
+					$('.chequenumber').val('');
+				}
+			});
 
 			cheque_arr = [];
 
@@ -1372,7 +1403,7 @@
 				row++;
 			});
 
-			accounts.push(val);
+			accounts.push(val_bank);
 			recomputechequeamts();
 			acctdetailamtreset();
 			displaystoreddescription();
@@ -1411,6 +1442,13 @@
 			});
 			
 			$('#checkModal').modal('hide');
+		});
+
+		$('#table_chequelist #cheque_list_container').on('click', 'tr', function() {
+			var num = $(this).find('.nextchequeno').html();
+			curr_bank_seq[val_bank] = num;
+			cheque_element.closest('tr').find('.chequenumber').val(num);
+			$('#chequeList').modal('hide');
 		});
 
 		function getnum(val, next){ 
@@ -2540,6 +2578,7 @@
 						if(data.warning != '') {
 							$('#warning-modal').modal('show');
 							$('#errors').html(data.warning);
+							$('#errors').append('<br><i>Notify Department Head<i/>');
 							$('#warning-modal').on('hidden.bs.modal', function() {
 								$('#delay_modal').modal('show');
 								setTimeout(function() {					
@@ -2550,6 +2589,7 @@
 						} else if(data.error != '') {
 							$('#accountchecker-modal').modal('show');
 							$('#accounterror').html(data.error);
+							$('#accounterror').append('<br><i>Notify Department Head<i/>');
 						} else if(data.date_checker != ''){
 							$('#accountchecker-modal').modal('show');
 							$('#accounterror').html(data.date_checker);

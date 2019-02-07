@@ -94,7 +94,7 @@ class controller extends wc_controller
 		// $data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Cash Account Options
-		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_fields 	  	= "b.id ind , CONCAT(shortname,' - ' ,accountno ) val";
 		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
 		$cash_order_by 		 	  	= "id desc";
 		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
@@ -1632,7 +1632,7 @@ class controller extends wc_controller
 		$data = $this->input->post(array('bank', 'curr_seq'));
 		$getBank = $this->payment_voucher->getbankid($data['bank']);
 		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
+		$nums = $this->payment_voucher->getNextCheckNum($data['bank'], $data['curr_seq']);
 		$table = '';
 		if(empty($nums->result)) {
 			$table = false;

@@ -368,7 +368,7 @@ class controller extends wc_controller {
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Issue Parts', 'bookmark')
+									->addOtherTask('Issue Parts', 'bookmark', $iscomplete)
 									->addOtherTask('Tag as Complete', 'bookmark', $iscomplete)
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))

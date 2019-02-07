@@ -966,7 +966,7 @@ class controller extends wc_controller
 								if($check) {
 									if($codes['amount'] > $amount) {
 										$warning[0] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$count] . 
-										' ' . $accountname . ' account <br>';
+										' ' . $accountname . ' account. <br>';
 										$actualbudget['voucherno'] = $ap['voucherno'];
 										$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
 										$actualbudget['accountcode'] = $ap_details['accountcode'][$count];
@@ -982,7 +982,7 @@ class controller extends wc_controller
 								} else {
 									if(str_replace(',', '', $ap_details['debit'][$count]) > $amount) {
 										$warning[] = 'You were about to exceed from your budget code ' . $ap_details['budgetcode'][$count] . 
-										' ' . $accountname . ' account <br>';
+										' ' . $accountname . ' account. <br>';
 										$actualbudget['voucherno'] = $ap['voucherno'];
 										$actualbudget['budget_code'] = $ap_details['budgetcode'][$count];
 										$actualbudget['accountcode'] = $ap_details['accountcode'][$count];

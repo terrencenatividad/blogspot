@@ -2242,7 +2242,7 @@ class accounts_payable extends wc_model
 
 	public function getPVDetails($voucherno) {
 		$result = $this->db->setTable('paymentvoucher as pv')
-		->setFields('pa.entereddate as date, IF(IFNULL(pc.chequenumber, 0) = 0, pv.paymenttype, CONCAT(pv.paymenttype, " - ", pc.chequenumber)) as mode ,CONCAT(ca.segment5, " - ", ca.accountname) as paymentaccount,  pv.particulars as reference, pa.amount as amount, pa.discount as discount, pv.voucherno as voucherno')
+		->setFields('pa.entereddate as date, IF(IFNULL(pc.chequenumber, 0) = 0, pv.paymenttype, CONCAT(pv.paymenttype, " - ", pc.chequenumber)) as mode ,CONCAT(ca.segment5, " - ", ca.accountname) as paymentaccount,  pv.referenceno as reference, pa.amount as amount, pa.discount as discount, pv.voucherno as voucherno')
 		->leftJoin('pv_application as pa ON pv.voucherno = pa.voucherno')
 		->leftJoin('pv_details as pd ON pv.voucherno = pd.voucherno')
 		->leftJoin('pv_cheques as pc ON pc.voucherno = pd.voucherno')
