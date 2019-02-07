@@ -989,18 +989,15 @@ class controller extends wc_controller
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
 		}
-
-		if ($data_post['paymentmode'] == 'cheque'){
-			
-			$book_ids	= isset($data_post['book_ids']) && $data_post['book_ids'] != "" ? json_decode(stripcslashes($data_post['book_ids'])) : array();
-			$book_end	= isset($data_post['book_end']) && $data_post['book_end'] != "" ? json_decode(stripcslashes($data_post['book_end'])) : array();
-			$book_last	= isset($data_post['book_last'])&& $data_post['book_last'] != "" ? json_decode(stripcslashes($data_post['book_last'])) : array();
-			foreach ($book_ids as $bank => $book_id) {
-				foreach ($book_id as $key => $id) {
-					$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
-					$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
-				} 
-			}
+		$accountno = '';
+		$acc = explode(' - ', $data_post['bank_name']);
+		if(count($acc) == '2') {
+			$accountno = $acc[1];
+		} else {
+			$accountno = $acc[2];
+		}
+		if ($data_post['paymentmode'] == 'cheque') {
+			$result = $this->payment_voucher->update_checks($accountno, $data_post['chequenumber'][1]);
 		}
 		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);

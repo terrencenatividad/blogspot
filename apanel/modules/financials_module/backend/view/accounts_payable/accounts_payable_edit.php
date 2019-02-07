@@ -229,6 +229,7 @@
 									->setAttribute(array("maxlength" => "20"))
 									->setValue($assetid)
 									->setList($asset_list)
+									->setNone('None')
 									->draw($show_input);
 									?>
 								</div>

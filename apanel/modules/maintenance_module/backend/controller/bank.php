@@ -330,6 +330,7 @@ class controller extends wc_controller
 				$show_activate = ($row->check_status == 'active');
 				$show_deactivate = ($row->check_status == 'inactive');
 				$show_button = ($row->lastchequeno == $row->nextchequeno);
+				$show_delete = ($row->firstchequeno == $row->nextchequeno);
 
 				$dropdown = $this->ui->loadElement('check_task')
 				->addOtherTask(
@@ -340,7 +341,7 @@ class controller extends wc_controller
 				->addOtherTask(
 					'Delete Check Series',
 					'trash',
-					!$show_button
+					$show_delete
 				)
 				->addOtherTask(
 					'Activate',

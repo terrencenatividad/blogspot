@@ -131,12 +131,28 @@
 													'target'=> "_blank",
 												))
 											// ->addHidden($source_no)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
 								</div>
 								<?php } ?>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('dropdown')
+											->setPlaceholder('Select one')
+											->setLabel('Asset Code')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('assetid')
+											->setId('assetid')
+											->setAttribute(array("maxlength" => "20"))
+											->setValue($assetid)
+											->setList($asset_list)
+											->setNone('None')
+											->draw($show_input);
+											// ->draw($show_input && $ajax_task != 'ajax_edit');
+									?>
+								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-12">
