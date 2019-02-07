@@ -1,6 +1,6 @@
 	<section class="content">
 		<div class="box box-primary">
-			<form action="" method="post" class="form-horizontal">
+			<form action="" id="jvform" method="post" class="form-horizontal">
 				<div class="box-body">
 					<br>
 					<div class="row">
@@ -144,8 +144,11 @@
 									} else if($ajax_task == 'ajax_edit') {
 										echo $ui->drawSubmit(true);
 									}
-
-									echo $ui->drawCancel();
+									if(MODAL){ ?>
+										<button type="button" class="btn btn-default" id="btnCancel" data-dismiss="modal">Cancel</button>
+									<?php } else {
+										echo $ui->drawCancel();
+									}
 									?>
 								</div>
 							</div>
