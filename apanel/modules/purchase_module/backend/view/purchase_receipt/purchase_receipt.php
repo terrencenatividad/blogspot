@@ -431,7 +431,7 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button" disabled>Attach</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -1203,43 +1203,43 @@
 		engine_input = [];
 		chassis_input = [];
 		function validateSerialNo(newSerialInput){
-			if(newSerialInput != ''){
-				if ($.inArray( newSerialInput, serial_db ) > -1){
-					return "Serial Number already exists in Database";
-				} else if($.inArray( newSerialInput, serial_saved ) > -1){
-					return "Serial Number already saved";
-				} else if($.inArray( newSerialInput, serial_input ) > -1){
-					return "Serial Number already entered";
-				} else {
+			// if(newSerialInput != ''){
+			// 	if ($.inArray( newSerialInput, serial_db ) > -1){
+			// 		return "Serial Number already exists in Database";
+			// 	} else if($.inArray( newSerialInput, serial_saved ) > -1){
+			// 		return "Serial Number already saved";
+			// 	} else if($.inArray( newSerialInput, serial_input ) > -1){
+			// 		return "Serial Number already entered";
+			// 	} else {
 					return true;
-				}
-			}
+				// }
+			// }
 		}
 		function validateEngineNo(newEngineInput){
-			if(newEngineInput != ''){
-				if ($.inArray( newEngineInput, engine_db ) > -1){
-					return "Engine Number already exists in Database";
-				} else if($.inArray( newEngineInput, engine_saved ) > -1){
-					return "Engine Number already saved";
-				} else if($.inArray( newEngineInput, engine_input ) > -1){
-					return "Engine Number already entered";;
-				} else {
+			// if(newEngineInput != ''){
+			// 	if ($.inArray( newEngineInput, engine_db ) > -1){
+			// 		return "Engine Number already exists in Database";
+			// 	} else if($.inArray( newEngineInput, engine_saved ) > -1){
+			// 		return "Engine Number already saved";
+			// 	} else if($.inArray( newEngineInput, engine_input ) > -1){
+			// 		return "Engine Number already entered";;
+			// 	} else {
 					return true;
-				}
-			}
+			// 	}
+			// }
 		}
 		function validateChassisNo(newChassisInput){
-			if(newChassisInput != ''){
-				if ($.inArray( newChassisInput, chassis_db ) > -1){
-					return "Chassis Number already exists in Database";
-				} else if($.inArray( newChassisInput, chassis_saved ) > -1){
-					return "Chassis Number already saved";
-				} else if($.inArray( newChassisInput, chassis_input ) > -1){
-					return "Chassis Number already entered";;
-				} else {
+			// if(newChassisInput != ''){
+			// 	if ($.inArray( newChassisInput, chassis_db ) > -1){
+			// 		return "Chassis Number already exists in Database";
+			// 	} else if($.inArray( newChassisInput, chassis_saved ) > -1){
+			// 		return "Chassis Number already saved";
+			// 	} else if($.inArray( newChassisInput, chassis_input ) > -1){
+			// 		return "Chassis Number already entered";;
+			// 	} else {
 					return true;
-				}
-			}
+			// 	}
+			// }
 		}
 
 		function checkFlags(){
@@ -1264,17 +1264,43 @@
 		// SERIAL NUMBER VALIDATE START
 		$('tbody').on('keyup','.serial_no_item',function(){
 			var serialInput = $(this).val();
+			var engineInput = $(this).closest('tr').find('.engine_no:visible input').val();
+			var chassisInput = $(this).closest('tr').find('.chassis_no:visible input').val();
 			
-			if (serialInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
-				if (validateSerialNo(serialInput) != true){
-					serial_flag = false;
-					$(this).closest('.form-group').addClass('has-error')
-					$(this).closest('.serial_no').find('.error_message').text(validateSerialNo(serialInput)).css('color', 'red');
-				} else {
-					serial_flag = true;
-					$(this).closest('.form-group').removeClass('has-error');
-					$(this).closest('.serial_no').find('.error_message').text("");
-				}
+			// if (serialInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
+			// 	if (validateSerialNo(serialInput) != true){
+			// 		serial_flag = false;
+			// 		$(this).closest('.form-group').addClass('has-error')
+			// 		$(this).closest('.serial_no').find('.error_message').text(validateSerialNo(serialInput)).css('color', 'red');
+			// 	} else {
+			// 		serial_flag = true;
+			// 		$(this).closest('.form-group').removeClass('has-error');
+			// 		$(this).closest('.serial_no').find('.error_message').text("");
+			// 	}
+			// }
+
+			if (serialInput == '') {
+				$(this).closest('tr').find('.serial_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.serial_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.serial_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.serial_no:visible .error_message').text("");
+			}
+
+			if (engineInput == '') {
+				$(this).closest('tr').find('.engine_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.engine_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.engine_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.engine_no:visible .error_message').text("");
+			}
+
+			if (chassisInput == '') {
+				$(this).closest('tr').find('.chassis_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.chassis_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.chassis_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.chassis_no:visible .error_message').text("");
 			}
 
 			checkFlags();
@@ -1304,17 +1330,43 @@
 		// ENGINE NUMBER VALIDATE START
 		$('tbody').on('keyup','.engine_no_item',function(){
 			var engineInput = $(this).val();
+			var serialInput = $(this).closest('tr').find('.serial_no:visible input').val();
+			var chassisInput = $(this).closest('tr').find('.chassis_no:visible input').val();
 			
-			if (engineInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
-				if (validateEngineNo(engineInput) != true){
-					engine_flag = false;
-					$(this).closest('.form-group').addClass('has-error')
-					$(this).closest('.engine_no').find('.error_message').text(validateEngineNo(engineInput)).css('color', 'red');
-				} else {
-					engine_flag = true;
-					$(this).closest('.form-group').removeClass('has-error');
-					$(this).closest('.engine_no').find('.error_message').text("");
-				}
+			// if (engineInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C
+			// 	if (validateEngineNo(engineInput) != true){
+			// 		engine_flag = false;
+			// 		$(this).closest('.form-group').addClass('has-error')
+			// 		$(this).closest('.engine_no').find('.error_message').text(validateEngineNo(engineInput)).css('color', 'red');
+			// 	} else {
+			// 		engine_flag = true;
+			// 		$(this).closest('.form-group').removeClass('has-error');
+			// 		$(this).closest('.engine_no').find('.error_message').text("");
+			// 	}
+			// }
+
+			if (serialInput == '') {
+				$(this).closest('tr').find('.serial_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.serial_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.serial_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.serial_no:visible .error_message').text("");
+			}
+
+			if (engineInput == '') {
+				$(this).closest('tr').find('.engine_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.engine_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.engine_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.engine_no:visible .error_message').text("");
+			}
+
+			if (chassisInput == '') {
+				$(this).closest('tr').find('.chassis_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.chassis_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.chassis_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.chassis_no:visible .error_message').text("");
 			}
 			
 			checkFlags();
@@ -1344,17 +1396,43 @@
 		// CHASSIS NUMBER VALIDATE START
 		$('tbody').on('keyup','.chassis_no_item',function(){
 			var chassisInput = $(this).val();
+			var serialInput = $(this).closest('tr').find('.serial_no:visible input').val();
+			var engineInput = $(this).closest('tr').find('.engine_no:visible input').val();
 			
-			if (chassisInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C			
-				if (validateChassisNo(chassisInput) != true){
-					chassis_flag = false;
-					$(this).closest('.form-group').addClass('has-error')
-					$(this).closest('.chassis_no').find('.error_message').text(validateChassisNo(chassisInput)).css('color', 'red');
-				} else {
-					chassis_flag = true;
-					$(this).closest('.form-group').removeClass('has-error');
-					$(this).closest('.chassis_no').find('.error_message').text("");
-				}
+			// if (chassisInput != $(this).data('value')) { // ADDED IF STATEMENT TO PREVENT VALIDATE ON CTRL+C			
+			// 	if (validateChassisNo(chassisInput) != true){
+			// 		chassis_flag = false;
+			// 		$(this).closest('.form-group').addClass('has-error')
+			// 		$(this).closest('.chassis_no').find('.error_message').text(validateChassisNo(chassisInput)).css('color', 'red');
+			// 	} else {
+			// 		chassis_flag = true;
+			// 		$(this).closest('.form-group').removeClass('has-error');
+			// 		$(this).closest('.chassis_no').find('.error_message').text("");
+			// 	}
+			// }
+
+			if (serialInput == '') {
+				$(this).closest('tr').find('.serial_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.serial_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.serial_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.serial_no:visible .error_message').text("");
+			}
+
+			if (engineInput == '') {
+				$(this).closest('tr').find('.engine_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.engine_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.engine_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.engine_no:visible .error_message').text("");
+			}
+
+			if (chassisInput == '') {
+				$(this).closest('tr').find('.chassis_no:visible .form-group').addClass('has-error');
+				$(this).closest('tr').find('.chassis_no:visible .error_message').text("Please enter a value.").css('color', 'red');;
+			} else {
+				$(this).closest('tr').find('.chassis_no:visible .form-group').removeClass('has-error');
+				$(this).closest('tr').find('.chassis_no:visible .error_message').text("");
 			}
 			
 			checkFlags();
@@ -1685,6 +1763,8 @@
 	</script>
 	<?php endif ?>
 	<script>
+	$('label[for=files]').css({"display": "inline-block","text-overflow": "ellipsis","overflow": "hidden"});
+		
 		$(function () {
 			'use strict';
 
@@ -1699,6 +1779,9 @@
 						data.submit();
 					});
 				},
+				messages: {
+					maxFileSize: 'File exceeds maximum allowed size of 3MB'
+				}
 			});
 			$('#attachments_form').addClass('fileupload-processing');
 			$.ajax({
@@ -1718,6 +1801,29 @@
 				var filename = data.files[0].name;
 				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
 				$('#file').val(filename).trigger('blur');
+
+				// Script to validate selected file
+				var $this = $(this);
+				var validation = data.process(function(){
+					return $this.fileupload('process', data);
+				});
+
+				validation.done(function(){
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+					$('#attach_button').prop('disabled', false);
+					$('#file').val(filename).trigger('blur');
+				});
+				validation.fail(function(data) {
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					var maxLimitError = data.files[0].error;
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(maxLimitError);
+					
+					$('#attach_button').prop('disabled', true);
+					$('#file').val('').trigger('blur');
+				});
 			});
 			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 				var source_no = $('#source_no').val();
@@ -1747,7 +1853,7 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.removeClass('has-error');
 					form_group.find('p.help-block.m-none').html('');
-
+					$('#attach_button').prop('disabled', false);
 					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
 					// $('#file').val('').trigger('blur');
 					// getList();
@@ -1755,6 +1861,8 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.addClass('has-error');
 					form_group.find('p.help-block.m-none').html(msg);
+					$('#attach_button').prop('disabled', true);
+					$('#file').val('').trigger('blur');
 				}
 			});
 		});

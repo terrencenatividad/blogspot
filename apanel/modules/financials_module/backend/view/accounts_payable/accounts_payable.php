@@ -328,6 +328,7 @@
 											'rows' => 4
 										)
 									)
+									->setMaxLength(300)
 									->setValue($particulars)
 									->draw($show_input);
 									?>
@@ -710,9 +711,7 @@
 										</ul>
 									</div>
 									&nbsp;&nbsp;&nbsp;
-									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" id = "btnCancel">Cancel</button>
-									</div>
+									<?php echo $ui->drawCancel(); ?>
 								</div>
 							<?php  } else if($ajax_task == 'ajax_view') { ?>
 								<div class="col-md-12 col-sm-12 text-center">
@@ -722,9 +721,7 @@
 										<?php endif; ?>
 									</div>
 									&nbsp;&nbsp;&nbsp;
-									<div class="btn-group">
-										<button type="button" class="btn btn-default btn-flat" id = "btnCancel">Cancel</button>
-									</div>
+									<?php echo $ui->drawCancel(); ?>
 								</div>
 							<?php  } ?>
 						</div>
@@ -1311,8 +1308,8 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button">Attach</button>
-						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal">Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button" disabled>Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal" disabled>Attach</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -1789,7 +1786,7 @@
 								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
-										$('#attach_button').click();
+										$('#attach_button:enabled').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1805,7 +1802,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
-									$('#attach_button').click();
+									$('#attach_button:enabled').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1851,7 +1848,7 @@
 								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
-										$('#attach_button').click();
+										$('#attach_button:enabled').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1867,7 +1864,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
-									$('#attach_button').click();
+									$('#attach_button:enabled').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1912,7 +1909,7 @@
 								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
-										$('#attach_button').click();
+										$('#attach_button:enabled').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1928,7 +1925,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
-									$('#attach_button').click();
+									$('#attach_button:enabled').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1961,6 +1958,8 @@
 		// 	$('#attach_button').click();
 		// }
 
+		$('label[for=files]').css({"display": "inline-block","text-overflow": "ellipsis","overflow": "hidden"});
+
 		$(function () {
 			'use strict';
 
@@ -1988,6 +1987,9 @@
 						data.submit();
 					});
 				},
+				messages: {
+					maxFileSize: 'File exceeds maximum allowed size of 3MB'
+				}
 			});
 
 			$('#attachments_form').addClass('fileupload-processing');
@@ -2007,7 +2009,31 @@
 			$('#attachments_form').bind('fileuploadadd', function (e, data) {
 				var filename = data.files[0].name;
 				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
-				$('#file').val(filename).trigger('blur');
+
+				// Script to validate selected file
+				var $this = $(this);
+				var validation = data.process(function(){
+					return $this.fileupload('process', data);
+				});
+
+				validation.done(function(){
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+					$('#attach_button').prop('disabled', false);
+					$('#attach_button_close').prop('disabled', false);
+					$('#file').val(filename).trigger('blur');
+				});
+				validation.fail(function(data) {
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					var maxLimitError = data.files[0].error;
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(maxLimitError);
+					
+					$('#attach_button').prop('disabled', true);
+					$('#attach_button_close').prop('disabled', true);
+					$('#file').val('').trigger('blur');
+				});
 			});
 			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 				// var source_no = $('#source_no').val();
@@ -2037,7 +2063,8 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.removeClass('has-error');
 					form_group.find('p.help-block.m-none').html('');
-
+					$('#attach_button').prop('disabled', false);
+					$('#attach_button_close').prop('disabled', false);
 					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
 					// $('#file').val('').trigger('blur');
 					// getList();
@@ -2045,6 +2072,9 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.addClass('has-error');
 					form_group.find('p.help-block.m-none').html(msg);
+					$('#attach_button').prop('disabled', true);
+					$('#attach_button_close').prop('disabled', true);
+					$('#file').val('').trigger('blur');
 				}
 			});
 		});
