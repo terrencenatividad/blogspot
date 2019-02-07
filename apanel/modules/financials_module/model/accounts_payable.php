@@ -2268,10 +2268,11 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function updateAsset($assetid,$amount,$asd1,$asd2)
+	public function updateAsset($assetid,$amount,$asd1,$asd2,$useful_life,$addmonths)
 	{
 		$fields['capitalized_cost'] = $amount+$asd1;
 		$fields['balance_value'] = $amount+$asd2;
+		$fields['useful_life'] = $useful_life+$addmonths;
 		$result = $this->db->setTable('asset_master')
 		->setValues($fields)
 		->setWhere("asset_number = '$assetid'")

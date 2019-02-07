@@ -310,7 +310,7 @@ class accounts_receivable extends wc_model
 									"rvapp.voucherno rvoucher", "rvapp.arvoucherno arno");
 		$rv_table 		=	"rv_application rvapp";
 		//$rv_cond 		=	"rvapp.stat NOT IN('cancelled','temporary')";
-		$rv_cond 		=	"pvm.stat = 'posted'";
+		$rv_cond 		=	"rvm.stat = 'posted'";
 		$rv_groupby 	=	"rvapp.arvoucherno";						
 
 		$sub_select = $this->db->setTable($rv_table)
