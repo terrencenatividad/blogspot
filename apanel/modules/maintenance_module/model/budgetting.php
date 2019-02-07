@@ -341,6 +341,8 @@ class budgetting extends wc_model
 			'12' => 'december'
 		);
 
+		$stat = ucfirst($fields['status']);
+
 		$budget = $this->getIdOfBudget($id);
 		$temp = array();
 		$reports = array();
@@ -370,6 +372,11 @@ class budgetting extends wc_model
 				->setValues($reports)
 				->runInsert(false);
 			}
+		}
+		$budgetcode = $budget[0]->budget_code;
+
+		if ($result) {
+			$this->log->saveActivity("$stat Budget [$budgetcode]");
 		}
 
 		return $result;
