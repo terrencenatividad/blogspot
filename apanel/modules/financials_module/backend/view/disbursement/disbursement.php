@@ -127,6 +127,7 @@
 										->setSplit('col-md-2', 'col-md-10')
 										->setName('remarks')
 										->setId('remarks')
+										->setMaxLength(300)
 										->setValue($particulars)
 										->setAttribute(
 											array(
@@ -1350,7 +1351,7 @@
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
 
-			val_bank = $(this).val();
+			val_bank = $('.cheque_account :selected').text();
 			$('#current_bank').val(val_bank);
 			var num = curr_bank_seq[val_bank] || 0;
 			cheque_element = $(this);
