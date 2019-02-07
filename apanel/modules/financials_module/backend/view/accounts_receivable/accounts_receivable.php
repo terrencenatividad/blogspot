@@ -274,6 +274,7 @@
 												'rows' => 4
 											)
 										)
+										->setMaxLength(300)
 										->setValue($particulars)
 										->draw($show_input);
 										?>
