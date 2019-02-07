@@ -213,7 +213,7 @@
 									<div class="col-md-6">
 										<?php
 											echo $ui->formField('text')
-													->setLabel('Remaining Life(Months)')
+													->setLabel('Useful Life(Months)')
 													->setSplit('col-md-3', 'col-md-8')
 													->setName('useful_life')
 													->setId('useful_life')

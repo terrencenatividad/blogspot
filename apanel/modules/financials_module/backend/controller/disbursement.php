@@ -94,7 +94,7 @@ class controller extends wc_controller
 		// $data["cash_account_list"] 	= $this->payment_voucher->retrieveData("chartaccount as chart", $cash_account_fields, $cash_account_cond, $cash_account_join, $cash_order_by);
 
 		// Cash Account Options
-		$cash_account_fields 	  	= "b.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
 		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
 		$cash_order_by 		 	  	= "id desc";
 		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
@@ -1017,6 +1017,17 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 
+		$accountno = '';
+		$acc = explode(' - ', $data_post['bank_name']);
+		if(count($acc) == '2') {
+			$accountno = $acc[1];
+		} else {
+			$accountno = $acc[2];
+		}
+		if ($data_post['paymentmode'] == 'cheque') {
+			$result = $this->payment_voucher->update_checks($accountno, $data_post['chequenumber'][1]);
+		}
+
 		// $book_ids	=json_decode(stripcslashes($data_post['book_ids']));
 		// $book_end	=json_decode(stripcslashes($data_post['book_end']));
 		// $book_last	= json_decode(stripcslashes($data_post['book_last']));
@@ -1630,9 +1641,16 @@ class controller extends wc_controller
 
 	public function getNumbers() {
 		$data = $this->input->post(array('bank', 'curr_seq'));
-		$getBank = $this->payment_voucher->getbankid($data['bank']);
-		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-		$nums = $this->payment_voucher->getNextCheckNum($data['bank'], $data['curr_seq']);
+		$arr = explode(' - ', $data['bank']);
+		$counter = 0;
+		if(count($arr) == '2') {
+			$counter = $arr[1];
+		} else {
+			$counter = $arr[2];
+		}
+		$getBank = $this->payment_voucher->getbankid($counter);
+		$bank_id = isset($getBank->id) ? $getBank->id : '';
+		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
 		$table = '';
 		if(empty($nums->result)) {
 			$table = false;
@@ -1646,6 +1664,7 @@ class controller extends wc_controller
 			}
 		}
 		$nums->table = $table;
+		$nums->bank_id = $bank_id;
 		return $nums;
 	}
 

@@ -66,11 +66,11 @@ class accounts_payable extends wc_model
 	public function getBudgetAmount($budgetcode, $accountcode, $effectivity_date)
 	{
 		$result = $this->db->setTable('budget_details as bd')
-		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.allocated, 0) = 0, 0, ac.allocated) - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 		->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
 		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$effectivity_date'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
-		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+		->leftJoin("(SELECT SUM(actual) as actual, SUM(allocated) as allocated, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno not like '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->setGroupBy('bd.accountcode, bd.budget_code')
 		->runSelect()
@@ -2268,10 +2268,11 @@ class accounts_payable extends wc_model
 		return $result;
 	}
 
-	public function updateAsset($assetid,$amount,$asd1,$asd2)
+	public function updateAsset($assetid,$amount,$asd1,$asd2,$useful_life,$addmonths)
 	{
 		$fields['capitalized_cost'] = $amount+$asd1;
 		$fields['balance_value'] = $amount+$asd2;
+		$fields['useful_life'] = $useful_life+$addmonths;
 		$result = $this->db->setTable('asset_master')
 		->setValues($fields)
 		->setWhere("asset_number = '$assetid'")

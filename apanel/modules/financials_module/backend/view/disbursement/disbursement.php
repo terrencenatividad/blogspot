@@ -11,6 +11,7 @@
 	</div>
 
 	<form method = "post" class="form-horizontal" id = "payableForm">
+		<input type = "hidden" id = "bank_name" name = "bank_name" >
 		<input type = "hidden" id = "book_id" >
 		<input type = "hidden" id = "book_ids" name = "book_ids" >
 		<input type = "hidden" id = "book_last" name = "book_last" >
@@ -1351,8 +1352,9 @@
 				$('#entriesTable tbody tr.clone select').select2('destroy');
 			}
 
-			val_bank = $(this).val();
+			val_bank = $('.cheque_account :selected').text();
 			$('#current_bank').val(val_bank);
+			$('#bank_name').val(val_bank);
 			var num = curr_bank_seq[val_bank] || 0;
 			cheque_element = $(this);
 			
