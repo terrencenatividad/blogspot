@@ -32,7 +32,7 @@ class financial_model extends wc_model {
 		$this->detail_table			= 'ap_details';
 		$this->vouchertype			= 'AP';
 
-		$this->add_field			= array('invoiceno');
+		$this->add_field			= array('invoiceno','assetid');
 
 		$this->source_header_table	= ($this->source_header_table) ? $this->source_header_table : 'purchasereceipt';
 		$this->source_detail_table	= ($this->source_detail_table) ? $this->source_detail_table : 'purchasereceipt_details';
@@ -262,7 +262,8 @@ class financial_model extends wc_model {
 			'fiscalyear'		=> date('Y'),
 			'balance'			=> $header->netamount,
 			'source'			=> '',
-			'sourceno'			=> $this->voucherno
+			'sourceno'			=> $this->voucherno,
+			'assetid'			=> $header->assetid
 		);
 
 		if ($this->header_table != 'journalvoucher') {

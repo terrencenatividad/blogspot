@@ -822,4 +822,13 @@ class purchase_receipt_model extends wc_model {
 		return $result;
 	}
 
+	public function retrieveAssetList() {
+		$result = $this->db->setTable('asset_master')
+						->setFields("asset_number ind, asset_number val")
+						->runSelect()
+						->getResult();
+		
+		return $result;
+	}
+
 }
