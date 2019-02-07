@@ -1768,7 +1768,7 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bank b')
 		->setFields("b.id id")
 		->innerJoin("chartaccount c on c.segment5 = b.gl_code")
-		->setWhere("b.shortname LIKE '%$ca%' ")
+		->setWhere("b.accountno = '$ca' ")
 		->runSelect()
 		->setLimit(1)
 		->getRow();

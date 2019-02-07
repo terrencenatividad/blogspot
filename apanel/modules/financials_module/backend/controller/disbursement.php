@@ -1631,7 +1631,13 @@ class controller extends wc_controller
 	public function getNumbers() {
 		$data = $this->input->post(array('bank', 'curr_seq'));
 		$arr = explode(' - ', $data['bank']);
-		$getBank = $this->payment_voucher->getbankid($arr[0]);
+		$counter = 0;
+		if(count($arr) == '2') {
+			$counter = $arr[1];
+		} else {
+			$counter = $arr[2];
+		}
+		$getBank = $this->payment_voucher->getbankid($counter);
 		$bank_id = isset($getBank->id) ? $getBank->id : '';
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
 		$table = '';
