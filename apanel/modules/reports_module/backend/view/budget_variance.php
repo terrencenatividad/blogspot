@@ -44,8 +44,10 @@
 			<table id="tableList" class="table table-hover table-striped table-sidepad">
 				<thead>
 					<tr class="info">
-						<th class="col-md-3">Code</th>
-						<th class="col-md-3">Description</th>
+						<th class="col-md-1">Code</th>
+						<th class="col-md-2">Description</th>
+						<th class="col-md-2">Available</th>
+						<th class="col-md-2">Allocated</th>
 						<th class="col-md-2">Budget</th>
 						<th class="col-md-2">Actual</th>
 						<th class="col-md-2">Variance</th>
@@ -57,6 +59,8 @@
 				<tfoot>
 					<tr>
 						<td colspan = "2"></td>
+						<td class = "text-right"><strong>Total : </strong><span class = "total_available"></span></td>
+						<td class = "text-right"><strong>Total : </strong><span class = "total_allocated"></span></td>
 						<td class = "text-right"><strong>Total : </strong><span class = "total_amount"></span></td>
 						<td class = "text-right"><b>Total : </b><span class = "total_actual"></span></td>
 						<td class = "text-right"><b>Total : </b><span class="total_variance"></span></td>
@@ -79,7 +83,10 @@
 			$('#pagination').html(data.pagination);
 			$('.total_amount').html(data.total_amount);
 			$('.total_actual').html(data.total_actual);
+			$('.total_available').html(data.total_available);
+			$('.total_allocated').html(data.total_allocated);
 			$('.total_variance').html(data.total_var);
+			$('.total_available').html(data.total_avail);
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});
 	}
