@@ -1017,6 +1017,17 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 
+		$accountno = '';
+		$acc = explode(' - ', $data_post['bank_name']);
+		if(count($acc) == '2') {
+			$accountno = $acc[1];
+		} else {
+			$accountno = $acc[2];
+		}
+		if ($data_post['paymentmode'] == 'cheque') {
+			$result = $this->payment_voucher->update_checks($accountno, $data_post['chequenumber'][1]);
+		}
+
 		// $book_ids	=json_decode(stripcslashes($data_post['book_ids']));
 		// $book_end	=json_decode(stripcslashes($data_post['book_end']));
 		// $book_last	= json_decode(stripcslashes($data_post['book_last']));

@@ -11,6 +11,7 @@
 	</div>
 
 	<form method = "post" class="form-horizontal" id = "payableForm">
+		<input type = "hidden" id = "bank_name" name = "bank_name" >
 		<input type = "hidden" id = "book_id" name = "book_id" >
 		<input type = "hidden" id = "book_ids" name = "book_ids" >
 		<input type = "hidden" id = "book_last" name = "book_last" >
@@ -1678,6 +1679,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 
 		val_bank = $('.cheque_account :selected').text();
 		$('#current_bank').val(val_bank);
+		$('#bank_name').val(val_bank);
 		var num = curr_bank_seq[val_bank] || 0;
 
 		cheque_element = $(this);
@@ -1806,10 +1808,16 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 	});
 
 $('#table_chequelist #cheque_list_container').on('click', 'tr', function() {
+	storechequetobank();
 	var num = $(this).find('.nextchequeno').html();
 	curr_bank_seq[val_bank] = num;
 	cheque_element.closest('tr').find('.chequenumber').val(num);
 	$('#chequeList').modal('hide');
+	if (typeof book_ids[val_bank] === 'undefined') {
+		book_ids[val_bank] = [];
+	}
+	book_ids[val_bank].push(num);
+	$('#book_ids').val(JSON.stringify(book_ids));
 });
 
 
