@@ -225,6 +225,9 @@
 				ajax_call.abort();
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
+				if(data.check != false){
+					$('#run').prop('disabled', true);
+				}
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
@@ -262,17 +265,18 @@
 				}
 			});
 		}
-
+		
 		$('#run').on('click', function(){
 			$('#rundep').modal('show');
+		});
+
 			$("#rundep #yes_or_yes").click(function() {
-				$.post('<?=MODULE_URL?>ajax/ajax_load_depreciation', ajax, function(data) {
+				$.post('<?=MODULE_URL?>ajax/ajax_load_depreciation', function(data) {
 					getList();
 				});
 				$('#rundep').modal('hide');
+				// getAssetList();
 			});
-			getAssetList();
-		});
 
 		$('#simulate').on('click', function(){
 			ajax.search = '';
