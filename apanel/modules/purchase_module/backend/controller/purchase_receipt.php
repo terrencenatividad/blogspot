@@ -316,7 +316,7 @@ class controller extends wc_controller {
 		$print->setHeaderWidth(array(50, 110, 20, 20))
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'C'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryAlign(array('J'))	
 				->setSummaryWidth(array('200'));
 		
@@ -364,18 +364,18 @@ class controller extends wc_controller {
 					$second = 'C/N';
 				}
 					
-				$print->setHeaderWidth(array(30, 50, 20, 10, 45, 45))
+				$print->setHeaderWidth(array(30, 40, 20, 20, 45, 45))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second))
-						->setRowAlign(array('L', 'L', 'R', 'C', 'L', 'L', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			} else if ($serial_total == 3) {
 			// 3 SERIAL FIELDS
-				$print->setHeaderWidth(array(30, 50, 20, 10, 30, 30, 30))
+				$print->setHeaderWidth(array(30, 40, 20, 20, 30, 30, 30))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
-						->setRowAlign(array('L', 'L', 'R', 'C', 'L', 'L', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			}

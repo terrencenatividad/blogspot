@@ -214,10 +214,9 @@ class trial_balance extends wc_model {
 				}else if($transtype == 'JV'){
 					$link		= '<a href="' . BASE_URL .'financials/journal_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'IT' && $sources == 'jo_release'){
-					$source		= $this->getValues("journalvoucher jv",array("referenceno, job_order_no"),"voucherno = '$voucher'", "","job_release jr ON jr.job_release_no = jv.referenceno");
-					$jo     	= $source[0]->job_order_no;
-					$source     = ($source) ? $source[0]->referenceno : $voucher;
-					$link		= '<a href="' . BASE_URL .'parts_and_service/job_order/view/'. $jo .'" target="_blank">'.$source.'</a>';
+					$source		= $this->getValues("journalvoucher jv",array("job_order_no"),"voucherno = '$voucher'", "","job_release jr ON jr.job_release_no = jv.referenceno");
+					$source     = ($source) ? $source[0]->job_order_no : $voucher;
+					$link		= '<a href="' . BASE_URL .'parts_and_service/job_order/view/'. $source .'" target="_blank">'.$source.'</a>';
 				}else if($transtype == 'IT'){
 					$source		= $this->getValue("journalvoucher",array("referenceno"),"voucherno = '$voucher'");
 					$source     = ($source) ? $source[0]->referenceno : $voucher;

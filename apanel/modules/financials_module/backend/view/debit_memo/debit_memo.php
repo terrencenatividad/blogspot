@@ -218,6 +218,7 @@
 							->setName('remarks')
 							->setId('remarks')
 							->setValue($remarks)
+							->setMaxLength(300)
 							// ->setValidation('required')
 							->draw($show_input);
 							?>

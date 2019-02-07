@@ -140,8 +140,8 @@ class controller extends wc_controller {
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
-		$data['transactiondate']	= $this->date->dateFormat();
-		$data['targetdate']			= $this->date->dateFormat();
+		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
+		$data['targetdate']			= $this->date->dateFormat($data['transactiondate']);
 		$data['job_list']			= $this->job_order->getOption('job_type','code');
 		$data['customer_list']		= $this->job_order->getCustomerList();
 		$data['discount_type_list']	= $this->job_order->getOption('discount_type','value');
@@ -174,7 +174,7 @@ class controller extends wc_controller {
 		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
 
 		$data['ui']					= $this->ui;
-		$data['transactiondate']	= $this->date->dateFormat();
+		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['targetdate']			= $this->date->dateFormat();
 		$data['job_list']			= $this->job_order->getOption('job_type','code');
 		$data['customer_list']		= $this->job_order->getCustomerList();
@@ -221,7 +221,7 @@ class controller extends wc_controller {
 		$data						= $this->input->post($this->fields);
 		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
 		$data['ui']					= $this->ui;
-		$data['transactiondate']	= $this->date->dateFormat();
+		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['targetdate']			= $this->date->dateFormat();
 		$data['job_list']			= $this->job_order->getOption('job_type','code');
 		$data['customer_list']		= $this->job_order->getCustomerList();
@@ -599,7 +599,7 @@ class controller extends wc_controller {
 		$result		= $this->job_order->saveJobOrder($data, $data2);
 		
 		$this->inventory_model->setReference($data['job_order_no'])
-									->setDetails($customer)
+									->setDetails($data['customer'])
 									->generateBalanceTable();
 
 		$redirect_url = MODULE_URL;

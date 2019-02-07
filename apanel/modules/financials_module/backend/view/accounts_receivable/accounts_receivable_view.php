@@ -887,11 +887,7 @@
                                         <button type="button" class="btn btn-info" id="btnProceed" >Apply</button>
                                     </div>
                                     &nbsp;&nbsp;&nbsp;
-                                    <div class="btn-group">
-                                        <a href="javascript:void(0);" class="btn btn-small btn-default" role="button" data-dismiss="modal" style="outline:none;">
-                                            Cancel
-                                        </a>
-                                    </div>
+                                    <?php echo $ui->drawCancel(); ?>
                                 </div>
                             </div>
                         </form>

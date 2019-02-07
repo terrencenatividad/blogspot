@@ -74,10 +74,10 @@ class payment_voucher_model extends wc_model
 	public function getAmountAndAccount($budgetcode, $accountcode, $transactiondate)
 	{
 		$result = $this->db->setTable('budget_details as bd')
-		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
+		->setFields("IF(IFNULL(bs.amount, 0) = 0, 0, SUM(bs.amount)) + bd.amount  - IF(IFNULL(ac.allocated, 0) = 0, 0, ac.allocated) - IF(IFNULL(ac.actual, 0) = 0, 0, ac.actual) as amount, b.budget_check as budget_check, CONCAT(ca.segment5, ' - ', ca.accountname) as accountname")
 		->leftJoin("budget as b ON bd.budget_code = b.budget_code AND b.status = 'approved'")
 		->leftJoin("budget_supplement as bs ON bs.budget_id = b.id AND bs.accountcode = '$accountcode' AND bs.status = 'approved' AND bs.effectivity_date <= '$transactiondate'")
-		->leftJoin("(SELECT SUM(actual) as actual, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno NOT LIKE '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
+		->leftJoin("(SELECT SUM(actual) as actual, SUM(allocated) as allocated, accountcode, budget_code, voucherno FROM actual_budget WHERE voucherno NOT LIKE '%DV_%' AND voucherno NOT LIKE '%TMP_%' GROUP BY accountcode, budget_code) as ac ON ac.accountcode = bd.accountcode AND ac.budget_code = '$budgetcode'")
 		->leftJoin('chartaccount as ca ON ca.id = bd.accountcode')
 		->setWhere("bd.budget_code = '$budgetcode' AND bd.accountcode = '$accountcode'")
 		->setGroupBy('bd.accountcode, bd.budget_code')
@@ -398,7 +398,7 @@ class payment_voucher_model extends wc_model
 				"p.partnername as partner",
 				"main.referenceno as reference",
 				"main.paymenttype as paymentmode",
-				"main.convertedamount as amount",
+				"IF('$voucher' = 'PV', main.convertedamount, main.amount) as amount",
 				"main.stat as status",
 				"coa.accountname as bankaccount",
 				"pvc.chequenumber as chequenumber",
@@ -1066,7 +1066,6 @@ class payment_voucher_model extends wc_model
 						}
 					}
 				}
-				
 				$insertResult1 = $this->db->setTable($detailAppTable) 
 				->setValues($aPvDetailArray)
 				->runInsert();
@@ -1768,10 +1767,21 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bank b')
 		->setFields("b.id id")
 		->innerJoin("chartaccount c on c.segment5 = b.gl_code")
-		->setWhere("c.id = '$ca' ")
+		->setWhere("b.accountno = '$ca' ")
 		->runSelect()
 		->setLimit(1)
-		->getResult();
+		->getRow();
+		return $result;
+	}
+
+	public function getbankinfo($ca, $chequenumber) {
+		$result = $this->db->setTable('bank b')
+		->setFields("b.id id, bd.firstchequeno, bd.nextchequeno, bd.lastchequeno")
+		->leftJoin("bankdetail as bd ON b.id = bd.bank_id ")
+		->setWhere("b.accountno = '$ca' AND bd.nextchequeno = '$chequenumber'")
+		->runSelect()
+		->setLimit(1)
+		->getRow();
 		return $result;
 	}
 
@@ -1839,15 +1849,18 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function update_checks($book_last_num, $book_id, $bank, $book_end){
-		$getBank = $this->getbankid($bank);
-		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-		$data1['stat'] = ($book_last_num == $book_end) ? 'used' : 'open';
-		$data1['nextchequeno'] = ($book_last_num + 1);
+	public function update_checks($accountno, $chequenumber){
+		$getBank = $this->getbankinfo($accountno, $chequenumber);
+		$id = $getBank->id;
+		$first = $getBank->firstchequeno;
+		$next = $getBank->nextchequeno;
+		$last = $getBank->lastchequeno;
+		$data1['stat'] = ($chequenumber == $last) ? 'closed' : 'open';
+		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;
 		
 		$result = $this->db->setTable("bankdetail") 
 		->setValues($data1)
-		->setWhere("bank_id = '$bank_id' AND firstchequeno = '$book_id'")
+		->setWhere("bank_id = '$id' AND firstchequeno = '$first'")
 		->setLimit(1)
 		->runUpdate();
 							// echo $this->db->getQuery();
