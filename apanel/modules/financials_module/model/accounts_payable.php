@@ -571,11 +571,13 @@ class accounts_payable extends wc_model
 		$pv_app_fields 	=	array("(COALESCE(SUM(pvapp.convertedamount),0) + COALESCE(SUM(pvapp.discount),0) - COALESCE(SUM(pvapp.forexamount), 0)) amount",
 			"pvapp.voucherno rvoucher", "pvapp.apvoucherno apno");
 		$pv_table 		=	"pv_application pvapp";
-		$pv_cond 		=	"pvapp.stat NOT IN('cancelled','temporary')";
+		//$pv_cond 		=	"pvapp.stat NOT IN('cancelled','temporary')";
+		$pv_cond 		=	"pvm.stat = 'posted'";
 		$pv_groupby 	=	"pvapp.apvoucherno";					
 
 		$sub_select = $this->db->setTable($pv_table)
 		->setFields($pv_app_fields)
+		->leftJoin("paymentvoucher pvm ON pvm.voucherno = pvapp.voucherno ")
 		->setWhere($pv_cond)
 		->setGroupBy($pv_groupby)
 		->buildSelect();
