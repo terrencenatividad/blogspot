@@ -558,17 +558,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								}
@@ -592,17 +592,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									}
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$checkamount[] = "You were about to exceed your budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									}
 								}
@@ -643,17 +643,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $getaccount->accountname. ".</br>";
 									}
 								}
@@ -677,17 +677,17 @@ class purchase_order extends wc_model
 								$checkist = in_array($row['budgetcode'], $codes);
 								if(!$checkist) {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] = str_replace(',', '', $row['unitprice']);
+									$codes['amount'] = str_replace(',', '', $row['amount']);
 								} else {
 									$codes['code'] = $row['budgetcode'];
-									$codes['amount'] += str_replace(',', '',$row['unitprice']);
+									$codes['amount'] += str_replace(',', '',$row['amount']);
 								}
 								if($checkist) {
 									if($codes['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									} 
 								} else {
-									if($row['unitprice'] > $getbudgetaccount->amount) {
+									if($row['amount'] > $getbudgetaccount->amount) {
 										$error[] = "You are not allowed to exceed budget from " . $row['budgetcode']. " account " . $check->accountname. ".</br>";
 									}
 								}

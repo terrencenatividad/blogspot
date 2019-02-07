@@ -126,7 +126,7 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button" disabled>Attach</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -263,7 +263,7 @@ $(function () {
 
 	$('#attachments_form').fileupload({
 		url: '<?= MODULE_URL ?>ajax/ajax_upload_file',
-		maxFileSize: 2000000,
+		maxFileSize: 3000000,
 		disableExifThumbnail :true,
 		previewThumbnail:false,
 		autoUpload:false,
@@ -272,6 +272,9 @@ $(function () {
 				data.submit();
 			});
 		},
+		messages: {
+			maxFileSize: 'File exceeds maximum allowed size of 3MB'
+		}
 	});
 	$('#attachments_form').addClass('fileupload-processing');
 	$.ajax({
@@ -290,6 +293,29 @@ $(function () {
 	$('#attachments_form').bind('fileuploadadd', function (e, data) {
 		var filename = data.files[0].name;
 		$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
+
+		/**
+		 * Script to validate selected file
+		 */
+		var $this = $(this);
+		var validation = data.process(function () {
+			return $this.fileupload('process', data);
+		});
+
+		validation.done(function(){
+			var form_group = $('#attachments_form #files').closest('.form-group');
+			form_group.removeClass('has-error');
+			form_group.find('p.help-block.m-none').html('');
+			$("#attach_button").prop('disabled', false);
+		});
+		validation.fail(function(data) {
+			var form_group = $('#attachments_form #files').closest('.form-group');
+			var maxLimitError = data.files[0].error;
+			form_group.addClass('has-error');
+			form_group.find('p.help-block.m-none').html(maxLimitError);
+
+			$("#attach_button").prop('disabled', true);
+		});
 	});
 	$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 		var voucherno 		=  $('#input_voucherno').val();
@@ -304,13 +330,14 @@ $(function () {
 			var msg = data.result['files'][0]['name'];
 			form_group.removeClass('has-error');
 			form_group.find('p.help-block.m-none').html('');
-
-			$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+			$("#attach_button").prop('disabled', false);
+			//$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
 			getList();
 		}else{
 			var msg = data.result['files'][0]['name'];
 			form_group.addClass('has-error');
 			form_group.find('p.help-block.m-none').html(msg);
+			$("#attach_button").prop('disabled', true);
 		}
 	});
 });
