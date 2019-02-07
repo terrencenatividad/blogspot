@@ -1282,6 +1282,35 @@
 	->draw();
 	?>
 
+	<div class="modal fade" id="months" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
+					<h4 class="modal-title">Add Months</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+					<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12"><p>No. of months for Asset</p></div>
+					</div>
+					<div class="row">
+						<div class="col-md-12"><input type="text" id="addmonths" class="form-control"></div>
+					</div>
+					</div>
+					<div class="modal-footer text-center">
+						<button type="button" class="btn btn-primary" id = "yes_or_yes">Yes</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+					</div>
+					</div>
+				</div>
+		
+			</div>
+		</div>
+	</div>
+
+
 		<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
 			<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
@@ -1463,14 +1492,19 @@
 			});
 		});
 
-		$('#assetid').on('change', function() {
-			var asset = $(this).val();
+		$('#yes_or_yes').click(function() {
+			var asset = $('#assetid').val();
 			$('#job').attr('disabled', 'disabled');
-			$.post('<?=MODULE_URL?>ajax/ajax_get_asset_details', '&asset=' + asset, function(data) {
+			$.post('<?=MODULE_URL?>ajax/ajax_get_asset_details', '&asset=' + asset , function(data) {
 				if(data) {
 					$('#itemsTable tbody tr.clone .accountcode:first').val(data).trigger('change').select2({width: "100%"});
 				}
 			});
+			$('#months').modal('hide');
+		});
+
+		$('#assetid').on('change', function() {
+			$('#months').modal('show');
 		});
 
 		<?php if($ajax_task != 'ajax_create') : ?>
@@ -1777,7 +1811,8 @@
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+					var addmonths = $('#addmonths').val();
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes + '&addmonths=' + addmonths, function(data) {
 						if(data.check) {
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
@@ -1839,7 +1874,8 @@
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+					var addmonths = $('#addmonths').val();
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes + '&addmonths=' + addmonths, function(data) {
 						if(data.check) {
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
@@ -1900,7 +1936,8 @@
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+					var addmonths = $('#addmonths').val();
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes + '&addmonths=' + addmonths, function(data) {
 						if(data.check) {
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
