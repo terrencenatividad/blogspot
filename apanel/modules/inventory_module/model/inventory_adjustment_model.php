@@ -556,6 +556,14 @@ class inventory_adjustment_model extends wc_model {
 		return $result;
 	}
 
+	public function deleteimportedserials($warehouse, $itemcode) {
+		$result = $this->db->setTable('items_serialized')
+							->setWhere("warehousecode = '$warehouse' AND itemcode = '$itemcode'")
+							->runDelete();
+		// echo $this->db->getQuery();
+		return $result;
+	}
+
 	public function generate_beg_jv($voucher, $jvvoucher)
 	{
 		$detail_info		= array();
