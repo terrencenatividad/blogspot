@@ -87,6 +87,20 @@
 									->draw($show_input);
 							?>
 						</div>
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('textarea')
+								->setLabel('Reason ')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('reason')
+								->setId('reason')
+								->setMaxLength(100)
+								->setValue($reason)
+								->setValidation('required')
+								// ->addHidden(($ajax_task != 'ajax_create'))
+								->draw($show_input);
+							?>
+						</div>
 						<!-- <div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
@@ -104,28 +118,15 @@
 						</div> -->
 					</div>
 					<div class="row">
-						<div class="col-md-6">
+						<div class="col-md-12">
 							<?php
 								echo $ui->formField('textarea')
 								->setLabel('Notes')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-2', 'col-md-10')
 								->setName('remarks')
 								->setId('remarks')
 								->setMaxLength(300)
 								->setValue($remarks)
-								->draw($show_input);
-							?>
-						</div>
-						<div class="col-md-6">
-							<?php
-								echo $ui->formField('textarea')
-								->setLabel('Reason ')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('reason')
-								->setId('reason')
-								->setValue($reason)
-								->setValidation('required')
-								// ->addHidden(($ajax_task != 'ajax_create'))
 								->draw($show_input);
 							?>
 						</div>
@@ -332,21 +333,14 @@
 		</div>
 		<div class="modal-body">
 			<div class="row">
-				<div class="col-md-4 col-md-offset-4">
-					<?php
-						echo $ui->formField('dropdown')
-								->setLabel('')
-								->setPlaceholder('Select Source Type')
-								->setSplit('', 'col-md-12')
-								->setName('source')
-								->setId('source')
-								->setList(array('1' => 'Delivery Receipt', '2' => 'Sales Invoice'))
-								->setValue('1')
-								// ->addHidden(($ajax_task != 'ajax_create'))
-								->draw($show_input);
-					?>
+				<div class="col-md-6" id = "filters">
+					<div class="input-group">
+						<input type = "radio" checked = "true" name = "voucher_type" id = "voucher_type" value = "Delivery Receipt"> Delivery Receipt
+						&nbsp;&nbsp;
+						<input type = "radio" name = "voucher_type" id = "voucher_type" value = "si"> Sales Invoice
+					</div>
 				</div>
-				<div class="col-md-4 col-md-offset-">
+				<div class="col-md-4 col-md-offset-2">
 					<div class="input-group">
 						<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
 						<div class="input-group-addon">
@@ -436,7 +430,7 @@ var show_input 	= '<?=$show_input;?>';
 var ajax_task 	= '<?=$ajax_task;?>';
 var selected_serial = [];
 var header = '<?=$source_no?>';
-console.log(header);
+
 function addVoucherDetails(details, index) {
 	var details 	= details || {itemcode: '', detailparticular: '', issueqty: ''};
 	var other_details = JSON.parse(JSON.stringify(details));
@@ -652,7 +646,7 @@ function addVoucherDetails(details, index) {
 						->setSplit('', 'col-md-12')
 						->setName('amount[]')
 						->setClass('amount')
-						->setValue('` + addComma(0) + `')
+						->setValue('` + addComma(details.netamount) + `')
 						->addHidden()
 						->draw($show_input);
 				?>
@@ -763,6 +757,7 @@ function displayDetails(details) {
 					}
 				}
 			}
+
 			addVoucherDetails(details, index);
 			
 		});
@@ -923,6 +918,9 @@ $('#invoice_tableList').on('click', 'tr[data-id]', function() {
 	$('#invoice_list_modal').modal('hide');
 	loadSalesDetails();
 });
+$('#filters').on('ifToggled', 'input[name="voucher_type"]:checked', function () {
+	getList();
+});
 </script>
 
 <?php endif;?>
@@ -931,7 +929,7 @@ $('#invoice_tableList').on('click', 'tr[data-id]', function() {
 <script>
 function getList() {
 	ajax.limit = 5;
-	var data = $('#source option:selected').text();
+	var data = $('#filters input[name="voucher_type"]:checked').val();
 	$('#invoice_list_modal').modal('show');
 
 	if (ajax_call != '') {
