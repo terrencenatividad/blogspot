@@ -9,6 +9,7 @@ class modal {
 		$this->id		= '';
 		$this->content	= '';
 		$this->header	= '';
+		$this->size		= '';
 	}
 
 	public function setId($id) {
@@ -26,10 +27,15 @@ class modal {
 		return $this;
 	}
 
+	public function setSize($size) {
+		$this->size = $size;
+		return $this;
+	}
+
 	public function draw() {
 		$modal	= '';
 		$modal	= '<div class="modal fade" id="' . $this->id . '" tabindex="-1" role="dialog">
-						<div class="modal-dialog" role="document">
+						<div class="modal-dialog ' . $this->size . '" role="document">
 							<div class="modal-content">
 								<div class="modal-header">
 									<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
