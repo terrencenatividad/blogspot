@@ -598,6 +598,10 @@ class controller extends wc_controller {
 		
 		$result		= $this->job_order->saveJobOrder($data, $data2);
 		
+		$this->inventory_model->setReference($data['job_order_no'])
+									->setDetails($customer)
+									->generateBalanceTable();
+
 		$redirect_url = MODULE_URL;
 		if ($submit == 'save_new') {
 			$redirect_url = MODULE_URL . 'create';
@@ -812,7 +816,11 @@ class controller extends wc_controller {
 		// }
 		//var_dump($data, $data2, $data['job_order_no']);
 		$result		= $this->job_order->updateJO($data, $data2);
-		
+
+		$this->inventory_model->setReference($data['job_order_no'])
+									->setDetails($data['customer'])
+									->generateBalanceTable();
+
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result

@@ -80,7 +80,7 @@ class sales_item_model extends wc_model {
 	
 	public function getItemList() {
 		$result = $this->db->setTable('items')
-						->setFields("itemcode ind, itemname val")
+						->setFields("itemcode ind, CONCAT(itemcode,' - ',itemname) val")
 						->runSelect()
 						->getResult();
 
@@ -124,7 +124,7 @@ class sales_item_model extends wc_model {
 
 	public function getWarehouseList() {
 		$result = $this->db->setTable('warehouse')
-						->setFields("warehousecode ind, description val")
+						->setFields("warehousecode ind, CONCAT(warehousecode,' - ',description) val")
 						->runSelect()
 						->getResult();
 

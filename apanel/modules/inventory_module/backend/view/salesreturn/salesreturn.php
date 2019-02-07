@@ -434,11 +434,14 @@ var min_row		= 0;
 var show_input 	= '<?=$show_input;?>';
 var ajax_task 	= '<?=$ajax_task;?>';
 var selected_serial = [];
-
+var header = '<?=$source_no?>';
+console.log(header);
 function addVoucherDetails(details, index) {
-	var details = details || {itemcode: '', detailparticular: '', issueqty: ''};
+	var details 	= details || {itemcode: '', detailparticular: '', issueqty: ''};
 	var other_details = JSON.parse(JSON.stringify(details));
 	var netamount;
+	var issueqty 	= 0;
+	var serials 	= details.serialnumbers;
 
 	delete other_details.itemcode;
 	delete other_details.detailparticular;
@@ -461,7 +464,12 @@ function addVoucherDetails(details, index) {
 			 ?>\n`;
 		}
 	}
-
+	if (ajax_task == 'ajax_edit') {
+		issueqty 	= details.issueqty;
+	}
+	if (ajax_task == 'view') {
+		serials 	= details.selectedserial; 
+	}
 	if (details.serialnumbers == null || details.serialnumbers.length <= 0) {
 		var issueqty_element = '';
 		issueqty_element = '<?php
@@ -479,9 +487,9 @@ function addVoucherDetails(details, index) {
 							?>';
 
 	} else {
-		issueqty_element = '<button type="button" class="btn btn-flat btn-success btnserial" data-serialid="'+details.serialnumbers+'" data-maxitem="'+parseFloat(details.maxqty)+'">Select item<span class="pull-right">0</span></button>';
-		issueqty_element += '<input type="hidden" class="allserial" name="allserial[]" value="'+details.serialnumbers+'">';
-		issueqty_element += '<input type="hidden" class="issueqty" name="issueqty[]" data-value="'+details.issueqty+'">';
+		issueqty_element = '<button type="button" class="btn btn-flat btn-success btnserial" data-serialid="'+serials+'" data-maxitem="'+parseFloat(details.maxqty)+'">Select item<span class="pull-right">0</span></button>';
+		issueqty_element += '<input type="hidden" class="allserial" name="allserial[]" value="'+serials+'">';
+		issueqty_element += '<input type="hidden" class="issueqty" name="issueqty[]" data-value="'+issueqty+'">';
 	}
 	if (details.netamount == null) {
 		netamount = 0;
@@ -565,7 +573,7 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
-						->setName('txtddefective[]')
+						->setName('txtdefective[]')
 						->setClass('txtdefective')
 						->setValue('No')
 						->addHidden()
@@ -677,11 +685,12 @@ function addVoucherDetails(details, index) {
 	if (details.defective == 'Yes') {
 		$('#tableList tbody').find('tr:last .defective').iCheck('check').iCheck('update');
 		$('#tableList tbody').find('tr:last input[name="defective[]"]').val('Yes');
-		
+		$('#tableList tbody').find('tr:last p[name="txtdefective[]"]').html('Yes')
 	}
 	if (details.replacement == 'Yes') {
 		$('#tableList tbody').find('tr:last .replacement').iCheck('check').iCheck('update');
 		$('#tableList tbody').find('tr:last input[name="replacement[]"]').val('Yes');
+		$('#tableList tbody').find('tr:last p[name="txtreplacement[]"]').html('Yes')
 	}
 	try {
 		drawTemplate();
@@ -745,10 +754,12 @@ function displayDetails(details) {
 	}
 	if (details.length > 0) {
 		details.forEach(function(details, index) {
-			var serial = details.selectedserial.split(',');
-			for (var i = 0; i < serial.length; i++) {
-				if (serial[i] != '') {
-					selected_serial.push(parseInt(serial[i]));
+			if (ajax_task != 'ajax_create') {
+				var serial = details.selectedserial.split(',');
+				for (var i = 0; i < serial.length; i++) {
+					if (serial[i] != '') {
+						selected_serial.push(parseInt(serial[i]));
+					}
 				}
 			}
 			addVoucherDetails(details, index);
@@ -857,7 +868,6 @@ function getSerialList(sourceno, linenum, serialid) {
 				voucherno 	: voucherno
 			};
 	$.post('<?=MODULE_URL;?>ajax/getSerialItemList', data, function(data){
-		console.log(data.table);
 		$('#serial_tableList tbody').html(data.table);
 		$('button.btnselectserial').attr('data-linenum',data.linenum);
 
@@ -1012,7 +1022,11 @@ $('.btnselectserial').on('click', function(){
 	row.find('.issueqty').trigger('blur');
 
 	$('#serial_tableList').modal('hide');
-})
+});
+
+$('.btncancel').on('click', function(){
+	$('#serial_tableList').modal('hide');
+});
 
 $('table').on('ifToggled', 'tr [type="checkbox"].checkallitem', function() {
 	var checked 	= $(this).prop('checked');

@@ -128,7 +128,7 @@
 		public function getInvoiceData($type){
 			if($type == 'items'){	
 				$result = $this->db->setTable('salesinvoice_details inv')
-						->setFields(" itm.itemcode ind, itm.itemname val")
+						->setFields(" itm.itemcode ind, CONCAT(itm.itemcode,' - ',itm.itemname) val")
 						->leftJoin("items itm ON itm.itemcode = inv.itemcode ")
 						->setWhere("inv.voucherno != '' AND (inv.stat = 'open' OR inv.stat = 'posted')")
 						->setGroupBy("ind")
@@ -146,7 +146,7 @@
 						->getResult();
 			}else if($type == 'warehouse'){
 				$result = $this->db->setTable('salesinvoice_details inv')
-						->setFields(" wh.warehousecode ind, wh.description val")
+						->setFields(" wh.warehousecode ind, CONCAT(wh.warehousecode,' - ',wh.description) val")
 						->leftJoin("warehouse wh ON wh.warehousecode = inv.warehouse ")
 						->setWhere("inv.voucherno != '' AND (inv.stat = 'open' OR inv.stat = 'posted')")
 						->setGroupBy("ind")
