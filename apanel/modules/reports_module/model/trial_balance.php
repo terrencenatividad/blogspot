@@ -75,6 +75,22 @@ class trial_balance extends wc_model {
 		return $result;
 	}
 
+	public function getValues($table, $cols = array(), $cond, $orderby = "", $leftJoin = "" ,$addon = true,$limit = true)
+	{
+		 $this->db->setTable($table)
+					->setFields($cols)
+					->leftJoin($leftJoin)
+					->setWhere($cond)
+					->setOrderBy($orderby);
+					if($limit){
+						$this->db->setLimit('1');
+					}
+		$result =   $this->db->runSelect($addon)
+					->getResult();
+					// echo $this->db->getQuery();
+		return $result;
+	}
+
 	public function getTrialBalance($currentyear,$prevyear,$fstype="")
 	{
 		$fs_cond 	=	(!empty($fstype)) 	?	" AND chart.fspresentation = '$fstype'" 	:	"";
@@ -138,7 +154,7 @@ class trial_balance extends wc_model {
 		$fields 	=	 array('bal.accountcode as accountcode, ca.segment5 as segment5, 
 							   ca.accountname, bal.transactiondate, bal.period, bal.fiscalyear, 
 							   bal.voucherno, p.partnername as partner , bal.transtype, 
-							   SUM(bal.debit) as debit, SUM(bal.credit) as credit');
+							   SUM(bal.debit) as debit, SUM(bal.credit) as credit, bal.source');
 		
 		$fetch_result 	=	$this->db->setTable("balance_table bal")
 						->leftJoin("chartaccount ca ON ca.id = bal.accountcode")
@@ -168,6 +184,7 @@ class trial_balance extends wc_model {
 				$transtype          = $fetch_result->result[$i]->transtype;
 		 		$debit				= $fetch_result->result[$i]->debit;
 		 		$credit				= $fetch_result->result[$i]->credit;
+				$sources			= $fetch_result->result[$i]->source;
 		 	
 		 		$documentno 		= '';
 		 		$source     		= '';
@@ -196,6 +213,11 @@ class trial_balance extends wc_model {
 					$link		= '<a href="' . BASE_URL. 'financials/disbursement/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
 				}else if($transtype == 'JV'){
 					$link		= '<a href="' . BASE_URL .'financials/journal_voucher/view/'.$voucher .'" target="_blank">'.$voucher.'</a>';
+				}else if($transtype == 'IT' && $sources == 'jo_release'){
+					$source		= $this->getValues("journalvoucher jv",array("referenceno, job_order_no"),"voucherno = '$voucher'", "","job_release jr ON jr.job_release_no = jv.referenceno");
+					$jo     	= $source[0]->job_order_no;
+					$source     = ($source) ? $source[0]->referenceno : $voucher;
+					$link		= '<a href="' . BASE_URL .'parts_and_service/job_order/view/'. $jo .'" target="_blank">'.$source.'</a>';
 				}else if($transtype == 'IT'){
 					$source		= $this->getValue("journalvoucher",array("referenceno"),"voucherno = '$voucher'");
 					$source     = ($source) ? $source[0]->referenceno : $voucher;
