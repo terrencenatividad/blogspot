@@ -579,42 +579,6 @@
 									</div>
 								</div>
 
-						<!-- <div class="row">
-							<div class="col-md-12 col-sm-12 text-center">
-								<?php
-									$save		= ($task == 'create') ? 'name="save"' : '';
-									$save_new	= ($task == 'create') ? 'name="save_new"' : '';
-								?>
-								<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
-								<div class="btn-group" id="save_group">
-									
-									<input type = "button" value = "Save" name = "save" id = "btnSave" class="btn btn-primary btn-sm btn-flat"/>
-									<input type = "hidden" value = "" name = "h_save" id = "h_save"/>
-
-									<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle btn-sm btn-flat" data-toggle="dropdown">
-										<span class="caret"></span>
-									</button>
-									
-									<ul class="dropdown-menu left" role="menu">
-										<li id = "save_new" style="cursor:pointer;">
-											Save & New
-											<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
-										</li>
-										<li class="divider"></li>
-										<li id = "save_preview" style="cursor:pointer;">
-											Save & Preview
-											<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
-										</li>
-									</ul>
-							
-								</div>
-								&nbsp;&nbsp;&nbsp;
-								<div class="btn-group">
-									<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
-								</div>
-							</div>
-						</div> -->
-
 						<div class="row">
 							<div class="col-md-12 col-sm-12 text-center">
 								<?if($show_input):?>
@@ -634,7 +598,7 @@
 								?>
 								<?endif;?>
 								<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
-								<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+								<?php echo $ui->drawCancel(); ?>
 							</div>
 						</div>
 						<div class = "col-md-12">&nbsp;</div>
