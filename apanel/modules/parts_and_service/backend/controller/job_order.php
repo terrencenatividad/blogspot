@@ -599,7 +599,7 @@ class controller extends wc_controller {
 		$result		= $this->job_order->saveJobOrder($data, $data2);
 		
 		$this->inventory_model->setReference($data['job_order_no'])
-									->setDetails($customer)
+									->setDetails($data['customer'])
 									->generateBalanceTable();
 
 		$redirect_url = MODULE_URL;

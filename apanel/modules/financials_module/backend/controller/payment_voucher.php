@@ -141,7 +141,7 @@ class controller extends wc_controller
 		$data["account_entry_list"]   = $this->payment_voucher->getValue("chartaccount coa", $acc_entry_data, $acc_entry_cond, $acc_entry_order,"","",$acc_entry_join);
 
 		// Cash Account Options
-		$cash_account_fields 	  	= "b.id ind , CONCAT(shortname,' - ' ,accountno ) val";
+		$cash_account_fields 	  	= "c.id ind , CONCAT(shortname,' - ' ,accountno ) val";
 		$cash_account_cond 	 	  	= "b.stat = 'active' AND b.checking_account = 'yes'";
 		$cash_order_by 		 	  	= "id desc";
 		$cash_account_join 	 	  	= "chartaccount c ON b.gl_code = c.segment5";
