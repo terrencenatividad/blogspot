@@ -537,7 +537,7 @@
             <div class="modal-footer">
                 <div class="col-md-12 col-sm-12 col-xs-12 text-center">
                     <div class="btn-group">
-                    <button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+                    <button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button" disabled>Attach</button>
                     </div>
                     &nbsp;&nbsp;&nbsp;
                     <div class="btn-group">
@@ -650,6 +650,9 @@
                     data.submit();
                 });
             },
+            messages: {
+					maxFileSize: 'File exceeds maximum allowed size of 3MB'
+				}
         });
         $('#attachments_form').addClass('fileupload-processing');
         $.ajax({
@@ -668,7 +671,27 @@
         $('#attachments_form').bind('fileuploadadd', function (e, data) {
             var filename = data.files[0].name;
             $('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
-            $('#file').val(filename).trigger('blur');
+
+            // Script to validate selected file
+            var $this = $(this);
+            var validation = data.process(function(){
+                return $this.fileupload('process', data);
+            });
+
+            validation.done(function(){
+                var form_group = $('#attachments_form #files').closest('.form-group');
+                form_group.removeClass('has-error');
+                form_group.find('p.help-block.m-none').html('');
+                $('#attach_button').prop('disabled', false);
+            });
+            validation.fail(function(data) {
+                var form_group = $('#attachments_form #files').closest('.form-group');
+                var maxLimitError = data.files[0].error;
+                form_group.addClass('has-error');
+                form_group.find('p.help-block.m-none').html(maxLimitError);
+                
+                $('#attach_button').prop('disabled', true);
+            });
         });
         $('#attachments_form').bind('fileuploadsubmit', function (e, data) {
             // var source_no = $('#source_no').val();
@@ -681,6 +704,7 @@
         $('#attachments_form').bind('fileuploadalways', function (e, data) {
             var error = data.result['files'][0]['error'];
             var form_group = $('#attachments_form #files').closest('.form-group');
+            var old_filename = "<?php echo $attachment_filename ?>";
             if(!error){
                 // var source_no = $('#source_no').val();
                 var voucherno =  $('#input_voucherno').val();
@@ -696,12 +720,14 @@
                 form_group.removeClass('has-error');
                 form_group.find('p.help-block.m-none').html('');
                 $('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+                $('#attach_button').prop('disabled', false);
                 // $('#file').val('').trigger('blur');
                 // getList();
             }else{
                 var msg = data.result['files'][0]['name'];
                 form_group.addClass('has-error');
                 form_group.find('p.help-block.m-none').html(msg);
+                $('#attach_button').prop('disabled', true);
             }
         });
     });
