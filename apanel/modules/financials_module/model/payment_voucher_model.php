@@ -398,7 +398,7 @@ class payment_voucher_model extends wc_model
 				"p.partnername as partner",
 				"main.referenceno as reference",
 				"main.paymenttype as paymentmode",
-				"main.convertedamount as amount",
+				"IF('$voucher' = 'PV', main.convertedamount, main.amount) as amount",
 				"main.stat as status",
 				"coa.accountname as bankaccount",
 				"pvc.chequenumber as chequenumber",
@@ -1066,7 +1066,6 @@ class payment_voucher_model extends wc_model
 						}
 					}
 				}
-				
 				$insertResult1 = $this->db->setTable($detailAppTable) 
 				->setValues($aPvDetailArray)
 				->runInsert();
@@ -1775,6 +1774,17 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
+	public function getbankinfo($ca, $chequenumber) {
+		$result = $this->db->setTable('bank b')
+		->setFields("b.id id, bd.firstchequeno, bd.nextchequeno, bd.lastchequeno")
+		->leftJoin("bankdetail as bd ON b.id = bd.bank_id ")
+		->setWhere("b.accountno = '$ca' AND bd.nextchequeno = '$chequenumber'")
+		->runSelect()
+		->setLimit(1)
+		->getRow();
+		return $result;
+	}
+
 	public function update_check_status($bank, $cno){
 		$data1['stat'] = 'closed';
 		$result = $this->db->setTable("bankdetail") 
@@ -1839,15 +1849,18 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function update_checks($book_last_num, $book_id, $bank, $book_end){
-		$getBank = $this->getbankid($bank);
-		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-		$data1['stat'] = ($book_last_num == $book_end) ? 'used' : 'open';
-		$data1['nextchequeno'] = ($book_last_num + 1);
+	public function update_checks($accountno, $chequenumber){
+		$getBank = $this->getbankinfo($accountno, $chequenumber);
+		$id = $getBank->id;
+		$first = $getBank->firstchequeno;
+		$next = $getBank->nextchequeno;
+		$last = $getBank->lastchequeno;
+		$data1['stat'] = ($chequenumber == $last) ? 'closed' : 'open';
+		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;
 		
 		$result = $this->db->setTable("bankdetail") 
 		->setValues($data1)
-		->setWhere("bank_id = '$bank_id' AND firstchequeno = '$book_id'")
+		->setWhere("bank_id = '$id' AND firstchequeno = '$first'")
 		->setLimit(1)
 		->runUpdate();
 							// echo $this->db->getQuery();
