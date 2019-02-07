@@ -283,7 +283,7 @@ class journal_voucher_model extends wc_model {
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('journalvoucher')
 							->setFields('voucherno, transactiondate documentdate, amount, referenceno, remarks, stat')
-							->setWhere("voucherno = '$voucherno' AND stat = 'posted'")
+							->setWhere("voucherno = '$voucherno' ")
 							->setLimit(1)
 							->runSelect()
 							->getRow();
@@ -294,7 +294,7 @@ class journal_voucher_model extends wc_model {
 		$result = $this->db->setTable('journaldetails jd')
 							->innerJoin('chartaccount ca ON jd.accountcode = ca.id AND ca.companycode = jd.companycode')
 							->setFields("CONCAT(segment5, ' - ',accountname) accountname, debit, credit")
-							->setWhere("voucherno = '$voucherno' AND jd.stat = 'posted'")
+							->setWhere("voucherno = '$voucherno' ")
 							->runSelect()
 							->getResult();
 		return $result;
