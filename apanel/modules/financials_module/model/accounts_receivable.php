@@ -309,11 +309,13 @@ class accounts_receivable extends wc_model
 		$rv_app_fields 	=	array("(COALESCE(SUM(rvapp.convertedamount),0) + COALESCE(SUM(rvapp.discount),0) + COALESCE(SUM(rvapp.credits_used),0)  + COALESCE(SUM(rvapp.overpayment),0) - COALESCE(SUM(rvapp.forexamount), 0)) amount",
 									"rvapp.voucherno rvoucher", "rvapp.arvoucherno arno");
 		$rv_table 		=	"rv_application rvapp";
-		$rv_cond 		=	"rvapp.stat NOT IN('cancelled','temporary')";
+		//$rv_cond 		=	"rvapp.stat NOT IN('cancelled','temporary')";
+		$rv_cond 		=	"pvm.stat = 'posted'";
 		$rv_groupby 	=	"rvapp.arvoucherno";						
 
 		$sub_select = $this->db->setTable($rv_table)
 						   ->setFields($rv_app_fields)
+						   ->leftJoin("receiptvoucher rvm ON rvm.voucherno = rvapp.voucherno")
 						   ->setWhere($rv_cond)
 						   ->setGroupBy($rv_groupby)
 						   ->buildSelect();
