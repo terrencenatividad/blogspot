@@ -1577,7 +1577,12 @@
 					accountcodes.push($(this).val());
 				});
 				if($('#total_debit').val() != $('#total_credit').val()) {
+					$('#error-modal').modal('show');
 					$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
+					good = false;
+				} else if($('#total_debit').val() == 0 || $('#total_credit').val() == 0) {
+					$('#error-modal').modal('show');
+					$('.checkers').html('<h4>Debit or Credit should be greater than 0. </h4>');
 					good = false;
 				} else {
 					good = true;
@@ -1640,6 +1645,10 @@
 					$('#error-modal').modal('show');
 					$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
 					good = false;
+				} else if($('#total_debit').val() == 0 || $('#total_credit').val() == 0) {
+					$('#error-modal').modal('show');
+					$('.checkers').html('<h4>Debit or Credit should be greater than 0. </h4>');
+					good = false;
 				} else {
 					good = true;
 				}
@@ -1700,6 +1709,10 @@
 				if($('#total_debit').val() != $('#total_credit').val()) {
 					$('#error-modal').modal('show');
 					$('.checkers').html('<h4>Total Debit should be equal to total credit. </h4>');
+					good = false;
+				} else if($('#total_debit').val() == 0 || $('#total_credit').val() == 0) {
+					$('#error-modal').modal('show');
+					$('.checkers').html('<h4>Debit or Credit should be greater than 0. </h4>');
 					good = false;
 				} else {
 					good = true;
