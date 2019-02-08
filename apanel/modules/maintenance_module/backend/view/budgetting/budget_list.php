@@ -1,5 +1,5 @@
 <section class="content">
-	<div class = "alert alert-warning alert-dismissable hidden">
+	<div class = "alert alert-warning alert-dismissable hidden" id = "not_allowed">
 		<button type="button" class="close" data-dismiss="alert">×</button>
 		<h4><strong>Error!</strong></h4>
 		<div id = "errmsg"></div>
@@ -292,6 +292,11 @@
 											<h4 class="modal-title">Budget Supplement</h4>
 										</div>
 										<div class="modal-body">
+											<div class = "alert alert-warning alert-dismissable hidden" id = "not_allowed_supplement">
+												<button type="button" class="close" data-dismiss="alert">×</button>
+												<h4><strong>Error!</strong></h4>
+												<div id = "errmsg_supplement"></div>
+											</div>
 											<form method = "post" class="form-horizontal" id = "supplementForm">
 												<div class="row" id = "create">
 													<input type="hidden" name = "budget_id" id = "budget_id">
@@ -632,24 +637,33 @@
 									});
 								});
 								var budget_id = '';
+								var approver = '';
 								$('#itemsTable #list_supplements').on('click', '.approve_supplement', function() {
 									budget_id = $(this).attr('data-id');
+									approver = $(this).closest('tr').find('.approver').html();
 									$('#modalSupplement').modal('hide');
 									$('#modalApproveSupplement').modal('show');
 								});
 
 								$('#itemsTable #list_supplements').on('click', '.reject_supplement', function() {
 									budget_id = $(this).attr('data-id');
+									approver = $(this).closest('tr').find('.approver').html();
 									$('#modalSupplement').modal('hide');
 									$('#modalRejectSupplement').modal('show');
 								});
 
 								$('#btnApproveSupplement').on('click', function(e) {
-									$.post('<?=MODULE_URL?>ajax/ajax_update_approve_status_supplement', { budget_id : budget_id }, function(data) {
+									$.post('<?=MODULE_URL?>ajax/ajax_update_approve_status_supplement', { budget_id : budget_id, approver : approver }, function(data) {
 										if(data) {
 											$('#modalApproveSupplement').modal('hide');
 											$('#modalSupplement').modal('show');
+											$('#not_allowed_supplement').addClass('hidden');
 											getBudgetAccounts();
+										} else {
+											$('#modalApproveSupplement').modal('hide');
+											$('#modalSupplement').modal('show');
+											$('#not_allowed_supplement').removeClass('hidden');
+											$('#errmsg_supplement').html('You are not allowed to approve this budget supplement.');
 										}
 									});
 								});
@@ -663,11 +677,17 @@
 								});
 
 								$('#btnRejectSupplement').on('click', function(e) { 
-									$.post('<?=MODULE_URL?>ajax/ajax_update_reject_status_supplement', { budget_id : budget_id }, function(data) {
+									$.post('<?=MODULE_URL?>ajax/ajax_update_reject_status_supplement', { budget_id : budget_id, approver : approver }, function(data) {
 										if(data) {
 											$('#modalRejectSupplement').modal('hide');
 											$('#modalSupplement').modal('show');
+											$('#not_allowed_supplement').addClass('hidden');
 											getBudgetAccounts();
+										} else {
+											$('#modalApproveSupplement').modal('hide');
+											$('#modalSupplement').modal('show');
+											$('#not_allowed_supplement').removeClass('hidden');
+											$('#errmsg_supplement').html('You are not allowed to reject this budget supplement.');
 										}
 									});
 								});
@@ -915,7 +935,7 @@
 					showList();
 				} else {
 					$('#modalApproval').modal('hide');
-					$('.alert-dismissable').removeClass('hidden');
+					$('#not_allowed').removeClass('hidden');
 					$('#errmsg').html('You are not allowed to approve this budget');
 				}
 			});
@@ -929,7 +949,7 @@
 					showList();
 				} else {
 					$('#modalReject').modal('hide');
-					$('.alert-dismissable').removeClass('hidden');
+					$('#not_allowed').removeClass('hidden');
 					$('#errmsg').html('You are not allowed to reject this budget');
 				}
 			});
