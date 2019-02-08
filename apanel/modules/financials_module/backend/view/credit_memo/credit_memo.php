@@ -118,7 +118,7 @@
 								</button>
 								<?php } else { ?>
 								<span>
-								<?php echo substr($job_no, 0, 20) . '...'; ?></span>
+								<?php echo str_replace(',',', ',$job_no); ?></span>
 								<?php } ?>
 							</div>
 						</div>
