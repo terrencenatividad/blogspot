@@ -361,15 +361,15 @@ class controller extends wc_controller {
 		foreach ($pagination->result as $row) {
 			$withparts = $this->job_order->checkForParts($row->job_order_no);
 			$withparts = ($withparts=='released')? true : false;
-			$iscomplete = ($row->stat=='completed')? false : true;
+			$showactions = ($row->stat=='completed' || $row->stat=='cancelled')? false : true;
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Issue Parts', 'bookmark', $iscomplete)
-									->addOtherTask('Tag as Complete', 'bookmark', $iscomplete)
+									->addOtherTask('Issue Parts', 'bookmark', $showactions)
+									->addOtherTask('Tag as Complete', 'bookmark', $showactions)
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->job_order_no)

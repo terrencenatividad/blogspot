@@ -51,6 +51,18 @@ class budgetting extends wc_model
 		return $result;
 	}
 
+	public function getApproverSupplement($id)
+	{
+		$result = $this->db->setTable('budget_supplement bs')
+		->setFields('b.approver')
+		->leftJoin('budget as b ON bs.budget_id = b.id')
+		->setWhere("bs.id = '$id'")
+		->runSelect(false)
+		->getRow();
+
+		return $result;
+	}
+
 	public function getBudgetAccountsOnSupplement($id)
 	{
 		$result = $this->db->setTable('budget b')
@@ -90,8 +102,9 @@ class budgetting extends wc_model
 	public function getBudgetSupplements($id)
 	{
 		$result = $this->db->setTable('budget_supplement bs')
-		->setFields('bs.id as id, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status, bs.effectivity_date as effectivity_date')
+		->setFields('b.approver, bs.id as id, CONCAT(ca.segment5, " - ", ca.accountname) as accountname, bs.description as description, bs.amount as amount, bs.status as status, bs.effectivity_date as effectivity_date')
 		->leftJoin('chartaccount as ca ON ca.id = bs.accountcode')
+		->leftJoin('budget b ON bs.budget_id = b.id')
 		->setWhere("bs.budget_id = '$id'")
 		->runPagination(false);
 
