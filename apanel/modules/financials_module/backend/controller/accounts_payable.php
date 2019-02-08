@@ -22,6 +22,7 @@ class controller extends wc_controller
 			"voucherno",
 			'job_no',
 			'assetid',
+			'months',
 			"transactiondate",
 			'currencycode',
 			"referenceno",
@@ -566,6 +567,7 @@ class controller extends wc_controller
 		$ap = $this->input->post($this->fields);
 		$button = $this->input->post('button_trigger');
 		$ap_details = $this->input->post($this->apdetails);
+		$addmonths = $this->input->post('addmonths');
 		$seq 	   = new seqcontrol();
 		$ap['voucherno'] = $seq->getValue('AP');
 		$ap["transactiondate"]    = date('Y-m-d', strtotime($ap['transactiondate']));
@@ -577,9 +579,11 @@ class controller extends wc_controller
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
 		$ap['balance'] = str_replace(',', '', $post['total_debit']);
+		$ap['assetid'] = str_replace("none","",$ap['assetid']);
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		$ap['job_no'] = $post['job'];
+		$ap['months'] = $addmonths;
 		$jobs = explode(',', $post['job']);
 		
 		if(!empty($jobs[0])) {
@@ -596,10 +600,10 @@ class controller extends wc_controller
 			$useful_life	  = $getAsset->useful_life;
 			$depreciation_month = $getAsset->depreciation_month;
 			$time  					= strtotime($depreciation_month);
-
+			
 			$bv = $balance_value + $ap_details['debit'][0];
 
-			$this->accounts_payable->updateAsset($ap['assetid'],$ap_details['debit'][0],$capitalized_cost,$balance_value);
+			$this->accounts_payable->updateAsset($ap['assetid'],$ap_details['debit'][0],$capitalized_cost,$balance_value,$useful_life,$addmonths);
 			
 			// $depreciation = 0;
 			// for($x=1;$x<=$useful_life;$x++){
@@ -876,6 +880,7 @@ class controller extends wc_controller
 		$ap['amount'] = str_replace(',', '', $post['total_debit']);
 		$ap['exchangerate'] = str_replace(',', '', $ap['exchangerate']);
 		$ap['balance'] = str_replace(',', '', $post['total_debit']);
+		$ap['assetid'] = str_replace("none","",$ap['assetid']);
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
 		if(empty($post['job'])) {

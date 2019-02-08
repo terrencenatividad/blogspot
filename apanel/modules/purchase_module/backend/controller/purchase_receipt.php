@@ -20,6 +20,7 @@ class controller extends wc_controller {
 			'invoiceno',
 			'remarks',
 			'warehouse',
+			'assetid',
 			'amount',
 			'discounttype',
 			'discountrate',
@@ -142,6 +143,7 @@ class controller extends wc_controller {
 		$data['ajax_post']			= '';
 		$data['show_input']			= true;
 		$data['warehouse_list']		= $this->purchase_model->getWarehouseList($data);				
+		$data['asset_list']			= $this->purchase_model->retrieveAssetList();
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= false;
@@ -202,6 +204,7 @@ class controller extends wc_controller {
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
 		$data['serial_db']			= $this->purchase_model->getSerialNoFromDbView($voucherno);
+		$data['asset_list']			= $this->purchase_model->retrieveAssetList();
 		$data['serial_db_array']	= array();
 		foreach ($data['serial_db'] as $serial_db) {
 			array_push($data['serial_db_array'], $serial_db->serialno);
@@ -224,6 +227,7 @@ class controller extends wc_controller {
 			$data['attachment_filename']	= $attachment->attachment_name;
 			$data['attachment_filetype']	= $attachment->attachment_type;
 		} 
+		
 		$this->view->load('purchase_receipt/purchase_receipt', $data);
 	}
 
@@ -258,7 +262,8 @@ class controller extends wc_controller {
 		$data["taxrates"]			= $this->purchase_model->getTaxRates();
 		$data['ajax_task']			= '';
 		$data['show_input']			= false;
-		$data['warehouse_list']		= $this->purchase_model->getWarehouseList($data);				
+		$data['warehouse_list']		= $this->purchase_model->getWarehouseList($data);
+		$data['asset_list']			= $this->purchase_model->retrieveAssetList();
 		// Closed Date
 		$data['close_date']			= $this->restrict->getClosedDate();
 		$data['restrict_pr']		= $this->restrict->setButtonRestriction($transactiondate);
@@ -311,7 +316,7 @@ class controller extends wc_controller {
 		$print->setHeaderWidth(array(50, 110, 20, 20))
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'C'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setSummaryAlign(array('J'))	
 				->setSummaryWidth(array('200'));
 		
@@ -359,18 +364,18 @@ class controller extends wc_controller {
 					$second = 'C/N';
 				}
 					
-				$print->setHeaderWidth(array(30, 50, 20, 10, 45, 45))
+				$print->setHeaderWidth(array(30, 40, 20, 20, 45, 45))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second))
-						->setRowAlign(array('L', 'L', 'R', 'C', 'L', 'L', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			} else if ($serial_total == 3) {
 			// 3 SERIAL FIELDS
-				$print->setHeaderWidth(array(30, 50, 20, 10, 30, 30, 30))
+				$print->setHeaderWidth(array(30, 40, 20, 20, 30, 30, 30))
 						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
-						->setRowAlign(array('L', 'L', 'R', 'C', 'L', 'L', 'L'))
+						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
 						->setSummaryAlign(array('J'))	
 						->setSummaryWidth(array('200'));
 			}
@@ -516,7 +521,7 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($row->stat == 'Received')
+									//->addEdit($row->stat == 'Received')
 									// ->addDelete($row->stat == 'Received' && $restrict_pr)
 									->addPrint()
 									//->addCheckbox($row->stat == 'Received' && $restrict_pr)
@@ -561,11 +566,12 @@ class controller extends wc_controller {
 		$seq						= new seqcontrol();
 		$data['voucherno']			= $seq->getValue('PR');
 		$data['transtype']			= $this->purchase_model->getTransactionType($data['source_no']);
+		$data['assetid']			= str_replace("none","",$data['assetid']);
 		$result						= $this->purchase_model->savePurchaseReceipt($data, $data2);
 		$serials					= $this->input->post($this->serial_fields);		
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$data['voucherno']);
 		$attachment_update['reference'] = $data['voucherno'];
-		$attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
+		// $attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
 		// retrieve  freight, insurance, packaging 
 		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
 		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;
@@ -573,21 +579,21 @@ class controller extends wc_controller {
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
-		if ($result && $this->inventory_model) {
-			$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
-									->setDetails($data['vendor'])
-									->computeValues()
-									->logChanges();
+		// if ($result && $this->inventory_model) {
+		// 	$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
+		// 							->setDetails($data['vendor'])
+		// 							->computeValues()
+		// 							->logChanges();
 
-			$this->inventory_model->setReference($data['voucherno'])
-									->setDetails($data['vendor'])
-									->generateBalanceTable();
-		}
+		// 	$this->inventory_model->setReference($data['voucherno'])
+		// 							->setDetails($data['vendor'])
+		// 							->generateBalanceTable();
+		// }
 		
 		// $columns['transactiontype'] = 'Received Asset';
-		if ($result && $this->report_model){ 
-			$this->report_model->generateAssetActivity();
-		} 
+		// if ($result && $this->report_model){ 
+		// 	$this->report_model->generateAssetActivity();
+		// } 
 		
 
 		$redirect_url = MODULE_URL;
@@ -609,6 +615,7 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
 		$data['fiscalyear']			= $this->date->getYear($data['transactiondate']);
+		$data['assetid']			= str_replace("none","",$data['assetid']);
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);

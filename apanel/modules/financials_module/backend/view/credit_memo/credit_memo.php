@@ -118,7 +118,7 @@
 								</button>
 								<?php } else { ?>
 								<span>
-								<?php echo substr($job_no, 0, 20) . '...'; ?></span>
+								<?php echo str_replace(',',', ',$job_no); ?></span>
 								<?php } ?>
 							</div>
 						</div>
@@ -217,6 +217,7 @@
 										->setName('remarks')
 										->setId('remarks')
 										->setValue($remarks)
+										->setMaxLength(300)
 										// ->setValidation('required')
 										->draw($show_input);
 										?>
@@ -278,7 +279,7 @@
 												echo $ui->drawSubmit(true);
 											}
 										}
-										if($ajax_task == 'ajax_view' && $display_edit) {
+										if($ajax_task == 'ajax_view' && $display_edit && $status != 'cancelled') {
 											echo $ui->drawSubmit($show_input);
 										}
 										?>

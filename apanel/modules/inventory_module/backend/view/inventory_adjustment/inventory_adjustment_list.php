@@ -1217,30 +1217,32 @@
 		ajax_manual.fieldtype  = "serial";
 
 		if(current_serial!=""){
-			var existingrow 	=	jQuery.inArray(current_serial, temp_serial_manual_box);
-			$('#btn_tag').prop('disabled',true);
-			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
-				initialize_serial_manual_box(index);
-				temp_serial_manual_box[index]['serialno'] = "";
-				if(data.count > 0){
-					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists in the Database!');
-					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-				} else {
-					current_selection.closest('div').removeClass('has-error');
-					current_selection.closest('td').find('.error_message').html('');
-					temp_serial_manual_box[index]['serialno'] = current_serial;
-				}
-			}).done(function(){
-				var exists = checkexistingrows(index, "serialno",current_serial);
-				if(exists > 0){
-					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists within the Modal!');
-					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-				}
-				$('#btn_tag').prop('disabled',false);
-				check_if_has_errors();
-			});
+			// var existingrow 	=	jQuery.inArray(current_serial, temp_serial_manual_box);
+			// $('#btn_tag').prop('disabled',true);
+			// $.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			// 	initialize_serial_manual_box(index);
+			// 	temp_serial_manual_box[index]['serialno'] = "";
+			// 	if(data.count > 0){
+			// 		current_selection.closest('div').addClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists in the Database!');
+			// 		current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			// 	} else {
+			// 		current_selection.closest('div').removeClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('');
+			// 		temp_serial_manual_box[index]['serialno'] = current_serial;
+			// 	}
+			// }).done(function(){
+			// 	var exists = checkexistingrows(index, "serialno",current_serial);
+			// 	if(exists > 0){
+			// 		current_selection.closest('div').addClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Serial Number already exists within the Modal!');
+			// 		current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			// 	}
+			// 	$('#btn_tag').prop('disabled',false);
+			// 	check_if_has_errors();
+			// });
+			initialize_serial_manual_box(index);
+			temp_serial_manual_box[index]['serialno'] = current_serial;
 		} else {
 			temp_serial_manual_box[index]['serialno'] = "";
 		}
@@ -1256,29 +1258,31 @@
 		ajax_manual.fieldtype  = "engine";
 
 		if(current_engine!=""){
-			$('#btn_tag').prop('disabled',true);
-			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
-				initialize_serial_manual_box(index);
-				temp_serial_manual_box[index]['engineno'] = "";
-				if(data.count > 0){
-					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists in the Database!');
-					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-				} else {
-					current_selection.closest('div').removeClass('has-error');
-					current_selection.closest('td').find('.error_message').html('');
-					temp_serial_manual_box[index]['engineno'] = current_engine;
-				}
-			}).done(function(){
-				var exists = checkexistingrows(index, "engineno",current_engine);
-				if(exists > 0){
-					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists within the Modal!');
-					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-				}
-				$('#btn_tag').prop('disabled',false);
-				check_if_has_errors();
-			});
+			// $('#btn_tag').prop('disabled',true);
+			// $.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			// 	initialize_serial_manual_box(index);
+			// 	temp_serial_manual_box[index]['engineno'] = "";
+			// 	if(data.count > 0){
+			// 		current_selection.closest('div').addClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists in the Database!');
+			// 		current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			// 	} else {
+			// 		current_selection.closest('div').removeClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('');
+			// 		temp_serial_manual_box[index]['engineno'] = current_engine;
+			// 	}
+			// }).done(function(){
+			// 	var exists = checkexistingrows(index, "engineno",current_engine);
+			// 	if(exists > 0){
+			// 		current_selection.closest('div').addClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Engine Number already exists within the Modal!');
+			// 		current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			// 	}
+			// 	$('#btn_tag').prop('disabled',false);
+			// 	check_if_has_errors();
+			// });
+			initialize_serial_manual_box(index);
+			temp_serial_manual_box[index]['engineno'] = current_engine;
 		} else {
 			temp_serial_manual_box[index]['engineno'] = "";
 		}
@@ -1293,29 +1297,31 @@
 		ajax_manual.fieldtype  = "chassis";
 
 		if(current_chassis!=""){
-			$('#btn_tag').prop('disabled',true);
-			$.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
-				initialize_serial_manual_box(index);
-				temp_serial_manual_box[index]['chassisno'] = "";
-				if(data.count > 0){
-					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists in the Database!');
-					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-				} else {
-					current_selection.closest('div').removeClass('has-error');
-					current_selection.closest('td').find('.error_message').html('');
-					temp_serial_manual_box[index]['chassisno'] = current_chassis;
-				}
-			}).done(function(){
-				var exists = checkexistingrows(index, "chassisno",current_chassis);
-				if(exists > 0){
-					current_selection.closest('div').addClass('has-error');
-					current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists within the Modal!');
-					current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
-				}
-				$('#btn_tag').prop('disabled',false);
-				check_if_has_errors();
-			});
+			// $('#btn_tag').prop('disabled',true);
+			// $.post('<?=MODULE_URL?>ajax/checkifexisting', ajax_manual, function(data) {
+			// 	initialize_serial_manual_box(index);
+			// 	temp_serial_manual_box[index]['chassisno'] = "";
+			// 	if(data.count > 0){
+			// 		current_selection.closest('div').addClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists in the Database!');
+			// 		current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			// 	} else {
+			// 		current_selection.closest('div').removeClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('');
+			// 		temp_serial_manual_box[index]['chassisno'] = current_chassis;
+			// 	}
+			// }).done(function(){
+			// 	var exists = checkexistingrows(index, "chassisno",current_chassis);
+			// 	if(exists > 0){
+			// 		current_selection.closest('div').addClass('has-error');
+			// 		current_selection.closest('td').find('.error_message').html('<span style="padding-left:15px;" class="glyphicon glyphicon-exclamation-sign"></span> This Chassis Number already exists within the Modal!');
+			// 		current_selection.closest('td').find('.error_message').closest('div').attr('style','color:red');
+			// 	}
+			// 	$('#btn_tag').prop('disabled',false);
+			// 	check_if_has_errors();
+			// });
+			initialize_serial_manual_box(index);
+			temp_serial_manual_box[index]['chassisno'] = current_chassis;
 		} else {
 			temp_serial_manual_box[index]['chassisno'] = "";
 		}

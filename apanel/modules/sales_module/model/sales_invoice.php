@@ -794,7 +794,7 @@ class sales_invoice extends wc_model
 			
 			if($trigger == 'yes' && $auto_ar)
 			{
-				$header_fields 		= " transactiondate, period, fiscalyear, duedate, customer, remarks, amount, discounttype, discountamount, netamount, referenceno ";
+				$header_fields 		= " transactiondate, period, fiscalyear, duedate, customer, remarks, amount, discounttype, discountamount, netamount, referenceno, sourceno ";
 				$condition 			= " voucherno = '$invoice' ";
 				$retrieved_data['header'] 	= 	$this->db->setTable('salesinvoice')
 														->setFields($header_fields)
@@ -842,7 +842,15 @@ class sales_invoice extends wc_model
 				$financial_header['balance']			= $retrieved_data['header']->amount;
 				$financial_header['source']				= 'SI';
 				$financial_header['sourceno']			= $invoice;
+				$sourceno 								= $retrieved_data['header']->sourceno;
 
+				/**
+				 * Get DR Amount
+				 */
+				if($sourceno){
+					$inventory_clearing	= $this->getValue("journalvoucher", array("amount"), " referenceno = '$sourceno' AND stat NOT IN('cancelled', 'temporary') ");
+					$inventory_amount 	 = (!empty($inventory_clearing)) ? $inventory_clearing[0]->amount : 0;
+				}
 				/**
 				* Save Accounts Receivable 
 				*/
@@ -1037,6 +1045,61 @@ class sales_invoice extends wc_model
 									
 									$linenum++;	
 								}
+							}
+
+							/**
+							* COGS AND Inventor Clearing Entry
+							*/
+							if($inventory_amount > 0){
+								/**
+								 * Cost of Goods
+								 */
+								$ftax				= $this->getValue("fintaxcode", array("salesAccount account"), " fstaxcode = 'ACOG' ");
+								$cogs_account 		= ($ftax) ? $ftax[0]->account : '';
+
+								$detail_info['voucherno']			= $financial_header['voucherno'];
+								$detail_info['transtype']			= 'AR';
+								$detail_info['linenum']				= $linenum;
+								$detail_info['accountcode']			= $cogs_account;
+								$detail_info['currencycode']		= "PHP";
+								
+								$detail_info['debit']				= $inventory_amount;
+								$detail_info['credit']				= 0;
+								$detail_info['converteddebit']		= $inventory_amount;
+								$detail_info['convertedcredit']		= 0;
+								
+								$detail_info['sourcecode']			= 'SI';
+
+								$detail_info['stat']				= 'posted';
+								
+								$detailArray[]						= $detail_info;
+								
+								$linenum++;	
+
+								/**
+								 * Inventory
+								 */
+								$ftax					= $this->getValue("fintaxcode", array("salesAccount account"), " fstaxcode = 'IC' ");
+								$inventory_account 	 	= (!empty($ftax)) ? $ftax[0]->account : '';
+
+								$detail_info['voucherno']			= $financial_header['voucherno'];
+								$detail_info['transtype']			= 'AR';
+								$detail_info['linenum']				= $linenum;
+								$detail_info['accountcode']			= $inventory_account;
+								$detail_info['currencycode']		= "PHP";
+								
+								$detail_info['debit']				= 0;
+								$detail_info['credit']				= $inventory_amount;
+								$detail_info['converteddebit']		= 0;
+								$detail_info['convertedcredit']		= $inventory_amount;
+								
+								$detail_info['sourcecode']			= 'SI';
+
+								$detail_info['stat']				= 'posted';
+								
+								$detailArray[]						= $detail_info;
+								
+								$linenum++;	
 							}
 							
 							if(!empty($detailArray)){

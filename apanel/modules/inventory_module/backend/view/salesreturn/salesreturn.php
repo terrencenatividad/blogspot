@@ -87,6 +87,20 @@
 									->draw($show_input);
 							?>
 						</div>
+						<div class="col-md-6">
+							<?php
+								echo $ui->formField('textarea')
+								->setLabel('Reason ')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('reason')
+								->setId('reason')
+								->setMaxLength(100)
+								->setValue($reason)
+								->setValidation('required')
+								// ->addHidden(($ajax_task != 'ajax_create'))
+								->draw($show_input);
+							?>
+						</div>
 						<!-- <div class="col-md-6">
 							<?php
 								echo $ui->formField('dropdown')
@@ -104,27 +118,15 @@
 						</div> -->
 					</div>
 					<div class="row">
-						<div class="col-md-6">
+						<div class="col-md-12">
 							<?php
 								echo $ui->formField('textarea')
 								->setLabel('Notes')
-								->setSplit('col-md-4', 'col-md-8')
+								->setSplit('col-md-2', 'col-md-10')
 								->setName('remarks')
 								->setId('remarks')
+								->setMaxLength(300)
 								->setValue($remarks)
-								->draw($show_input);
-							?>
-						</div>
-						<div class="col-md-6">
-							<?php
-								echo $ui->formField('textarea')
-								->setLabel('Reason ')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('reason')
-								->setId('reason')
-								->setValue($reason)
-								->setValidation('required')
-								// ->addHidden(($ajax_task != 'ajax_create'))
 								->draw($show_input);
 							?>
 						</div>
@@ -331,21 +333,14 @@
 		</div>
 		<div class="modal-body">
 			<div class="row">
-				<div class="col-md-4 col-md-offset-4">
-					<?php
-						echo $ui->formField('dropdown')
-								->setLabel('')
-								->setPlaceholder('Select Source Type')
-								->setSplit('', 'col-md-12')
-								->setName('source')
-								->setId('source')
-								->setList(array('1' => 'Delivery Receipt', '2' => 'Sales Invoice'))
-								->setValue('1')
-								// ->addHidden(($ajax_task != 'ajax_create'))
-								->draw($show_input);
-					?>
+				<div class="col-md-6" id = "filters">
+					<div class="input-group">
+						<input type = "radio" checked = "true" name = "voucher_type" id = "voucher_type" value = "Delivery Receipt"> Delivery Receipt
+						&nbsp;&nbsp;
+						<input type = "radio" name = "voucher_type" id = "voucher_type" value = "si"> Sales Invoice
+					</div>
 				</div>
-				<div class="col-md-4 col-md-offset-">
+				<div class="col-md-4 col-md-offset-2">
 					<div class="input-group">
 						<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
 						<div class="input-group-addon">
@@ -434,11 +429,14 @@ var min_row		= 0;
 var show_input 	= '<?=$show_input;?>';
 var ajax_task 	= '<?=$ajax_task;?>';
 var selected_serial = [];
+var header = '<?=$source_no?>';
 
 function addVoucherDetails(details, index) {
-	var details = details || {itemcode: '', detailparticular: '', issueqty: ''};
+	var details 	= details || {itemcode: '', detailparticular: '', issueqty: ''};
 	var other_details = JSON.parse(JSON.stringify(details));
 	var netamount;
+	var issueqty 	= 0;
+	var serials 	= details.serialnumbers;
 
 	delete other_details.itemcode;
 	delete other_details.detailparticular;
@@ -461,7 +459,12 @@ function addVoucherDetails(details, index) {
 			 ?>\n`;
 		}
 	}
-
+	if (ajax_task == 'ajax_edit') {
+		issueqty 	= details.issueqty;
+	}
+	if (ajax_task == 'view') {
+		serials 	= details.selectedserial; 
+	}
 	if (details.serialnumbers == null || details.serialnumbers.length <= 0) {
 		var issueqty_element = '';
 		issueqty_element = '<?php
@@ -479,9 +482,9 @@ function addVoucherDetails(details, index) {
 							?>';
 
 	} else {
-		issueqty_element = '<button type="button" class="btn btn-flat btn-success btnserial" data-serialid="'+details.serialnumbers+'" data-maxitem="'+parseFloat(details.maxqty)+'">Select item<span class="pull-right">0</span></button>';
-		issueqty_element += '<input type="hidden" class="allserial" name="allserial[]" value="'+details.serialnumbers+'">';
-		issueqty_element += '<input type="hidden" class="issueqty" name="issueqty[]" data-value="'+details.issueqty+'">';
+		issueqty_element = '<button type="button" class="btn btn-flat btn-success btnserial" data-serialid="'+serials+'" data-maxitem="'+parseFloat(details.maxqty)+'">Select item<span class="pull-right">0</span></button>';
+		issueqty_element += '<input type="hidden" class="allserial" name="allserial[]" value="'+serials+'">';
+		issueqty_element += '<input type="hidden" class="issueqty" name="issueqty[]" data-value="'+issueqty+'">';
 	}
 	if (details.netamount == null) {
 		netamount = 0;
@@ -565,7 +568,7 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
-						->setName('txtddefective[]')
+						->setName('txtdefective[]')
 						->setClass('txtdefective')
 						->setValue('No')
 						->addHidden()
@@ -643,7 +646,7 @@ function addVoucherDetails(details, index) {
 						->setSplit('', 'col-md-12')
 						->setName('amount[]')
 						->setClass('amount')
-						->setValue('` + addComma(0) + `')
+						->setValue('` + addComma(details.netamount) + `')
 						->addHidden()
 						->draw($show_input);
 				?>
@@ -677,11 +680,12 @@ function addVoucherDetails(details, index) {
 	if (details.defective == 'Yes') {
 		$('#tableList tbody').find('tr:last .defective').iCheck('check').iCheck('update');
 		$('#tableList tbody').find('tr:last input[name="defective[]"]').val('Yes');
-		
+		$('#tableList tbody').find('tr:last p[name="txtdefective[]"]').html('Yes')
 	}
 	if (details.replacement == 'Yes') {
 		$('#tableList tbody').find('tr:last .replacement').iCheck('check').iCheck('update');
 		$('#tableList tbody').find('tr:last input[name="replacement[]"]').val('Yes');
+		$('#tableList tbody').find('tr:last p[name="txtreplacement[]"]').html('Yes')
 	}
 	try {
 		drawTemplate();
@@ -745,12 +749,15 @@ function displayDetails(details) {
 	}
 	if (details.length > 0) {
 		details.forEach(function(details, index) {
-			var serial = details.selectedserial.split(',');
-			for (var i = 0; i < serial.length; i++) {
-				if (serial[i] != '') {
-					selected_serial.push(parseInt(serial[i]));
+			if (ajax_task != 'ajax_create') {
+				var serial = details.selectedserial.split(',');
+				for (var i = 0; i < serial.length; i++) {
+					if (serial[i] != '') {
+						selected_serial.push(parseInt(serial[i]));
+					}
 				}
 			}
+
 			addVoucherDetails(details, index);
 			
 		});
@@ -857,7 +864,6 @@ function getSerialList(sourceno, linenum, serialid) {
 				voucherno 	: voucherno
 			};
 	$.post('<?=MODULE_URL;?>ajax/getSerialItemList', data, function(data){
-		console.log(data.table);
 		$('#serial_tableList tbody').html(data.table);
 		$('button.btnselectserial').attr('data-linenum',data.linenum);
 
@@ -912,6 +918,9 @@ $('#invoice_tableList').on('click', 'tr[data-id]', function() {
 	$('#invoice_list_modal').modal('hide');
 	loadSalesDetails();
 });
+$('#filters').on('ifToggled', 'input[name="voucher_type"]:checked', function () {
+	getList();
+});
 </script>
 
 <?php endif;?>
@@ -920,7 +929,7 @@ $('#invoice_tableList').on('click', 'tr[data-id]', function() {
 <script>
 function getList() {
 	ajax.limit = 5;
-	var data = $('#source option:selected').text();
+	var data = $('#filters input[name="voucher_type"]:checked').val();
 	$('#invoice_list_modal').modal('show');
 
 	if (ajax_call != '') {
@@ -1012,7 +1021,11 @@ $('.btnselectserial').on('click', function(){
 	row.find('.issueqty').trigger('blur');
 
 	$('#serial_tableList').modal('hide');
-})
+});
+
+$('.btncancel').on('click', function(){
+	$('#serial_tableList').modal('hide');
+});
 
 $('table').on('ifToggled', 'tr [type="checkbox"].checkallitem', function() {
 	var checked 	= $(this).prop('checked');

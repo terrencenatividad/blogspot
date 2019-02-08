@@ -106,7 +106,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($voucherno) {
-		$this->view->title			= 'Edit Sales Return';
+		$this->view->title	= 'Edit Sales Return';
 
 		$fields1 = array('source_no',
 						'customer',
@@ -176,7 +176,7 @@ class controller extends wc_controller {
 	}
 
 	public function view($voucherno) {
-		$this->view->title			= 'View Sales Return';
+		$this->view->title	= 'View Sales Return';
 
 		$fields1 = array('source_no',
 						'customer',
@@ -192,15 +192,37 @@ class controller extends wc_controller {
 						'vat_zerorated',
 						'stat'
 					);
-		$fields2 = $this->fields2;
-		array_push($fields2, 'discountamount', 'defective', 'replacement', 'amount', 'netamount');
-
+		$fields2			= array(
+			'main.itemcode',
+			'main.detailparticular',
+			'main.warehouse',
+			'main.linenum',
+			'main.issueqty',
+			'tbl.issueqty srcqty',
+			'main.issueuom',
+			'main.convuom',
+			'main.convissueqty',
+			'main.conversion',
+			'main.serialnumbers selectedserial',
+			'tbl.serialnumbers',
+			'main.unitprice',
+			'main.taxcode',
+			'main.taxrate',
+			'main.taxamount',
+			'main.discounttype',
+			'main.discountamount',
+			'main.defective', 
+			'main.replacement', 
+			'main.amount', 
+			'main.netamount'
+		);
+		
 
 		$data				= (array)$this->sr_model->getSRheader($voucherno, $fields1);
-		$details 			= $this->sr_model->getSRdetails($voucherno, $fields2);
+		$details 			= $this->sr_model->getSRdetails($voucherno, $fields2, $data['source_no']);
 		
 		$data['ui']					= $this->ui;
-
+		
 		$data['voucherno'] 			= $voucherno;
 		$data['total_sales'] 		= $data['vat_sales'] + $data['vat_exempt'] + $data['vat_zerorated'];
 		$transactiondate 			= $data['transactiondate'];
@@ -680,7 +702,7 @@ class controller extends wc_controller {
 		return array(
 			'success' 			=> $result,
 			'revert serialized' => $result_serial,
-			'revert drtable' 	=> $result_dr;
+			'revert drtable' 	=> $result_dr
 		);
 	}
 

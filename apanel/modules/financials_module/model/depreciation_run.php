@@ -57,7 +57,7 @@ class depreciation_run extends wc_model {
 							->leftJoin('chartaccount o ON o.id = am.gl_accdep')
 							->leftJoin('chartaccount a ON a.id = am.gl_depexpense')
 							->setWhere($condition)
-							->setOrderBy($orderby)
+							->setOrderBy($orderby. ' , depreciation_date ASC')
 							->runSelect()
 							->getResult();
 
@@ -82,7 +82,6 @@ class depreciation_run extends wc_model {
 			'am.retirement_date',
 			'am.useful_life',
 			'am.depreciation_month',
-			'd.depreciation_amount',
 			'am.capitalized_cost',
 			'purchase_value',
 			'balance_value',
@@ -94,8 +93,6 @@ class depreciation_run extends wc_model {
 			'am.gl_depexpense',
 			'am.stat',
 			'assetclass',
-			'accumulated_dep',
-			'depreciation_date',
 			'CONCAT(c.segment5," - ",c.accountname) asset',
 			'CONCAT(o.segment5," - ",o.accountname) accdep',
 			'CONCAT(a.segment5," - ",a.accountname) depexp',
@@ -110,11 +107,11 @@ class depreciation_run extends wc_model {
 
 		$date = $this->date->dateDbFormat();
 		
-		$condition .= "AND MONTH(depreciation_date) = MONTH('$date') AND YEAR(depreciation_date) = YEAR('$date')";
+		$condition .= " AND depreciation_month <= '$date'";
 
 		$result = $this->db->setTable('asset_master am') 
 							->setFields($fields)
-							->leftJoin('depreciation_schedule d ON asset_id = am.asset_number')
+							// ->leftJoin('depreciation_schedule d ON asset_id = am.asset_number')
 							->leftJoin("cost_center cc ON cc.id = am.department")
 							->leftJoin('asset_class ac ON ac.id = am.asset_class')
 							->leftJoin('chartaccount c ON c.id = am.gl_asset')
@@ -123,6 +120,8 @@ class depreciation_run extends wc_model {
 							->setWhere($condition)
 							->runSelect()
 							->getResult();
+
+							// echo $this->db->getQuery();
 
 		return $result;
 	}
@@ -163,7 +162,8 @@ class depreciation_run extends wc_model {
 		'dsa.segment5 c_segment5',
 		'ac.assetclass'
 	);
-		
+		$date = $this->date->dateDbFormat();
+	
 		$result = $this->db->setTable("asset_master a")
 						->setFields($fields)
 						->leftJoin("cost_center c ON c.id = a.department")
@@ -171,24 +171,39 @@ class depreciation_run extends wc_model {
 						->leftJoin('chartaccount coa ON coa.id = a.gl_asset')
 						->leftJoin('chartaccount asd ON asd.id = a.gl_accdep')
 						->leftJoin('chartaccount dsa ON dsa.id = a.gl_depexpense')
-						->setWhere("a.stat = 'active'")
+						->setWhere("a.stat = 'active' AND depreciation_month <= '$date'")
 						->runSelect()
 						->getResult();
-
+						
 		return $result;
 	}
 
 	public function deleteSched(){
 		$this->db->setTable('depreciation_schedule')
-		->setWhere('companycode IS NOT NULL')
+		->setWhere("companycode IS NOT NULL")
 		->runDelete();
 	}
 	
-	public function saveAssetMasterSchedule($assetnumber, $itemcode, $final,$depreciation,$depreciation_amount, $gl_asset, $gl_accdep, $gl_depexp) {	
+	public function saveAssetMasterSchedule($assetnumber, $itemcode, $final,$depreciation,$depreciation_amount, $gl_asset, $gl_accdep, $gl_depexp,$year,$month) {	
+		$date = $this->date->dateDbFormat();
 		$result =  $this->db->setTable('depreciation_schedule')
 							->setValues(array('asset_id' => $assetnumber,'itemcode' => $itemcode,'depreciation_date' => $final, 'depreciation_amount' => $depreciation_amount, 'accumulated_dep' => $depreciation, 'gl_asset' => $gl_asset, 'gl_accdep' => $gl_accdep, 'gl_depexpense' => $gl_depexp))
 							->runInsert();
-		
+		if($result){
+			$seq					= new seqcontrol();
+			$jvvoucherno			= $seq->getValue('JV');
+			$this->db->setTable('journalvoucher')
+							->setValues(array('voucherno' => $jvvoucherno, 'transactiondate' => $date, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1'))
+							->runInsert();
+
+			$this->db->setTable('journaldetails')
+							->setValues(array('voucherno' => $jvvoucherno, 'detailparticulars' => '', 'linenum' => '1', 'transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_depexp, 'debit' => $depreciation_amount, 'converteddebit' => $depreciation_amount, 'credit' => '0', 'convertedcredit' => '0','currencycode' => 'PHP', 'exchangerate' => '1'))
+							->runInsert();
+
+			$this->db->setTable('journaldetails')
+							->setValues(array('voucherno' => $jvvoucherno, 'detailparticulars' => '', 'linenum' => '2','transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_accdep, 'credit' => $depreciation_amount, 'convertedcredit' => $depreciation_amount , 'debit' => '0', 'converteddebit' => '0','currencycode' => 'PHP', 'exchangerate' => '1'))
+							->runInsert();
+		}
 		return $result;
 	}
 
@@ -209,6 +224,33 @@ class depreciation_run extends wc_model {
 						->leftJoin('asset_class ac ON ac.id = a.asset_class')
 						->setWhere("a.stat = 'active' $condition")
 						->runPagination();
+						
+		return $result;
+	}
+
+	public function getAccumulated($asset_number) {
+		$fields = array(
+		'SUM(depreciation_amount) depamount'
+	);
+
+		$result = $this->db->setTable("depreciation_schedule")
+						->setFields($fields)
+						->setWhere("asset_id = '$asset_number'")
+						->runSelect()
+						->getRow();
+						
+		return $result;
+	}
+
+
+	public function checkDepreciation() {
+		$date = $this->date->dateDbFormat();
+
+		$result = $this->db->setTable("depreciation_schedule")
+						->setFields('depreciation_date')
+						->setWhere("MONTH(depreciation_date) = MONTH('$date') AND YEAR(depreciation_date) = YEAR('$date')")
+						->runSelect()
+						->getRow(); 
 						
 		return $result;
 	}

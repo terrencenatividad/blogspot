@@ -131,12 +131,28 @@
 													'target'=> "_blank",
 												))
 											// ->addHidden($source_no)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 											// ->draw($show_input && $ajax_task != 'ajax_edit');
 									?>
 								</div>
 								<?php } ?>
+								<div class="col-md-6">
+									<?php
+										echo $ui->formField('dropdown')
+											->setPlaceholder('Select one')
+											->setLabel('Asset Code')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('assetid')
+											->setId('assetid')
+											->setAttribute(array("maxlength" => "20"))
+											->setValue($assetid)
+											->setList($asset_list)
+											->setNone('None')
+											->draw($show_input);
+											// ->draw($show_input && $ajax_task != 'ajax_edit');
+									?>
+								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-12">
@@ -431,7 +447,7 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button">Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button" disabled>Attach</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -1779,6 +1795,9 @@
 						data.submit();
 					});
 				},
+				messages: {
+					maxFileSize: 'File exceeds maximum allowed size of 3MB'
+				}
 			});
 			$('#attachments_form').addClass('fileupload-processing');
 			$.ajax({
@@ -1798,6 +1817,29 @@
 				var filename = data.files[0].name;
 				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
 				$('#file').val(filename).trigger('blur');
+
+				// Script to validate selected file
+				var $this = $(this);
+				var validation = data.process(function(){
+					return $this.fileupload('process', data);
+				});
+
+				validation.done(function(){
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+					$('#attach_button').prop('disabled', false);
+					$('#file').val(filename).trigger('blur');
+				});
+				validation.fail(function(data) {
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					var maxLimitError = data.files[0].error;
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(maxLimitError);
+					
+					$('#attach_button').prop('disabled', true);
+					$('#file').val('').trigger('blur');
+				});
 			});
 			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 				var source_no = $('#source_no').val();
@@ -1827,7 +1869,7 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.removeClass('has-error');
 					form_group.find('p.help-block.m-none').html('');
-
+					$('#attach_button').prop('disabled', false);
 					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
 					// $('#file').val('').trigger('blur');
 					// getList();
@@ -1835,6 +1877,8 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.addClass('has-error');
 					form_group.find('p.help-block.m-none').html(msg);
+					$('#attach_button').prop('disabled', true);
+					$('#file').val('').trigger('blur');
 				}
 			});
 		});

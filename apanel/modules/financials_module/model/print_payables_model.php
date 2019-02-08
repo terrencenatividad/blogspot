@@ -248,17 +248,24 @@ class print_payables_model extends fpdf {
 			foreach ($accounts as $account) {
 				$totaldebit			+= $account->debit;
 				$totalcredit		+= $account->credit;
-				$totalcurrency		+= $account->currency;
+				if ($account->debit > 0) {
+					$totalcurrency		+= $account->debit;
+					$account->currency	= number_format($account->currency, 2);
+				} 
+				if($account->credit > 0) {
+					$account->currency  = '('.number_format($account->currency,2).')';
+					$totalcurrency		-= $account->credit;
+					$account->credit	= '('.number_format($account->credit, 2).')';
+				} else 
+					$account->credit	= number_format($account->credit, 2);
 				$account->debit		= number_format($account->debit, 2);
-				$account->credit	= number_format($account->credit, 2);
-				$account->currency	= number_format($account->currency, 2);
 				$this->row($account);
 			}
 			
 			$this->SetFont('Arial', 'B', '9');
 			$this->Cell(100, 6, 'Total :', 0, 0, 'R');
 			$this->Cell(30, 6, number_format($totaldebit, 2), 0, 0, 'R');
-			$this->Cell(30, 6, number_format($totalcredit, 2), 0, 0, 'R');
+			$this->Cell(30, 6, '('.number_format($totalcredit, 2).')', 0, 0, 'R');
 			$this->Cell(40, 6, number_format($totalcurrency, 2), 0, 0, 'R');
 			$this->Ln(10);
 			

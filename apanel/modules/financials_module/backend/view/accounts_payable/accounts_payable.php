@@ -229,6 +229,7 @@
 									->setAttribute(array("maxlength" => "20"))
 									->setValue($assetid)
 									->setList($asset_list)
+									->setNone('None')
 									->draw($show_input);
 									?>
 								</div>
@@ -328,6 +329,7 @@
 											'rows' => 4
 										)
 									)
+									->setMaxLength(300)
 									->setValue($particulars)
 									->draw($show_input);
 									?>
@@ -1282,6 +1284,35 @@
 	->draw();
 	?>
 
+	<div class="modal fade" id="months" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
+					<h4 class="modal-title">Add Months</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+					<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12"><p>No. of months for Asset</p></div>
+					</div>
+					<div class="row">
+						<div class="col-md-12"><input type="text" id="addmonths" class="form-control"></div>
+					</div>
+					</div>
+					<div class="modal-footer text-center">
+						<button type="button" class="btn btn-primary" id = "yes_or_yes">Yes</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+					</div>
+					</div>
+				</div>
+		
+			</div>
+		</div>
+	</div>
+
+
 		<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
 			<div class="modal-dialog modal-md" role="document">
 			<div class="modal-content">
@@ -1307,8 +1338,8 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-						<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button">Attach</button>
-						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal">Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button" disabled>Attach</button>
+						<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal" disabled>Attach</button>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -1463,14 +1494,19 @@
 			});
 		});
 
-		$('#assetid').on('change', function() {
-			var asset = $(this).val();
+		$('#yes_or_yes').click(function() {
+			var asset = $('#assetid').val();
 			$('#job').attr('disabled', 'disabled');
-			$.post('<?=MODULE_URL?>ajax/ajax_get_asset_details', '&asset=' + asset, function(data) {
+			$.post('<?=MODULE_URL?>ajax/ajax_get_asset_details', '&asset=' + asset , function(data) {
 				if(data) {
 					$('#itemsTable tbody tr.clone .accountcode:first').val(data).trigger('change').select2({width: "100%"});
 				}
 			});
+			$('#months').modal('hide');
+		});
+
+		$('#assetid').on('change', function() {
+			$('#months').modal('show');
 		});
 
 		<?php if($ajax_task != 'ajax_create') : ?>
@@ -1777,7 +1813,8 @@
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+					var addmonths = $('#addmonths').val();
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes + '&addmonths=' + addmonths, function(data) {
 						if(data.check) {
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
@@ -1785,7 +1822,7 @@
 								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
-										$('#attach_button').click();
+										$('#attach_button:enabled').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1801,7 +1838,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
-									$('#attach_button').click();
+									$('#attach_button:enabled').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1839,7 +1876,8 @@
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+					var addmonths = $('#addmonths').val();
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes + '&addmonths=' + addmonths, function(data) {
 						if(data.check) {
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
@@ -1847,7 +1885,7 @@
 								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
-										$('#attach_button').click();
+										$('#attach_button:enabled').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1863,7 +1901,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
-									$('#attach_button').click();
+									$('#attach_button:enabled').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1900,7 +1938,8 @@
 			$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
 			if ($('#payableForm').find('.form-group.has-error').length == 0) {
 				if(good == true) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes, function(data) {
+					var addmonths = $('#addmonths').val();
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', $('#payableForm').serialize() + '&job=' + job + '&account=' + accountcodes + '&addmonths=' + addmonths, function(data) {
 						if(data.check) {
 							if(data.warning != '') {
 								$('#warning-modal').modal('show');
@@ -1908,7 +1947,7 @@
 								$('#errors').append('<br><i>Notify Department Head<i/>');
 								$('#warning-modal').on('hidden.bs.modal', function() {
 									if(data.success) {
-										$('#attach_button').click();
+										$('#attach_button:enabled').click();
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
@@ -1924,7 +1963,7 @@
 								$('#accounterror').html(data.date_check);
 							} else {
 								if(data.success) {
-									$('#attach_button').click();
+									$('#attach_button:enabled').click();
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;
@@ -1986,6 +2025,9 @@
 						data.submit();
 					});
 				},
+				messages: {
+					maxFileSize: 'File exceeds maximum allowed size of 3MB'
+				}
 			});
 
 			$('#attachments_form').addClass('fileupload-processing');
@@ -2005,7 +2047,31 @@
 			$('#attachments_form').bind('fileuploadadd', function (e, data) {
 				var filename = data.files[0].name;
 				$('#attachments_form #files').closest('.input-group').find('.form-control').html(filename);
-				$('#file').val(filename).trigger('blur');
+
+				// Script to validate selected file
+				var $this = $(this);
+				var validation = data.process(function(){
+					return $this.fileupload('process', data);
+				});
+
+				validation.done(function(){
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					form_group.removeClass('has-error');
+					form_group.find('p.help-block.m-none').html('');
+					$('#attach_button').prop('disabled', false);
+					$('#attach_button_close').prop('disabled', false);
+					$('#file').val(filename).trigger('blur');
+				});
+				validation.fail(function(data) {
+					var form_group = $('#attachments_form #files').closest('.form-group');
+					var maxLimitError = data.files[0].error;
+					form_group.addClass('has-error');
+					form_group.find('p.help-block.m-none').html(maxLimitError);
+					
+					$('#attach_button').prop('disabled', true);
+					$('#attach_button_close').prop('disabled', true);
+					$('#file').val('').trigger('blur');
+				});
 			});
 			$('#attachments_form').bind('fileuploadsubmit', function (e, data) {
 				// var source_no = $('#source_no').val();
@@ -2035,7 +2101,8 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.removeClass('has-error');
 					form_group.find('p.help-block.m-none').html('');
-
+					$('#attach_button').prop('disabled', false);
+					$('#attach_button_close').prop('disabled', false);
 					$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
 					// $('#file').val('').trigger('blur');
 					// getList();
@@ -2043,6 +2110,9 @@
 					var msg = data.result['files'][0]['name'];
 					form_group.addClass('has-error');
 					form_group.find('p.help-block.m-none').html(msg);
+					$('#attach_button').prop('disabled', true);
+					$('#attach_button_close').prop('disabled', true);
+					$('#file').val('').trigger('blur');
 				}
 			});
 		});

@@ -8,6 +8,9 @@ class controller extends wc_controller {
 		$this->depreciation_run	= new depreciation_run();
 		$this->adjustment		= $this->checkoutModel('inventory_module/inventory_adjustment_model');
 		$this->session			= new session();
+		$this->seq 				= new seqcontrol();
+		$this->year 			= date('Y');
+		$this->month			= date('m');
 		$this->fields 			= array(
 			'asset_number',
 			'asset_name',
@@ -35,12 +38,14 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
+		$checkdep		= $this->depreciation_run->checkDepreciation();
+		
 		$sort = $this->input->post('sort');
 		$pagination		= $this->depreciation_run->getAssetMasterList($this->fields,$sort);
 
 		$table		= '';
 		if (empty($pagination)) {
-			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination as $key => $row) {
 				$table .= '<tr>';
@@ -59,7 +64,7 @@ class controller extends wc_controller {
 				$table .= '</tr>';
 		}
 
-		return array('table' => $table);
+		return array('table' => $table, 'check' => $checkdep);
 	}
 
 	private function ajax_list_2() {
@@ -68,26 +73,44 @@ class controller extends wc_controller {
 		$search		= $data['search'];
 		$checked	= $data['checked'];
 		$pagination	= $this->depreciation_run->getAsset2($this->fields, $search, $sort, $checked);
+		// var_dump($pagination);
 		$table		= '';
 		if (empty($pagination)) {
-			$table = '<tr><td colspan="2" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		foreach ($pagination as $key => $row) {
+		$date = $this->date->dateDbFormat();
+		foreach ($pagination as $row) {
+			$accumulated	= $this->depreciation_run->getAccumulated($checked);
+			$time  					= strtotime($row->depreciation_month);
+			$depreciation 			= 0;
+			$accumulated_amount = $accumulated->depamount;
+			$x = 0;
+			$date1=date_create($row->depreciation_month);
+			$date2=date_create($date);
+			$diff=date_diff($date1,$date2);
+			$x = $diff->m + 1;
+			// for($x=1;$x<=$row->useful_life;$x++){
+			$depreciation_amount 	= ($row->balance_value - $row->salvage_value) / $row->useful_life;
+			// $depreciation += ($row->balance_value - $row->salvage_value) / $row->useful_life;
+			$final = date("Y-m-d", strtotime("+$x month", $time));
+			$depreciation = $accumulated_amount + $depreciation_amount;
+			// }
 			$table .= '<tr>';
-			$table .= '<td class="text-left">' . date('M d, Y', strtotime($row->depreciation_date)) .'</td>';
+			$table .= '<td class="text-left">' . date('F d, Y',strtotime($final)) .'</td>';
 			$table .= '<td class="text-left">' . $row->name . '</td>';
 			$table .= '<td class="text-left">' . $row->asset_number . '</td>';
 			$table .= '<td class="text-left">' . $row->serial_number . '</td>';
 			$table .= '<td class="text-left">' . $row->assetclass . '</td>';
 			$table .= '<td class="text-left">' . $row->description . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->capitalized_cost, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->depreciation_amount, 2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->accumulated_dep, 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format(($depreciation_amount), 2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($depreciation, 2) . '</td>';
 			$table .= '<td>' . $row->asset . '</td>';
 			$table .= '<td>' . $row->accdep . '</td>';
 			$table .= '<td>' . $row->depexp . '</td>';
 			$table .= '</tr>';
-	}
+		}
+	
 
 			$table .= '</tr>';
 
@@ -102,7 +125,7 @@ class controller extends wc_controller {
 
 		$table		= '';
 		if (empty($pagination->result)) {
-			$table = '<tr><td colspan="2" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
 			$table .= '<tr>';
@@ -123,30 +146,35 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_load_depreciation() {
-		$data		= $this->input->post(array('search', 'sort', ''));
-		$sort		= $data['sort'];
-		$search		= $data['search'];
 		$pagination	= $this->depreciation_run->getAsset123();
-
+		
 		$table		= '';
 		if (empty($pagination)) {
-			$table = '<tr><td colspan="2" class="text-center"><b>No Records Found</b></td></tr>';
+			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		$this->depreciation_run->deleteSched();
+		// $this->depreciation_run->deleteSched();
+		
+		$date = $this->date->dateDbFormat();
+		$year = $this->year;
+		$month = $this->month;
 
 		foreach ($pagination as $row) {
-			$dropdown = $this->ui->loadElement('check_task')
-								->addView()
-								->addEdit()
-								->draw();
+			$accumulated	= $this->depreciation_run->getAccumulated($row->asset_number);
 			$time  					= strtotime($row->depreciation_month);
 			$depreciation 			= 0;
-			for($x=1;$x<=$row->useful_life;$x++){
+			$accumulated_amount = $accumulated->depamount;
+			$x = 0;
+			$date1=date_create($row->depreciation_month);
+			$date2=date_create($date);
+			$diff=date_diff($date1,$date2);
+			$x = $diff->m + 1;
+			// for($x=1;$x<=$row->useful_life;$x++){
 			$depreciation_amount 	= ($row->balance_value - $row->salvage_value) / $row->useful_life;
-			$depreciation += ($row->balance_value - $row->salvage_value) / $row->useful_life;
+			// $depreciation += ($row->balance_value - $row->salvage_value) / $row->useful_life;
 			$final = date("Y-m-d", strtotime("+$x month", $time));
-			$sched = $this->depreciation_run->saveAssetMasterSchedule($row->asset_number,$row->itemcode,$final,$depreciation,$depreciation_amount, $row->gl_asset, $row->gl_accdep, $row->gl_depexp);
-			}
+			$depreciation = $accumulated_amount + $depreciation_amount;
+			$sched = $this->depreciation_run->saveAssetMasterSchedule($row->asset_number,$row->itemcode,$final,$depreciation,$depreciation_amount, $row->gl_asset, $row->gl_accdep, $row->gl_depexp,$year,$month);
+			// }
 			
 		}
 
