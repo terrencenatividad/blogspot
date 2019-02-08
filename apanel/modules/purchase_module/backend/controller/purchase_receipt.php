@@ -571,7 +571,7 @@ class controller extends wc_controller {
 		$serials					= $this->input->post($this->serial_fields);		
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$data['voucherno']);
 		$attachment_update['reference'] = $data['voucherno'];
-		// $attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
+		$attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
 		// retrieve  freight, insurance, packaging 
 		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
 		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;
@@ -579,21 +579,21 @@ class controller extends wc_controller {
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
-		// if ($result && $this->inventory_model) {
-		// 	$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
-		// 							->setDetails($data['vendor'])
-		// 							->computeValues()
-		// 							->logChanges();
+		if ($result && $this->inventory_model) {
+			$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
+									->setDetails($data['vendor'])
+									->computeValues()
+									->logChanges();
 
-		// 	$this->inventory_model->setReference($data['voucherno'])
-		// 							->setDetails($data['vendor'])
-		// 							->generateBalanceTable();
-		// }
+			$this->inventory_model->setReference($data['voucherno'])
+									->setDetails($data['vendor'])
+									->generateBalanceTable();
+		}
 		
-		// $columns['transactiontype'] = 'Received Asset';
-		// if ($result && $this->report_model){ 
-		// 	$this->report_model->generateAssetActivity();
-		// } 
+		$columns['transactiontype'] = 'Received Asset';
+		if ($result && $this->report_model){ 
+			$this->report_model->generateAssetActivity();
+		} 
 		
 
 		$redirect_url = MODULE_URL;

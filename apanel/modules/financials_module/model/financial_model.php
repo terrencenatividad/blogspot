@@ -245,6 +245,7 @@ class financial_model extends wc_model {
 	}
 
 	private function saveHeader($header, $voucherno, $check_exist) {
+		
 		$data				= array(
 			'voucherno'			=> $voucherno,
 			'currencycode'		=> 'PHP',
@@ -262,9 +263,12 @@ class financial_model extends wc_model {
 			'fiscalyear'		=> date('Y'),
 			'balance'			=> $header->netamount,
 			'source'			=> '',
-			'sourceno'			=> $this->voucherno,
-			'assetid'			=> $header->assetid
+			'sourceno'			=> $this->voucherno
 		);
+
+		if ($this->header_table == 'accountspayable') {
+			$data['assetid']	= $header->assetid;
+		}
 
 		if ($this->header_table != 'journalvoucher') {
 			$data['invoicedate'] = $header->transactiondate;
