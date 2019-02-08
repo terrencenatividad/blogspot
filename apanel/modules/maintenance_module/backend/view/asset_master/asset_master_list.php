@@ -66,7 +66,7 @@
 				</div>
 			</div>
 			<div class="box-body table-responsive no-padding">
-				<table id="tableList" class="table table-hover">
+				<table id="tableListAsset" class="table table-hover">
 					<?php
 						echo $ui->loadElement('table')
 								->setHeaderClass('info')
@@ -190,13 +190,14 @@
 			var url = '<?= MODULE_URL ?>get_export/';
 			$('#export_table').attr('href', url + btoa(ajax.search || '') + '/' + btoa(ajax.sort || ''));
 		}
-		tableSort('#tableList', function(value, getlist) {
+		tableSort('#tableListAsset', function(value, getlist) {
 			ajax.sort = value;
 			ajax.page = 1;
 			if (getlist) {
 				getList();
 			}
 		});
+	
 		$('#table_search').on('input', function () {
 			ajax.page = 1;
 			ajax.search = $(this).val();
@@ -225,6 +226,18 @@
 			var filename = $(this).val().split("\\");
 			$(this).closest('.input-group').find('.form-control').html(filename[filename.length - 1]);
 		});
+
+			</script>
+	<?php
+		echo $ui->loadElement('modal')
+			->setId('jv_modal')
+			->setSize('modal-lg')
+			->setContent('financials/journal_voucher/create')
+			->setHeader('Add a Journal Voucher')
+			->draw();
+	?>
+		<script>
+
 		function addError(error, clean) {
 			if (clean) {
 				$('#warning_modal .modal-body').html(error);
@@ -233,14 +246,16 @@
 			}
 		}
 
-		$('#tableList').on('click', '.activate', function() { 
+	
+
+		$('#tableListAsset').on('click', '.activate', function() { 
 			var id = $(this).attr('data-id');
 			$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
 				getList();
 			});
 		});
 
-		$('#tableList').on('click', '.deactivate', function() { 
+		$('#tableListAsset').on('click', '.deactivate', function() { 
 			$('#deactivate_modal').modal('show');
 			var id = $(this).attr('data-id');
 			
@@ -253,26 +268,36 @@
 			});
 		});
 
-		$('#tableList').on('click', '.tag_as_retired', function() { 
+		$('#tableListAsset').on('click', '.tag_as_retired', function() { 
 			var id = $(this).attr('data-id');
-			$('#tagRetired').modal('show');
-			$( "#tagRetired #yes_na_yes" ).click(function() {
+			$('#jv_modal').modal('show');
+			// $('#tagRetired').modal('show');
+			// $( "#tagRetired #yes_na_yes" ).click(function() {
+			// 	$.post('<?=MODULE_URL?>ajax/update_retirement_date', '&id='+id ,function(data) {
+			// 	$('#tagRetired').modal('hide');
+			// 	getList();
+			// });
+			$(document).on('show.bs.modal','#delay_modal', function () {
 				$.post('<?=MODULE_URL?>ajax/update_retirement_date', '&id='+id ,function(data) {
-				$('#tagRetired').modal('hide');
-				getList();
+
+				});
 			});
-		});
 	});
 
-	$('#tableList').on('click', '.untag_as_retired', function() { 
+	$('#tableListAsset').on('click', '.untag_as_retired', function() { 
 			var id = $(this).attr('data-id');
-			$('#untagRetired').modal('show');
-			$( "#untagRetired #yes_na_yes" ).click(function() {
+			$('#jv_modal').modal('show');
+			// $('#untagRetired').modal('show');
+			// $( "#untagRetired #yes_na_yes" ).click(function() {
+			// 	$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
+			// 	$('#untagRetired').modal('hide');
+			// 	getList();
+			// });
+			$(document).on('show.bs.modal','#delay_modal', function () {
 				$.post('<?=MODULE_URL?>ajax/ajax_edit_activate', '&id='+id ,function(data) {
-				$('#untagRetired').modal('hide');
-				getList();
+
+				});
 			});
-		});
 	});
 
 		$('#importForm').submit(function(e) {
@@ -335,7 +360,7 @@
 				ajax_call.abort();
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
-				$('#tableList tbody').html(data.table);
+				$('#tableListAsset tbody').html(data.table);
 				$('#pagination').html(data.pagination);
 				historyOfMyLife();
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
@@ -359,11 +384,11 @@
 			});
 		}
 		$(function() {
-			linkButtonToTable('#item_multiple_delete', '#tableList');
+			linkButtonToTable('#item_multiple_delete', '#tableListAsset');
 			// linkButtonToTable('#activateMultipleBtn', '#tableList');
 			// linkButtonToTable('#deactivateMultipleBtn', '#tableList');
-			linkDeleteToModal('#tableList .delete', 'ajaxCallback');
-			linkDeleteMultipleToModal('#item_multiple_delete', '#tableList', 'ajaxCallback');
+			linkDeleteToModal('#tableListAsset .delete', 'ajaxCallback');
+			linkDeleteMultipleToModal('#item_multiple_delete', '#tableListAsset', 'ajaxCallback');
 		});
 
 		function show_success_msg(msg)
@@ -446,20 +471,20 @@
 		return id;
 	}
 
-	$('#tableList').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {			
+	$('#tableListAsset').on('ifToggled', 'input[type=checkbox]:not(.checkall)', function() {			
 			var b = $('input[type=checkbox]:not(.checkall)');
-			var row = $('#tableList >tbody >tr').length;
+			var row = $('#tableListAsset >tbody >tr').length;
 			var c =	b.filter(':checked').length;
 			if(c == row){
-				$('#tableList thead tr th').find('.checkall').prop('checked', true).iCheck('update');
+				$('#tableListAsset thead tr th').find('.checkall').prop('checked', true).iCheck('update');
 			}else{
-				$('#tableList thead tr th').find('.checkall').prop('checked', false).iCheck('update');
+				$('#tableListAsset thead tr th').find('.checkall').prop('checked', false).iCheck('update');
 			}
 		});
 
 	function historyOfMyLife() {
 		var arr = [];
-		$('#tableList tbody').find('.label').each(function(index, value){
+		$('#tableListAsset tbody').find('.label').each(function(index, value){
 			arr.push($(this).html());
 			if(jQuery.inArray('ACTIVE', arr) != -1) {
 				$('#deactivateMultipleBtn').attr('disabled', false);

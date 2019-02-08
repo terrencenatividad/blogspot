@@ -14,6 +14,7 @@
                 <div class="col-md-12">&nbsp;</div>
                 <div class="row">
                     <?php if($task == 'view') : ?>
+
                         <?php if($stat == 'cancelled') { ?>
                             <div class="row">
                                 <div class="col-lg-2"></div>
@@ -221,12 +222,14 @@
 <script type="text/javascript">
     var ajax            = {};
     var selected_holder = [];
-    var selected  = {'ipo_no'    :[],
-                    'ipo_item'   :[],
-                    'itemcode'  :[],
-                    'qty'       :[],
-                    'qty_left'  :[],
-                    'linenum'   :[]
+    var selected  = {'ipo_no'           :[],
+                    'ipo_item'          :[],
+                    'itemcode'          :[],
+                    'qty'               :[],
+                    'qty_left'          :[],
+                    'linenum'           :[],
+                    'uom'               :[],
+                    'detailparticular'  :[]
                     };
     var task            = "<?=$task?>";
     var job_no          = "<?=$job_no?>";
@@ -328,8 +331,9 @@
 
     function viewItemList(){
         $("#item_tableList tbody").empty();
+        console.log(selected);
         for(var i=0; i<selected.itemcode.length; i++){
-            $("#item_tableList tbody").append("<tr><td>"+ selected.ipo_item[i] +"</td><td></td><td>"+ selected.itemcode[i] +"</td><td class='text-right'>"+ selected.qty_left[i] +"</td><td class='text-right'>"+ selected.qty[i] +"</td></tr>");
+            $("#item_tableList tbody").append("<tr><td>"+ selected.ipo_item[i] +"</td><td>"+ selected.itemcode[i] +"</td><td>"+ selected.detailparticular[i] +"</td><td class='text-right'>"+ selected.qty_left[i] +"</td><td class='text-right'>"+ selected.qty[i] +"</td><td>"+ selected.uom[i] +"</tr>");
         }
         
     }
@@ -535,6 +539,7 @@
                 selected.itemcode.push("' . $item[$key] . '");
                 selected.linenum.push("' . $linenum[$key] . '");
                 selected.qty.push("' . $qty[$key] . '");';
+
         }
         echo '  getItemList(selected.ipo_no, task, job_no);
             </script>';
@@ -558,7 +563,9 @@
                 selected.itemcode.push("' . $item[$key] . '");
                 selected.linenum.push("' . $linenum[$key] . '");
                 selected.qty_left.push("' . $qty_left[$key] . '");
-                selected.qty.push("' . $qty[$key] . '");';
+                selected.qty.push("' . $qty[$key] . '");
+                selected.uom.push("' . $uom[$key] . '");
+                selected.detailparticular.push("' . $detailparticular[$key] . '");';
         }
         echo '  viewItemList();
                 
