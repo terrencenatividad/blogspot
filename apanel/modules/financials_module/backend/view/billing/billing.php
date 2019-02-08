@@ -767,14 +767,6 @@
 					var taxrate = taxrates[tax] || 0;
 
 					var amount = (price * quantity);
-					var taxamount = amount - (amount / (1 + parseFloat(taxrate)));
-					//amount = amount - taxamount;
-					//total_amount += amount;
-					total_tax += taxamount;
-					
-					$(this).find('.tax_field').val(tax);
-					$(this).find('.taxrate').val(taxrate);
-					$(this).find('.taxamount').val(taxamount);
 
 					var discount_amount = 0;
 					var discountedamount = 0;
@@ -791,6 +783,13 @@
 					amount = discountedamount;
 					total_discount += discount_amount;
 					total_amount += discountedamount;
+
+					var taxamount = amount * parseFloat(taxrate);
+					total_tax += taxamount;
+
+					$(this).find('.tax_field').val(tax);
+					$(this).find('.taxrate').val(taxrate);
+					$(this).find('.taxamount').val(taxamount);
 
 					if (taxrate > 0) {
 						vatable_sales += amount;
@@ -1158,7 +1157,7 @@
 		$(document).ready(function() {
 			var discounttype = $('#discounttype').val();
 			var job = $('#job_orderno').val();
-			if (discounttype == 'amt' || discounttype == 'perc') {
+			if ((discounttype == 'amt' || discounttype == 'perc') && job == '') {
 				$('#tableList tbody').find('.discount').removeAttr('readonly');
 			} 
 			else {
@@ -1166,12 +1165,10 @@
 			}
 			if (job == '') {
 				$('#tableList tbody').find('.unitprice').removeAttr('readonly');
-				$('#tableList tbody').find('.discount').removeAttr('readonly');
 				$('#tableList tbody').find('.taxcode').removeAttr('disabled');
 			}
 			else {
 				$('#tableList tbody').find('.unitprice').attr('readonly', true);
-				$('#tableList tbody').find('.discount').attr('readonly', true);
 				$('#tableList tbody').find('.taxcode').attr('disabled', true);
 			}
 		});
