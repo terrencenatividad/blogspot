@@ -280,7 +280,7 @@
 									echo $ui->drawSubmit(true);
 								}
 							endif;
-							if($ajax_task == 'ajax_view') {
+							if($ajax_task == 'ajax_view' && $status != 'cancelled') {
 								echo $ui->drawSubmit($show_input);
 							}
 							?>
