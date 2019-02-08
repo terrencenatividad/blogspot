@@ -297,17 +297,29 @@
 								->setValuesFromPost($details)
 								->runInsert();
 			if ($result) {
-				for($ctr = 0; $ctr<count($details['linenum']); $ctr++){
-					$drvalue["returnedqty"] = $details['issueqty'][$ctr];
-					$linenum = $details['linenum'][$ctr];
-					$drupdate = $this->db->setTable('deliveryreceipt_details')
-									->setValues($drvalue)
-									->setWhere("voucherno = '$sourceno' AND linenum='$linenum'")
-									->runUpdate();
-				}
-				
+				$drupdate = $this->updateDRqty($voucherno, $source, $details['linenum']);
 			}
 			return $result;
+		}
+
+		public function updateDRqty($voucherno, $source, $linenum){
+			foreach ($linenum as $key => $value) {
+
+				$returned = $this->db->setTable('inventory_salesreturn_details srd')
+								->setFields('COALESCE(SUM(issueqty),0) qty')
+								->leftJoin('inventory_salesreturn sr ON sr.voucherno=srd.voucherno')
+								->setWhere("srd.voucherno='$voucherno' AND source_no='$sourceno' AND linenum='$value'")
+								->runSelect()
+								->getRow();
+
+				$drvalue['returnedqty'] = $returned->qty;
+
+				$drupdate = $this->db->setTable('deliveryreceipt_details')
+								->setValues($drvalue)
+								->setWhere("voucherno = '$sourceno' AND linenum='$value'")
+								->runUpdate();
+			}
+			return $drupdate;
 		}
 
 		public function updateDRSerial($sourceno, $linenum, $serialid){
