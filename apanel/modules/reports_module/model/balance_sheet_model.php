@@ -245,7 +245,7 @@ class balance_sheet_model extends wc_model {
 				foreach ($data as $x) {
 					if (isset($x[$key])) {
 						$account	= $x[$key];
-						$tot = ($accounts->accountnature == 'Debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
+						$tot = (strtolower($accounts->accountnature) == 'debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
 						if ($accounts->accountnature != $parentaccount) {
 							$tot = $tot * -1;
 						}
