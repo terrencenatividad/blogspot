@@ -197,7 +197,7 @@ class controller extends wc_controller {
 				$show_import_button = (isset($ret_existing->display) && ($ret_existing->display == "hide")) ? 0 : 1;
 				// var_dump($show_import_button);
 				$displayed_button 	=	"";
-				if($item_ident_flag != "000" && $show_import_button && $display){
+				if($item_ident_flag != "000" && $display){
 					$import_serial = '<button type = "button" data-itemcode="'.$itemcode.'" id="import-serial" class="import-serial btn btn-info"><i class="fa fa-paperclip"></i></button>';
 					$displayed_button = $import_serial;
 				} else {
@@ -658,26 +658,36 @@ class controller extends wc_controller {
 						$itemcode 	   		= isset($b[0]) 						?	trim($b[0])	:	"";
 						$warehouse 	        = isset($b[1]) 						?	trim($b[1])	:	"";
 						
+						$pair 				= "000";
 						$serialno = $engineno = $chassisno = "";
 						if($has_serial) {
 							$serialno 	        = isset($b[2]) 					?	trim($b[2])	:	"";
+							$pair 				= "100";
 							if($has_engine) {
 								$engineno 	    = isset($b[3]) 					?	trim($b[3])	:	"";
+								$pair 			= "110";
 								if($has_chassis) {
 									$chassisno 	= isset($b[4]) 					?	trim($b[4])	:	"";
+									$pair 		= "111";
 								}
 							} else {
-								$chassisno 		= isset($b[3]) 					?	trim($b[3])	:	"";
+								if($has_chassis) {
+									$chassisno 	= isset($b[3]) 					?	trim($b[3])	:	"";
+									$pair 		= "101";
+								}
 							}
 						} else {
 							if($has_engine) {
 								$engineno 	    = isset($b[2]) 					?	trim($b[2])	:	"";
+								$pair 			= "010";
 								if($has_chassis) {
 									$chassisno 	= isset($b[3]) 					?	trim($b[3])	:	"";
+									$pair 			= "011";
 								}
 							} else {
 								if($has_chassis) {
 									$chassisno 	= isset($b[2]) 					?	trim($b[2])	:	"";
+									$pair 			= "001";
 								}
 							}
 						}
@@ -692,51 +702,91 @@ class controller extends wc_controller {
 						$errmsg[] 	=	$this->check_if_exists("itemcode", "items", "itemcode='$itemcode'", "Item Code", $itemcode, $line);
 						$errmsg[] 	=	$this->check_if_exists("warehousecode", "warehouse", "description='$warehouse'", "Warehouse", $warehouse, $line);
 
-						// Insert the itemcode - warehouse pair into an array ( for validation )
-						if( $serialno!="" || $engineno!="" || $chassisno!="" ) {
-							if($has_serial && $serialno!=""){
-								if(!in_array($serialno, $serial_list) ){
-									$serial_list[] 	=	$serialno;
-								} else {
-									$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Serial No. on row $line has a duplicate within the document.<br/>";
-									$errmsg		= array_filter($errmsg);
-								}
-								$errmsg[] 	=	$this->check_duplicate_code("serialno", "items_serialized", "serialno='$serialno'", "Serial No.", $serialno, $line);
+						// Insert the itemcode - warehouse pair into an array ( for validation ) -------- For Unique Validation
+						// if( $serialno!="" || $engineno!="" || $chassisno!="" ) {
+							// if($has_serial && $serialno!=""){
+							// 	if(!in_array($serialno, $serial_list) ){
+							// 		$serial_list[] 	=	$serialno;
+							// 	} else {
+							// 		$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Serial No. on row $line has a duplicate within the document.<br/>";
+							// 		$errmsg		= array_filter($errmsg);
+							// 	}
+							// 	$errmsg[] 	=	$this->check_duplicate_code("serialno", "items_serialized", "serialno='$serialno'", "Serial No.", $serialno, $line);
+							// }
+
+							// if($has_engine && $engineno!=""){
+							// 	if(!in_array($engineno, $engine_list) ){
+							// 		$engine_list[] 	=	$engineno;
+							// 	} else {
+							// 		$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Engine No. on row $line has a duplicate within the document.<br/>";
+							// 		$errmsg		= array_filter($errmsg);
+							// 	}
+							// 	$errmsg[] 	=	$this->check_duplicate_code("engineno", "items_serialized", "engineno='$engineno'", "Engine No.", $engineno, $line);
+							// }
+
+							// if($has_chassis && $chassisno!=""){
+							// 	if(!in_array($chassisno, $chassis_list) ){
+							// 		$chassis_list[] 	=	$chassisno;
+							// 	} else {
+							// 		$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Chassis No. on row $line has a duplicate within the document.<br/>";
+							// 		$errmsg		= array_filter($errmsg);
+							// 	}
+							// 	$errmsg[] 	=	$this->check_duplicate_code("chassisno", "items_serialized", "chassisno='$chassisno'", "Chassis No.", $chassisno, $line);
+							// }
+						
+						switch($pair) {
+							case "100":
+							if($serialno==""){
+								$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] has a missing Serial No. on line $line<br/>";
 							}
-
-							if($has_engine && $engineno!=""){
-								if(!in_array($engineno, $engine_list) ){
-									$engine_list[] 	=	$engineno;
-								} else {
-									$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Engine No. on row $line has a duplicate within the document.<br/>";
-									$errmsg		= array_filter($errmsg);
-								}
-								$errmsg[] 	=	$this->check_duplicate_code("engineno", "items_serialized", "engineno='$engineno'", "Engine No.", $engineno, $line);
+							break;
+							case "110":
+							if($serialno==""||$engineno==""){
+								$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] has a missing Serial/Engine No. on line $line<br/>";
 							}
-
-							if($has_chassis && $chassisno!=""){
-								if(!in_array($chassisno, $chassis_list) ){
-									$chassis_list[] 	=	$chassisno;
-								} else {
-									$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] with the following Chassis No. on row $line has a duplicate within the document.<br/>";
-									$errmsg		= array_filter($errmsg);
-								}
-								$errmsg[] 	=	$this->check_duplicate_code("chassisno", "items_serialized", "chassisno='$chassisno'", "Chassis No.", $chassisno, $line);
+							break;
+							case "111":
+							if($serialno==""||$engineno==""||$chassisno==""){
+								$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] has a missing Serial/Engine/Chassis No. on line $line<br/>";
 							}
-
-							$retrieve 				= $this->adjustment->getValue('warehouse', array('warehousecode'), " description = '$warehouse' ");
-							$warehousecode 			= isset($retrieve[0]->warehousecode) 	?	$retrieve[0]->warehousecode 	:	"";
-
-							$itemcode_[] 			= $itemcode;
-							$warehouse_[] 			= $warehousecode;
-							$rowno_[] 				= $count;
-							$linenum_[] 			= $count;
-							$serialno_[] 			= $serialno;
-							$engineno_[] 			= $engineno;
-							$chassisno_[] 			= $chassisno;
-
-							$total_qty++;
+							break;
+							case "010":
+							if($engineno==""){
+								$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] has a missing Engine No. on line $line<br/>";
+							}
+							break;
+							case "011":
+							if($engineno==""||$chassisno==""){
+								$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] has a missing Engine/Chassis No. on line $line<br/>";
+							}
+							break;
+							case "001":
+							if($chassisno==""){
+								$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] has a missing Chassis No. on line $line<br/>";
+							}
+							break;
+							case "101":
+							if($serialno==""||$chassisno==""){
+								$errmsg[]	= "Itemcode [<strong>$itemcode</strong>] has a missing Serial/Chassis No. on line $line<br/>";
+							}
+							break;
+							default:
+							//do nothing
 						}
+
+						$retrieve 				= $this->adjustment->getValue('warehouse', array('warehousecode'), " description = '$warehouse' ");
+						$warehousecode 			= isset($retrieve[0]->warehousecode) 	?	$retrieve[0]->warehousecode 	:	"";
+
+						$itemcode_[] 			= $itemcode;
+						$warehouse_[] 			= $warehousecode;
+						$rowno_[] 				= $count;
+						$linenum_[] 			= $count;
+						$serialno_[] 			= $serialno;
+						$engineno_[] 			= $engineno;
+						$chassisno_[] 			= $chassisno;
+
+						$total_qty++;
+						// }
 
 						$line++;
 						$count++;
@@ -767,10 +817,25 @@ class controller extends wc_controller {
 						'chassisno' 	=> $chassisno_
 					);
 
-					$proceed  			= $this->adjustment->importinitialserials($post);
+					$ret_existing 		= $this->adjustment->check_existing_serials($actual_warehouse, $actual_item);
+					$exists 			= (isset($ret_existing->display) && ($ret_existing->display == "hide")) ? 1 : 0;
+
+					if($exists) {
+						$truncate 		= $this->adjustment->deleteimportedserials($actual_warehouse, $actual_item);
+
+						if($truncate) {
+							$proceed  		= $this->adjustment->importinitialserials($post);
+							
+							if( $proceed ){
+								$this->log->saveActivity("Imported Serial Number for [$actual_item].");
+							}
+						}
+					} else {
+						$proceed  		= $this->adjustment->importinitialserials($post);
 					
-					if( $proceed ){
-						$this->log->saveActivity("Imported Serial Number for [$actual_item].");
+						if( $proceed ){
+							$this->log->saveActivity("Imported Serial Number for [$actual_item].");
+						}
 					}
 				}
 			} else {
