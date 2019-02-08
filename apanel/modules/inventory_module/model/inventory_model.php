@@ -97,6 +97,13 @@ class inventory_model extends wc_model {
 						->setFields($this->createFields('po', "IF(a.stat != 'posted', b.convreceiptqty, pr.pr)"))
 						->setWhere("a.stat IN('open', 'partial', 'posted')")
 						->buildSelect();
+
+		$ipo	= $this->db->setTable('import_purchaseorder a')
+						->innerJoin('import_purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
+						->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
+						->setFields($this->createFields('ipo', "IF(a.stat != 'posted', b.convreceiptqty, pr.pr)"))
+						->setWhere("a.stat IN('open', 'partial', 'posted')")
+						->buildSelect();
 						
 		$pr = $this->db->setTable('purchasereceipt a')
 						->innerJoin('purchasereceipt_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
@@ -145,10 +152,10 @@ class inventory_model extends wc_model {
 						->buildSelect();
 
 		$inner_query = $bb . ' UNION ALL ' . $so . ' UNION ALL ' . $dr . ' UNION ALL ' . $si . ' UNION ALL ' . $sr . ' UNION ALL ' . $xr;
-		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st . ' UNION ALL ' . $jo . ' UNION ALL ' . $jr;
+		$inner_query .= ' UNION ALL ' . $po . ' UNION ALL ' . $ipo .' UNION ALL ' . $pr . ' UNION ALL ' . $pt . ' UNION ALL ' . $ia . ' UNION ALL ' . $st . ' UNION ALL ' . $jo . ' UNION ALL ' . $jr;
 
 		$inner_query = $this->db->setTable("($inner_query) i")
-								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st, SUM(jo) jo, SUM(jr) jr')
+								->setFields('companycode, itemcode ic, warehouse wh, SUM(bb) bb, SUM(so) so, SUM(dr) dr, SUM(si) si, SUM(sr) sr, SUM(xr) xr, SUM(po+ipo) po, SUM(pr) pr, SUM(pt) pt, SUM(ia) ia, SUM(st) st, SUM(jo) jo, SUM(jr) jr')
 								->setWhere("warehouse != ''")
 								->setGroupBy('warehouse, itemcode')
 								->buildSelect();
@@ -331,6 +338,7 @@ class inventory_model extends wc_model {
 			'sr',
 			'xr',
 			'po',
+			'ipo',
 			'pr',
 			'pt',
 			'ia',
