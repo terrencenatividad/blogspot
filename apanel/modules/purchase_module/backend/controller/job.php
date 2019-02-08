@@ -59,7 +59,7 @@
 
             $data['transactiondate']    = $job_date;
             $data['notes']              = $retrievedjob[0]->notes;
-            $data['stat']               =$retrievedjob[0]->stat;
+            $data['stat']               = $retrievedjob[0]->stat;
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
 
@@ -69,12 +69,15 @@
             $linenum                    = array();
             $qty_left                   = array();
             foreach ($result as $key => $row) {
-                $getQty = $this->job->getThisQty($row->ipo_no, $row->itemcode, $job);
-                $ipo_item[]     = $row->ipo_no;
-                $item[]         = $row->itemcode;
-                $linenum[]      = $row->linenum;
-                $qty_left[]     = $row->receiptqty - $getQty->count;
-                $qty[]          = $row->qty;
+                $getQty     = $this->job->getTaggedItemQty($row->ipo_no, $row->linenum, $job, 'view');
+                $getThisQty = $this->job->getThisQty($row->ipo_no, $row->linenum, $job);
+                $ipo_item[]         = $row->ipo_no;
+                $item[]             = $row->itemcode;
+                $linenum[]          = $row->linenum;
+                $qty_left[]         = $row->receiptqty - $getQty->count;
+                $qty[]              = $row->qty;
+                $detailparticular[] = $row->description;
+                $uom[]              = $row->uom;
             }
             
             $data['ipo']        = $ipo_item;
@@ -82,6 +85,8 @@
             $data['linenum']    = $linenum;
             $data['qty_left']   = $qty_left;
             $data['qty']        = $qty;
+            $data['detailparticular'] = $detailparticular;
+            $data['uom']        = $uom;
             $this->view->load('job/job',  $data);
         }
         
@@ -124,7 +129,7 @@
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
 
-            $ipo_item                    = array();
+            $ipo_item                   = array();
             $item                       = array();
             $qty                        = array();
             $linenum                    = array();
@@ -430,25 +435,15 @@
 
                 foreach ($pagination->result as $key => $row) {
                     
-                    $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->itemcode, $job_no, $task);
-                    if (empty($taggedqty)) {
-                        $maxval = $row->receiptqty;
-                    }
-                    else
-                        $maxval = $row->receiptqty - $taggedqty[0]->count;
-                    if ($task == 'update') {
-                        $qty = $this->job->getThisQty($row->voucherno, $row->itemcode, $job_no);
-                        $max_val = $maxval + $qty->count;
-                    }
-                    else {
-                        $max_val = $maxval;
-                    }   
+                    $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->linenum, $job_no, $task);
+                    $maxval = $row->receiptqty - $taggedqty->count;
+                    
                     if ($maxval) {
-                        $qtyval  = 1;
+                        $readonly = '';
                         $disable = '';
                     }
                     else{
-                        $qtyval  = 0;
+                        $readonly = 'readonly';
                         $disable = 'disabled';
                     }
 
@@ -475,16 +470,17 @@
                         $table .= $this->ui->formField('text')
 											->setAttribute(array("readOnly"=>"readOnly"))
 											->setClass("qty_left input_label text-right")
-											->setValue(number_format($maxval,0))
+											->setValue($maxval)
 											->draw(true);
                         $table .= '</td>';
                         $table .= '<td>';
                         $table .= $this->ui->formField('text')
                                             ->setName('txtquantity[]')
                                             ->setCLass('quantity text-right')
+                                            ->setAttribute(array($readonly))
                                             ->setMaxLength(12)
                                             ->setValue($maxval)
-                                            ->setAttribute(array("data-maxval"=>$max_val))
+                                            ->setAttribute(array("data-maxval"=>$maxval))
                                             ->setValidation('integer') //required code
                                             ->draw(true);
                         $table .= '</td>';
