@@ -71,6 +71,14 @@ class sq_print_model extends fpdf {
 		if (count($this->document_details) > 5) {
 			$rect_height += ((count($this->document_details) - 5) * $document_detail_height);
 		}
+		if ($this->stat == 'cancelled' || $this->stat == 'Cancelled') {
+			$this->SetFont('Arial', '', 10);
+			$this->Cell(37, 5, 'This voucher has been', 0, 0, 'L');
+			$this->SetTextColor(255,0,0);
+			$this->SetFont('Arial', 'B', 10);
+			$this->Cell(100, 5, 'CANCELLED', 0, 0, 'L');
+		}
+		$this->setTextColor(0,0,0);
 		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
 		$this->SetFont('Arial', 'B', 8);
@@ -217,6 +225,11 @@ class sq_print_model extends fpdf {
 
 	public function setCustomerDetails($customer_details) {
 		$this->customer_details = $customer_details;
+		return $this;
+	}
+
+	public function setStatDetail($stat) {
+		$this->stat = $stat;
 		return $this;
 	}
 

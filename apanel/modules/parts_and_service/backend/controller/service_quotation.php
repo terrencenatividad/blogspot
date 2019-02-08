@@ -497,6 +497,7 @@ class controller extends wc_controller {
 		$print->setDocumentType('Service Quotation')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customer)
+				->setStatDetail($header->stat)
 				->setRemarksDetail($header->notes)
 				->setDocumentDetails($docheader)
 				// ->addTermsAndCondition()
