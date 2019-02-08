@@ -106,7 +106,7 @@ class controller extends wc_controller {
 	}
 
 	public function edit($voucherno) {
-		$this->view->title	= 'View Sales Return';
+		$this->view->title	= 'Edit Sales Return';
 
 		$fields1 = array('source_no',
 						'customer',
