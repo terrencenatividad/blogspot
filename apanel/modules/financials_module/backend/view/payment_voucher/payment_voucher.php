@@ -9,9 +9,13 @@
 		</div>
 		<p class = "text-bold">Please contact admin to fix this issue.</p>
 	</div>
-
 	<form method = "post" class="form-horizontal" id = "payableForm">
-		<input type = "hidden" id = "bank_name" name = "bank_name" >
+		<input type = "hidden" id = "bank_name" name = "bank_name">
+		<?php if($task == 'edit') { ?>
+			<input type = "hidden" id = "booknumber" name = "booknumber" value = "<?php echo $booknumber; ?>">
+		<?php } else if($task == 'create') { ?>
+			<input type = "hidden" id = "booknumber" name = "booknumber">
+		<?php } ?>
 		<input type = "hidden" id = "book_id" name = "book_id" >
 		<input type = "hidden" id = "book_ids" name = "book_ids" >
 		<input type = "hidden" id = "book_last" name = "book_last" >
@@ -1542,6 +1546,12 @@
 
 
 <script>
+
+	<?php if($task == 'edit') : ?>
+		$(document).ready(function() {
+			$('#bank_name').val($('.cheque_account :selected').text());
+		});
+	<?php endif; ?>
 	<?php if ($task == 'create'):?>
 		getLockAccess('create');
 	<?php endif;?>
@@ -1810,6 +1820,8 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 $('#table_chequelist #cheque_list_container').on('click', 'tr', function() {
 	storechequetobank();
 	var num = $(this).find('.nextchequeno').html();
+	var booknumber = $(this).find('.booknum').val();
+	$('#booknumber').val(booknumber);
 	curr_bank_seq[val_bank] = num;
 	cheque_element.closest('tr').find('.chequenumber').val(num);
 	$('#chequeList').modal('hide');
