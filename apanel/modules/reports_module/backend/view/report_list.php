@@ -154,6 +154,23 @@
 						</div>
 					</div>
 				</div>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						Parts and Services
+					</div>
+					<div class="panel-body">
+						<div class="list-group">
+							<a href="detailed_parts_and_service" class="list-group-item">
+								<h4 class="list-group-item-heading">Detailed Parts and Service Sales Report</h4>
+								<p class="list-group-item-text">List of Detailed Parts and Service Sales Report</p>
+							</a>
+							<a href="after_sales" class="list-group-item">
+								<h4 class="list-group-item-heading">After Sales Status Report</h4>
+								<p class="list-group-item-text">List of after sales status report</p>
+							</a>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<div class="col-md-6">
