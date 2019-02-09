@@ -166,17 +166,21 @@
             $submit         = $this->input->post("submit");
             $is_multiple    = (count($itemcode)>1) ? true : false;
 
+            $jobcost = 0;
             for ($i=0 ; $i<count($itemcode) ; $i++) {
                 $job_static[$i]            = $this->input->post("txtjob");
                 $job_increment[$i]  = $job_voucher++;
+                
+                $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i]);
+                $jobcost            += $itemcost[$i] * $qty[$i];
             }
-
 
             $values = array(
                 'job_no'            => $job_notarray,
                 'notes'             => $notes,
                 'transactiondate'   => $date,
-                'stat'              => $status
+                'stat'              => $status,
+                'job_cost'          => $jobcost
             );
             $result = $this->job->saveValues("job", $values);
 
@@ -235,10 +239,15 @@
             $is_multiple    = (count($itemcode)>1) ? true : false;
             $submit         = $this->input->post("submit");
 
+            $jobcost = 0;
             for ($i=0 ; $i<count($itemcode) ; $i++) {
                 $job_static[$i]            = $this->input->post("txtjob");
                 $job_increment[$i]  = $job_voucher++;
+                
+                $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i]);
+                $jobcost            += $itemcost[$i] * $qty[$i];
             }
+            // var_dump($jobcost);
             
             $delete_result  = $this->job->deleteJobValues("job_details", $job_static[0]);
             $delete_result2 = $this->job->deleteJobValues("job_ipo", $job_static[0]);
@@ -247,7 +256,8 @@
                 'job_no'            => $job_notarray,
                 'notes'             => $notes,
                 'transactiondate'   => $date,
-                'stat'              => $status
+                'stat'              => $status,
+                'job_cost'          => $jobcost
             );
 
             $result = $this->job->updateJobValues($values, $job_static[0]);
