@@ -1,5 +1,5 @@
 <?php
-class after_sales extends wc_model {
+class parts_and_service extends wc_model {
 
 	public function getCustomers() 
 	{
@@ -27,36 +27,24 @@ class after_sales extends wc_model {
 		
 		$addCondition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
-		$sq = $this->db->setTable('servicequotation a')
-							->setFields("a.transactiondate, a.voucherno service_quotation, '' job_order_no, '' si_goods, '' si_service,'' serialno, uom,a.customer,a.stat")
-							->leftJoin("servicequotation_details b ON a.voucherno = b.voucherno")
-							->setWhere('a.stat IN ("Approved","Partial")')
-							->buildSelect();
-
-		$jo = $this->db->setTable('job_order a')
-							->setFields("a.transactiondate, service_quotation, a.job_order_no, '' si_goods, '' si_service, '' serialno, uom,a.customer,a.stat")
-							->leftJoin("job_order_details b ON a.job_order_no = b.job_order_no")
-							->setWhere('a.stat = "completed"')
-							->buildSelect();
-
 		$si = $this->db->setTable('salesinvoice a')
-							->setFields("a.transactiondate, service_quotation, sourceno job_order_no,  b.voucherno si_goods, '' si_service, convuom uom, b.serialno,a.customer,a.stat")
+							->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, discountedamount parts, '' service ,a.customer,a.stat")
 							->leftJoin("salesinvoice_details b ON b.voucherno = a.voucherno")
 							->leftJoin("job_order c ON c.job_order_no = a.sourceno")
 							->setWhere('b.stat = "posted" AND srctranstype = "jo"')
 							->buildSelect();
 
 		$billing = $this->db->setTable('billing a')
-							->setFields("a.transactiondate, service_quotation, a.job_orderno, '' si_goods, b.voucherno si_service, '' serialno, convuom uom,a.customer,a.stat")
+							->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, '' parts, discountedamount service,a.customer,a.stat")
 							->leftJoin("billing_details b ON b.voucherno = a.voucherno")
 							->leftJoin("job_order c ON c.job_order_no = a.job_orderno")
 							->setWhere('a.stat = "Paid" AND a.job_orderno != ""')
 							->buildSelect();
 
-		$query = $sq . ' UNION ALL ' . $jo. ' UNION ALL ' . $si. ' UNION ALL ' . $billing;
+		$query =  $si. ' UNION ALL ' . $billing;
 		
 		$result = 	$this->db->setTable("($query) main")
-							->setFields('transactiondate,service_quotation, job_order_no, si_goods, si_service, serialno, uom, partnername, main.stat')
+							->setFields('transactiondate,service_quotation, po_number, si, parts, service, partnername, main.stat')
 							->leftJoin('partners p ON p.partnercode = main.customer')
 							->setWhere("main.stat != ''".$addCondition)	
 							->setOrderBy('transactiondate')						
@@ -80,41 +68,29 @@ class after_sales extends wc_model {
 		
 		$addCondition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
-		$sq = $this->db->setTable('servicequotation a')
-							->setFields("a.transactiondate, a.voucherno service_quotation, '' job_order_no, '' si_goods, '' si_service,'' serialno, uom,a.customer,a.stat")
-							->leftJoin("servicequotation_details b ON a.voucherno = b.voucherno")
-							->setWhere('a.stat IN ("Approved","Partial")')
-							->buildSelect();
-
-		$jo = $this->db->setTable('job_order a')
-							->setFields("a.transactiondate, service_quotation, a.job_order_no, '' si_goods, '' si_service, '' serialno, uom,a.customer,a.stat")
-							->leftJoin("job_order_details b ON a.job_order_no = b.job_order_no")
-							->setWhere('a.stat = "completed"')
-							->buildSelect();
-
 		$si = $this->db->setTable('salesinvoice a')
-							->setFields("a.transactiondate, service_quotation, sourceno job_order_no,  b.voucherno si_goods, '' si_service, convuom uom, b.serialno,a.customer,a.stat")
-							->leftJoin("salesinvoice_details b ON b.voucherno = a.voucherno")
-							->leftJoin("job_order c ON c.job_order_no = a.sourceno")
-							->setWhere('b.stat = "posted" AND srctranstype = "jo"')
-							->buildSelect();
+						->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, discountedamount parts, '' service ,a.customer,a.stat")
+						->leftJoin("salesinvoice_details b ON b.voucherno = a.voucherno")
+						->leftJoin("job_order c ON c.job_order_no = a.sourceno")
+						->setWhere('b.stat = "posted" AND srctranstype = "jo"')
+						->buildSelect();
 
 		$billing = $this->db->setTable('billing a')
-							->setFields("a.transactiondate, service_quotation, a.job_orderno, '' si_goods, b.voucherno si_service, '' serialno, convuom uom,a.customer,a.stat")
-							->leftJoin("billing_details b ON b.voucherno = a.voucherno")
-							->leftJoin("job_order c ON c.job_order_no = a.job_orderno")
-							->setWhere('a.stat = "Paid" AND a.job_orderno != ""')
-							->buildSelect();
+						->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, '' parts, discountedamount service,a.customer,a.stat")
+						->leftJoin("billing_details b ON b.voucherno = a.voucherno")
+						->leftJoin("job_order c ON c.job_order_no = a.job_orderno")
+						->setWhere('a.stat = "Paid" AND a.job_orderno != ""')
+						->buildSelect();
 
-		$query = $sq . ' UNION ALL ' . $jo. ' UNION ALL ' . $si. ' UNION ALL ' . $billing;
+		$query =  $si. ' UNION ALL ' . $billing;
+
 		$result = 	$this->db->setTable("($query) main")
-							->setFields('transactiondate,service_quotation, job_order_no, si_goods, si_service, serialno, uom, partnername, main.stat')
+							->setFields('transactiondate,service_quotation, po_number, si, parts, service, partnername, main.stat')
 							->leftJoin('partners p ON p.partnercode = main.customer')
 							->setWhere("main.stat != ''".$addCondition)	
-							->setOrderBy('transactiondate')						
+							->setOrderBy('transactiondate')	
 							->runSelect(false)
 							->getResult();
-							
 		return $result;
 	}
 }
