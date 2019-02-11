@@ -107,7 +107,7 @@
 						</div>
 					</div>
 				</div>
-				<input type="hidden" id="checked" class="checkedass">
+				<input type="text" id="checked" class="checkedass">
 				<div class="modal-body">
 				<table id="asset_modal_list" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 						<thead>
@@ -122,6 +122,7 @@
 						</tbody>
 					</table>
 					<div class="row">&nbsp;</div>
+					<div id="pagination_asset"></div>
 					<div class="text-center">
 					<input type="button" id="sim" class="simulate btn btn-info" value="Simulate Asset">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -238,15 +239,17 @@
 		}
 		getList();
 
+		var ajax1 = {}
+		var ajax_call1 = '';
 		function getList2() {
-			if (ajax_call != '') {
-				ajax_call.abort();
+			if (ajax_call1 != '') {
+				ajax_call1.abort();
 			}
-			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list_2', ajax, function(data) {
+			ajax_call1 = $.post('<?=MODULE_URL?>ajax/ajax_list_2', ajax1, function(data) {
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
-				if (ajax.page > data.page_limit && data.page_limit > 0) {
-					ajax.page = data.page_limit;
+				if (ajax1.page > data.page_limit && data.page_limit > 0) {
+					ajax1.page = data.page_limit;
 					getList2();
 				}
 			});
@@ -256,16 +259,17 @@
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}
-			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_asset', ajax, function(data) {
+			ajax.limit = 5;
+			ajax_call1 = $.post('<?=MODULE_URL?>ajax/ajax_load_asset', ajax, function(data) {
 				$('#asset_modal_list tbody').html(data.table);
-				$('#pagination').html(data.pagination);
+				$('#pagination_asset').html(data.pagination);
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
 					ajax.page = data.page_limit;
 					getAssetList();
 				}
 			});
 		}
-		
+
 		$('#run').on('click', function(){
 			$('#rundep').modal('show');
 		});
@@ -281,22 +285,40 @@
 		$('#simulate').on('click', function(){
 			ajax.search = '';
 			$('#table_search').val('');
+			$('#checked').val('');
 			$('#assetmodal').modal('show');
 			getAssetList();
 		});
 
+			checked = [];
 		
 		$('#sim').on('click', function() {
-			checked = [];
 			$('.check:checked').each(function() {
 				var ass = $(this).attr('data-id');
 				checked.push(ass);
 				$('.checkedass').val(checked);
-				ajax.checked = $('.checkedass').val();
+				ajax1.checked = $('.checkedass').val();
 				$('#assetmodal').modal('hide');
 				getList2();
 			});
 		});
+
+		$('#pagination_asset').on('click', 'a', function(e) {
+			e.preventDefault();
+			var li = $(this).closest('li');
+			$('#asset_modal_list tbody tr td input[type="checkbox"]:checked').each(function() {
+				var ass = $(this).attr("data-id");
+				if($.inArray(ass, checked) == -1) {
+					checked.push(ass);
+				}
+			});	
+
+			if (li.not('.active').length && li.not('.disabled').length) {
+				ajax.page = $(this).attr('data-page');
+				getAssetList();
+			}
+		});
+		
 
 		$.post('<?=MODULE_URL?>ajax/retrieve_users', ajax, function(data) {
 		$('#lockerModal #logged_users').html(data.user_lists);
