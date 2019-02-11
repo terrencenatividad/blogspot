@@ -319,7 +319,7 @@ var serialize = [{
 function addVoucherDetails(details, index) {
 	var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 	var other_details = JSON.parse(JSON.stringify(details));
-	// console.log(details);
+	console.log(details);
 	delete other_details.itemcode;
 	delete other_details.detailparticular;
 	delete other_details.receiptqty;
@@ -497,8 +497,8 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
-						->setClass('realqty')
-						->setValue('` + addComma(details.realqty) + `')
+						->setClass('maxqty')
+						->setValue('` + addComma(details.maxqty) + `')
 						->addHidden()
 						->draw($show_input);
 				?>
@@ -507,8 +507,8 @@ function addVoucherDetails(details, index) {
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
-						->setClass('maxqty')
-						->setValue('` + addComma(details.maxqty) + `')
+						->setClass('realqty')
+						->setValue('` + ((details.realqty == null) ? addComma(details.maxqty) : addComma(details.realqty)) + `')
 						->addHidden()
 						->draw($show_input);
 				?>
