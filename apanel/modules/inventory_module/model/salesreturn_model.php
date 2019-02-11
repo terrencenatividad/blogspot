@@ -831,5 +831,54 @@
 
 		// 	return $result;
 		// }
+		public function getSRPrint($voucherno){
+			$fields = array('transactiondate',
+						'source_no',
+						'partnername AS customer',
+						'address1 AS address',
+						'tinno',
+						'mobile AS contactno',
+						'reason',
+						'remarks',
+						'vat_sales',
+						'vat_exempt',
+						'vat_zerorated',
+						'netamount',
+						'taxamount AS tax',
+						'amount',
+						'discountamount AS discount',
+						'sr.stat'
+						);
+
+			$header = $this->db->setTable('inventory_salesreturn sr')
+								->setFields($fields)
+								->leftJoin('partners ON partnercode=customer')
+								->setWhere("voucherno='$voucherno'")
+								->runSelect()
+								->getRow();
+			
+			$fields_details = array('srd.itemcode',
+								'detailparticular',
+								'defective',
+								'srd.replacement',
+								'issueqty AS qty',
+								'issueuom AS uom',
+								'unitprice AS price',
+								'discountamount AS discount',
+								'taxcode',
+								'taxamount AS tax',
+								'netamount AS amount'
+								);
+
+			$details = $this->db->setTable('inventory_salesreturn_details srd')
+								->setFields($fields_details)
+								->leftJoin('items i ON i.itemcode=srd.itemcode')
+								->setWhere("voucherno='$voucherno'")
+								->runSelect()
+								->getResult();
+
+			return array('header' => $header,
+						'details' => $details );
+		}
 	}
 ?>
