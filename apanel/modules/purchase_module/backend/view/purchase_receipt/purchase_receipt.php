@@ -522,6 +522,7 @@
 			delete other_details.unitprice;
 			delete other_details.amount;
 			delete other_details.taxamount;
+			delete other_details.discounttype;
 			delete other_details.discountamount;
 			delete other_details.withholdingamount;
 			delete other_details.taxcode;
@@ -654,7 +655,13 @@
 									->setClass('taxamount')	
 									->setValue('` + (parseFloat(details.taxamount) || 0) + `')
 									->draw();
-									
+
+							echo $ui->setElement('hidden')
+									->setName('detail_discounttype[]')
+									->setClass('discounttype')	
+									->setValue('` + details.discounttype + `')
+									->draw();
+
 							echo $ui->setElement('hidden')
 									->setName('detail_discountamount[]')
 									->setClass('discountamount')	
@@ -1536,9 +1543,19 @@
 					var charges 	= ((freight + insurance + packaging) > 0) ? (freight + insurance + packaging) : 0;
 					var tax = $(this).find('.taxcode').val();
 					var taxrate = taxrates[tax] || 0;
+
+					var discounttype = $(this).find('.discounttype').val() || '';
+					var discountamount = removeComma($(this).find('.discountamount').val()) || '0';
+					var discount = 0;
+					if(discountamount > 0){
+						discount = (discounttype == 'amt') ? discountamount * exchangerate : (((price * quantity) * (discountamount / 100)) * exchangerate);
+						//console.log((price * quantity));
+					}
 					
-					var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
-					var taxamount = (taxrate > 0) ? removeComma(addComma((((price * quantity) * exchangerate) * parseFloat(taxrate)))) : 0;
+					// var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
+					// var taxamount = (taxrate > 0) ? removeComma(addComma((((price * quantity) * exchangerate) * parseFloat(taxrate)))) : 0;
+					var amount = ((((price * quantity) * exchangerate) - discount) + ((((((price * quantity) * exchangerate) - discount) / total_purchase) * (charges))));
+					var taxamount = (taxrate > 0) ? removeComma(addComma(((((price * quantity) * exchangerate) - discount) * parseFloat(taxrate)))) : 0;
 					
 					total_amount += amount;
 					total_tax += taxamount;
@@ -1548,13 +1565,14 @@
 
 					$(this).find('.amount').val(addComma(amount)).closest('.form-group').find('.form-control-static').html(addComma(amount));
 				});
-				var discounttype = $('#tableList tfoot .discounttype:checked').val();
+				//var discounttype = $('#tableList tfoot .discounttype:checked').val();
+				var discounttype = '';
 				var discount_rate = removeComma($('#tableList tfoot #discountrate').val());
 				var discount_amount = removeComma($('#tableList tfoot #discountamount').val());
-				if (discounttype == 'perc') {
-					discount_amount = (total_amount + total_tax) * discount_rate / 100;
-					$('#tableList tfoot #discountamount').val(addComma(discount_amount));
-				}
+				// if (discounttype == 'perc') {
+				// 	discount_amount = (total_amount + total_tax) * discount_rate / 100;
+				// 	$('#tableList tfoot #discountamount').val(addComma(discount_amount));
+				// }
 				var wtaxcode = $('#tableList tfoot .wtaxcode').val();
 				var wtaxrate = taxrates[wtaxcode] || 0;
 				var withholding_tax = total_amount * wtaxrate;
@@ -1586,7 +1604,7 @@
 					amount = removeComma(addComma(amount - taxamount));
 					var withholdingamount = amount * withholdingrate;
 
-					$(this).find('.discountamount').val(discount_amount);
+					//$(this).find('.discountamount').val(discount_amount);
 					$(this).find('.withholdingamount').val(withholdingamount);
 				});
 			}
