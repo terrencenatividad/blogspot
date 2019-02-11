@@ -1745,7 +1745,7 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 	// })
 
 
-	$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , 
+	$.post("<?=BASE_URL?>financials/payment_voucher/ajax/getNumbers" , 
 		{ bank: val_bank, curr_seq: num } 
 		).done(function(data){
 			if (data.table){
@@ -3927,7 +3927,7 @@ $(document).ready(function() {
 		/**SAVE TEMPORARY DATA THROUGH AJAX**/
 		$("#payableForm").on('change',function(e)
 		{
-			if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#itemsTable #debit\\[1\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[1\\]").val()) > 0) && (parseFloat($("#itemsTable #debit\\[2\\]").val()) > 0 || parseFloat($("#itemsTable #credit\\[2\\]").val()) > 0) && $("#payableForm #vendor").val() != '' )
+			if( $("#entriesTable #accountcode\\[1\\]").val() != '' && $("#payableForm #document_date").val() != '' && (parseFloat($("#ap_items #debit\\[1\\]").val()) > 0 || parseFloat($("#ap_items #credit\\[1\\]").val()) > 0) && (parseFloat($("#ap_items #debit\\[2\\]").val()) > 0 || parseFloat($("#ap_items #credit\\[2\\]").val()) > 0) && $("#payableForm #vendor").val() != '' )
 			{
 				setTimeout(function() 
 				{
@@ -3942,6 +3942,8 @@ $(document).ready(function() {
 					{	
 						if(data.code == '1')
 						{
+							$("#payableForm #btnSave").removeClass('disabled');
++							$("#payableForm #btnSave_toggle").removeClass('disabled');
 							$("#payableForm #h_voucher_no").val(data.voucher);
 							// window.location.href = '<?//=BASE_URL?>financials/payment_voucher';
 						}

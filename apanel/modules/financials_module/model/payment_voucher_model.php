@@ -794,7 +794,7 @@ class payment_voucher_model extends wc_model
 			}
 
 			$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
-			$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
+			$status							= (!empty($isExist[0]->stat) && ($isExist[0]->stat == "open" || $isExist[0]->stat == "posted") ) ? "open" : "temporary";
 			$valid 							= 0;
 
 			$transactiondate				= $this->date->dateDbFormat($transactiondate); 
@@ -913,7 +913,7 @@ class payment_voucher_model extends wc_model
 					$post_application['currencycode']		= $currencycode;
 					$post_application['exchangerate']		= $exchangerate;
 					$post_application['convertedamount']	= $amount;
-					$post_application['stat']			 	= "posted";
+					$post_application['stat']			 	= $status;
 
 					$iApplicationLineNum++;
 					$aPvApplicationArray[]					= $post_application;
@@ -1818,7 +1818,7 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bankdetail bd')
 		->setFields(array('bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 		->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
-		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' and bd.check_status = 'active'")
+		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' and bd.check_status = 'active' AND bd.has_cancelled = 'no'")
 		->setOrderBy('firstchequeno')
 		->runPagination();
 
