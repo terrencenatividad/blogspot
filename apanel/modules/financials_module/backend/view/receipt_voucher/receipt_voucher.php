@@ -14,6 +14,7 @@
 		<input type="hidden" id="ar_acct" name="ar_acct" value="<?=$ar_acct?>">
 		<input type="hidden" id="disc_acct" name="disc_acct" >
 		<input type="hidden" id="final_voucher" name="final_voucher" >
+		<input type="hidden" id="total_cash_amount" name="total_cash_amount" value="0">
 		<div class="box box-primary">
 			<div class="box-body">
 				<div class = "row">
@@ -685,7 +686,7 @@
 											->setClass("text-right account_amount debit ")
 											->setValidation('decimal')
 											->setMaxLength(20)
-											->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+											->setAttribute(array("onBlur" => "formatNumber(this.id); compute_cash_amount(); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 											->setValue(number_format($debit, 2))
 											->draw($show_input);
 											?>
@@ -789,7 +790,7 @@
 											->setValidation('decimal')
 											->setClass("text-right debit account_amount")
 											->setMaxLength(20)
-											->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+											->setAttribute(array("onBlur" => "formatNumber(this.id); compute_cash_amount(); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 											->setValue(number_format($debit, 2))
 											->draw($show_input);
 											?>
@@ -887,7 +888,7 @@
 										->setClass("text-right debit account_amount $indicator")
 										->setValidation('decimal')
 										->setMaxLength(20)
-										->setAttribute(array("onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
+										->setAttribute(array("onBlur" => "formatNumber(this.id); compute_cash_amount(); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);", $disable_debit))
 										->setValue(number_format($debit, 2))
 										->draw($show_input);
 										$detail_row	.= '</td>';
@@ -933,6 +934,7 @@
 											$credit 			= $aPvJournalDetails_Value->credit;
 											$taxcode 			= $aPvJournalDetails_Value->taxcode;
 											$taxbase_amount		= $aPvJournalDetails_Value->taxbase_amount;
+											$accountclasscode	= $aPvJournalDetails_Value->accountclasscode;
 
 											$ischeck 			= isset($aPvJournalDetails_Value->ischeck) 	?	$aPvJournalDetails_Value->ischeck	:	"no";
 											$isop 				= isset($aPvJournalDetails_Value->isop) 	?	$aPvJournalDetails_Value->isop	:	"no";
@@ -974,7 +976,7 @@
 											$disable_code 		= 'disabled';
 											$added_class 		= "credit_account";
 										} else if( $has_op && ($accountcode == $op_acct || $saved_op_acct == $accountcode) && $isop == "yes" ) {
-											$disable_credit		= '';
+											$disable_credit		= 'readOnly';
 											$disable_debit		= 'readOnly';
 											$disable_code 		= 'disabled';
 											$added_class 		= "op_row";
@@ -986,8 +988,11 @@
 											$disable_debit		= ($debit > 0) ? '' : 'readOnly';
 											$disable_credit		= ($credit > 0) ? '' : 'readOnly';
 										}
-										
-											$detail_row	.= '<tr class="clone '.$added_class.'">';
+										$additional_class = "";
+										if($accountclasscode == "CASH"){
+											$additional_class .= "cash";
+										}
+											$detail_row	.= '<tr class="clone '.$added_class.' '.$additional_class.'">';
 											$detail_row	.= '<td class = "remove-margin hidden">';
 											$detail_row .= $ui->formField('text')
 															->setSplit('', 'col-md-12')
@@ -1839,6 +1844,7 @@ var disabled_button 	 = initial_clone.find('.confirm-delete').attr('disabled');
 			$('#entriesTable tbody tr.added_row').find('.ischeck').val('yes');
 			$("#accountcode\\["+ row +"\\]").val(account).trigger('change.select2');
 			disable_acct_fields(row);
+			cashaccounts(account, $("#accountcode\\["+ row +"\\]"));
 			row++;
 		});
 
@@ -1923,6 +1929,7 @@ $('#chequeTable .chequeamount').on('change', function() {
 	acctdetailamtreset();
 	displaystoreddescription();
 	addAmountAll('debit');
+	compute_cash_amount();
 });
 
 function computeDueDate(){
@@ -3049,7 +3056,7 @@ function set_op_acct(discount){
 		curr.prev().find('.description').val('Overpayment');
 		curr.prev().find('.debit').val('0.00');
 		disable_acct_fields(current_row);
-		curr.prev().find('.credit').prop('readonly',false);
+		// curr.prev().find('.credit').prop('readonly',false);
 		drawTemplate();
 }
 
@@ -4059,6 +4066,16 @@ function clear_n_set_account(){
 	clearChequePayment();
 
 	set_account();
+}
+
+
+
+function cashaccounts(value, field){
+	$.post('<?=BASE_URL?>financials/receipt_voucher/ajax/retrieve_accountclasscode', "accountcode=" + value, function(data) {
+		if(data.accountclasscode == "CASH") {
+			field.closest('tr').addClass('cash');
+		}
+	});
 }
 
 $(document).ready(function() {
@@ -5196,7 +5213,6 @@ $(document).ready(function() {
 			$('#paymentModal #available_credits').val(excess_credits);
 		});
 	});
-
 	$('#entriesTable').on('change','.accountcode',function(){
 		var customer 	= $('#customer').val();
 		var payable = JSON.stringify(container);
@@ -5208,6 +5224,8 @@ $(document).ready(function() {
 			is_ap 	= (is_ap == true) ? "true" 	:	"false";
 		var is_op 	= $('#op_checker').is(':checked');
 			is_op 	= (is_op == true) ? "true" 	:	"false";
+
+		var acct_field = $(this);
 
 		if( account != "" ){
 			$(this).closest('tr').find('.h_accountcode').val(account);
@@ -5250,11 +5268,12 @@ $(document).ready(function() {
 					}
 				});
 			} else {
-				$(this).closest('tr').find('.h_accountcode').val(account);
+				acct_field.closest('tr').find('.h_accountcode').val(account);
+				cashaccounts(account, acct_field);
 			}
 		} 
 
-	});
+	})
 
 	$('#paymentForm').on('change','.credits_used',function(){
 		var avail_credits 	=	$('#paymentForm #available_credits').val();
@@ -5367,6 +5386,7 @@ $(document).ready(function() {
 		$('#crv').prop('disabled',true);
 
 		set_op_acct();
+		compute_cash_amount();
 	});
 	
 	$('#payableForm').on('ifUnchecked','#op_checker',function(event){
@@ -5406,25 +5426,6 @@ $(document).ready(function() {
 var row = '';
 prev_account = '';
 var selected_tax_account = '';
-	
-// function get_coa(account){
-// 	$.post("<?//= BASE_URL ?>financials/receipt_voucher/ajax/get_tax",{account:account}).done(function(data){
-// 		if((data.result == 'Creditable Withholding Tax')){
-// 			if (prev_account != '' && account != prev_account) {
-// 				$('#tax_amount').val('');
-// 			}
-// 			prev_account = account;
-// 			$('#atcModal').modal('show');
-// 			$('#tax_account').html(data.ret);
-// 			if (selected_tax_account) {
-// 				$('#tax_account').val(selected_tax_account);
-// 			}
-// 		} else {
-// 			row.find('.checkbox-select').show();
-// 			row.find('.edit-button').hide();
-// 		}
-// 	});
-// }
 
 function set_selected_cv(){
 	for (var vouchers in credits_box) {
@@ -5442,6 +5443,63 @@ function set_total_credits_amt(){
 	apply_credit_account(total);
 	
 	$("#applied_cred_amt").html(total);
+}
+
+function setoverpaymentamount(value) {
+	$('#entriesTable tr').each(function(){
+		var accountcode = $(this).find('.h_accountcode').val();
+		var table 		= $(this);
+		var ovp_acct 	= $('#hidden_op_acct').val();
+		if(accountcode != undefined) {
+			if(accountcode == ovp_acct) {
+				table.find('.credit').val(addComma(value));
+			} 
+		}
+	});
+}
+
+function compute_cash_amount() {
+var total_cash_amount 	=	0;
+	$('#entriesTable tr.cash').each(function(){
+		var accountcode = $(this).find('.h_accountcode').val();
+		var line  		= $(this).find('.accountcode').data('id');
+		var table 		= $(this);
+		if(accountcode != undefined) {
+			total_cash_amount 	+=	removeComma(table.find('.debit').val());
+			
+		}
+	});
+	$('#total_cash_amount').val(total_cash_amount);	
+	compare_amountw_cash();
+}
+
+function compare_amountw_cash(){
+	var total_cash	=	$('#total_cash_amount').val();
+	var receivable_amount  = removeComma($('#pv_amount').html());
+	var op_acct 		   = $('#hidden_op_acct').val();
+	var is_op 	= $('#op_checker').is(':checked');
+		is_op 	= (is_op == true) ? "true" 	:	"false";
+	if(is_op=="true"){
+		if(parseFloat(total_cash) > parseFloat(receivable_amount)){
+			var difference = total_cash - receivable_amount;
+			$('#entriesTable tr').each(function(){
+				var accountcode = $(this).find('.h_accountcode').val();
+				if(accountcode == op_acct) {
+					$(this).find('.credit').val(addComma(difference));
+				} 
+			});
+			addAmountAll('credit');
+		} else {
+			var difference = 0;
+			$('#entriesTable tr').each(function(){
+				var accountcode = $(this).find('.h_accountcode').val();
+				if(accountcode == op_acct) {
+					$(this).find('.credit').val(addComma(difference));
+				} 
+			});
+			addAmountAll('credit');
+		}
+	}
 }
 
 $('#payableForm').on('click','#update_ap_acct',function(e){

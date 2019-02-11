@@ -1671,7 +1671,7 @@ class controller extends wc_controller
 									->setName('debit['.$row.']')
 									->setId('debit['.$row.']')
 									->setClass('text-right debit account_amount')
-									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
+									->setAttribute(array("maxlength" => "20", "onBlur" => "formatNumber(this.id); compute_cash_amount(); addAmountAll('debit');", "onClick" => "SelectAll(this.id);", "onKeyPress" => "isNumberKey2(event);"))
 									->setValue((number_format($debit, 2)))
 									->draw($show_input).			
 								'</td>';
@@ -2015,6 +2015,16 @@ class controller extends wc_controller
 
 		$return = array('op_id'=>$op_id, "op_account"=>$existingopaccount);
 		return $return;
+	}
+
+	public function retrieve_accountclasscode(){
+		$accountcode 		=	$this->input->post('accountcode');
+		// checkifCash
+		$ret_data 			=	$this->receipt_voucher->checkifCash($accountcode);
+		// var_dump($ret_data);
+		$accountclasscode	=	isset($ret_data[0]->accountclasscode) ? 	$ret_data[0]->accountclasscode 	:	"";
+
+		return array("accountclasscode"=>$accountclasscode);
 	}
 
 	public function cancel_connected_entries(){
