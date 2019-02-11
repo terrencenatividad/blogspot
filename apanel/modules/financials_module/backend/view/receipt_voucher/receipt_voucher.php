@@ -3192,14 +3192,15 @@ function getRVDetails(){
 						var payment 		= parsed_payment[i];
 						var id 				= payment.vno;
 						var current_amt 	= payment.amt;
-							current_amt 	= parseFloat(current_amt.replace(/\,/g,''));
-						var current_balance = parseFloat(payment.bal);
+							current_amt 	= removeComma(current_amt);
+						var discount 		= payment.dis;
+							discount 		= removeComma(discount);
+						var current_balance = removeComma(payment.bal);
 
-						total_rcv 	+=	current_amt;
-						total_bal 	+=	(current_balance>0) ? current_balance : current_amt;
+						total_rcv 	+=	(current_amt + discount);
+						total_bal 	+=	(current_balance>0) ? current_balance : (current_amt + discount);
 					}
-					console.log(total_rcv);
-					console.log(total_bal);
+					
 					if(total_rcv==total_bal){
 						if(is_op == "yes"){
 							$('#op_checker').iCheck('check');
