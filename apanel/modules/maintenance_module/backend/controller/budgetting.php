@@ -157,10 +157,10 @@ class controller extends wc_controller
 		$budget['period_end'] = $year . '-12-31';
 		$budget_details = $this->input->post($this->budget_details);
 		$budgetcode = $budget['budget_code'];
-		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
 		$budget_details['budget_code'] = $budgetcode;
 		$budget_details['id'] = '';
 		$budget_details['amount'] = str_replace(',', '' ,$budget_details['amount']);
+		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
 		$details = $this->budgetting->saveDetails($budget_details);
 
 		return array(

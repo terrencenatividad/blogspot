@@ -229,10 +229,10 @@
             return $result;
         }
 
-        public function getItemCost($ipo,$itemcode) {
+        public function getItemCost($ipo,$itemcode,$linenum) {
             $select = $this->db->setTable('import_purchaseorder_details')
                                 ->setFields('(convertedamount / receiptqty) AS itemcost')
-                                ->setWhere("voucherno = '$ipo' AND itemcode = '$itemcode'")
+                                ->setWhere("voucherno = '$ipo' AND itemcode = '$itemcode' AND linenum = '$linenum'")
                                 ->runSelect()
                                 ->getRow();
                                 // echo $this->db->getQuery();

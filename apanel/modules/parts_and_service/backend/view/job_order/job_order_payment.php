@@ -397,6 +397,7 @@
 			delete other_details.parentline;
 			delete other_details.parentcode;
 			delete other_details.item_ident_flag;
+			delete other_details.job_order_no;
 			var otherdetails = '';
 
 			for (var key in other_details) {
@@ -735,16 +736,25 @@
 		});
 
 		$('#isyu').on('click',function(e){
-			var form = $('form').serialize();
-			var jobno = $('#job_order_no').val();
-			$.post('<?=MODULE_URL?>ajax/ajax_create_issue', form + '<?=$ajax_post?>' , function(data) {
-					// window.location	= "<?=MODULE_URL?>payment/"+jo;
-					getList();		
-					$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
-					$('.quantity').val('0');
-					$('#isyu').show();
-					$('#save').addClass('hidden');	
-			});
+			var itemcount = 0;
+			$.each($('#tableList tbody tr'), function(){
+				itemcount += $(this).find('.quantity').val();
+			})
+			if (itemcount > 0) {
+				var form = $('form').serialize();
+				var jobno = $('#job_order_no').val();
+				$.post('<?=MODULE_URL?>ajax/ajax_create_issue', form , function(data) {
+						// window.location	= "<?=MODULE_URL?>payment/"+jo;
+						getList();		
+						$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
+						$('.quantity').val('0');
+						$('#isyu').show();
+						$('#save').addClass('hidden');	
+				});
+			}
+			else {
+				$('#warning_modal').modal('show').find('#warning_message').html('Please Add an Item');
+			}
 
 			// $.post('<?=MODULE_URL?>ajax/ajax_check_issuedqty', 'job_order_no=' + jobno , function(data) {
 			// 	var asd  = $('#tableList tbody').find('.linenum').val();				

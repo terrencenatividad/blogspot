@@ -903,7 +903,7 @@ class controller extends wc_controller
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
-					$saveArr['allocated'] 		= str_replace(',','', $data_post['itemprice'][$i]);
+					$saveArr['allocated'] 		= str_replace(',','', $data_post['baseamount'][$i]);
 					$actualArr[]      		= $saveArr;
 				}
 			}

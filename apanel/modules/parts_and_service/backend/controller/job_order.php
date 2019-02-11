@@ -103,7 +103,7 @@ class controller extends wc_controller {
 			'service_quotation',
 			'po_number',
 			'notes',
-			'job_order.stat',
+			'j.stat',
 			'partnername',
 		);
 	}
@@ -345,16 +345,17 @@ class controller extends wc_controller {
 		$this->view->load('job_order/job_order_payment', $data);
 	}
 	private function ajax_list() {
-		$data		= $this->input->post(array('search', 'sort', 'customer', 'filter', 'daterangefilter'));
+		$data		= $this->input->post(array('search', 'sort', 'customer', 'filter', 'daterangefilter', 'limit'));
 		$sort		= $data['sort'];
 		$search		= $data['search'];
 		$customer	= $data['customer'];
 		$filter		= $data['filter'];
 		$datefilter	= $data['daterangefilter'];
+		$limit 		= $data['limit'];
 
-		$pagination	= $this->job_order->getJOList($this->fieldsMainListing);
+		$pagination	= $this->job_order->getJOPagination($search, $sort, $customer, $filter, $datefilter, $limit, $this->fieldsMainListing);
 		$table		= '';
-		// $pagination = new stdClass;
+
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
@@ -651,12 +652,22 @@ class controller extends wc_controller {
 
 	private function ajax_create_issue() {
 		$job_release_no 			= $this->seq->getValue("JR");
-
 		$data						= $this->input->post($this->fields4);
 		$customer					= $this->input->post('h_customer');
 		$data['job_release_no'] 	= $job_release_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
-		
+		foreach ($data['quantity'] as $key => $value) {
+			if ($value < 1) {
+				unset($data['itemcode'][$key]);
+				unset($data['linenum'][$key]);
+				unset($data['detailparticulars'][$key]);
+				unset($data['warehouse'][$key]);
+				unset($data['quantity'][$key]);
+				unset($data['unit'][$key]);
+				unset($data['serialnumbers'][$key]);
+			}
+		}
+
 		$result						= $this->job_order->saveJobRelease($data);
 		
 		$this->job_order->createClearingEntries($data['job_release_no']);
