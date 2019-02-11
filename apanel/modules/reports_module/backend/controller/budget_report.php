@@ -84,7 +84,7 @@ class controller extends wc_controller {
 			$total_mar += $mar_val;
 			$total_april += $april_val;
 			$total_may += $may_val;
-			$total_june += $jan_val;
+			$total_june += $june_val;
 			$total_july += $july_val;
 			$total_aug += $aug_val;
 			$total_sept += $sept_val;
