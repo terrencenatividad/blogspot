@@ -107,7 +107,7 @@
 						</div>
 					</div>
 				</div>
-				<input type="text" id="checked" class="checkedass">
+				<input type="hidden" id="checked" class="checkedass">
 				<div class="modal-body">
 				<table id="asset_modal_list" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 						<thead>
