@@ -41,6 +41,8 @@
             // ->setOrderBy($sort)
             // ->runPagination();	    
             //echo $this->db->getQuery();
+ 
+            // $costAllJobs    = $this->db->setTable('')
             
 
             $fields         = array('
@@ -50,7 +52,9 @@
                                     ca.segment5,
                                     ca.id,
                                     (SUM(bt.converted_debit) - SUM(bt.converted_credit)) AS amount,
-                                    j.stat
+                                    j.stat,
+                                    bt.transtype,
+                                    bt.voucherno
                                     ');
 
             $result         = $this->db->setTable('balance_table bt')
@@ -172,6 +176,7 @@
                         ->setOrderBy($sort)
                         ->runSelect(false)
                         ->getResult();
+                        // echo $this->db->getQuery();
             return $result;         
         }
 
@@ -181,7 +186,7 @@
             ->setFields("distinct job.job_no ind, job.job_no val")
             ->leftJoin('financial_jobs as fj ON fj.job_no = job.job_no')
             ->innerJoin('balance_table ON balance_table.voucherno = fj.voucherno AND balance_table.converted_debit != 0.00')
-            ->setWhere("job.job_no != '' AND job.stat != 'closed'")
+            ->setWhere("job.job_no != '' AND job.stat = 'on-going'")
             ->setOrderBy("val")
             ->runSelect()
             ->getResult();
@@ -288,6 +293,50 @@
                                         ->getResult();
                                         // echo $this->db->getQuery();
 
+            return $result;
+        }
+
+        public function getVoucherRatio($transtype,$voucherno,$job_no) {
+            if ($transtype == '') {
+                $transtype = substr($voucherno,0,2);
+            }
+
+            if ($transtype == 'AP') {
+                $setTable = 'accountspayable';
+            } else {
+                $setTable = 'journalvoucher';
+            }
+
+            $q                  = $this->db->setTable($setTable)
+                                        ->setFields('job_no')
+                                        ->setWhere("voucherno = '$voucherno' AND job_no LIKE '%$job_no%'")
+                                        ->runSelect()
+                                        ->getRow();
+                                        // echo $this->db->getQuery();
+
+            // echo $q->job_no;
+            $jobs           = explode(",",$q->job_no);
+            $all_jobs_cost  = 0;
+            for ($i=0; $i<count($jobs); $i++){
+                $all_jobs_cost         += $this->getJobCost($jobs[$i]);
+            }
+            $job_cost = $this->getJobCost($job_no);
+            
+            $result = $job_cost/$all_jobs_cost;
+            // echo  $result;
+            return $result;
+            
+        }
+
+        public function getJobCost($job_no) {
+            $query              = $this->db->setTable('job')
+                                        ->setFields('job_cost')
+                                        ->setWhere("job_no = '$job_no'")
+                                        ->runSelect()
+                                        ->getRow();
+                                        
+            $result = $query->job_cost;
+            // var_dump((float)$result);
             return $result;
         }
         

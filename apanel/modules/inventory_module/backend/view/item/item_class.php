@@ -32,7 +32,7 @@
 												->setId('parentid')
 												->setList($parents)
 												->setValue($parentid)
-												->setValidation('required')
+												//->setValidation('required')
 												->setPlaceholder('Select Parent')
 												->draw($show_input);
 										?>

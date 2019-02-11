@@ -61,11 +61,13 @@
                         $jstatus = '<span class="label label-danger">'.strtoupper($row->stat).'</span>';
                     }
                     $valuee = 0;
-                    $amountview = $amountview + $row->amount;
+                    $jobAllocation = $this->job_report->getVoucherRatio($row->transtype,$row->voucherno,$row->job_no);
+                    // echo $jobAllocation;
+                    $amountview = $amountview + round($row->amount * $jobAllocation,2);
                     if($row->amount > 0) {
-                        $valuee = number_format($row->amount,2);
+                        $valuee = number_format(($row->amount * $jobAllocation),2);
                     }else {
-                        $valuee = "(" .number_format((abs($row->amount)),2) . ")";
+                        $valuee = "(" .number_format((abs($row->amount * $jobAllocation)),2) . ")";
                     }
 
                     $table .= '<tr>';
@@ -165,7 +167,7 @@
             //$code 	= $this->input->post('account_code');
             //var_dump($sort2,$pjobno,$account_code);
             $pagination 	= $this->job_report->retrieveprocessListing($sort2,$pjobno,$account_code);
-
+            
             $table 	= '';
 
             if( !empty($pagination) ) :
@@ -181,11 +183,13 @@
                         $link ='';
                     }
 
+                    $jobAllocation = $this->job_report->getVoucherRatio($row->transtype,$row->referenceList,$pjobno);
+                    
                     $table .= '<tr>';
-                    $table .= '<td> <a href='.$link.'>' . $row->referenceList . '</a> </td>';
+                    $table .= '<td> <a href='.$link.' target="_blank">' . $row->referenceList . '</a> </td>';
                     $table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
-                    $table .= '<td class="tobesum text-right">' . number_format($row->converted_debit,2) . '</td>';
-                    $table .= '<td class="tobesum2 text-right">' . number_format($row->converted_credit,2) . '</td>';
+                    $table .= '<td class="tobesum text-right">' . number_format($row->converted_debit * $jobAllocation,2) . '</td>';
+                    $table .= '<td class="tobesum2 text-right">' . number_format($row->converted_credit * $jobAllocation,2) . '</td>';
                 }
             else:
                 $table .= "<tr>
@@ -205,17 +209,17 @@
             $pagination 	= $this->job_report->retrieveclosedjobListing($posted_data);
             
             $table 	= '';
-
+            
             if( !empty($pagination) ) :
                 foreach ($pagination as $key => $row) {
 
-
-
+                    $jobAllocation = $this->job_report->getVoucherRatio('',$row->voucherno,$posted_data['close_job_number']);
+                    
                     $table .= '<tr>';
                     $table .= '<td>' . $row->voucherno . '</td>';
                     $table .= '<td>' . $row->accountname . '</td>';
-                    $table .= '<td class="closed_debit text-right">' . number_format($row->converted_debit,2) . '</td>';
-                    $table .= '<td class="closed_credit text-right">' . number_format($row->converted_credit,2) . '</td>';
+                    $table .= '<td class="closed_debit text-right">' . number_format($row->converted_debit * $jobAllocation,2) . '</td>';
+                    $table .= '<td class="closed_credit text-right">' . number_format($row->converted_credit * $jobAllocation,2) . '</td>';
                 }
             else:
                 $table .= "<tr>
