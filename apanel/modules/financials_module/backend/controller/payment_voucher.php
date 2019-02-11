@@ -433,6 +433,7 @@ class controller extends wc_controller
 		$data['discount_code'] 		= $discount_code;
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
+		$data['booknumber'] = $data['rollArray'][$sid][0]['booknumber'];
 		$data["show_cheques"] 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		
 		$account_array	= array();
@@ -989,15 +990,9 @@ class controller extends wc_controller
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
 		}
-		$accountno = '';
-		$acc = explode(' - ', $data_post['bank_name']);
-		if(count($acc) == '2') {
-			$accountno = $acc[1];
-		} else {
-			$accountno = $acc[2];
-		}
+		
 		if ($data_post['paymentmode'] == 'cheque') {
-			$result = $this->payment_voucher->update_checks($accountno, $data_post['chequenumber'][1]);
+			$result = $this->payment_voucher->update_checks($data_post['booknumber'], $data_post['chequenumber'][1]);
 		}
 		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);

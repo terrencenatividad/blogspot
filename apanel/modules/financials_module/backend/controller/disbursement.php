@@ -357,6 +357,7 @@ class controller extends wc_controller
 
 		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array() ;
 		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
+		$data['booknumber'] = $data['rollArray'][$sid][0]['booknumber'];
 		
 		// Application Data
 		$payments 			= $data['payments'];
@@ -1024,8 +1025,9 @@ class controller extends wc_controller
 		} else {
 			$accountno = $acc[2];
 		}
+		
 		if ($data_post['paymentmode'] == 'cheque') {
-			$result = $this->payment_voucher->update_checks($accountno, $data_post['chequenumber'][1]);
+			$result = $this->payment_voucher->update_checks($data_post['booknumber'], $data_post['chequenumber'][1]);
 		}
 
 		// $book_ids	=json_decode(stripcslashes($data_post['book_ids']));
@@ -1657,6 +1659,7 @@ class controller extends wc_controller
 		} else {
 			foreach($nums->result as $row) {
 				$table .= '<tr class = "clickme" style = "cursor : pointer;">';
+				$table .= '<td class = "hidden booknumber"><input type = "hidden" value = '.$row->booknumber.' class = "booknum"></td>';
 				$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
 				$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
 				$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';

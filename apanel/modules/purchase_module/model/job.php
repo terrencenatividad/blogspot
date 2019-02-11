@@ -125,27 +125,28 @@
             return $result;
         }
 
-        public function getTaggedItemQty($ipo, $itemcode, $job="", $task) {
+        public function getTaggedItemQty($ipo, $linenum, $job="", $task) {
             if ($task == 'save') {
-                $condition = "jd.ipo_no='".$ipo."' AND jd.itemcode='".$itemcode."' AND j.stat='on-going'";
+                $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND j.stat='on-going'";
             }
             else {
-                $condition = "jd.ipo_no='".$ipo."' AND jd.itemcode='".$itemcode."' AND jd.job_no = '".$job."' AND j.stat='on-going'";
+                $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND jd.job_no != '".$job."' AND j.stat='on-going'";
             }
             $result = $this->db->setTable("job_details jd")
-                            ->setFields("SUM(jd.qty) AS count")
+                            ->setFields("COALESCE(SUM(jd.qty), 0) AS count")
                             ->leftJoin("job j ON j.job_no = jd.job_no")
                             ->setWhere($condition)
                             ->runSelect()
-                            ->getResult();
+                            ->getRow();
+
             return $result;
         }
 
-        public function getThisQty($ipo, $itemcode, $job) {
+        public function getThisQty($ipo, $linenum, $job) {
             $result = $this->db->setTable("job_details jd")
                             ->setFields("SUM(jd.qty) AS count")
                             ->leftJoin("job j ON j.job_no = jd.job_no")
-                            ->setWhere("jd.ipo_no='".$ipo."' AND jd.itemcode='".$itemcode."' AND jd.job_no = '".$job."'")
+                            ->setWhere("jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND jd.job_no = '".$job."'")
                             ->runSelect()
                             ->getRow();
             return $result;
@@ -210,7 +211,7 @@
 
         public function retrieveExistingJob($job){
             $result = $this->db->setTable("job_details jd")
-                            ->setFields("jd.ipo_no, jd.itemcode, jd.linenum, jd.description, jd.qty, ipod.receiptqty")
+                            ->setFields("jd.ipo_no, jd.itemcode, jd.linenum, jd.description, jd.qty, ipod.receiptqty, jd.uom")
                             ->leftJoin('import_purchaseorder_details ipod ON ipod.voucherno = jd.ipo_no AND ipod.itemcode = jd.itemcode')
                             ->setWhere("job_no='".$job."'")
                             ->setOrderBy("ipo_no ASC, linenum ASC")
@@ -228,7 +229,18 @@
             return $result;
         }
 
-        
+        public function getItemCost($ipo,$itemcode) {
+            $select = $this->db->setTable('import_purchaseorder_details')
+                                ->setFields('(convertedamount / receiptqty) AS itemcost')
+                                ->setWhere("voucherno = '$ipo' AND itemcode = '$itemcode'")
+                                ->runSelect()
+                                ->getRow();
+                                // echo $this->db->getQuery();
+            
+            $result = $select->itemcost;
+
+            return $result;
+        }
         
     }
 

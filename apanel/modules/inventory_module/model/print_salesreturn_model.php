@@ -1,5 +1,5 @@
 <?php
-class sq_print_model extends fpdf {
+class print_salesreturn_model extends fpdf {
 
 	private $margin_side		= 8;
 	private $margin_top			= 8;
@@ -53,6 +53,7 @@ class sq_print_model extends fpdf {
 		$address	= (isset($this->customer_details->address))		? $this->customer_details->address		: '';
 		$contactno	= (isset($this->customer_details->contactno))	? $this->customer_details->contactno	: '';
 		$tinno		= (isset($this->customer_details->tinno))		? $this->customer_details->tinno		: '';
+		$reason 	= (isset($this->customer_details->reason))		? $this->customer_details->reason		: '';
 
 		$document_detail_height = 6;
 		$document_detail_offset = 6;
@@ -71,7 +72,7 @@ class sq_print_model extends fpdf {
 		if (count($this->document_details) > 5) {
 			$rect_height += ((count($this->document_details) - 5) * $document_detail_height);
 		}
-		if ($this->stat == 'cancelled' || $this->stat == 'Cancelled') {
+		if (($this->stat == 'cancelled' || $this->stat == 'Cancelled')) {
 			$this->SetFont('Arial', '', 10);
 			$this->Cell(37, 5, 'This voucher has been', 0, 0, 'L');
 			$this->SetTextColor(255,0,0);
@@ -82,11 +83,23 @@ class sq_print_model extends fpdf {
 		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(29, 4, 'CUSTOMER', 0, 0, 'L');
+		$this->Cell(29, 4, 'SOLD TO', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
 		$this->SetX(40);
 		$this->MultiCell(100, 4, $customer, 0, 'L');
+		$this->SetFont('Arial', 'B', 8);
+		$this->Cell(29, 4, 'ADDRESS', 0, 0, 'L');
+		$this->Cell(17, 4, ':', 0, 0, 'L');
+		$this->SetFont('Arial', '', 8);
+		$this->SetX(40);
+		$this->MultiCell(100, 4, $address, 0, 'L');
+		// $this->SetFont('Arial', 'B', 8);
+		// $this->Cell(29, 4, 'SHIPPING ADDRESS', 0, 0, 'L');
+		// $this->Cell(17, 4, ':', 0, 0, 'L');
+		// $this->SetFont('Arial', '', 8);
+		// $this->SetX(40);
+		// $this->MultiCell(100, 4, $this->s_address, 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
 		$this->Cell(29, 4, 'CONTACT #', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
@@ -99,6 +112,13 @@ class sq_print_model extends fpdf {
 		$this->SetFont('Arial', '', 8);
 		$this->SetX(40);
 		$this->MultiCell(100, 4, $tinno, 0, 'L');
+		$this->SetFont('Arial', 'B', 8);
+		$this->Cell(29, 4, 'REASON', 0, 0, 'L');
+		$this->Cell(17, 4, ':', 0, 0, 'L');
+		$this->SetFont('Arial', '', 8);
+		$this->SetX(40);
+		$this->MultiCell(100, 4, $reason, 0, 'L');
+		$this->SetFont('Arial', 'B', 8);
 
 		$content_width	= 40;
 		$gap			= 2;
@@ -228,13 +248,13 @@ class sq_print_model extends fpdf {
 		return $this;
 	}
 
-	public function setStatDetail($stat) {
-		$this->stat = $stat;
+	public function setShippingDetail($s_address) {
+		$this->s_address = $s_address;
 		return $this;
 	}
 
-	public function setRemarksDetail($notes) {
-		$this->notes = $notes;
+	public function setStatDetail($stat) {
+		$this->stat = $stat;
 		return $this;
 	}
 
@@ -373,7 +393,7 @@ class sq_print_model extends fpdf {
 
 	public function drawSummary($summary) {
 		$summary_height	= count($summary) * 5;
-		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 2;
+		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 7;
 		// $this->Line(8, $summary_start, 29, $summary_start);
 		$this->summary_start 	=	$summary_start;
 		$alignment		= $this->summary_align;

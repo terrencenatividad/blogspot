@@ -106,6 +106,7 @@ class controller extends wc_controller {
 	public function edit($voucherno) {
 		$this->view->title			= 'Edit Delivery Receipt';
 		$this->fields[]				= 'stat';
+
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
 		$transactiondate 			= $data['transactiondate'];
 		$data['deliverydate']		= $this->date->dateFormat($data['deliverydate']);
@@ -148,6 +149,7 @@ class controller extends wc_controller {
 			)
 		);
 		$this->fields[]				= 'stat';
+		$this->fields2[] 			= 'returnedqty';
 		$data						= (array) $this->delivery_model->getDeliveryReceiptById($this->fields, $voucherno);
 		if ($data['stat'] == 'Delivered' || $data['stat'] == 'With Invoice') {
 			$getData = $this->delivery_model->getFile($voucherno);

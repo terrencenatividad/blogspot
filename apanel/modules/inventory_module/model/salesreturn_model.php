@@ -297,17 +297,29 @@
 								->setValuesFromPost($details)
 								->runInsert();
 			if ($result) {
-				for($ctr = 0; $ctr<count($details['linenum']); $ctr++){
-					$drvalue["returnedqty"] = $details['issueqty'][$ctr];
-					$linenum = $details['linenum'][$ctr];
-					$drupdate = $this->db->setTable('deliveryreceipt_details')
-									->setValues($drvalue)
-									->setWhere("voucherno = '$sourceno' AND linenum='$linenum'")
-									->runUpdate();
-				}
-				
+				$drupdate = $this->updateDRqty($voucherno, $source, $details['linenum']);
 			}
 			return $result;
+		}
+
+		public function updateDRqty($voucherno, $source, $linenum){
+			foreach ($linenum as $key => $value) {
+
+				$returned = $this->db->setTable('inventory_salesreturn_details srd')
+								->setFields('COALESCE(SUM(issueqty),0) qty')
+								->leftJoin('inventory_salesreturn sr ON sr.voucherno=srd.voucherno')
+								->setWhere("srd.voucherno='$voucherno' AND source_no='$sourceno' AND linenum='$value'")
+								->runSelect()
+								->getRow();
+
+				$drvalue['returnedqty'] = $returned->qty;
+
+				$drupdate = $this->db->setTable('deliveryreceipt_details')
+								->setValues($drvalue)
+								->setWhere("voucherno = '$sourceno' AND linenum='$value'")
+								->runUpdate();
+			}
+			return $drupdate;
 		}
 
 		public function updateDRSerial($sourceno, $linenum, $serialid){
@@ -819,5 +831,54 @@
 
 		// 	return $result;
 		// }
+		public function getSRPrint($voucherno){
+			$fields = array('transactiondate',
+						'source_no',
+						'partnername AS customer',
+						'address1 AS address',
+						'tinno',
+						'mobile AS contactno',
+						'reason',
+						'remarks',
+						'vat_sales',
+						'vat_exempt',
+						'vat_zerorated',
+						'netamount',
+						'taxamount AS tax',
+						'amount',
+						'discountamount AS discount',
+						'sr.stat'
+						);
+
+			$header = $this->db->setTable('inventory_salesreturn sr')
+								->setFields($fields)
+								->leftJoin('partners ON partnercode=customer')
+								->setWhere("voucherno='$voucherno'")
+								->runSelect()
+								->getRow();
+			
+			$fields_details = array('srd.itemcode',
+								'detailparticular',
+								'defective',
+								'srd.replacement',
+								'issueqty AS qty',
+								'issueuom AS uom',
+								'unitprice AS price',
+								'discountamount AS discount',
+								'taxcode',
+								'taxamount AS tax',
+								'netamount AS amount'
+								);
+
+			$details = $this->db->setTable('inventory_salesreturn_details srd')
+								->setFields($fields_details)
+								->leftJoin('items i ON i.itemcode=srd.itemcode')
+								->setWhere("voucherno='$voucherno'")
+								->runSelect()
+								->getResult();
+
+			return array('header' => $header,
+						'details' => $details );
+		}
 	}
 ?>

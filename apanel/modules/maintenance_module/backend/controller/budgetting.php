@@ -157,10 +157,10 @@ class controller extends wc_controller
 		$budget['period_end'] = $year . '-12-31';
 		$budget_details = $this->input->post($this->budget_details);
 		$budgetcode = $budget['budget_code'];
-		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
 		$budget_details['budget_code'] = $budgetcode;
 		$budget_details['id'] = '';
 		$budget_details['amount'] = str_replace(',', '' ,$budget_details['amount']);
+		$result = $this->budgetting->updateBudget($budget, $id, $budgetcode);
 		$details = $this->budgetting->saveDetails($budget_details);
 
 		return array(
@@ -327,6 +327,7 @@ class controller extends wc_controller
 			$id = $this->input->post('id');
 			$pagination = $this->budgetting->getBudgetSupplements($id);
 			$table = '';
+			$approver = '';
 			if (empty($pagination->result)) {
 				$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 			}
@@ -359,6 +360,7 @@ class controller extends wc_controller
 
 				$table .= '<tr>';
 				$table .= '<td align = "center">' . $dropdown . '</td>';
+				$table .= '<td class = "hidden approver">' . $row->approver . '</td>';
 				$table .= '<td>' . $row->accountname . '</td>';
 				$table .= '<td>' . $row->description . '</td>';
 				$table .= '<td class = "text-right">' . $row->amount . '</td>';
@@ -367,6 +369,7 @@ class controller extends wc_controller
 				$table .= '</tr>';
 			}
 			$pagination->table = $table;
+			$pagination->approver = $approver;
 			return $pagination;
 		}
 
@@ -404,19 +407,29 @@ class controller extends wc_controller
 
 		private function ajax_update_approve_status_supplement() {
 			$id = $this->input->post('budget_id');
+			$approver = $this->input->post('approver');
+			$get_approver = $this->budgetting->getApproverSupplement($id);
 			$arr = array('status');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'approved';
-			$result = $this->budgetting->updateSupplementApprove($id, $fields);
+			$result = false;
+			if($approver == $get_approver->approver) {
+				$result = $this->budgetting->updateSupplementApprove($id, $fields);
+			}
 			return $result;
 		}
 
 		private function ajax_update_reject_status_supplement() {
 			$id = $this->input->post('budget_id');
+			$approver = $this->input->post('approver');
+			$get_approver = $this->budgetting->getApproverSupplement($id);
 			$arr = array('status');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'rejected';
-			$result = $this->budgetting->updateSupplementReject($id, $fields);
+			$result = false;
+			if($approver == $get_approver->approver) {
+				$result = $this->budgetting->updateSupplementApprove($id, $fields);
+			}
 			return $result;
 		}
 

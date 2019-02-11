@@ -228,7 +228,11 @@
 								$('#import-modal').modal('hide');
 								$(".alert-warning").addClass("hidden");
 								$("#errmsg").html('');
-								showList();
+								$('#delay_modal').modal('show');
+								setTimeout(function() {
+									$('#delay_modal').modal('hide');	
+									showList();				
+								}, 1000);
 							}else{
 								$('#import-modal').modal('hide');
 								show_error(response.errors);

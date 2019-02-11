@@ -183,11 +183,13 @@
 										<th class="text-center" style="width: 20px"><input type="checkbox" class="checkall"></th>
 										<?php endif ?>
 										<th class="col-xs-2">Item</th>
-										<th class="col-xs-<?php echo ($show_input) ? 3 : 6 ?>">Description</th>
+										<th class="col-xs-<?php echo ($show_input) ? 3 : 5 ?>">Description</th>
 										<th class="col-xs-2">Warehouse</th>
 										<?php if ($show_input): ?>
 										<th class="col-xs-2 text-right">Available On Hand</th>
 										<th class="col-xs-1 text-right">Qty Left</th>
+										<?php else : ?>
+										<th class="col-xs-1">Returned Qty</th>
 										<?php endif ?>
 										<th class="col-xs-2 text-right">Qty</th>
 										<th style="width: 50px;">UOM</th>
@@ -650,7 +652,16 @@
 						<?php if ($ajax_task != '') { ?>
 							row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right mainitem issueqty serialbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
 						<?php } else { ?>
-							row += `<td class="text-right">
+							row += `
+							<td class="text-right"> 
+								<?php
+									echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setValue('` + (addComma(details.returnedqty, 0)) + `')
+											->draw($show_input);
+								?>
+							</td>
+							<td class="text-right">
 								<?php
 									echo $ui->formField('text')
 										->setSplit('', 'col-md-12')
@@ -678,6 +689,7 @@
 							`; //} else {
 								//row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right itempart issueqty serialbtn" data-value = "` + (parseFloat(details.issueqty) || 0) + `" disabled value = "0">` + otherdetails + `<input type = "hidden" class = "issueqty" name = "issueqty[]" data-value = "` + (parseFloat(details.issueqty) || 0) + `" value = "` + (parseFloat(details.issueqty) || 0) + `"/></td>`;
 							//} 
+
 						<?php } else { ?>
 							row += `<td class="text-right">
 								<?php
@@ -687,7 +699,9 @@
 										->setValue('` + (addComma(details.issueqty, 0) || 0) + `')
 										->addHidden()
 										->draw($show_input);
-								?> ` + otherdetails + ` </td>`;
+								?> 
+								` + otherdetails + ` 
+							</td>`;
 						<?php } ?> 
 					}
 				row +=`	<td>
