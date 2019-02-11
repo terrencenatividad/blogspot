@@ -273,6 +273,7 @@ class controller extends wc_controller {
 				->setCustomerDetails($customer)
 				->setRemarksDetail($header->notes)
 				->setDocumentDetails($docheader)
+				->setStatDetail($header->stat)
 				// ->addTermsAndCondition()
 				->addReceived();
 
