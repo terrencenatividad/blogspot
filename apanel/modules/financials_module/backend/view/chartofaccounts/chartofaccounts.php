@@ -137,7 +137,7 @@
 						<input type = "submit" name = "update" value = "<?= $button_name ?>" 
 							class = "btn btn-primary btn-flat">	
 					<?php } ?>	
-					<a href="<?=MODULE_URL?>" class="btn btn-default btn-flat">Cancel</a>
+					<?php echo $ui->drawCancel(); ?>
 					
 
 					<div class="col-md-5 col-sm-4 col-xs-4"></div>
