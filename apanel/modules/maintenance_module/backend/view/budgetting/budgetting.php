@@ -259,6 +259,9 @@
 																				->setValidation('decimal required')
 																				->draw($show_input);	
 																				?></td>
+																				<td class="text-center">
+																					<button type="button" class="btn btn-danger btn-flat confirm-delete" style="outline:none;"><span class="glyphicon glyphicon-trash"></span></button>
+																				</td>
 																			</tr>
 																		<?php endforeach; ?>
 																	<?php endif; ?>
@@ -273,57 +276,59 @@
 															</tfoot>
 														</table>
 													</div>
-													<div id="Supplements" class="tab-pane table-responsive">
-														<table class="table table-hover table-condensed " id="tableSupplement">
-															<thead>
-																<tr class="info">
-																	<th class="col-md-4 text-center">Account</th>
-																	<th class="col-md-4 text-center">Description</th>
-																	<th class="col-md-4 text-center">Amount</th>
-																</tr>
-															</thead>
-															<tbody>
-																<?php if(isset($budget_supplement)) : ?>
-																	<?php foreach($budget_supplement as $row) : ?>
-																		<tr>
-																			<td><?
-																			echo $ui->formField('dropdown')
-																			->setPlaceholder('~Select One~')
-																			->setSplit('', 'col-md-12')
-																			->setName('accountcode[]')
-																			->setId('accountcode')
-																			->setClass('accountname')
-																			->setList($get_accounts)
-																			->setValue($row->accountcode)
-																			->setValidation('required')
-																			->draw($show_input);	
-																			?></td>
-																			<td><?
-																			echo $ui->formField('text')
-																			->setSplit('', 'col-md-12')
-																			->setName('description[]')
-																			->setId('description')
-																			->setClass('description')
-																			->setValue($row->description)
-																			->draw($show_input);	
-																			?></td>
-																			<td><?
-																			echo $ui->formField('text')
-																			->setPlaceholder('0.00')
-																			->setSplit('', 'col-md-12')
-																			->setName('amount[]')
-																			->setId('amount')
-																			->setClass('text-right amount')
-																			->setValue($row->amount)
-																			->setValidation('decimal required')
-																			->draw($show_input);	
-																			?></td>
-																		</tr>
-																	<?php endforeach; ?>
-																<?php endif; ?>
-															</tbody>
-														</table>
-													</div>
+													<?php if($ajax_task == 'ajax_view') : ?>
+														<div id="Supplements" class="tab-pane table-responsive">
+															<table class="table table-hover table-condensed " id="tableSupplement">
+																<thead>
+																	<tr class="info">
+																		<th class="col-md-4 text-center">Account</th>
+																		<th class="col-md-4 text-center">Description</th>
+																		<th class="col-md-4 text-center">Amount</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<?php if(isset($budget_supplement)) : ?>
+																		<?php foreach($budget_supplement as $row) : ?>
+																			<tr>
+																				<td><?
+																				echo $ui->formField('dropdown')
+																				->setPlaceholder('~Select One~')
+																				->setSplit('', 'col-md-12')
+																				->setName('accountcode[]')
+																				->setId('accountcode')
+																				->setClass('accountname')
+																				->setList($get_accounts)
+																				->setValue($row->accountcode)
+																				->setValidation('required')
+																				->draw($show_input);	
+																				?></td>
+																				<td><?
+																				echo $ui->formField('text')
+																				->setSplit('', 'col-md-12')
+																				->setName('description[]')
+																				->setId('description')
+																				->setClass('description')
+																				->setValue($row->description)
+																				->draw($show_input);	
+																				?></td>
+																				<td><?
+																				echo $ui->formField('text')
+																				->setPlaceholder('0.00')
+																				->setSplit('', 'col-md-12')
+																				->setName('amount[]')
+																				->setId('amount')
+																				->setClass('text-right amount')
+																				->setValue($row->amount)
+																				->setValidation('decimal required')
+																				->draw($show_input);	
+																				?></td>
+																			</tr>
+																		<?php endforeach; ?>
+																	<?php endif; ?>
+																</tbody>
+															</table>
+														</div>
+													<?php endif; ?>
 												</div>
 											</fieldset>
 										</div>
