@@ -1816,12 +1816,32 @@ class controller extends wc_controller
 
 	public function getNumbers() {
 		$data = $this->input->post(array('bank', 'curr_seq'));
-		$getBank = $this->payment_voucher->getbankid($data['bank']);
-		$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
+		$arr = explode(' - ', $data['bank']);
+		$counter = 0;
+		if(count($arr) == '2') {
+			$counter = $arr[1];
+		} else {
+			$counter = $arr[2];
+		}
+		$getBank = $this->payment_voucher->getbankid($counter);
+		$bank_id = isset($getBank->id) ? $getBank->id : '';
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
-		$ret_nums = array('nums' => $nums);
-		return $ret_nums;
+		$table = '';
+		if(empty($nums->result)) {
+			$table = false;
+		} else {
+			foreach($nums->result as $row) {
+				$table .= '<tr class = "clickme" style = "cursor : pointer;">';
+				$table .= '<td class = "hidden booknumber"><input type = "hidden" value = '.$row->booknumber.' class = "booknum"></td>';
+				$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
+				$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
+				$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';
+				$table .= '</tr>';
+			}
+		}
+		$nums->table = $table;
+		$nums->bank_id = $bank_id;
+		return $nums;
 	}
-
 }
 
