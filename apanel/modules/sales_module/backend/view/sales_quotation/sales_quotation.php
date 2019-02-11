@@ -351,58 +351,6 @@
 					</table>
 				</div>
 			</div>
-
-			<!-- <div class="row">
-				<div class="col-md-12 col-sm-12 text-center">
-					<?php
-
-					if( $show_input )
-					{
-						$save		= ($task == 'create') ? 'name="save"' : '';
-						$save_new	= ($task == 'create') ? 'name="save_new"' : '';
-					?>
-						<input class = "form_iput" value = "" name = "save" id = "save" type = "hidden">
-						
-						<div class="btn-group" id="save_group">
-							<button   type="button" id="btnSave" class="btn btn-primary btn-sm">&nbsp;Save&nbsp;</button>
-							<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle btn-sm" data-toggle="dropdown">
-								<span class="caret"></span>
-							</button>
-							<ul class="dropdown-menu left" role="menu">
-								<li style="cursor:pointer;" id="save_new">
-									&nbsp;&nbsp;Save & New
-									<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
-								</li>
-								<li class="divider"></li>
-								<li style="cursor:pointer;" id="save_preview">
-									&nbsp;&nbsp;Save & Preview
-									<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_new"/>
-								</li>
-							</ul>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<a href="<?=MODULE_URL?>"class="btn btn-default back" data-toggle="back_page" >Cancel</a>
-						</div>
-					<? 	
-					}
-					else
-					{ 	
-					?>
-						<div class="btn-group">
-							<a class="btn btn-primary" role="button" href="<?=BASE_URL?>sales/sales_quotation/edit/<?=$sid?>" style="outline:none;">Edit</a>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						<div class="btn-group">
-							<a href="<?=MODULE_URL?>" class="btn btn-default back" data-toggle="back_page">Cancel</a>
-						</div>
-					<?
-					}
-					?>
-					
-				</div>
-			</div> -->
-
 			<div class="box-body">
 				<div class="row">
 					<div class="col-md-12 col-sm-12 text-center">
@@ -429,12 +377,8 @@
 								<button type="button" class="btn btn-default btn-flat" data-id="<?php echo $generated_id?>" id="btnCancel" data-toggle="back_page">Cancel</button>
 							</div>
 						<?
-						}
-						else
-						{
-						?>
-							<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
-						<?
+						} else {
+							echo $ui->drawCancel();
 						}
 						?>
 					</div>

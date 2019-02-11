@@ -49,7 +49,7 @@ class budget_variance_model extends wc_model {
 		}
 
 		$result = $this->db->setTable('budget_details bd')
-		->setFields('ca.segment5 segment5, ca.accountname description, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IF(IFNULL(ab.allocated, 0) = 0, 0, ab.allocated) as available,
+		->setFields('ca.segment5 segment5, ca.accountname description, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IF(IFNULL(ab.allocated, 0) = 0, 0, ab.allocated) - IF(IFNULL(ab.actual, 0) = 0, 0, ab.actual) as available,
 			IF(IFNULL(ab.allocated, 0) = 0, 0, ab.allocated) as allocated,  bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) as amount, IF(IFNULL(ab.actual, 0) = 0, 0, ab.actual) as actual, b.effectivity_date as effectivity_date, bd.amount + IF(IFNULL(bs.amount,0) = 0,0,SUM(bs.amount)) - IFNULL(ab.actual,0) as variance')
 		->leftJoin('budget b ON b.budget_code = bd.budget_code AND b.status = "approved"')
 		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
