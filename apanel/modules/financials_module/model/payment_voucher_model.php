@@ -798,7 +798,7 @@ class payment_voucher_model extends wc_model
 			}
 
 			$isExist						= $this->getValue($mainAppTable, array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
-			$status							= (!empty($isExist[0]->stat)) ? "open" : "temporary";
+			$status							= (!empty($isExist[0]->stat) && ($isExist[0]->stat == "open" || $isExist[0]->stat == "posted") ) ? "open" : "temporary";
 			$valid 							= 0;
 
 			$transactiondate				= $this->date->dateDbFormat($transactiondate); 
@@ -917,7 +917,7 @@ class payment_voucher_model extends wc_model
 					$post_application['currencycode']		= $currencycode;
 					$post_application['exchangerate']		= $exchangerate;
 					$post_application['convertedamount']	= $amount;
-					$post_application['stat']			 	= "posted";
+					$post_application['stat']			 	= $status;
 
 					$iApplicationLineNum++;
 					$aPvApplicationArray[]					= $post_application;
@@ -1821,7 +1821,7 @@ class payment_voucher_model extends wc_model
 		$result = $this->db->setTable('bankdetail bd')
 		->setFields(array('bd.booknumber, bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 		->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
-		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' and bd.check_status = 'active'")
+		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' and bd.check_status = 'active' AND bd.has_cancelled = 'no'")
 		->setOrderBy('firstchequeno')
 		->runPagination();
 
@@ -1866,9 +1866,9 @@ class payment_voucher_model extends wc_model
 	public function update_checks($booknumber, $chequenumber) {
 		$getBank = $this->getbankinfo($booknumber);
 		$first = $getBank->firstchequeno;
-		$next = $getBank->nextchequeno;
+		$next = $getBank->nextchequeno + 1;
 		$last = $getBank->lastchequeno;
-		$data1['stat'] = ($chequenumber == $last) ? 'closed' : 'open';
+		$data1['stat'] = ($next == $last) ? 'closed' : 'open';
 		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;
 		
 		$result = $this->db->setTable("bankdetail") 
