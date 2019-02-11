@@ -8,7 +8,7 @@ class controller extends wc_controller {
 		$this->logs				= new log();
 		$this->sr_model		= new salesreturn_model();
 		$this->restrict 		= new sales_restriction_model();
-		$this->financial_model  = $this->checkOutModel('financials_module/financial_model');
+		$this->financial_model  = $this->checkoutModel('financials_module/financial_model');
 		$this->inventory_model	= $this->checkoutModel('inventory_module/inventory_model');
 		$this->session			= new session();
 		$this->fields 			= array(
@@ -245,48 +245,103 @@ class controller extends wc_controller {
 	}
 
 	public function print_preview($voucherno) {
-		$documentinfo		= $this->sr_model->getDocumentInfo($voucherno);
-		$customerdetails	= $this->sr_model->getCustomerDetails($documentinfo->partnercode);
-		$documentdetails	= array(
-			'Date'		=> $this->date->dateFormat($documentinfo->documentdate),
-			'SRI #'	=> $voucherno,
-			'SR #'		=> $documentinfo->referenceno
-		);
+		$result				= $this->sr_model->getSRPrint($voucherno);
+		$documentinfo 		= $result['header'];
+		$documentcontent 	= $result['details'];
 
-		$print = new sales_print_model();
-		$print->setDocumentType('Sales Return Inventory')
+
+		$documentdetails	= array(
+			'Date'			=> $this->date->dateFormat($documentinfo->transactiondate),
+			'SR #'			=> $voucherno,
+			'Reference#'	=> $documentinfo->source_no
+		);
+		$notes 				= $documentinfo->remarks;
+
+		$print = new print_salesreturn_model();
+
+		$print->setDocumentType('Sales Return')
 				->setFooterDetails(array('Approved By', 'Checked By'))
-				->setCustomerDetails($customerdetails)
+				->setCustomerDetails($documentinfo)
 				->setDocumentDetails($documentdetails)
+				->setStatDetail($documentinfo->stat)
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(40, 100, 30, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'L'))
-				->setSummaryWidth(array('170', '30'));
+		$print->setHeaderWidth(array(25, 45, 20, 25, 10, 15, 20, 20, 20))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description','Defective', 'Replacement', 'Qty', 'UOM', 'Price', 'Discount', 'Tax'))
+				->setRowAlign(array('L', 'L', 'L', 'L', 'R', 'L', 'R', 'R', 'R'))
+				->setSummaryWidth(array('120', '50', '30'))
+				->setSummaryAlign(array('J','R','R'));
 		
-		$documentcontent	= $this->sr_model->getDocumentContent($voucherno);
 		$detail_height = 37;
 
-		$total_quantity = 0;
+		$vat_sales		= 0;
+		$vat_exempt		= 0;
+		$vat_zerorated	= 0;
+		$discount		= 0;
+		$tax			= 0;
+		$total_amount 	= 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
 
-			$total_quantity	+= $row->Quantity;
-			$row->Quantity	= number_format($row->Quantity);
+			if($row->tax > 0.00 || $row->tax > 0 )	{
+				$vat_sales += $row->amount;
+			}
+			else {
+				if ($row->taxcode == '' || $row->taxcode == 'none' || $row->taxcode == 'ES') {
+					$vat_exempt += $row->amount;
+				}
+				else {
+					$vat_zerorated += $row->amount;
+				}
+			}
+			unset($row->taxcode);
+			$tax			+= $row->tax;
+			$discount 	    += $row->discount;
+			$row->qty		= number_format($row->qty);
+			$row->price		= number_format($row->price, 2);
+			$row->amount	= number_format($row->amount, 2);
+			$row->tax		= number_format($row->tax, 2);
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array('Total Qty' => number_format($total_quantity)));
-				$total_quantity = 0;
+				$total_sales  = $vat_sales + $vat_exempt + $vat_zerorated;
+				$total_amount = $total_sales + $tax;
+				$summary = array(array('Notes:', 'VATable Sales', number_format($vat_sales, 2)),
+					array($notes, 'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales'		, number_format($total_sales, 2)),
+					array('','Tax'				, number_format($tax, 2)),
+					array('','Total Amount'		, number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount'			, number_format($discount, 2))
+				);
+				$print->drawSummary($summary);
+				// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
+				$vatable_sales	= 0;
+				$vat_exempt		= 0;
+				$vat_zerorated	= 0;
+				$discount		= 0;
+				$tax			= 0;
+				$total_amount	= 0;
 			}
 		}
-		$print->drawSummary(array('Total Qty' => number_format($total_quantity)));
+		$total_sales  = $vat_sales + $vat_exempt + $vat_zerorated;
+		$total_amount = $total_sales + $tax;
+		$summary = array(array('Notes:', 'VATable Sales', number_format($vat_sales, 2)),
+					array($notes,'VAT-Exempt Sales', number_format($vat_exempt, 2)),
+					array('','VAT Zero Rated Sales'	, number_format($vat_zerorated, 2)),
+					array('','Total Sales'		, number_format($total_sales, 2)),
+					array('','Tax'				, number_format($tax, 2)),
+					array('','Total Amount'		, number_format($total_amount, 2)),
+					array('','', ''),
+					array('','Discount'			, number_format($discount, 2))
+		);
+		$print->drawSummary($summary);
 
-		$print->drawPDF('Sales Return Inventory - ' . $voucherno);
+		$print->drawPDF('Sales Return - ' . $voucherno);
 	}
 	
 	public function ajax($task) {
