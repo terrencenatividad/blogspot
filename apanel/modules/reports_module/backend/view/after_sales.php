@@ -36,15 +36,15 @@
 				<?php
 					echo $ui->loadElement('table')
 							->setHeaderClass('info')
-							->addHeader('Transaction Date',array('class'=>'col-md-2'),'sort','transactiontype')
-							->addHeader("Service Quotation No.",array('class'=>'col-md-2'),'sort','assetclass')
-							->addHeader("Job Order No.",array('class'=>'col-md-2'),'sort','asset_number')
-							->addHeader('Sales Invoice (Parts)',array('class'=>'col-md-2'),'sort','sub_number')
-							->addHeader('Sales Invoice (Services)',array('class'=>'col-md-1'),'sort','serial_number')
-							->addHeader('Customer',array('class'=>'col-md-1'),'sort','transactiondate')
-							->addHeader('Unit',array('class'=>'col-md-1'),'sort','amount')
-							->addHeader('Serial No.',array('class'=>'col-md-1'),'sort','amount')
-							->addHeader('Status',array('class'=>'col-md-1'),'sort','amount')
+							->addHeader('Transaction Date',array('class'=>'col-md-2'),'sort','transactiondate','desc')
+							->addHeader("Service Quotation No.",array('class'=>'col-md-2'),'sort','service_quotation')
+							->addHeader("Job Order No.",array('class'=>'col-md-2'),'sort','job_order_no')
+							->addHeader('Sales Invoice (Parts)',array('class'=>'col-md-2'),'sort','si_goods')
+							->addHeader('Sales Invoice (Services)',array('class'=>'col-md-1'),'sort','si_service')
+							->addHeader('Customer',array('class'=>'col-md-1'),'sort','partnername')
+							->addHeader('Unit',array('class'=>'col-md-1'),'sort','uom')
+							->addHeader('Serial No.',array('class'=>'col-md-1'),'sort','serialno')
+							->addHeader('Status',array('class'=>'col-md-1'),'sort','main.stat')
 							->draw();
 				?>
 			</thead>
@@ -82,7 +82,12 @@
 	ajax.limit 	= 10;
 	ajax.page 	= 1;
 	ajaxToFilter(ajax, { customer : '#customer', daterangefilter : '#daterangefilter' });
-
+	
+	tableSort('#tableList', function(value) {
+		ajax.sort = value;
+		ajax.page = 1;
+		getList();
+	});
 	function getList() {
 		filterToURL();
 		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
@@ -91,10 +96,7 @@
 			$("#export_csv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
 		});
 	}
-
-	$(function(){
-		getList();
-	});
+	getList();
 	$("#daterangefilter").on("change",function(){
 		ajax.daterangefilter = $(this).val();
 		ajax.page = 1;
@@ -112,10 +114,5 @@
 			ajax.page = $(this).attr('data-page');
 			getList();
 		}
-	});
-	tableSort('#tableList', function(value) {
-		ajax.sort = value;
-		ajax.page = 1;
-		getList();
 	});
 </script>
