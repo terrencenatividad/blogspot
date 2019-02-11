@@ -71,7 +71,7 @@
 				<li><a href="prepared" data-toggle="tab">Prepared</a></li>
 				<li><a href="partial" data-toggle="tab">Partial</a></li>
 				<li><a href="completed" data-toggle="tab">Completed</a></li>
-				<li><a href="Cancelled" data-toggle="tab">Cancelled</a></li>
+				<li><a href="cancelled" data-toggle="tab">Cancelled</a></li>
 			</ul>
 			<div class="table-responsive">
 				<table id="tableList" class="table table-hover table-sidepad">
@@ -190,6 +190,7 @@
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}
+			console.log(ajax.filter);
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
