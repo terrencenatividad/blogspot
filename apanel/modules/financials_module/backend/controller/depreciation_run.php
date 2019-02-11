@@ -44,10 +44,10 @@ class controller extends wc_controller {
 		$pagination		= $this->depreciation_run->getAssetMasterList($this->fields,$sort);
 
 		$table		= '';
-		if (empty($pagination)) {
+		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		foreach ($pagination as $key => $row) {
+		foreach ($pagination->result as $key => $row) {
 				$table .= '<tr>';
 				$table .= '<td class="text-left">' . date('M d, Y', strtotime($row->depreciation_date)) .'</td>';
 				$table .= '<td class="text-left">' . $row->name . '</td>';
@@ -64,7 +64,9 @@ class controller extends wc_controller {
 				$table .= '</tr>';
 		}
 
-		return array('table' => $table, 'check' => $checkdep);
+		$pagination->table 	= $table;
+		$pagination->check	= $checkdep;
+		return $pagination;
 	}
 
 	private function ajax_list_2() {
@@ -85,10 +87,12 @@ class controller extends wc_controller {
 			$depreciation 			= 0;
 			$accumulated_amount = $accumulated->depamount;
 			$x = 0;
-			$date1=date_create($row->depreciation_month);
-			$date2=date_create($date);
+			$a = date("Y-m", strtotime($row->depreciation_month));
+			$b = date("Y-m", strtotime($date));
+			$date1=date_create($a);
+			$date2=date_create($b);
 			$diff=date_diff($date1,$date2);
-			$x = $diff->m + 1;
+			$x = $diff->m;
 			// for($x=1;$x<=$row->useful_life;$x++){
 			$depreciation_amount 	= ($row->balance_value - $row->salvage_value) / $row->useful_life;
 			// $depreciation += ($row->balance_value - $row->salvage_value) / $row->useful_life;
@@ -96,7 +100,7 @@ class controller extends wc_controller {
 			$depreciation = $accumulated_amount + $depreciation_amount;
 			// }
 			$table .= '<tr>';
-			$table .= '<td class="text-left">' . date('F d, Y',strtotime($final)) .'</td>';
+			$table .= '<td class="text-left">' . date('M d, Y',strtotime($final)) .'</td>';
 			$table .= '<td class="text-left">' . $row->name . '</td>';
 			$table .= '<td class="text-left">' . $row->asset_number . '</td>';
 			$table .= '<td class="text-left">' . $row->serial_number . '</td>';
@@ -164,17 +168,16 @@ class controller extends wc_controller {
 			$depreciation 			= 0;
 			$accumulated_amount = $accumulated->depamount;
 			$x = 0;
-			$date1=date_create($row->depreciation_month);
-			$date2=date_create($date);
+			$a = date("Y-m", strtotime($row->depreciation_month));
+			$b = date("Y-m", strtotime($date));
+			$date1=date_create($a);
+			$date2=date_create($b);
 			$diff=date_diff($date1,$date2);
-			$x = $diff->m + 1;
-			// for($x=1;$x<=$row->useful_life;$x++){
+			$x = $diff->m;
 			$depreciation_amount 	= ($row->balance_value - $row->salvage_value) / $row->useful_life;
-			// $depreciation += ($row->balance_value - $row->salvage_value) / $row->useful_life;
 			$final = date("Y-m-d", strtotime("+$x month", $time));
 			$depreciation = $accumulated_amount + $depreciation_amount;
 			$sched = $this->depreciation_run->saveAssetMasterSchedule($row->asset_number,$row->itemcode,$final,$depreciation,$depreciation_amount, $row->gl_asset, $row->gl_accdep, $row->gl_depexp,$year,$month);
-			// }
 			
 		}
 
