@@ -28,7 +28,7 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data_post = $this->input->post(array('daterangefilter','customer','voucher'));
+		$data_post = $this->input->post(array('daterangefilter','customer','voucher','sort'));
 		
 		$pagination		= $this->parts_and_service->getJOList($data_post);
 		
@@ -78,7 +78,7 @@ class controller extends wc_controller {
 
 	private function export()
 	{
-		$data 		= $this->input->post(array('daterangefilter','customer','voucher'));
+		$data 		= $this->input->post(array('daterangefilter','customer','voucher','sort'));
 		$strdate	= $data['daterangefilter'];
 		$datefilter = explode('-', $data['daterangefilter']);
 		$dates		= array();
