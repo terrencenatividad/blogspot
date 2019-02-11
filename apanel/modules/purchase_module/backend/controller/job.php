@@ -171,7 +171,7 @@
                 $job_static[$i]            = $this->input->post("txtjob");
                 $job_increment[$i]  = $job_voucher++;
                 
-                $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i]);
+                $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i],$linenum[$i]);
                 $jobcost            += $itemcost[$i] * $qty[$i];
             }
 
@@ -244,7 +244,7 @@
                 $job_static[$i]            = $this->input->post("txtjob");
                 $job_increment[$i]  = $job_voucher++;
                 
-                $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i]);
+                $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i],$linenum[$i]);
                 $jobcost            += $itemcost[$i] * $qty[$i];
             }
             // var_dump($jobcost);
