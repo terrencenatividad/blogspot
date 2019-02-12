@@ -508,6 +508,8 @@ class purchase_return_model extends wc_model {
 	public function updateSerialData($data) {
 		$number_of_items = sizeof($data['linenumber']);
 		$voucherno = $data['voucherno'];
+		
+		$reset = $this->resetSerialsStat($voucherno);
 
 		for ($i = 0 ; $i < ($number_of_items) ; $i++){
 			$serialized_flag = $data['item_ident_flag'][$i*2]; 
@@ -626,6 +628,13 @@ class purchase_return_model extends wc_model {
 			// 					->setWhere("chassisno = '$number' AND $condition")
 			// 					->runDelete();
 		}
+	}
+
+	function resetSerialsStat($voucherno) {
+		$result = $this->db->setTable('items_serialized')
+							->setValues(array('stat'=>'Available'))
+							->setWhere("voucherno = '$voucherno'")
+							->runUpdate();
 	}
 
 }
