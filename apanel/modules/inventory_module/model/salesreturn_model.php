@@ -297,12 +297,12 @@
 								->setValuesFromPost($details)
 								->runInsert();
 			if ($result) {
-				$drupdate = $this->updateDRqty($voucherno, $source, $details['linenum']);
+				$drupdate = $this->updateDRqty($voucherno, $sourceno, $details['linenum']);
 			}
 			return $result;
 		}
 
-		public function updateDRqty($voucherno, $source, $linenum){
+		public function updateDRqty($voucherno, $sourceno, $linenum){
 			foreach ($linenum as $key => $value) {
 
 				$returned = $this->db->setTable('inventory_salesreturn_details srd')
@@ -488,6 +488,15 @@
 			return $kwan;
 		}
 
+		public function getDRvoucher($sivoucher){
+			$result = $this->db->setTable('salesinvoice')
+								->setFields('sourceno')
+								->setWhere("voucherno='$sivoucher'")
+								->runSelect()
+								->getRow();
+			return $result;
+		}
+
 		public function createClearingEntries($voucherno, $sourcetype) {
 			$exist = $this->db->setTable('journalvoucher')
 								->setFields('voucherno')
@@ -498,21 +507,8 @@
 
 			$jvvoucherno = ($exist) ? $exist->voucherno : '';
 
-			$header_fields = array(
-				'voucherno referenceno',
-				'customer partner',
-				'transactiondate',
-				'fiscalyear',
-				'period',
-				'stat'
-			);
-			$detail_fields = array(
-				'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="Yes" THEN netamount ELSE 0 END) total1',
-				'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="No" THEN netamount ELSE 0 END) total2',
-				'SUM(CASE WHEN srd.defective="No" AND srd.replacement="No" THEN netamount ELSE 0 END) total3'
-			);
+			
 
-			$data	= (array) $this->getSalesReturnById($header_fields, $voucherno);
 
 			// $average_query = $this->db->setTable('price_average p1')
 			// 							->setFields('p1.*')
@@ -530,13 +526,17 @@
 			// 					->runSelect()
 			// 					->getResult();
 
-			$details = $this->db->setTable('inventory_salesreturn_details srd')
-								->setFields($detail_fields)
-								->setWhere("srd.voucherno = '$voucherno'")
-								->runSelect()
-								->getResult();
-			var_dump($details);
-			return $details;
+			$header_fields = array(
+				'voucherno referenceno',
+				'customer partner',
+				'transactiondate',
+				'fiscalyear',
+				'period',
+				'stat'
+			);
+
+			$data	= (array) $this->getSalesReturnById($header_fields, $voucherno);
+			
 			$sr_stat = (isset($data['stat'])) ? $data['stat'] : '';
 			$data['stat'] = 'posted';
 
@@ -588,11 +588,25 @@
 				return true;
 			}
 
+			$detail_fields = array(
+				'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="Yes" THEN netamount ELSE 0 END) total1',
+				'SUM(CASE WHEN srd.defective="No" AND srd.replacement="No" THEN netamount ELSE 0 END) total2'
+			);
+			if ($sourcetype == 'SI') {
+				$detail_fields[] = 'SUM(CASE WHEN srd.defective="Yes" AND srd.replacement="No" THEN netamount ELSE 0 END) total2';
+			}
+
+			$details = $this->db->setTable('inventory_salesreturn_details srd')
+								->setFields($detail_fields)
+								->setWhere("srd.voucherno = '$voucherno'")
+								->runSelect()
+								->getResult();
+
 			$result = false;
 			
 			//unset($data[0]);
-			$data['amount']				= 0;
-			$data['convertedamount']	= 0;
+			// $data['amount']				= 0;
+			// $data['convertedamount']	= 0;
 
 			if ( ! $exist) {
 				$seq					= new seqcontrol();
@@ -602,7 +616,8 @@
 				$data['currencycode']	= 'PHP';
 				$data['exchangerate']	= '1';
 			}
-
+			var_dump($data);
+			exit;
 			$header = $this->db->setTable('journalvoucher')
 								->setValues($data);
 
