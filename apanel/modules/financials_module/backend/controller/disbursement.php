@@ -1670,5 +1670,4 @@ class controller extends wc_controller
 		$nums->bank_id = $bank_id;
 		return $nums;
 	}
-
 }
