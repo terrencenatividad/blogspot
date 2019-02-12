@@ -367,7 +367,7 @@ class controller extends wc_controller
 
 		
 
-		$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
+		$print->setHeaderWidth(array(30, 50, 10, 20, 30, 30, 30))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
@@ -935,12 +935,13 @@ class controller extends wc_controller
 		$itemname 	= $this->input->post('itemname');
 		$linenum 	= $this->input->post('linenum');
 		$max 		= $this->input->post('max');
+		$warehouse 	= $this->input->post('warehouse');
 
 		if ($task=='view_approval') {
 			$result 	= $this->stock_transfer->retrieveApprovedSerial($sourceno, $linenum, $itemcode);
 		}
 		else{
-			$result 	= $this->stock_transfer->retrieveSerial($itemcode);
+			$result 	= $this->stock_transfer->retrieveSerial($itemcode, $warehouse);
 		}
 
 		$table 		= '';

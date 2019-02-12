@@ -456,7 +456,8 @@
         var linenum 	= row.find('.linenum').val();
         var sourceno 	= $('#transaction_no').val();
         var max 		= row.find('.btnserial').data('max');
-        var data 		= {task:task, sourceno:sourceno, itemcode:itemcode, itemname:itemname, linenum:linenum, max:max};
+        var warehouse 	= $('#source').val();
+        var data 		= {task:task, sourceno:sourceno, itemcode:itemcode, itemname:itemname, linenum:linenum, max:max, warehouse:warehouse};
 
         $('#serial_tableList tbody').html(`<tr><td colspan="6" class="text-center">Loading Items</td></tr>`);
         $('#serial_modalList').modal('show');
