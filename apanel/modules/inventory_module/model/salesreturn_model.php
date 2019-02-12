@@ -644,14 +644,21 @@
 					# code...
 				}
 				else{
-					$ftax = $this->db->setTable('fintaxcode')
+					$invr = $this->db->setTable('fintaxcode')
+										->setFields('salesAccount account')
+										->setWhere("fstaxcode = 'INVR'")
+										->setLimit(1)
+										->runSelect()
+										->getRow();
+					$ic = $this->db->setTable('fintaxcode')
 										->setFields('salesAccount account')
 										->setWhere("fstaxcode = 'IC'")
 										->setLimit(1)
 										->runSelect()
 										->getRow();
 
-					$clearing_account = ($ftax) ? $ftax->account : '';
+					$invr 	= ($invr) ? $invr->account : '';
+					$ic 	= ($ic) ? $ic->account : '';
 				}
 
 				//$total_amount	= 0;
