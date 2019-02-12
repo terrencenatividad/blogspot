@@ -24,13 +24,14 @@ class purchase_return_model extends wc_model {
 	}
 
 	public function updatePurchaseReturn($data, $data2, $voucherno) {
-		$this->getAmounts($data, $data2);
 
+		$this->getAmounts($data, $data2);
+		
 		$result = $this->db->setTable('purchasereturn')
 							->setValues($data)
 							->setWhere("voucherno = '$voucherno'")
 							->runUpdate();
-		
+
 		if ($result) {
 			if ($result) {
 				$this->log->saveActivity("Update Purchase Return [$voucherno]");
@@ -42,6 +43,8 @@ class purchase_return_model extends wc_model {
 	}
 
 	private function getAmounts(&$data, &$data2) {
+		$this->cleanNumber($data, array('amount', 'netamount', 'discountamount', 'total_tax', 'wtaxamount'));
+		$this->cleanNumber($data2, array('receiptqty', 'unitprice', 'taxamount', 'amount'));
 		foreach ($data2['itemcode'] as $key => $value) {
 			$amount							= $data2['receiptqty'][$key] * $data2['unitprice'][$key];
 			$data2['taxamount'][$key]		= $data2['taxrate'][$key] * $amount;
@@ -62,6 +65,7 @@ class purchase_return_model extends wc_model {
 		$data['voucherno']	= $voucherno;
 		unset($data['item_ident_flag']);
 		unset($data['po_qty']);
+		
 		$result = $this->db->setTable('purchasereturn_details')
 							->setValuesFromPost($data)
 							->runInsert();
