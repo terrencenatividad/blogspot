@@ -616,8 +616,6 @@
 				$data['currencycode']	= 'PHP';
 				$data['exchangerate']	= '1';
 			}
-			var_dump($data);
-			exit;
 			$header = $this->db->setTable('journalvoucher')
 								->setValues($data);
 
@@ -639,66 +637,70 @@
 		*/
 
 			if ($result) {
-				// $this->db->setTable('journaldetails')
-				// 		->setWhere("voucherno = '$jvvoucherno'")
-				// 		->runDelete();
-
-
-				$ftax = $this->db->setTable('fintaxcode')
-									->setFields('salesAccount account')
-									->setWhere("fstaxcode = 'IC'")
-									->setLimit(1)
-									->runSelect()
-									->getRow();
-
-				$clearing_account = ($ftax) ? $ftax->account : '';
-				$total_amount	= 0;
-				
-				if ($details && $clearing_account) {
-					$linenum		= array();
-					
-					foreach ($details as $key => $row) {
-						$details[$key]->linenum				= $key + 1;
-						$details[$key]->voucherno			= $jvvoucherno;
-						$details[$key]->transtype			= 'IT';
-						$details[$key]->debit				= 0;
-						$details[$key]->converteddebit		= 0;
-						$details[$key]->convertedcredit		= $row->credit;
-						$details[$key]->detailparticulars	= '';
-						$details[$key]->stat				= $data['stat'];
-
-						$details[$key]	= (array) $details[$key];
-						$total_amount	+= $row->credit;
-					}
-
-					$details[] = array(
-						'accountcode'		=> $clearing_account,
-						'debit'			=> 0,
-						'linenum'			=> $key + 2,
-						'voucherno'			=> $jvvoucherno,
-						'transtype'			=> 'IT',
-						'credit'				=> $total_amount,
-						'convertedcredit'	=> $total_amount,
-						'converteddebit'	=> 0,
-						'detailparticulars'	=> '',
-						'stat'				=> $data['stat']
-					);
+				$this->db->setTable('journaldetails')
+						->setWhere("voucherno = '$jvvoucherno'")
+						->runDelete();
+				if ($sourcetype == 'SI') {
+					# code...
 				}
+				else{
+					$ftax = $this->db->setTable('fintaxcode')
+										->setFields('salesAccount account')
+										->setWhere("fstaxcode = 'IC'")
+										->setLimit(1)
+										->runSelect()
+										->getRow();
+
+					$clearing_account = ($ftax) ? $ftax->account : '';
+				}
+
+				//$total_amount	= 0;
+				
+				// if ($details && $clearing_account) {
+				// 	$linenum		= array();
+					
+				// 	foreach ($details as $key => $row) {
+				// 		$details[$key]->linenum				= $key + 1;
+				// 		$details[$key]->voucherno			= $jvvoucherno;
+				// 		$details[$key]->transtype			= 'IT';
+				// 		$details[$key]->debit				= 0;
+				// 		$details[$key]->converteddebit		= 0;
+				// 		$details[$key]->convertedcredit		= $row->credit;
+				// 		$details[$key]->detailparticulars	= '';
+				// 		$details[$key]->stat				= $data['stat'];
+
+				// 		$details[$key]	= (array) $details[$key];
+				// 		$total_amount	+= $row->credit;
+				// 	}
+
+				// 	$details[] = array(
+				// 		'accountcode'		=> $clearing_account,
+				// 		'debit'			=> 0,
+				// 		'linenum'			=> $key + 2,
+				// 		'voucherno'			=> $jvvoucherno,
+				// 		'transtype'			=> 'IT',
+				// 		'credit'				=> $total_amount,
+				// 		'convertedcredit'	=> $total_amount,
+				// 		'converteddebit'	=> 0,
+				// 		'detailparticulars'	=> '',
+				// 		'stat'				=> $data['stat']
+				// 	);
+				// }
 				$detail_insert  = false;
-				// $detail_insert = $this->db->setTable('journaldetails')
-				// 							->setValues($details)
-				// 							->runInsert();
+				$detail_insert = $this->db->setTable('journaldetails')
+											->setValues($details)
+											->runInsert();
 
 				if ($detail_insert) {
 					$data = array(
 						'amount'			=> $total_amount,
 						'convertedamount'	=> $total_amount
 					);
-					// $result = $this->db->setTable('journalvoucher')
-					// 					->setValues($data)
-					// 					->setWhere("voucherno = '$jvvoucherno'")
-					// 					->setLimit(1)
-					// 					->runUpdate();
+					$result = $this->db->setTable('journalvoucher')
+										->setValues($data)
+										->setWhere("voucherno = '$jvvoucherno'")
+										->setLimit(1)
+										->runUpdate();
 
 				}
 			}

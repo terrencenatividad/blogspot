@@ -730,7 +730,7 @@ function addVoucherDetails(details, index) {
 			$('#tableList tbody').find('tr:last [name="amount[]"]').text('0.00');
 		}
 	});
-	$('#tableList tbody').find('tr:last .btnserial span').text(selected_serial.length);
+	$('#tableList tbody').find('tr:last .btnserial').text(selected_serial.length);
 }
 
 function checkSelectedSerial(checkbox){
@@ -1022,7 +1022,7 @@ $('.btnselectserial').on('click', function(){
 	var row 	= $('.linenum[value="'+linenum+'"]').closest('tr');
 
 	row.find('.serialnumbers').val(selected_serial.join(','));
-	row.find('.btnserial span').text(selected_serial.length);
+	row.find('.btnserial').text(selected_serial.length);
 	row.find('.issueqty').val(selected_serial.length);
 	row.find('.issueqty').trigger('blur');
 

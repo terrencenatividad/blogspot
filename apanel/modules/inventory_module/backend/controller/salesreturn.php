@@ -541,13 +541,13 @@ class controller extends wc_controller {
 				}
 			}
 
-			// if ($updateserial) {
-			// 	$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
+			if ($updateserial) {
+				$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
 				
-			// }
-			// $updateDRSerial = $this->sr_model->updateDRSerial($source, $details['linenum'], $details['serialnumbers']);
+			}
+			$updateDRSerial = $this->sr_model->updateDRSerial($source, $details['linenum'], $details['serialnumbers']);
 
-			$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
+			// $jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
 				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
 										->setDetails($values['customer'])
@@ -559,7 +559,6 @@ class controller extends wc_controller {
 										->generateBalanceTable();
 			}
 		}
-		//$jv = $this->sr_model->createClearingEntries($header['voucherno']);
 /*
 	END : RUN DATABASE OPERATIONS
 */
@@ -572,7 +571,7 @@ class controller extends wc_controller {
 		// }
 		return array(
 			'redirect'	=> $redirect_url,
-			'success'	=> $jvresult
+			'success'	=> $result
 		);
 	}
 
