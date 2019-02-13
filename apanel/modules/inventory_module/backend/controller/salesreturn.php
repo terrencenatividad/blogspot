@@ -718,7 +718,7 @@ class controller extends wc_controller {
 				}
 			}
 			$updateDRSerial = $this->sr_model->updateDRSerial($header['source_no'], $details['linenum'], $details['serialnumbers']);
-			//$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
+			$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
 				
 				$this->inventory_model->computeValues()
@@ -728,7 +728,6 @@ class controller extends wc_controller {
 				$this->inventory_model->generateBalanceTable();
 			}
 		}
-		//$jv = $this->sr_model->createClearingEntries($header['voucherno']);
 /*
 	END : RUN DATABASE OPERATIONS
 */
