@@ -152,7 +152,7 @@
 		{	 
 			$retrieved_data =	array();
 			
-			$header_fields 	= 	"s.voucherno, s.transactiondate, s.duedate, s.customer, p.partnername, CONCAT(p.first_name,' ',p.last_name) as  customer_name, s.s_address, s.amount, s.discounttype, s.discountamount, s.netamount, s.vat_sales, s.vat_exempt, s.vat_zerorated, s.taxamount, s.remarks, s.stat";
+			$header_fields 	= 	"s.voucherno, s.transactiondate, s.deliverydate, s.duedate, s.customer, p.partnername, CONCAT(p.first_name,' ',p.last_name) as  customer_name, s.s_address, s.amount, s.discounttype, s.discountamount, s.netamount, s.vat_sales, s.vat_exempt, s.vat_zerorated, s.taxamount, s.remarks, s.stat";
 
 			$condition 		=	" s.voucherno = '$voucherno' ";
 			
@@ -298,6 +298,8 @@
 			$s_address			= (isset($data['s_address']) && (!empty($data['s_address']))) ? htmlentities(addslashes(trim($data['s_address']))) : "";
 			
 			$transactiondate	= (isset($data['transaction_date']) && (!empty($data['transaction_date']))) ? htmlentities(addslashes(trim($data['transaction_date']))) : "";
+
+			$deliverydate		= (isset($data['deliverydate']) && (!empty($data['deliverydate']))) ? htmlentities(addslashes(trim($data['deliverydate']))) : "";
 			
 			$duedate 			= (isset($data['due_date']) && (!empty($data['due_date']))) ? htmlentities(addslashes(trim($data['due_date']))) : "";
 
@@ -342,12 +344,14 @@
 
 			/**FORMAT DATES**/
 			$transactiondate	= date("Y-m-d",strtotime($transactiondate));
+			$deliverydate		= date("Y-m-d",strtotime($deliverydate));
 			$duedate 			= date("Y-m-d",strtotime($duedate));
 			$period				= date("n",strtotime($transactiondate));
 			$fiscalyear			= date("Y",strtotime($transactiondate));
 
 			$post_header['voucherno'] 			=	$voucherno;
 			$post_header['transactiondate'] 	=	$transactiondate;
+			$post_header['deliverydate'] 		=	$deliverydate;
 			$post_header['duedate'] 			= 	$duedate;
 			$post_header['customer'] 			=	$customer;
 			$post_header['s_address'] 			=	$s_address;
