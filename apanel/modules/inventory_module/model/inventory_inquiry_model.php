@@ -2,7 +2,7 @@
 class inventory_inquiry_model extends wc_model {
 
 	public function getInventoryinquiryList($itemcode, $limit, $sort, $warehouse, $brandcode) {
-		$condition = '';
+		$condition = 'items.itemgroup = "goods"';
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "inv.itemcode = '$itemcode'";
 		}
@@ -108,7 +108,7 @@ class inventory_inquiry_model extends wc_model {
 		$itemcode 	= $data['itemcode'];
 		$sort 	 	= $data['sort'];
 		$warehouse 	= $data['warehouse'];
-		$condition = '';
+		$condition = 'items.itemgroup = "goods"';
 		if ($itemcode && $itemcode != 'none') {
 			$condition = "inv.itemcode = '$itemcode'";
 		}
@@ -128,5 +128,17 @@ class inventory_inquiry_model extends wc_model {
 							->runSelect()
 							->getResult();
 		return $result;
+	}
+
+	public function getItemDropdownList($search="") {
+		$condition = " stat = 'active' AND itemgroup = 'goods'";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
+		return $this->db->setTable('items')
+						->setFields('itemcode ind, CONCAT(itemcode," - ",itemname) val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
 	}
 }

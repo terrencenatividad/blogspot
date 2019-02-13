@@ -16,7 +16,7 @@ class controller extends wc_controller {
 	public function listing() {
 		$this->view->title = 'Inventory Inquiry List';
 		$data['ui'] = $this->ui;
-		$data['item_list'] = $this->item_model->getItemDropdownList();
+		$data['item_list'] = $this->inventory_model->getItemDropdownList();
 		$data['warehouse_list'] = $this->inventory_model->getWarehouseList();
 		$data['brand_list'] = $this->brand_model->getBrandDropdownList();
 		$this->view->load('inventory_inquiry/inventory_inquiry_list', $data);
