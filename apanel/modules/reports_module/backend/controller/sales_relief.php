@@ -246,46 +246,130 @@ class controller extends wc_controller {
 
 		$details 	= $this->report->getSalesReliefDetails($custfilter, $sortfilter, $dates[0], $dates[1]);
 		$company 	= $this->report->getCompany($this->companycode);
-		
-		$filename = 'Sales Relief';
+		$companyname 	=	isset($company->companyname) ? $company->companyname 	:	"";
+		$companyaddress =	isset($company->address) 	 ? $company->address 		:	"";
+		$companytin 	=	isset($company->tin) 		 ? $company->tin 			:	"";
+		$companytaxyr 	=	isset($company->taxyear) 	 ? $company->taxyear 		:	"";
+		$companypstart 	=	isset($company->periodstart) ? $company->periodstart 	:	"";
+		$companyrdo 	=	isset($company->rdo_code) 	 ? $company->rdo_code 		:	"";
 
-		$header = array('#','Taxable Month','TIN','Customer','Gross Sales','Exempt Sales','Zero Rated Sales','Taxable Sales','Output Tax','Gross Taxable Sales');
+		$filename = str_replace('-','',substr($companytin,0,11)).'S'.date("mY",strtotime($dates[1]));
+
+		// $header = array('H','S','Taxable Month','TIN','Customer','Gross Sales','Exempt Sales','Zero Rated Sales','Taxable Sales','Output Tax','Gross Taxable Sales');
 
 		$csv 		= new exportCSV();
 
-		$count = 1;
-		$totalgross = 0;
-		$totalexempt= 0;
-		$zerorated  = 0;
-		$taxablesale= 0;
-		$outputtax 	= 0;
-		$grttaxable = 0;
+		// $count = 1;
+		$totalgross = $gross = 0;
+		$totalexempt= $vat_exempt = 0;
+		$zerorated  = $vat_zero   = 0;
+		$taxablesale= $vat_sales  = 0;
+		$outputtax 	= $taxamount  = 0;
+		$grttaxable = $grtaxable  = 0;
+		$rowtype 	= "";
+		$rowpartner = "";
+		$rowtin 	= "";
+		$rowaddress = "";
+		$rowrdo 	= "";
+		$rowno 		= "";
+		$dattype 	= "S";
 		if ($details) {
-			$csv->addRow($header);
-			foreach ($details as $row) {
+			// $csv->addRow($header);
+			foreach ($details as $key => $row) {
+				$totalgross += $row->netamount;
+				$totalexempt+= $row->vat_exempt;
+				$zerorated  += $row->vat_zerorated;
+				$taxablesale+= $row->vat_sales;
+				$outputtax 	+= $row->taxamount;
+				$grttaxable += $row->amount;		
+			}
+			// Header;
+			$rowtype 	= 	"H";
+			$rowpartner =	$companyname;
+			$rowaddress = 	$companyaddress;
+			$rowtin 	= 	$companytin;
+			$rowrdo 	=	"0".$companyrdo;
+			$rowno 		=	12;
+			$gross 		=	number_format($totalgross,2);
+			$vat_exempt =	number_format($totalexempt,2);
+			$vat_zero 	= 	number_format($zerorated,2);
+			$vat_sales 	=	number_format($taxablesale,2);
+			$taxamount 	=	number_format($outputtax,2);
+			$grtaxable 	=	number_format($grttaxable,2);
+
+			$csv->addRow(array($rowtype, 
+							$dattype, 
+							str_replace('-','',substr($rowtin,0,11)), 
+							strtoupper($rowpartner), 
+							"", 
+							"", 
+							"", 
+							strtoupper($rowpartner), 
+							strtoupper(str_replace(',','',str_replace('.','',$rowaddress))), 
+							"", 
+							$vat_exempt, 
+							$vat_zero, 
+							$gross,
+							$rowrdo,
+							$taxamount, 
+							date("m/t/Y",strtotime($row->transactiondate)),
+							$rowno
+						));
+				
+			// Details
+			foreach ($details as $key => $row) {
+				$partnername 	=	isset($row->partnername) 	?	$row->partnername 	:	"";
+				$address 		=	isset($row->address) 		?	$row->address 		:	"";
+				$tin 			= 	isset($row->tinno) 			?	$row->tinno  		: 	"";
+				
+				$rowtype = "D";
+				$rowpartner =	$partnername;
+				$rowaddress = 	$address;
+				$rowtin  	= 	$tin;
+				$rowrdo 	=	str_replace('-','',substr($tin,0,11));
+				$rowno 		=	"";
 				$gross 		=	number_format($row->netamount,2);
 				$vat_exempt =	number_format($row->vat_exempt,2);
 				$vat_zero 	= 	number_format($row->vat_zerorated,2);
 				$vat_sales 	=	number_format($row->vat_sales,2);
 				$taxamount 	=	number_format($row->taxamount,2);
 				$grtaxable 	=	number_format($row->amount,2);
-				$csv->addRow(array($count, $row->transactiondate, $row->tinno, strtoupper($row->partnername), $gross, $vat_exempt, $vat_zero, $vat_sales, $taxamount, $grtaxable));
+			
+				$csv->addRow(array($rowtype, 
+									$dattype, 
+									str_replace('-','',substr($rowtin,0,11)), 
+									strtoupper($rowpartner), 
+									"", 
+									"", 
+									"", 
+									strtoupper($rowpartner), 
+									strtoupper(str_replace(',','',str_replace('.','',$rowaddress))), 
+									"", 
+									$vat_exempt, 
+									$vat_zero, 
+									$gross,
+									$rowrdo,
+									$taxamount, 
+									date("m/t/Y",strtotime($row->transactiondate)),
+									$rowno
+								));
 
 				// COMPUTING TOTAL
-				$totalgross += $row->netamount;
-				$totalexempt+= $row->vat_exempt;
-				$zerorated  += $row->vat_zerorated;
-				$taxablesale+= $row->vat_sales;
-				$outputtax 	+= $row->taxamount;
-				$grttaxable += $row->amount;				
+				// $totalgross += $row->netamount;
+				// $totalexempt+= $row->vat_exempt;
+				// $zerorated  += $row->vat_zerorated;
+				// $taxablesale+= $row->vat_sales;
+				// $outputtax 	+= $row->taxamount;
+				// $grttaxable += $row->amount;				
 				
-				$count++;
+				// $count++;
+
 			}
 		} else {
 			$csv->addRow(array("NO RECORDS FOUND."));
 		}
 
-		$csv->addRow(array($count, "GRAND TOTAL: ", " ", " ", $totalgross, $totalexempt, $zerorated, $taxablesale, $outputtax, $grttaxable));
+		// $csv->addRow(array($count, "GRAND TOTAL: ", " ", " ", $totalgross, $totalexempt, $zerorated, $taxablesale, $outputtax, $grttaxable));
 
 		$csv->export($filename,'DAT');
 		
