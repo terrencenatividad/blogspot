@@ -160,8 +160,7 @@ class controller extends wc_controller {
 		$datefilterFrom = (!empty($dates[0]))? $dates[0] : "";
 		$datefilterTo   = (!empty($dates[1]))? $dates[1] : "";
 		$datefilter     = (!empty($daterangefilter))? $daterangefilter : $default_datefilter;
-			// echo $datefilterFrom;
-			// echo " - ".$datefilterTo; 
+
 		$currentyear 	= date("Y",strtotime($datefilterTo));
 		$prevyear 		= date("Y",strtotime($datefilterFrom." -1 year"));
 
@@ -233,7 +232,6 @@ class controller extends wc_controller {
 						<td class="text-right"><strong>'.$totalcredit.'</strong></td>
 						<td class="text-right">'.$totalperiodbalance.'</td>
 						<td class="text-right">'.$totalaccumulatedbalance.'</td>';
-
 			$table.= '</tr>';
 			return array(
 				'table' => $table,
@@ -501,7 +499,7 @@ class controller extends wc_controller {
 				$data2['source'] 	=	$source;
 				$data2['datefrom'] 	=	$transactiondate;
 				$data2['type'] 		=	"accrual_jv";
-				$data2['voucher'] 	= 	$this->seq->getValue("IT");
+				$data2['voucher'] 	= 	$this->seq->getValue("JV");
 				$data2['sourceno']  = 	$voucherno;
 				$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
 	
@@ -509,7 +507,7 @@ class controller extends wc_controller {
 					$data2['source'] 	=	$source;
 					$data2['datefrom'] 	=	$transactiondate;
 					$data2['type'] 		=	"reversed_ajv";
-					$data2['voucher'] 	= 	$this->seq->getValue("IT");
+					$data2['voucher'] 	= 	$this->seq->getValue("JV");
 					$data2['sourceno']  = 	$voucherno;
 					$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
 				}
