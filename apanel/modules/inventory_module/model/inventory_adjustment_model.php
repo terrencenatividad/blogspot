@@ -3,16 +3,16 @@ class inventory_adjustment_model extends wc_model {
 
 	public function getInventoryAdjustmentList($itemcode, $brandcode, $warehouse, $sort) {
 		$warehouse_cond = '';
-		$condition 		= '';
+		$condition 		= 'items.itemgroup="goods"';
 
 		if ($warehouse && $warehouse != 'none') {
-			$warehouse_cond .= " AND inv.warehouse = '$warehouse'";
+			$warehouse_cond .= (empty($condition) ? '' : ' AND ') . " inv.warehouse = '$warehouse'";
 			
 			if ($itemcode && $itemcode != 'none') {
-				$condition .= " AND items.itemcode = '$itemcode'";
+				$condition .= (empty($condition) ? '' : ' AND ') . " items.itemcode = '$itemcode'";
 			}
 			if ($brandcode && $brandcode != 'none') {
-				$condition .= " AND b.brandcode = '$brandcode'";
+				$condition .= (empty($condition) ? '' : ' AND ') . " b.brandcode = '$brandcode'";
 			}
 		}
 
@@ -21,7 +21,7 @@ class inventory_adjustment_model extends wc_model {
 							->leftJoin('invfile as inv ON inv.itemcode = items.itemcode '.$warehouse_cond)  
                             ->leftJoin('invdtlfile as invdtlfile ON invdtlfile.itemcode = inv.itemcode AND invdtlfile.warehouse = inv.warehouse') 
 							->setFields("items.itemcode as itemcode, b.brandname, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.availableQty as AvailQty, inv.orderedQty as OrderQty,items.itemname as itemname, items.item_ident_flag")
-							->setWhere("items.itemgroup='goods' ". $condition)
+							->setWhere($condition)
 							->setOrderBy($sort)
 							->runPagination();
 		// echo $this->db->getQuery();
