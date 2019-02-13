@@ -177,10 +177,10 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv && ($checker!="reversed_ajv" && $checker!="accrual_jv"))
-									->addDelete($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv") && ($restrict_jv || $date_compare && $voucher_compare))
+									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv && ($checker!="reversed_ajv" && $checker!="accrual_jv" && $checker!="jo_release"))
+									->addDelete($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv" && $checker!="jo_release") && ($restrict_jv || $date_compare && $voucher_compare))
 									->addPrint()
-									->addCheckbox($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv") && ($restrict_jv || $date_compare && $voucher_compare))
+									->addCheckbox($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv" && $checker!="jo_release") && ($restrict_jv || $date_compare && $voucher_compare))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
