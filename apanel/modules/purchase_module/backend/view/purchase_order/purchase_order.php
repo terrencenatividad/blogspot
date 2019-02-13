@@ -92,13 +92,14 @@
 							<div class = "col-md-6">
 								<?php
 								echo $ui->formField('text')
-								->setLabel('Delivery Date')
+								->setLabel('Expected Deliver')
 								->setSplit('col-md-4', 'col-md-8')
 								->setName('deliverydate')
 								->setId('deliverydate')
 								->setClass('datepicker-input')
 								->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
 								->setAddon('calendar')
+								->setValidation('required')
 								->setValue($deliverydate)
 								->draw($show_input);
 								?>
