@@ -1017,16 +1017,15 @@ class controller extends wc_controller
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
 		}
-
-		$accountno = '';
-		$acc = explode(' - ', $data_post['bank_name']);
-		if(count($acc) == '2') {
-			$accountno = $acc[1];
-		} else {
-			$accountno = $acc[2];
-		}
 		
 		if ($data_post['paymentmode'] == 'cheque') {
+			$accountno = '';
+			$acc = explode(' - ', $data_post['bank_name']);
+			if(count($acc) == '2') {
+				$accountno = $acc[1];
+			} else {
+				$accountno = $acc[2];
+			}
 			$result = $this->payment_voucher->update_checks($data_post['booknumber'], $data_post['chequenumber'][1]);
 		}
 

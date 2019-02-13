@@ -290,9 +290,9 @@
 			getAssetList();
 		});
 
-			checked = [];
 		
 		$('#sim').on('click', function() {
+			checked = [];
 			$('.check:checked').each(function() {
 				var ass = $(this).attr('data-id');
 				checked.push(ass);
@@ -304,6 +304,7 @@
 		});
 
 		$('#pagination_asset').on('click', 'a', function(e) {
+			checked = [];
 			e.preventDefault();
 			var li = $(this).closest('li');
 			$('#asset_modal_list tbody tr td input[type="checkbox"]:checked').each(function() {

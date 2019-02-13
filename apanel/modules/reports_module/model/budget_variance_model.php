@@ -55,7 +55,7 @@ class budget_variance_model extends wc_model {
 		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
 		->leftJoin("(SELECT SUM(actual) as actual, SUM(allocated) as allocated, accountcode, budget_code FROM actual_budget WHERE id != '' AND voucherno NOT LIKE '%DV_%' GROUP BY accountcode, budget_code)
 			as ab ON  ab.accountcode = bd.accountcode AND ab.budget_code = bd.budget_code")
-		->leftJoin("(SELECT SUM(amount) as amount, accountcode, effectivity_date, budget_id FROM budget_supplement WHERE status = 'approved' '$query' GROUP BY accountcode) as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode")
+		->leftJoin("(SELECT SUM(amount) as amount, accountcode, effectivity_date, budget_id FROM budget_supplement WHERE status = 'approved' $query GROUP BY accountcode) as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode")
 		->setGroupBy('bd.accountcode, bd.budget_code')
 		->setOrderBy('bd.accountcode')
 		->setWhere($condition . $type . $get_date)
@@ -111,10 +111,10 @@ class budget_variance_model extends wc_model {
 		->leftJoin('chartaccount ca ON bd.accountcode = ca.id')
 		->leftJoin("(SELECT SUM(actual) as actual, SUM(allocated) as allocated, accountcode, budget_code FROM actual_budget WHERE id != '' AND voucherno NOT LIKE '%DV_%' GROUP BY accountcode, budget_code)
 			as ab ON  ab.accountcode = bd.accountcode AND ab.budget_code = bd.budget_code")
-		->leftJoin("(SELECT SUM(amount) as amount, accountcode, effectivity_date, budget_id FROM budget_supplement WHERE status = 'approved' '$query' GROUP BY accountcode) as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode")
+		->leftJoin("(SELECT SUM(amount) as amount, accountcode, effectivity_date, budget_id FROM budget_supplement WHERE status = 'approved' $query GROUP BY accountcode) as bs ON b.id = bs.budget_id AND bs.accountcode = bd.accountcode")
 		->setGroupBy('bd.accountcode, bd.budget_code')
 		->setOrderBy('bd.accountcode')
-		->setWhere($condition . $type)
+		->setWhere($condition . $type . $get_date)
 		->runSelect()
 		->getResult();
 

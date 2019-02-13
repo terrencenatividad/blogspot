@@ -8,6 +8,7 @@ class controller extends wc_controller
 		$this->url 			    = new url();
 		$this->payment_voucher  = new payment_voucher_model();
 		$this->restrict 		= new financials_restriction_model();
+		$this->bir 				= $this->checkoutModel('reports_module/bir');
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
@@ -206,10 +207,8 @@ class controller extends wc_controller
 				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
 				foreach ($getnextCheckno as $value) {
 					$cno = $value->checknum;
-					$ca = $value->chequeaccount;
-					$getBank = $this->payment_voucher->getbankid($ca);
-					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+					$ca = $value->booknumber;
+					$result = $this->payment_voucher->update_checks($ca,$cno);
 				}
 			}
 			
@@ -991,9 +990,7 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 		
-		if ($data_post['paymentmode'] == 'cheque') {
-			$result = $this->payment_voucher->update_checks($data_post['booknumber'], $data_post['chequenumber'][1]);
-		}
+		
 		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		return $dataArray;
@@ -1656,6 +1653,24 @@ class controller extends wc_controller
 			}
 		}
 		return $csv;
+	}
+
+	public function print_form() {
+		$vno = $this->input->post('vno');
+		$query = http_build_query($this->input->post());
+		$url = MODULE_URL.'print_2307/'.$vno.'/?'.$query;
+		return array(
+			'url'	=> $url
+		);
+	}
+
+	public function print_2307() {
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_2307('P', 'mm', array(216,330.2));
+		$print->setPreviewTitle(MODULE_NAME)
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
 	}
 
 	public function print_check($vno, $cno){

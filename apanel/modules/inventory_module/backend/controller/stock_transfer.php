@@ -237,7 +237,7 @@ class controller extends wc_controller
 		$data = (array) $this->stock_transfer->getStockTransferRequest($this->fields1, $stocktransferno);
 		$data['approved_by'] 	 = "";
 		$data['remarks'] 	 	 = "";
-		$data['reference'] 	     = "";
+		$data['reference'] 	     = $data['reference'];
 		$data['transactionno'] 	 = $stocktransferno;
 		$data['transactiondate'] = date('M j, Y', strtotime($data['transactiondate']));
 		$data['transferdate']    = date('M j, Y', strtotime($data['transferdate']));

@@ -1,5 +1,5 @@
 <?php
-class costcenter extends wc_model {
+class budgetcenter extends wc_model {
 
 		public function __construct() {
 		parent::__construct();

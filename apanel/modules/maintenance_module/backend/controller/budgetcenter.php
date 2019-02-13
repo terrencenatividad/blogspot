@@ -5,7 +5,7 @@ class controller extends wc_controller {
 		parent::__construct();
 		$this->ui				= new ui();
 		$this->input			= new input();
-		$this->costcenter		= new costcenter();
+		$this->budgetcenter		= new budgetcenter();
 		$this->session			= new session();
 		$this->fields			= array(
 			'id',
@@ -20,41 +20,41 @@ class controller extends wc_controller {
 	public function listing() {
 		$this->view->title = $this->ui->ListLabel('');
 		$data['ui'] = $this->ui;
-		$this->view->load('costcenter/costcenter_list', $data);
+		$this->view->load('budgetcenter/budgetcenter_list', $data);
 	}
 
 	public function create() {
 		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
-		$data['coa_list']		= $this->costcenter->getCOA();
-		$data['users_list']		= $this->costcenter->getUsers();
+		$data['coa_list']		= $this->budgetcenter->getCOA();
+		$data['users_list']		= $this->budgetcenter->getUsers();
 		$data['ajax_task'] = 'ajax_create';
 		$data['ajax_post'] = '';
 		$data['show_input'] = true;
-		$this->view->load('costcenter/costcenter', $data);
+		$this->view->load('budgetcenter/budgetcenter', $data);
 	}
 
 	public function edit($id) {
 		$this->view->title = $this->ui->EditLabel('');
-		$data = (array) $this->costcenter->getCostCenterById($this->fields, $id);
+		$data = (array) $this->budgetcenter->getCostCenterById($this->fields, $id);
 		$data['ui'] = $this->ui;
-		$data['coa_list']		= $this->costcenter->getCOA();
-		$data['users_list']		= $this->costcenter->getUsers();
+		$data['coa_list']		= $this->budgetcenter->getCOA();
+		$data['users_list']		= $this->budgetcenter->getUsers();
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&id=$id";
 		$data['show_input'] = true;
-		$this->view->load('costcenter/costcenter', $data);
+		$this->view->load('budgetcenter/budgetcenter', $data);
 	}
 
 	public function view($id) {
 		$this->view->title = $this->ui->ViewLabel('');
-		$data = (array) $this->costcenter->getCostCenterById($this->fields, $id);
-		$data['coa_list']		= $this->costcenter->getCOA();
-		$data['users_list']		= $this->costcenter->getUsers();
+		$data = (array) $this->budgetcenter->getCostCenterById($this->fields, $id);
+		$data['coa_list']		= $this->budgetcenter->getCOA();
+		$data['users_list']		= $this->budgetcenter->getUsers();
 		$data['ui'] = $this->ui;
 		$data['show_input'] = false;
-		$this->view->load('costcenter/costcenter', $data);
+		$this->view->load('budgetcenter/budgetcenter', $data);
 	}
 
 	private function get_duplicate(){
@@ -64,7 +64,7 @@ class controller extends wc_controller {
 
 		if( $current!='' && $current != $old )
 		{
-			$result = $this->costcenter->check_duplicate($current);
+			$result = $this->budgetcenter->check_duplicate($current);
 
 			$count = $result[0]->count;
 		}else if(( $current!='' && $current != $old ))
@@ -88,7 +88,7 @@ class controller extends wc_controller {
 
 		if( $current!='' && $current != $old )
 		{
-			$result = $this->costcenter->check_duplicate_name($current);
+			$result = $this->budgetcenter->check_duplicate_name($current);
 
 			$count = $result[0]->count;
 		}else if(( $current!='' && $current != $old ))
@@ -117,7 +117,7 @@ class controller extends wc_controller {
 		$search	= $this->input->post('search');
 		$sort	= $this->input->post('sort');
 	
-		$pagination = $this->costcenter->getCostCenterListPagination($this->fields, $search, $sort);
+		$pagination = $this->budgetcenter->getCostCenterListPagination($this->fields, $search, $sort);
 		$table = '';
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
@@ -166,7 +166,7 @@ class controller extends wc_controller {
 	private function ajax_create() {
 		$data = $this->input->post($this->fields);
 		$data['stat'] = 'active';
-		$result = $this->costcenter->saveCostCenter($data);
+		$result = $this->budgetcenter->saveCostCenter($data);
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result
@@ -177,7 +177,7 @@ class controller extends wc_controller {
 		$data = $this->input->post($this->fields);
 		$data['stat'] = 'active';
 		$code = $this->input->post('id');
-		$result = $this->costcenter->updateCostCenter($data, $code);
+		$result = $this->budgetcenter->updateCostCenter($data, $code);
 		return array(
 			'redirect' => MODULE_URL,
 			'success' => $result
@@ -188,7 +188,7 @@ class controller extends wc_controller {
 		$delete_id = $this->input->post('delete_id');
 		$error_id = array();
 		if ($delete_id) {
-			$error_id = $this->costcenter->deleteCostCenter($delete_id);
+			$error_id = $this->budgetcenter->deleteCostCenter($delete_id);
 		}
 		return array(
 			'success'	=> (empty($error_id)),
@@ -319,7 +319,7 @@ class controller extends wc_controller {
 		$id = $this->input->post('id');
 		$data['stat'] = 'active';
 
-		$result = $this->costcenter->updateStat($data,$id);
+		$result = $this->budgetcenter->updateStat($data,$id);
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -331,7 +331,7 @@ class controller extends wc_controller {
 		$id = $this->input->post('id');
 		$data['stat'] = 'inactive';
 
-		$result = $this->costcenter->updateStat($data,$id);
+		$result = $this->budgetcenter->updateStat($data,$id);
 		return array(
 			'redirect'	=> MODULE_URL,
 			'success'	=> $result
@@ -348,7 +348,7 @@ class controller extends wc_controller {
 		
 		foreach($id_arr as $key => $value)
 		{
-			$result 			= 	$this->costcenter->updateStat($data, $value);
+			$result 			= 	$this->budgetcenter->updateStat($data, $value);
 		}
 
 		if($result)
@@ -371,7 +371,7 @@ class controller extends wc_controller {
 		
 		foreach($id_arr as $key => $value)
 		{
-			$result 			= 	$this->costcenter->updateStat($data, $value);
+			$result 			= 	$this->budgetcenter->updateStat($data, $value);
 		}
 
 		if($result)

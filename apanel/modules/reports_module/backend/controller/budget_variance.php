@@ -38,6 +38,8 @@ class controller extends wc_controller {
 		$total_variance = 0;
 		$total_available = 0;
 		$total_allocated = 0;
+		$total_avail = 0;
+		$total_var = 0;
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
@@ -53,9 +55,9 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$table .= '<td>' . $row->segment5 . '</td>';
 			$table .= '<td>' . $row->description . '</td>';
+			$table .= '<td class = "amount text-right">' . number_format($row->amount, 2) . '</td>';
 			$table .= '<td class = "amount text-right">' . str_replace('-','',$available) . '</td>';
 			$table .= '<td class = "amount text-right">' . number_format($row->allocated, 2) . '</td>';
-			$table .= '<td class = "amount text-right">' . number_format($row->amount, 2) . '</td>';
 			$table .= '<td class = "actual text-right">' . number_format($row->actual, 2) . '</td>';
 			$table .= '<td class = "variance text-right" data-val = '.$row->variance.' >' . str_replace('-','',$variance) . '</td>';
 			$table .= '</tr>';
@@ -82,6 +84,8 @@ class controller extends wc_controller {
 			'Account Code',
 			'Description',
 			'Budget',
+			'Available',
+			'Allocated',
 			'Actual',
 			'Variance'
 		);
@@ -91,10 +95,14 @@ class controller extends wc_controller {
 		if (empty($result)) {
 			$csv .= 'No Records Found';
 		}
+		$total_available = 0;
+		$total_allocated = 0;
 		$total_amount = 0;
 		$total_actual = 0;
 		$total_variance = 0;
 		foreach ($result as $key => $row) {
+			$total_available += $row->available;
+			$total_allocated += $row->allocated;
 			$total_amount += $row->amount;
 			$total_actual += $row->actual ;
 			$total_variance += $row->variance;
@@ -102,12 +110,16 @@ class controller extends wc_controller {
 			$csv .= '"' . $row->segment5 . '",';
 			$csv .= '"' . $row->description . '",';
 			$csv .= '"' . $row->amount . '",';
+			$csv .= '"' . $row->available . '",';
+			$csv .= '"' . $row->allocated . '",';
 			$csv .= '"' . $row->actual . '",';
 			$csv .= '"' . $row->variance . '",';
 		}
 		$csv .= "\n";
 		$csv .= ',';
 		$csv .= 'TOTAL,';
+		$csv .= '"' . $total_available . '",';
+		$csv .= '"' . $total_allocated . '",';
 		$csv .= '"' . $total_amount . '",';
 		$csv .= '"' . $total_actual . '",';
 		$csv .= '"' . $total_variance . '",';

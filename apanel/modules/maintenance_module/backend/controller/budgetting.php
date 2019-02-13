@@ -409,11 +409,13 @@ class controller extends wc_controller
 			$id = $this->input->post('budget_id');
 			$approver = $this->input->post('approver');
 			$get_approver = $this->budgetting->getApproverSupplement($id);
+			$session			= new session();
+			$get = $session->get('login');
 			$arr = array('status');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'approved';
 			$result = false;
-			if($approver == $get_approver->approver) {
+			if($approver == $get['username']) {
 				$result = $this->budgetting->updateSupplementApprove($id, $fields);
 			}
 			return $result;
@@ -424,10 +426,12 @@ class controller extends wc_controller
 			$approver = $this->input->post('approver');
 			$get_approver = $this->budgetting->getApproverSupplement($id);
 			$arr = array('status');
+			$session			= new session();
+			$get = $session->get('login');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'rejected';
 			$result = false;
-			if($approver == $get_approver->approver) {
+			if($approver == $get['username']) {
 				$result = $this->budgetting->updateSupplementApprove($id, $fields);
 			}
 			return $result;
