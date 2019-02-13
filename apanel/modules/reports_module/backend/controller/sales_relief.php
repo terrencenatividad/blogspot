@@ -312,7 +312,7 @@ class controller extends wc_controller {
 							$gross,
 							$rowrdo,
 							$taxamount, 
-							date("m/t/Y",strtotime($row->transactiondate)),
+							date("m/t/Y",strtotime($dates[1])),
 							$rowno
 						));
 				
@@ -326,7 +326,7 @@ class controller extends wc_controller {
 				$rowpartner =	$partnername;
 				$rowaddress = 	$address;
 				$rowtin  	= 	$tin;
-				$rowrdo 	=	str_replace('-','',substr($tin,0,11));
+				$rowrdo 	=	str_replace('-','',substr($companytin,0,11));
 				$rowno 		=	"";
 				$gross 		=	number_format($row->netamount,2);
 				$vat_exempt =	number_format($row->vat_exempt,2);
@@ -342,16 +342,15 @@ class controller extends wc_controller {
 									"", 
 									"", 
 									"", 
-									strtoupper($rowpartner), 
+									"",
 									strtoupper(str_replace(',','',str_replace('.','',$rowaddress))), 
 									"", 
+									$gross,
 									$vat_exempt, 
 									$vat_zero, 
-									$gross,
-									$rowrdo,
 									$taxamount, 
-									date("m/t/Y",strtotime($row->transactiondate)),
-									$rowno
+									$rowrdo,
+									date("m/t/Y",strtotime($row->transactiondate))
 								));
 
 				// COMPUTING TOTAL
