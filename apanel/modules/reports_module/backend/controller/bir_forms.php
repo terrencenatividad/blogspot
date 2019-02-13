@@ -554,14 +554,13 @@ class controller extends wc_controller {
 
 					
 				}
-				$result = array(
-					'tax_table' 	=> $table
-				);
 			}
-			return $result;
+			$result = array(
+				'tax_table' 	=> $table
+			);
 		}
 		
-		// return $result;
+		return $result;
 	}
 
 	public function print_form($form) {

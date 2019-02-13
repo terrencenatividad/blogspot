@@ -90,6 +90,11 @@
 		ajax.page = 1;
 		getList();
 	});
+	$('#pagination').on('click', 'a', function(e) {
+		e.preventDefault();
+		ajax.page = $(this).attr('data-page');
+		getList();
+	});
 	tableSort('#tableList', function(value) {
 		ajax.sort = value;
 		ajax.page = 1;

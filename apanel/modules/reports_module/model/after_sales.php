@@ -15,8 +15,10 @@ class after_sales extends wc_model {
 
 	public function getJOList($data)
 	{
-		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
-		$customer     	 = (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
+		$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+		$customer     	 	= (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
+		$sort     	 		= (isset($data['sort']) && !empty($data['sort'])) ? htmlentities($data['sort']) : ""; 
+		$sort 				= ($sort) ? $sort : 'transactiondate desc';
 		
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
@@ -39,8 +41,17 @@ class after_sales extends wc_model {
 							->setWhere('a.stat = "completed"')
 							->buildSelect();
 
+		$jr = $this->db->setTable('job_release a')
+							->setFields("a.transactiondate, service_quotation, a.job_order_no, '' si_goods, '' si_service, '' serialno, uom,b.customer,a.stat")
+							->leftJoin("job_order b ON a.job_order_no = b.job_order_no")
+							->leftJoin("job_order_details c ON c.job_order_no = b.job_order_no")
+							->leftJoin("salesinvoice d ON d.sourceno = a.job_order_no")
+							->leftJoin("billing e ON e.job_orderno = a.job_order_no")
+							->setWhere('a.stat = "released" AND ((d.stat IS NULL OR d.stat != "posted") AND (e.stat IS NULL OR e.stat != "Paid")) AND b.stat != "completed"')
+							->buildSelect();
+
 		$si = $this->db->setTable('salesinvoice a')
-							->setFields("a.transactiondate, service_quotation, sourceno job_order_no,  b.voucherno si_goods, '' si_service, convuom uom, b.serialno,a.customer,a.stat")
+							->setFields("a.transactiondate, service_quotation, sourceno job_order_no,  b.voucherno si_goods, '' si_service, b.serialno serialno, convuom uom,a.customer,a.stat")
 							->leftJoin("salesinvoice_details b ON b.voucherno = a.voucherno")
 							->leftJoin("job_order c ON c.job_order_no = a.sourceno")
 							->setWhere('b.stat = "posted" AND srctranstype = "jo"')
@@ -53,24 +64,24 @@ class after_sales extends wc_model {
 							->setWhere('a.stat = "Paid" AND a.job_orderno != ""')
 							->buildSelect();
 
-		$query = $sq . ' UNION ALL ' . $jo. ' UNION ALL ' . $si. ' UNION ALL ' . $billing;
+		$query = $sq . ' UNION ALL ' . $jo. ' UNION ALL ' . $jr.' UNION ALL ' . $si. ' UNION ALL ' . $billing;
 		
 		$result = 	$this->db->setTable("($query) main")
 							->setFields('transactiondate,service_quotation, job_order_no, si_goods, si_service, serialno, uom, partnername, main.stat')
 							->leftJoin('partners p ON p.partnercode = main.customer')
 							->setWhere("main.stat != ''".$addCondition)	
-							->setOrderBy('transactiondate')						
+							->setOrderBy($sort)						
 							->runPagination(false);
-		
 		return $result;
 	}
 
 	public function fileExport($data)
 	{
+		$daterangefilter	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+		$customer     	 	= (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
+		$sort     	 		= (isset($data['sort']) && !empty($data['sort'])) ? htmlentities($data['sort']) : ""; 
+		$sort 				= ($sort) ? $sort : 'transactiondate desc';
 
-		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
-		$customer     	 = (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
-		
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
@@ -92,8 +103,17 @@ class after_sales extends wc_model {
 							->setWhere('a.stat = "completed"')
 							->buildSelect();
 
+		$jr = $this->db->setTable('job_release a')
+							->setFields("a.transactiondate, service_quotation, a.job_order_no, '' si_goods, '' si_service, '' serialno, uom,b.customer,a.stat")
+							->leftJoin("job_order b ON a.job_order_no = b.job_order_no")
+							->leftJoin("job_order_details c ON c.job_order_no = b.job_order_no")
+							->leftJoin("salesinvoice d ON d.sourceno = a.job_order_no")
+							->leftJoin("billing e ON e.job_orderno = a.job_order_no")
+							->setWhere('a.stat = "released" AND ((d.stat IS NULL OR d.stat != "posted") AND (e.stat IS NULL OR e.stat != "Paid")) AND b.stat != "completed"')
+							->buildSelect();
+
 		$si = $this->db->setTable('salesinvoice a')
-							->setFields("a.transactiondate, service_quotation, sourceno job_order_no,  b.voucherno si_goods, '' si_service, convuom uom, b.serialno,a.customer,a.stat")
+							->setFields("a.transactiondate, service_quotation, sourceno job_order_no,  b.voucherno si_goods, '' si_service, b.serialno serialno, convuom uom,a.customer,a.stat")
 							->leftJoin("salesinvoice_details b ON b.voucherno = a.voucherno")
 							->leftJoin("job_order c ON c.job_order_no = a.sourceno")
 							->setWhere('b.stat = "posted" AND srctranstype = "jo"')
@@ -106,15 +126,15 @@ class after_sales extends wc_model {
 							->setWhere('a.stat = "Paid" AND a.job_orderno != ""')
 							->buildSelect();
 
-		$query = $sq . ' UNION ALL ' . $jo. ' UNION ALL ' . $si. ' UNION ALL ' . $billing;
+		$query = $sq . ' UNION ALL ' . $jo. ' UNION ALL ' . $jr.' UNION ALL ' . $si. ' UNION ALL ' . $billing;
+
 		$result = 	$this->db->setTable("($query) main")
 							->setFields('transactiondate,service_quotation, job_order_no, si_goods, si_service, serialno, uom, partnername, main.stat')
 							->leftJoin('partners p ON p.partnercode = main.customer')
 							->setWhere("main.stat != ''".$addCondition)	
-							->setOrderBy('transactiondate')						
+							->setOrderBy($sort)						
 							->runSelect(false)
 							->getResult();
-							
 		return $result;
 	}
 }

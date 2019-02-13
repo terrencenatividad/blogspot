@@ -60,7 +60,7 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
-		$data_post = $this->input->post(array('daterangefilter','customer','voucher','status'));
+		$data_post = $this->input->post(array('daterangefilter','customer','voucher','status','sort'));
 		
 		$pagination		= $this->after_sales->getJOList($data_post);
 		
@@ -75,15 +75,15 @@ class controller extends wc_controller {
 						$stat = '';
 					   if($row->stat == 'posted' || $row->stat == 'Paid'){
 						   $stat  = 'COMPLETED';
-					   }elseif($row->stat == 'Approved'){
-							$stat  = 'FOR JO';						
+					   }elseif($row->stat == 'completed'){
+						$stat  = 'FOR INVOICING';						
+				       }elseif($row->stat == 'released'){
+						$stat  = 'PARTS ISSUED';						
 					   }elseif($row->stat == 'Approved'){
 						$stat  = 'FOR JO';						
-					   }elseif($row->stat == 'Partial'){
-						$stat  = 'PARTIAL SALES ORDER';						
-				       }elseif($row->stat == 'completed'){
-						$stat  = 'FOR INVOICING';						
-				       }  
+				   	   }elseif($row->stat == 'Partial'){
+						$stat  = 'PARTIAL SERVICE QUOTATION';						
+				       }
 						  
 
 						$tablerow	.= '<tr">';
@@ -108,7 +108,7 @@ class controller extends wc_controller {
 
 	private function export()
 	{
-		$data 		= $this->input->post(array('daterangefilter','customer','voucher','status'));
+		$data 		= $this->input->post(array('daterangefilter','customer','voucher','status','sort'));
 		$strdate	= $data['daterangefilter'];
 		$datefilter = explode('-', $data['daterangefilter']);
 		$dates		= array();
@@ -135,15 +135,15 @@ class controller extends wc_controller {
 				$stat = '';
 				if($row->stat == 'posted' || $row->stat == 'Paid'){
 					$stat  = 'COMPLETED';
-				}elseif($row->stat == 'Approved'){
-					 $stat  = 'FOR JO';						
-				}elseif($row->stat == 'Approved'){
-				 $stat  = 'FOR JO';						
-				}elseif($row->stat == 'Partial'){
-				 $stat  = 'PARTIAL SALES ORDER';						
 				}elseif($row->stat == 'completed'){
-				 $stat  = 'FOR INVOICING';						
-				}  
+				$stat  = 'FOR INVOICING';						
+				}elseif($row->stat == 'released'){
+				$stat  = 'PARTS ISSUED';						
+				}elseif($row->stat == 'Approved'){
+				$stat  = 'FOR JO';						
+				}elseif($row->stat == 'Partial'){
+				$stat  = 'PARTIAL SERVICE QUOTATION';						
+				}
 				
 				$csv .= '"'	.	date('M d, Y', strtotime($row->transactiondate))		.	'",';
 				$csv .= '"'	. 	$row->service_quotation 								. 	'",';

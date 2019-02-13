@@ -38,8 +38,7 @@ class budget_report_model extends wc_model {
 			"IF(br.budget_check = 'Monitored', br.october, '-') as october",
 			"IF(br.budget_check = 'Monitored', br.november, '-') as november",
 			"IF(br.budget_check = 'Monitored', br.december, '-') as december",
-			"br.january + br.february + br.march + br.april + br.may + br.june + br.july + br.august + br.september + br.october + 
-			br.november + br.december as total"
+			"bd.amount as total"
 		);
 
 		$condition = '';
@@ -58,6 +57,7 @@ class budget_report_model extends wc_model {
 
 		$result = $this->db->setTable('budget_report as br')
 		->leftJoin('budget as b ON b.budget_code = br.budget_code')
+		->leftJoin('budget_details as bd ON br.budget_code = bd.budget_code AND br.accountcode = bd.accountcode')
 		->setFields($budgetreport)
 		->setWhere($condition)
 		->runPagination(false);

@@ -454,11 +454,13 @@
             });
         });
 
-        $("#item_tableList").on("input", ".quantity", function(){
+        $("#item_tableList").on("change", ".quantity", function(){
             inputqty = $(this).val();
             maxqty = $(this).data("maxval");
-            $(this).closest('tr').find('.qty_left').val(maxqty-inputqty);
-            if (inputqty>maxqty || inputqty =="" || inputqty <1) {
+            if (inputqty>maxqty) {
+                $(this).val(maxqty);
+            }
+            if (inputqty =="" || inputqty <1) {
                 $(this).closest("div").addClass("has-error");
             }
             else

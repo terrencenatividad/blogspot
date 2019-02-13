@@ -15,9 +15,11 @@ class parts_and_service extends wc_model {
 
 	public function getJOList($data)
 	{
-		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
-		$customer     	 = (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
-		
+		$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+		$customer     	 	= (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
+		$sort     	 		= (isset($data['sort']) && !empty($data['sort'])) ? htmlentities($data['sort']) : ""; 
+		$sort 				= ($sort) ? $sort : 'transactiondate desc';
+
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
@@ -38,7 +40,7 @@ class parts_and_service extends wc_model {
 							->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, '' parts, discountedamount service,a.customer,a.stat")
 							->leftJoin("billing_details b ON b.voucherno = a.voucherno")
 							->leftJoin("job_order c ON c.job_order_no = a.job_orderno")
-							->setWhere('a.stat = "Paid" AND a.job_orderno != ""')
+							->setWhere('a.stat != "Cancelled" AND a.job_orderno != ""')
 							->buildSelect();
 
 		$query =  $si. ' UNION ALL ' . $billing;
@@ -47,18 +49,18 @@ class parts_and_service extends wc_model {
 							->setFields('transactiondate,service_quotation, po_number, si, parts, service, partnername, main.stat')
 							->leftJoin('partners p ON p.partnercode = main.customer')
 							->setWhere("main.stat != ''".$addCondition)	
-							->setOrderBy('transactiondate')						
+							->setOrderBy($sort)						
 							->runPagination(false);
-		
 		return $result;
 	}
 
 	public function fileExport($data)
 	{
+		$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
+		$customer     	 	= (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
+		$sort     	 		= (isset($data['sort']) && !empty($data['sort'])) ? htmlentities($data['sort']) : ""; 
+		$sort 				= ($sort) ? $sort : 'transactiondate desc';
 
-		$daterangefilter = isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
-		$customer     	 = (isset($data['customer']) && !empty($data['customer'])) ? htmlentities($data['customer']) : ""; 
-		
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
 		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
@@ -79,7 +81,7 @@ class parts_and_service extends wc_model {
 						->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, '' parts, discountedamount service,a.customer,a.stat")
 						->leftJoin("billing_details b ON b.voucherno = a.voucherno")
 						->leftJoin("job_order c ON c.job_order_no = a.job_orderno")
-						->setWhere('a.stat = "Paid" AND a.job_orderno != ""')
+						->setWhere('a.stat != "Cancelled" AND a.job_orderno != ""')
 						->buildSelect();
 
 		$query =  $si. ' UNION ALL ' . $billing;
@@ -88,7 +90,7 @@ class parts_and_service extends wc_model {
 							->setFields('transactiondate,service_quotation, po_number, si, parts, service, partnername, main.stat')
 							->leftJoin('partners p ON p.partnercode = main.customer')
 							->setWhere("main.stat != ''".$addCondition)	
-							->setOrderBy('transactiondate')	
+							->setOrderBy($sort)	
 							->runSelect(false)
 							->getResult();
 		return $result;

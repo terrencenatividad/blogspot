@@ -403,15 +403,52 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function getJOList($fields) {
+	public function getJOPagination($search, $sort, $customer, $filter, $datefilter, $limit, $fields) {
+		$datefilter 		= isset($datefilter) ? htmlentities($datefilter) : ""; 
+		$custfilter      	= isset($customer) ? htmlentities($customer) : ""; 
+		$searchkey 		 	= isset($search) ? htmlentities($search) : "";
+		$filter 		 	= isset($filter) ? htmlentities($filter) : "";
+		$sort 		 		= isset($sort) ? htmlentities($sort) : "j.voucherno DESC";	
+		$limit 		 		= isset($limit) ? htmlentities($limit) : "10";
+	
+		$datefilterArr		= explode(' - ',$datefilter);
+		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+
+		$add_query 	= (!empty($searchkey)) ? "AND (j.job_order_no LIKE '%$searchkey%' OR p.partnername LIKE '%$searchkey%') " : "";
+		$add_query .= (!empty($datefilter) && !is_null($datefilterArr)) ? "AND j.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
+		$add_query .= (!empty($custfilter) && $custfilter != 'none') ? "AND p.partnercode = '$custfilter' " : "";
 		
-		$result = $this->db->setTable("job_order")
+		if( !empty($filter) && $filter == 'prepared')
+		{
+			$add_query 	.=	" AND j.stat = 'prepared' ";
+		}
+		else if( !empty($filter) && $filter == 'partial' )
+		{
+			$add_query 	.= 	" AND j.stat = 'partial' ";
+		}
+		else if( !empty($filter) && $filter == 'completed' )
+		{
+			$add_query 	.= 	" AND j.stat = 'completed' ";
+		}
+		else if( !empty($filter) && $filter == 'cancelled' )
+		{
+			$add_query 	.= 	" AND j.stat = 'cancelled' ";
+		}
+		else if( $filter == 'all' )
+		{
+			$add_query 	.= 	" ";
+		}
+
+		$result = $this->db->setTable("job_order j")
 							->setFields($fields)
 							//->setWhere(1)
-							->innerJoin('partners ON job_order.customer = partners.partnercode')
-							->setOrderBy('job_order_no DESC')
+							->innerJoin('partners p ON j.customer = p.partnercode')
+							->setWhere("j.stat!='temporary' $add_query")
+							->setOrderBy($sort)
+							->setLimit($limit)
 							->runPagination();
-							//echo $this->db->getQuery();
+							// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -660,7 +697,10 @@ class job_order_model extends wc_model
 	}
 
 	public function saveJobRelease($data) {
-		$voucherno ='';
+		$voucherno 	='';
+		$sourceno 	= $data['job_order_no'];
+		$linenum 	= implode(',', $data['linenum']);
+		$orderstat 	= 'completed';
 		$data['stat'] = 'released';	
 		
 		$result = $this->db->setTable('job_release')
@@ -679,6 +719,28 @@ class job_order_model extends wc_model
 			}
 		}
 		
+		$orderqty = $this->db->setTable('job_order_details')
+							->setFields('linenum, quantity')
+							->setWhere("job_order_no='$sourceno'")
+							->runSelect()
+							->getResult();
+		foreach ($orderqty as $key => $row) {
+			foreach ($data['linenum'] as $key => $value) {
+				if ($row->linenum == $value) {
+					$row->quantity -=  $data['quantity'][$key];
+				}
+			}
+			if ($row->quantity) {
+				$orderstat = 'partial';
+			}
+		}
+
+		$order_value = array('stat' => $orderstat);
+		$orderupdate = $this->db->setTable('job_order')
+								->setValues($order_value)
+								->setWhere("job_order_no='$sourceno'")
+								->runUpdate();
+
 		return $result;
 	}
 	public function getIssuedPartsNo($jobno) {
