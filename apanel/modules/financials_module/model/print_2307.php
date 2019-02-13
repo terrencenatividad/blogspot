@@ -111,6 +111,20 @@ class print_2307 extends fpdf {
 			$accountcode12   = isset($documentInfo['accountcode12']) ? urldecode($documentInfo['accountcode12']) : "";
 			$accountcode13   = isset($documentInfo['accountcode13']) ? urldecode($documentInfo['accountcode13']) : "";
 
+			$atc_code1    = isset($documentInfo['atccode1'])  ? urldecode($documentInfo['atccode1']) : "";
+			$atc_code2    = isset($documentInfo['atccode2'])  ? urldecode($documentInfo['atccode2']) : "";
+			$atc_code3    = isset($documentInfo['atccode3'])  ? urldecode($documentInfo['atccode3']) : "";
+			$atc_code4    = isset($documentInfo['atccode4'])  ? urldecode($documentInfo['atccode4']) : "";
+			$atc_code5    = isset($documentInfo['atccode5'])  ? urldecode($documentInfo['atccode5']) : "";
+			$atc_code6    = isset($documentInfo['atccode6'])  ? urldecode($documentInfo['atccode6']) : "";
+			$atc_code7    = isset($documentInfo['atccode7'])  ? urldecode($documentInfo['atccode7']) : "";
+			$atc_code8    = isset($documentInfo['atccode8'])  ? urldecode($documentInfo['atccode8']) : "";
+			$atc_code9    = isset($documentInfo['atccode9'])  ? urldecode($documentInfo['atccode9']) : "";
+			$atc_code10   = isset($documentInfo['atccode10']) ? urldecode($documentInfo['atccode10']) : "";
+			$atc_code11   = isset($documentInfo['atccode11']) ? urldecode($documentInfo['atccode11']) : "";
+			$atc_code12   = isset($documentInfo['atccode12']) ? urldecode($documentInfo['atccode12']) : "";
+			$atc_code13   = isset($documentInfo['atccode13']) ? urldecode($documentInfo['atccode13']) : "";
+
 			$debit1    = isset($documentInfo['debit1']) ? urldecode($documentInfo['debit1']) : "";
 			$debit2    = isset($documentInfo['debit2']) ? urldecode($documentInfo['debit2']) : "";
 			$debit3    = isset($documentInfo['debit3']) ? urldecode($documentInfo['debit3']) : "";
@@ -236,12 +250,6 @@ class print_2307 extends fpdf {
 		$this->SetX(88.5);
 		$this->Cell(20, 5, $tin4, 0, 0, 'C');
 
-		// /**
-		//  * RDO Code
-		//  */
-		// $this->SetX(189.5);
-		// $this->Cell(15, 5, $rdo, 0, 0, 'R');
-
 		$this->SetY(50.5);
 
 		/**
@@ -259,12 +267,13 @@ class print_2307 extends fpdf {
 		$this->SetX(40);
 		$this->Cell(20, 5, $payee_address, 0, 0, 'L');
 
-		/**
+			/**
 		 * ZIP Code
 		 */
-		$this->SetY(59);
-		$this->SetX(100);
-		$this->Cell(20, 5, $zipcode, 0, 0, 'L');
+		// $this->SetY(59);
+		// $this->SetX(186.5);
+		// $array = str_split($zipcode);
+		// $this->cellSpacing($array);
 
 	
 		$this->SetFont('Arial', 'B', '10');
@@ -286,12 +295,6 @@ class print_2307 extends fpdf {
 
 		$this->SetX(88.5);
 		$this->Cell(20, 5, $t_tin4, 0, 0, 'C');
-		// /**
-		//  * RDO Code
-		//  */
-		// $this->SetX(189.5);
-		// $this->Cell(15, 5, $rdo, 0, 0, 'R');
-
 
 		/**
 		 * Payee's Name
@@ -312,9 +315,10 @@ class print_2307 extends fpdf {
 		/**
 		 * ZIP Code
 		 */
-		$this->SetY(70);
-		$this->SetX(100);
-		$this->Cell(20, 5, $t_zipcode, 0, 0, 'L');
+		// $this->SetY(89.5);
+		// $this->SetX(186.5);
+		// $array = str_split($t_zipcode);
+		// $this->cellSpacing($array);
 
 		$this->SetFont('Arial', 'B', '7');
 
@@ -330,8 +334,8 @@ class print_2307 extends fpdf {
 			$this->SetX(6.5);
 			$this->Cell(50, 5, ${'accountcode' . $x}, 0, 0, 'L');
 
-			$this->SetX(6.5);
-			$this->Cell(50, 5, ${'accountcode' . $x}, 0, 0, 'L');
+			$this->SetX(56);
+			$this->Cell(19, 5, ${'atc_code' . $x}, 0, 0, 'L');
 
 			$this->SetX(75.5);
 			$this->Cell(24, 5, ${'detailparticulars_first' . $x}, 0, 0, 'R');
@@ -420,7 +424,7 @@ class print_2307 extends fpdf {
 		$this->Image(BASE_URL.'modules/reports_module/backend/view/bir/forms/1601-EQ-2.jpg',0,0,216,330.2);
 	}
 
-	private function cellSpacing($array = [],$cs = 2.5) {
+	private function cellSpacing($array = [],$cs = 5.5) {
 		foreach ($array as $char) {
 			if($char!=''){
 				$this->SetTextColor(0,0,0);

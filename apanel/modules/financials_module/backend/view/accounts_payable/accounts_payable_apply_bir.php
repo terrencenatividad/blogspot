@@ -174,6 +174,7 @@ tbody  {
                             for($i = 0; $i < count($data["wtax_details"]); $i++)
                             {
                                 $accountlevel		= $data["wtax_details"][$i]->accountcode;
+                                $atc_code		    = $data["wtax_details"][$i]->atc_code;
                                 $accountname		= $data["wtax_details"][$i]->atccode;
                                 $accountcode		= $accountname;
                                 $detailparticulars	= $data["wtax_details"][$i]->detailparticulars;
@@ -206,6 +207,13 @@ tbody  {
                                                     ->setName("accountcode".$row)
                                                     ->setClass('accountcode')
                                                     ->setValue($accountname)
+                                                    ->draw(true);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setPlaceholder('Select One')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName("atccode".$row)
+                                                    ->setValue($atc_code)
                                                     ->draw(true);
                                         ?>
                                         
