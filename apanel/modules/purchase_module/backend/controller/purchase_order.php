@@ -30,6 +30,7 @@ class controller extends wc_controller
 			'address1',
 			'terms',
 			'transactiondate',
+			'deliverydate',
 			'department'
 		);
 		
@@ -95,6 +96,7 @@ class controller extends wc_controller
 		$data["account_entries"]= $this->po->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
 		$data['transactiondate'] = $this->date->dateFormat();
+		$data['deliverydate'] = $this->date->dateFormat();
 
 		/**ADD NEW VENDOR**/
 		
@@ -175,6 +177,7 @@ class controller extends wc_controller
 				$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 
 				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+				$data["deliverydate"] 	 = date('M d,Y', strtotime($retrieved_data["header"]->deliverydate));
 				
 				//Footer Data
 				$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -299,12 +302,14 @@ class controller extends wc_controller
 
 		// Header Data
 		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
+		$deliverydate 		 = $retrieved_data["header"]->deliverydate;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["vendor"]      	 = $retrieved_data["header"]->vendor;
 		$data['department'] 	 = $retrieved_data['header']->department;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 		$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 		$data["transactiondate"] = date('M d,Y', strtotime($transactiondate));
+		$data["deliverydate"] = date('M d,Y', strtotime($deliverydate));
 		
 		//Footer Data
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -391,6 +396,7 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$deliverydate 		= $retrieved_data["header"]->deliverydate;
 
 		// Header Data
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
@@ -398,6 +404,7 @@ class controller extends wc_controller
 		$data['department'] 	 = $retrieved_data['header']->department;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
+		$data["deliverydate"] = $this->date->dateFormat($deliverydate);
 		$data['stat'] 			 = $retrieved_data["header"]->stat;
 		$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 

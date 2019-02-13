@@ -89,6 +89,24 @@
 								?>
 							</div>
 
+							<div class = "col-md-6">
+								<?php
+								echo $ui->formField('text')
+								->setLabel('Delivery Date')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('deliverydate')
+								->setId('deliverydate')
+								->setClass('datepicker-input')
+								->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
+								->setAddon('calendar')
+								->setValue($deliverydate)
+								->draw($show_input);
+								?>
+							</div>
+						</div>
+
+						<div class = "row">
+
 							<div class = "col-md-6 referenceno_div">
 								<?php
 								echo $ui->formField('text')
@@ -101,9 +119,7 @@
 								->draw($show_input);
 								?>
 							</div>
-						</div>
 
-						<div class = "row">
 							<div class = "col-md-6 department_div">
 								<?php
 								echo $ui->formField('text')
