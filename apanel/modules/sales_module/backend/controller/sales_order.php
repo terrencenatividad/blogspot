@@ -31,7 +31,8 @@ class controller extends wc_controller
 				'terms',
 				'transactiondate',
 				'remarks',
-				'due_date'
+				'due_date',
+				'deliverydate'
 			);
 
 		$this->inventory_model  = $this->checkoutModel('inventory_module/inventory_model');
@@ -98,6 +99,7 @@ class controller extends wc_controller
 			$data["account_ entries"]= $this->so->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
 			$data['transactiondate']= $this->date->dateFormat();
+			$data['deliverydate']= $this->date->dateFormat();
 			$data['discounttype'] 	= "none";
 		
 		/**ADD NEW CUSTOMER**/
@@ -194,6 +196,7 @@ class controller extends wc_controller
 			$data["customer"]      	 = $retrieved_data["header"]->customer;
 			$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
 			$data["transactiondate"] = $this->date->dateFormat($retrieved_data["header"]->transactiondate);
+			$data["deliverydate"] 	 = $this->date->dateFormat($retrieved_data["header"]->deliverydate);
 
 			//Footer Data
 			$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -325,12 +328,14 @@ class controller extends wc_controller
 
 		// Header Data
 		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
+		$deliverydate 			 = $retrieved_data["header"]->deliverydate;
 		$customer 				 = $retrieved_data["header"]->customer;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["customer"]      	 = $customer;
 		$data["s_address"]       = $retrieved_data["header"]->s_address;
 		$data["due_date"]    	 = $this->date->dateFormat($retrieved_data["header"]->duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
+		$data["deliverydate"] 	 = $this->date->dateFormat($deliverydate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
 		
 		//Footer Data
@@ -442,6 +447,7 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$deliverydate 			= $retrieved_data["header"]->deliverydate;
 		$duedate 				= $retrieved_data["header"]->duedate;
 		
 		// Header Data
@@ -451,6 +457,7 @@ class controller extends wc_controller
 		$data["s_address"]       = $retrieved_data["header"]->s_address;
 		$data["due_date"]    	 = $this->date->dateFormat($duedate);
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
+		$data["deliverydate"]	 = $this->date->dateFormat($deliverydate);
 		$data['remarks'] 		 = $retrieved_data["header"]->remarks;
 		$data['stat'] 			 = $retrieved_data['header']->stat;
 
@@ -547,7 +554,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 			$docinfo_table  = "salesorder as so";
-			$docinfo_fields = array('so.transactiondate AS documentdate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat', 'so.s_address as s_address', 'so.remarks notes', 'so.stat as stat');
+			$docinfo_fields = array('so.transactiondate AS documentdate', 'so.deliverydate AS deliverydate','so.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS customer","'' AS referenceno",'so.amount AS amount','so.remarks as remarks','so.discounttype as disctype','so.discountamount as discount', 'so.netamount as net','so.amount as amount','so.vat_sales as vat_sales','so.vat_exempt as vat_exempt', 'so.vat_zerorated as vat_zerorated', 'so.taxamount as vat', 'so.s_address as s_address', 'so.remarks notes', 'so.stat as stat');
 			$docinfo_join   = "partners as p ON p.partnercode = so.customer AND p.companycode = so.companycode";
 			$docinfo_cond 	= "so.voucherno = '$voucherno'";
 
@@ -582,6 +589,7 @@ class controller extends wc_controller
 
 		$documentdetails	= array(
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
+			'Shipping'	=> $this->date->dateFormat($documentinfo->deliverydate),
 			'SO #'	=> $voucherno
 		);
 		$print = new sales_print_model();

@@ -408,6 +408,11 @@ class controller extends wc_controller
 								'print',
 								true
 							)
+							->addOtherTask(
+								'Export to CSV',
+								'export',
+								true
+							)
 							->addDelete($show_delete && $restrict_si)
 							->addCheckbox($show_delete && $restrict_si)
 							->setValue($row->voucherno)
@@ -599,6 +604,233 @@ class controller extends wc_controller
 		$print->drawSummary($summary);
 
 		$print->drawPDF('Sales Invoice - ' . $voucherno);
+	}
+
+	public function export_csv($voucherno) 
+	{
+		$companycode = $this->companycode;
+
+		$company_table  = "company";
+		$company_fields = array('companyname', 'email', 'address', 'mobile');
+		$company_cond 	= "1"; 
+
+		$company = $this->invoice->retrieveData($company_table, $company_fields, $company_cond);
+		$company = $company[0];
+
+		$docinfo_table  = "salesinvoice as si";
+		$docinfo_fields = array('si.transactiondate AS documentdate', 'si.voucherno AS voucherno',
+								"CONCAT( first_name, ' ', last_name) AS customer",
+								"si.referenceno AS referenceno",'si.netamount AS amount','si.remarks as remarks',
+								'si.discounttype as disctype','si.discountamount as discount', 
+								'si.amount as net','si.vat_sales as vat_sales','si.vat_exempt as vat_exempt', 'si.vat_zerorated as vat_zerorated',
+								'si.taxamount as vat','si.vat_zerorated as zerorated',
+								'sourceno', 'pl.voucherno plno', 'dr.source_no sono, dr.s_address s_address', 'si.stat stat');
+		$docinfo_join   = "partners as p ON p.partnercode = si.customer AND p.companycode = si.companycode LEFT JOIN deliveryreceipt dr ON dr.voucherno = si.sourceno AND dr.companycode = si.companycode LEFT JOIN packinglist pl ON pl.voucherno = dr.source_no AND pl.companycode = dr.companycode";
+		$docinfo_cond 	= "si.voucherno = '$voucherno'"; 
+
+		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
+		$documentinfo	= $documentinfo[0]; 
+		$customer 	    = $documentinfo->customer;
+		$notes 			= preg_replace('!\s+!', ' ', $documentinfo->remarks);
+
+		$docdet_table   = "salesinvoice_details as dtl";
+		$docdet_fields  = array("dtl.itemcode as itemcode", "dtl.detailparticular as description","dtl.issueqty as quantity" ,"UPPER(dtl.issueuom) as uom", "unitprice as price","IF(dtl.discounttype='perc',CONCAT(dtl.discountrate,' ','%'),dtl.itemdiscount) itemdiscount", "taxamount","amount as amount", "taxrate", "taxcode");
+		$docdet_cond    = " dtl.voucherno = '$voucherno' ";
+		$docdet_join 	= "";
+		$docdet_groupby = "";
+		$docdet_orderby = " dtl.linenum ";
+		
+		$documentcontent = $this->invoice->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_orderby, $docdet_groupby);
+
+		$customercode 	 = $this->invoice->getValue("salesinvoice", array('customer')," voucherno = '$voucherno'");
+
+		$custField		 = array('partnername customer', 'address1 address', 'tinno', 'terms', 'mobile contactno');
+		$customerdetails = $this->invoice->retrieveData("partners",$custField," partnertype = 'customer' AND partnercode = '".$customercode[0]->customer."'");
+		$customerdetails = $customerdetails[0];
+
+		$filename = 'SalesInvoice'.$voucherno;
+
+		$excel = new PHPExcel();
+		$excel->getProperties()
+				->setCreator('Cid')
+				->setLastModifiedBy('Cid')
+				->setTitle($filename)
+				->setSubject('Sales Invoice')
+				->setDescription('Sales Invoice')
+				->setKeywords('Sales Invoice')
+				->setCategory('Sales Invoice');
+
+		$excel->getActiveSheet()->setTitle('Sales Invoice');
+		$excel->setActiveSheetIndex(0);
+		$sheet = $excel->getActiveSheet();
+
+		$sheet->mergeCells('A1:C1');
+		$sheet->mergeCells('A2:C2');
+		$sheet->mergeCells('A3:C3');
+
+		$sheet->getCell('A1')->setValue(strtoupper($company->companyname));
+		$sheet->getCell('A2')->setValue($company->address);	
+		$sheet->getCell('A3')->setValue('Email: '.$company->email.' Telephone: '.$company->mobile);
+		
+		$sheet->getCell('A5')->setValue('Sold To');	
+		$sheet->getCell('A6')->setValue('Address');	
+		$sheet->getCell('A7')->setValue('Shipping Address');
+		$sheet->getCell('A8')->setValue('Contact #');
+		$sheet->getCell('A9')->setValue('TIN');
+
+		$sheet->getCell('B5')->setValue($customerdetails->customer);	
+		$sheet->getCell('B6')->setValue($customerdetails->address);	
+		$sheet->getCell('B7')->setValue($documentinfo->s_address);
+		$sheet->getCell('B8')->setValue($customerdetails->contactno);
+		$sheet->getCell('B9')->setValue($customerdetails->tinno);
+
+		$sheet->getCell('G5')->setValue('Date');	
+		$sheet->getCell('G6')->setValue('SI No');	
+		$sheet->getCell('G7')->setValue('SO No');
+		$sheet->getCell('G8')->setValue('DR/JO No');
+		$sheet->getCell('G9')->setValue('Ref No');
+
+		$sheet->getCell('H5')->setValue($this->date->dateFormat($documentinfo->documentdate));	
+		$sheet->getCell('H6')->setValue($voucherno);	
+		$sheet->getCell('H7')->setValue($documentinfo->sono);
+		$sheet->getCell('H8')->setValue($documentinfo->sourceno);
+		$sheet->getCell('H9')->setValue($documentinfo->referenceno);
+
+		$sheet->getCell('A11')->setValue('Itemcode');
+		$sheet->getCell('B11')->setValue('Description');
+		$sheet->getCell('C11')->setValue('Qty');
+		$sheet->getCell('D11')->setValue('UOM');
+		$sheet->getCell('E11')->setValue('Price');
+		$sheet->getCell('F11')->setValue('Discount');
+		$sheet->getCell('G11')->setValue('Tax');
+		$sheet->getCell('H11')->setValue('Amount');
+
+		$sheet->getStyle('A11:H11')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$cell_row = 12;
+		$vatable_sales	= 0;
+		$vat_exempt		= 0;
+		$vat_zerorated	= 0;
+		$discount		= 0;
+		$tax			= 0;
+		$total_amount	= 0;
+		foreach ($documentcontent as $key => $row) {
+			$discount = isset($documentinfo->discount) ? $documentinfo->discount : 0;
+			
+			if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
+				$vatable_sales += $row->amount;
+			}
+			else {
+				if ($row->taxcode == '' || $row->taxcode == 'none' || $row->taxcode == 'ES') {
+					$vat_exempt += $row->amount;
+				}
+				else {
+					$vat_zerorated += $row->amount;
+				}
+			}
+			$discount		+= isset($row->discount) ? $row->discount : 0;
+			$tax			+= $row->taxamount;
+			$total_amount	+= 0;
+
+			$sheet->getCell('A'.$cell_row)->setValue($row->itemcode);
+			$sheet->getCell('B'.$cell_row)->setValue($row->description);
+			$sheet->getCell('C'.$cell_row)->setValue(number_format($row->quantity, 0));
+			$sheet->getCell('D'.$cell_row)->setValue($row->uom);
+			$sheet->getCell('E'.$cell_row)->setValue(number_format($row->price, 2));
+			$sheet->getCell('F'.$cell_row)->setValue($row->itemdiscount);
+			$sheet->getCell('G'.$cell_row)->setValue(number_format($row->taxamount, 2));
+			$sheet->getCell('H'.$cell_row)->setValue(number_format($row->amount, 2));
+
+			$sheet->getStyle('C'.$cell_row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+			$sheet->getStyle('E'.$cell_row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+			$sheet->getStyle('F'.$cell_row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+			$sheet->getStyle('G'.$cell_row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+			$sheet->getStyle('H'.$cell_row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$cell_row++;
+		}
+
+		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
+
+		$row1 = $cell_row+1;
+		$row2 = $cell_row+2;
+		$row3 = $cell_row+3;
+		$row4 = $cell_row+4;
+		$row5 = $cell_row+5;
+		$row6 = $cell_row+6;
+		$row7 = $cell_row+7;
+
+		$sheet->getCell('G'.$row1)->setValue('VATable Sales');
+		$sheet->getCell('G'.$row2)->setValue('VAT-Exempt Sales');
+		$sheet->getCell('G'.$row3)->setValue('VAT Zero Rated Sales');
+		$sheet->getCell('G'.$row4)->setValue('Total Sales');
+		$sheet->getCell('G'.$row5)->setValue('Tax');
+		$sheet->getCell('G'.$row6)->setValue('Total Amount');
+		$sheet->getCell('G'.$row7)->setValue('Discount');
+
+		$sheet->getStyle('G'.$row1)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('G'.$row2)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('G'.$row3)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('G'.$row4)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('G'.$row5)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('G'.$row6)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('G'.$row7)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+		$sheet->getCell('H'.$row1)->setValue(number_format($vatable_sales, 2));
+		$sheet->getCell('H'.$row2)->setValue(number_format($vat_exempt, 2));
+		$sheet->getCell('H'.$row3)->setValue(number_format($vat_zerorated, 2));
+		$sheet->getCell('H'.$row4)->setValue(number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2));
+		$sheet->getCell('H'.$row5)->setValue(number_format($tax, 2));
+		$sheet->getCell('H'.$row6)->setValue(number_format($total_amount, 2));
+		$sheet->getCell('H'.$row7)->setValue(number_format($discount, 2));
+
+		$sheet->getStyle('H'.$row1)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('H'.$row2)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('H'.$row3)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('H'.$row4)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('H'.$row5)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('H'.$row6)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$sheet->getStyle('H'.$row7)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		
+		foreach ($excel->getAllSheets() as $sheet) {
+			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
+				$sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+			}
+		}
+
+		$styleArray = array(
+			'font'  => array(
+			'bold'  => false,
+			'color' => array('rgb' => '#000000'),
+			'size'  => 10,
+			'name'  => 'Verdana'
+		));
+
+		$headerArray = array(
+			'font'  => array(
+			'bold'  => true,
+			'color' => array('rgb' => '#000000'),
+			'size'  => 10,
+			'name'  => 'Verdana'
+		));
+		
+		$excel->getActiveSheet()->getStyle('A2:H'.$row7)->applyFromArray($styleArray);
+		$excel->getActiveSheet()->getStyle('A1')->applyFromArray($headerArray);
+		
+
+		$filename.= '.xlsx';
+
+		header('Content-type: application/vnd.ms-excel');
+		header("Content-Disposition: attachment; filename=\"$filename\"");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		flush();
+
+		$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+		$writer->save('php://output');
+
 	}
 
 	public function ajax($task,$type='')
@@ -1094,6 +1326,92 @@ class controller extends wc_controller
 	private function amount($amount)
 	{
 		return number_format($amount,2);
+	}
+
+	public function export() {
+		$search 	= (isset($_GET['search']) &&  $_GET['search'] != 'undefined') ? $_GET['search'] : '';
+		$customer 	= (isset($_GET['customer']) &&  $_GET['customer'] != 'undefined') ? $_GET['customer'] : '';
+		$tab 		= (isset($_GET['filter']) &&  $_GET['filter'] != 'undefined') ? $_GET['filter'] : '';
+		$datefilter	= (isset($_GET['daterangefilter']) &&  $_GET['daterangefilter'] != 'undefined') ? $_GET['daterangefilter'] : '';
+		
+		$pagination = $this->invoice->FileExport($search, $customer, $tab, $datefilter);
+	
+		$filename = 'Sales Invoice';
+
+		$excel = new PHPExcel();
+		$excel->getProperties()
+				->setCreator('Cid')
+				->setLastModifiedBy('Cid')
+				->setTitle($filename)
+				->setSubject('Sales Invoice')
+				->setDescription('Sales Invoice')
+				->setKeywords('Sales Invoice')
+				->setCategory('Sales Invoice');
+
+		$excel->getActiveSheet()->setTitle('Sales Invoice');
+		$excel->setActiveSheetIndex(0);
+		$sheet = $excel->getActiveSheet();
+
+		$sheet->getCell('A1')->setValue('Invoice Date');
+		$sheet->getCell('B1')->setValue('Invoice No');	
+		$sheet->getCell('C1')->setValue('Customer');	
+		$sheet->getCell('D1')->setValue('Amount');	
+		$sheet->getCell('E1')->setValue('Balance');	
+		$sheet->getCell('F1')->setValue('Status');
+
+		if (empty($pagination)) {
+			$sheet->getCell('A2')->setValue('No Records Found');
+			$sheet->mergeCells('A2:F2');
+			$sheet->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		}
+		$cell_row = 2;
+		foreach ($pagination as $key => $row) {
+			$customer  			= 	$row->customer;
+			$transactiondate 	=	$row->date;
+
+			if($row->stat == 'posted'){
+				if($row->amount == $row->balance){
+					$status = 'UNPAID';
+				}else if($row->balance <= 0){
+					$status = 'PAID';
+				}else if($row->balance > 0 && $row->amount != $row->balance){
+					$status = 'PARTIAL';
+				}
+			}else if($row->stat == 'cancelled'){
+				$status = 'CANCELLED';
+			}else if($row->stat == 'open'){
+				$status = 'FOR APPROVAL';
+				$row->balance = $row->amount;
+			}
+
+			$sheet->getCell('A'.$cell_row)->setValue($this->date($row->date));
+			$sheet->getCell('B'.$cell_row)->setValue($row->voucherno);
+			$sheet->getCell('C'.$cell_row)->setValue($customer);
+			$sheet->getCell('D'.$cell_row)->setValue($this->amount($row->amount));
+			$sheet->getCell('E'.$cell_row)->setValue($this->amount($row->balance));
+			$sheet->getCell('F'.$cell_row)->setValue($status);
+
+			$cell_row++;
+		}
+
+		foreach ($excel->getAllSheets() as $sheet) {
+			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
+				$sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+			}
+		}
+
+		$filename.= '.xlsx';
+
+		header('Content-type: application/vnd.ms-excel');
+		header("Content-Disposition: attachment; filename=\"$filename\"");
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		flush();
+
+		$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+
+		$writer->save('php://output');
 	}
 }
 ?>

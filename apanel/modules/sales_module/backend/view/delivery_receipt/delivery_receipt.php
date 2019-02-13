@@ -983,8 +983,10 @@
 		$('#ordered_tableList').on('click', 'tr[data-id]', function() {
  			var so = $(this).attr('data-id');
 			var address = $(this).attr('data-address');
+			var deliverydate = $(this).attr('data-deliverydate');
  			$('#source_no').val(so).trigger('blur');
 			$('#s_address').val(address).trigger('blur');
+			$('#deliverydate').val(deliverydate).trigger('blur');
  			$('#ordered_list_modal').modal('hide');
  			loadPackingListDetails();
  		});

@@ -89,16 +89,19 @@
 								?>
 							</div>
 
-							<div class = "col-md-6 referenceno_div">
+							<div class = "col-md-6">
 								<?php
 								echo $ui->formField('text')
-								->setLabel('Reference Number:')
-								->setSplit('col-md-4', 'col-md-8')
-								->setName('referenceno')
-								->setId('referenceno')
-								->setMaxLength(20)
-								->setValue($referenceno)
-								->draw($show_input);
+										->setLabel('Expected Deliver')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('deliverydate')
+										->setId('deliverydate')
+										->setClass('datepicker-input')
+										->setAttribute(array('readonly' => '', 'data-date-start-date' => $close_date))
+										->setAddon('calendar')
+										->setValidation('required')
+										->setValue($deliverydate)
+										->draw($show_input);
 								?>
 							</div>
 						</div>
@@ -162,6 +165,20 @@
 								->draw($show_input);
 								?>
 								<input type="hidden" value="" id="newdisctype" name="newdisctype">
+							</div>
+						</div>
+						<div class = "row">
+							<div class = "col-md-6 referenceno_div">
+								<?php
+								echo $ui->formField('text')
+								->setLabel('Reference Number:')
+								->setSplit('col-md-4', 'col-md-8')
+								->setName('referenceno')
+								->setId('referenceno')
+								->setMaxLength(20)
+								->setValue($referenceno)
+								->draw($show_input);
+								?>
 							</div>
 						</div>
 

@@ -554,6 +554,70 @@ class sales_invoice extends wc_model
 		return $result;
 	}
 
+	public function FileExport($search, $customer, $filter, $datefilter) {
+		$fields = array(
+			'inv.transactiondate date',
+			'inv.voucherno voucherno',
+			'cust.partnername customer',
+			'inv.amount amount',
+			'app.balance balance',
+			'inv.stat stat'
+		);
+		$sort = 'inv.voucherno desc';
+		$condition = " AND inv.stat != 'temporary' ";
+		
+		if ($search) {
+			$condition .= ' AND ' . $this->generateSearch($search, array('inv.voucherno','cust.partnername'));
+		}
+		if( $filter == 'unpaid' )
+		{
+			$condition 	.=	" AND inv.stat = 'posted' AND (inv.amount = app.balance) AND inv.amount > 0 AND inv.stat != 'cancelled' ";
+		}
+		else if( $filter == 'partial' )
+		{
+			$condition 	.= 	" AND inv.stat = 'posted' AND (app.balance > 0) AND (inv.amount != app.balance) AND inv.stat != 'cancelled' ";
+		}
+		else if( $filter == 'paid' )
+		{
+			$condition 	.= 	" AND inv.stat = 'posted' AND (app.balance = 0) AND (inv.amount != app.balance) AND inv.stat != 'cancelled' ";
+		}
+		else if( $filter == 'approval' )
+		{
+			$condition 	.= 	" AND inv.stat = 'open' ";
+		}
+		else if( $filter == 'cancelled' )
+		{
+			$condition 	.= 	" AND inv.stat = 'cancelled' ";
+		}
+		else if( $filter == 'all' )
+		{
+			$condition 	.= 	" ";
+		}
+		
+		if ($customer && $customer != 'none') {
+			$condition .= " AND cust.partnercode = '$customer' ";
+		}
+		$datefilter	= explode('-', $datefilter);
+		foreach ($datefilter as $key => $date) {
+			$datefilter[$key] = $this->date->dateDbFormat($date);
+		}
+		if (isset($datefilter[1])) {
+			$condition .= " AND inv.transactiondate >= '{$datefilter[0]}' AND inv.transactiondate <= '{$datefilter[1]}'";
+		}
+		
+		$result = $this->db->setTable('salesinvoice as inv')
+						->setFields($fields)
+						->leftJoin('partners cust ON cust.partnercode = inv.customer AND cust.companycode = inv.companycode AND cust.partnertype = "customer"')
+						->leftJoin("accountsreceivable app ON app.sourceno = inv.voucherno AND app.companycode = inv.companycode AND app.stat != 'cancelled' ")
+						->setWhere(" inv.stat NOT IN ('temporary') ".$condition)
+						->setGroupBy(" inv.voucherno ")
+						->setOrderBy($sort)
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
+
 	public function retrieveListing($data)
 	{
 		$fields = array(
