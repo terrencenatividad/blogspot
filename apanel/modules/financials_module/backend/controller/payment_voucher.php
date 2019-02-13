@@ -8,6 +8,7 @@ class controller extends wc_controller
 		$this->url 			    = new url();
 		$this->payment_voucher  = new payment_voucher_model();
 		$this->restrict 		= new financials_restriction_model();
+		$this->bir 				= $this->checkoutModel('reports_module/bir');
 		$this->input            = new input();
 		$this->ui 			    = new ui();
 		$this->logs  			= new log;
@@ -1652,6 +1653,24 @@ class controller extends wc_controller
 			}
 		}
 		return $csv;
+	}
+
+	public function print_form() {
+		$vno = $this->input->post('vno');
+		$query = http_build_query($this->input->post());
+		$url = MODULE_URL.'print_2307/'.$vno.'/?'.$query;
+		return array(
+			'url'	=> $url
+		);
+	}
+
+	public function print_2307() {
+		$company_signatory = $this->bir->getCompanyInfo(array('businesstype','signatory_name','signatory_role','signatory_tin'));
+		$print = new print_2307('P', 'mm', array(216,330.2));
+		$print->setPreviewTitle(MODULE_NAME)
+		->setDocumentDetails($this->input->get())
+		->setSignatory($company_signatory)
+		->drawPDF(MODULE_NAME);
 	}
 
 	public function print_check($vno, $cno){
