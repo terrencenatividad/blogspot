@@ -206,10 +206,8 @@ class controller extends wc_controller
 				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
 				foreach ($getnextCheckno as $value) {
 					$cno = $value->checknum;
-					$ca = $value->chequeaccount;
-					$getBank = $this->payment_voucher->getbankid($ca);
-					$bank_id = isset($getBank[0]->id) ? $getBank[0]->id : '';
-					$updateCheckNo = $this->payment_voucher->updateCheck($bank_id, $cno);
+					$ca = $value->booknumber;
+					$result = $this->payment_voucher->update_checks($ca,$cno);
 				}
 			}
 			
@@ -991,9 +989,7 @@ class controller extends wc_controller
 			$errmsg 	= $result['errmsg'];
 		}
 		
-		if ($data_post['paymentmode'] == 'cheque') {
-			$result = $this->payment_voucher->update_checks($data_post['booknumber'], $data_post['chequenumber'][1]);
-		}
+		
 		
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		return $dataArray;
