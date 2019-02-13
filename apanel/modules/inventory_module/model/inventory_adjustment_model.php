@@ -9,10 +9,10 @@ class inventory_adjustment_model extends wc_model {
 			$warehouse_cond .= " AND inv.warehouse = '$warehouse'";
 			
 			if ($itemcode && $itemcode != 'none') {
-				$condition .= " items.itemcode = '$itemcode'";
+				$condition .= " AND items.itemcode = '$itemcode'";
 			}
 			if ($brandcode && $brandcode != 'none') {
-				$condition .= " b.brandcode = '$brandcode'";
+				$condition .= " AND b.brandcode = '$brandcode'";
 			}
 		}
 
@@ -21,7 +21,7 @@ class inventory_adjustment_model extends wc_model {
 							->leftJoin('invfile as inv ON inv.itemcode = items.itemcode '.$warehouse_cond)  
                             ->leftJoin('invdtlfile as invdtlfile ON invdtlfile.itemcode = inv.itemcode AND invdtlfile.warehouse = inv.warehouse') 
 							->setFields("items.itemcode as itemcode, b.brandname, inv.onhandQty as OHQty, inv.warehouse as warehouse , inv.allocatedQty as AllocQty, inv.availableQty as AvailQty, inv.orderedQty as OrderQty,items.itemname as itemname, items.item_ident_flag")
-							->setWhere($condition)
+							->setWhere("items.itemgroup='goods' ". $condition)
 							->setOrderBy($sort)
 							->runPagination();
 		// echo $this->db->getQuery();
@@ -834,5 +834,17 @@ class inventory_adjustment_model extends wc_model {
 						->runSelect()
 						->getResult();
 		return $result;
+	}
+	
+	public function getItemDropdownList($search="") {
+		$condition = " stat = 'active' AND itemgroup = 'goods'";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
+		return $this->db->setTable('items')
+						->setFields('itemcode ind, CONCAT(itemcode," - ",itemname) val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
 	}
 }
