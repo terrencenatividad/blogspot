@@ -254,7 +254,7 @@
 																				->setSplit('', 'col-md-12')
 																				->setName('amount[]')
 																				->setId('amount')
-																				->setClass('amount')
+																				->setClass('amount text-right')
 																				->setValue($row->amount)
 																				->setValidation('decimal required')
 																				->draw($show_input);	
