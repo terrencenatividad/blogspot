@@ -4,13 +4,13 @@ class inventory_inquiry_model extends wc_model {
 	public function getInventoryinquiryList($itemcode, $limit, $sort, $warehouse, $brandcode) {
 		$condition = 'items.itemgroup = "goods"';
 		if ($itemcode && $itemcode != 'none') {
-			$condition = "inv.itemcode = '$itemcode'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " inv.itemcode = '$itemcode'";
 		}
 		if ($warehouse && $warehouse != 'none') {
-			$condition .= (empty($condition) ? '' : ' AND ') . "inv.warehouse = '$warehouse'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " inv.warehouse = '$warehouse'";
 		}
 		if ($brandcode && $brandcode != 'none') {
-			$condition .= " b.brandcode = '$brandcode'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " b.brandcode = '$brandcode'";
 		}
 		// if ($search){
 		// 	$condition = "(inv.itemcode LIKE '%$search%' OR w.description LIKE '%$search%'  OR SUM(inv.onhandQty) LIKE '%$search%')";
@@ -110,10 +110,10 @@ class inventory_inquiry_model extends wc_model {
 		$warehouse 	= $data['warehouse'];
 		$condition = 'items.itemgroup = "goods"';
 		if ($itemcode && $itemcode != 'none') {
-			$condition = "inv.itemcode = '$itemcode'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " inv.itemcode = '$itemcode'";
 		}
 		if ($warehouse && $warehouse != 'none') {
-			$condition .= (empty($condition) ? '' : ' AND ') . "inv.warehouse = '$warehouse'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " inv.warehouse = '$warehouse'";
 		}
 		// if ($startdate && $enddate) {
 		// 	$condition .= (empty($condition) ? '' : ' AND ') . "inv.entereddate >= '$startdate 00:00:00' AND inv.entereddate <= '$enddate 23:59:59'";
