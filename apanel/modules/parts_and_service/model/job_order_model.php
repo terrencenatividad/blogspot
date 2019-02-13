@@ -107,9 +107,9 @@ class job_order_model extends wc_model
 
 		if ( ! $exist) {
 			$seq					= new seqcontrol();
-			$jvvoucherno			= $seq->getValue('IT');
+			$jvvoucherno			= $seq->getValue('JV');
 			$data['voucherno']		= $jvvoucherno;
-			$data['transtype']		= 'IT';
+			$data['transtype']		= 'JV';
 			$data['currencycode']	= 'PHP';
 			$data['exchangerate']	= '1';
 			$data['source']			= 'jo_release';
@@ -148,7 +148,7 @@ class job_order_model extends wc_model
 				foreach ($details as $key => $row) {
 					$details[$key]->linenum				= $key + 1;
 					$details[$key]->voucherno			= $jvvoucherno;
-					$details[$key]->transtype			= 'IT';
+					$details[$key]->transtype			= 'JV';
 					$details[$key]->debit				= 0;
 					$details[$key]->converteddebit		= 0;
 					$details[$key]->convertedcredit		= $row->credit;
@@ -165,7 +165,7 @@ class job_order_model extends wc_model
 					'credit'			=> 0,
 					'linenum'			=> $key + 2,
 					'voucherno'			=> $jvvoucherno,
-					'transtype'			=> 'IT',
+					'transtype'			=> 'JV',
 					'debit'				=> $total_amount,
 					'converteddebit'	=> $total_amount,
 					'convertedcredit'	=> 0,
