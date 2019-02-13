@@ -698,7 +698,7 @@ class job_order_model extends wc_model
 
 	public function saveJobRelease($data) {
 		$voucherno 	='';
-		$sourceno 	= $data['job_order_no'][0];
+		$sourceno 	= $data['job_order_no'];
 		$linenum 	= implode(',', $data['linenum']);
 		$orderstat 	= 'completed';
 		$data['stat'] = 'released';	
@@ -736,7 +736,6 @@ class job_order_model extends wc_model
 		}
 
 		$order_value = array('stat' => $orderstat);
-
 		$orderupdate = $this->db->setTable('job_order')
 								->setValues($order_value)
 								->setWhere("job_order_no='$sourceno'")

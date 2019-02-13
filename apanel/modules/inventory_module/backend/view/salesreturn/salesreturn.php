@@ -482,7 +482,7 @@ function addVoucherDetails(details, index) {
 							?>';
 
 	} else {
-		issueqty_element = '<button type="button" class="btn btn-flat btn-success btnserial" data-serialid="'+serials+'" data-maxitem="'+parseFloat(details.maxqty)+'">Select item<span class="pull-right">0</span></button>';
+		issueqty_element = '<button type="button" class="btn btn-flat btn-success btnserial text-right col-xs-12" data-serialid="'+serials+'" data-maxitem="'+parseFloat(details.maxqty)+'">0</button>';
 		issueqty_element += '<input type="hidden" class="allserial" name="allserial[]" value="'+serials+'">';
 		issueqty_element += '<input type="hidden" class="issueqty" name="issueqty[]" data-value="'+issueqty+'">';
 	}
@@ -721,10 +721,16 @@ function addVoucherDetails(details, index) {
 			$('#tableList tbody').find('tr:last .chkitem').iCheck('check').iCheck('enable');
 		} else {
 			$('#tableList tbody').find('tr:last .issueqty').attr('readonly', 'readonly').val(0);
-			$('#tableList tbody').find('tr:last .chkitem').iCheck('uncheck').iCheck('enable');
+			$('#tableList tbody').find('tr:last .chkitem').iCheck('uncheck').iCheck('disable');
+			$('#tableList tbody').find('tr:last .btnserial').attr('disabled', true);
+			$('#tableList tbody').find('tr:last .issueqty').attr('readonly', 'readonly').val(0);
+			$('#tableList tbody').find('tr:last [name="discountrate[]"]').text('0.00');
+			$('#tableList tbody').find('tr:last .replacement').iCheck('uncheck').attr('disabled', true).iCheck('update');
+			$('#tableList tbody').find('tr:last .defective').iCheck('uncheck').attr('disabled', true).iCheck('update');
+			$('#tableList tbody').find('tr:last [name="amount[]"]').text('0.00');
 		}
 	});
-	$('#tableList tbody').find('tr:last .btnserial span').text(selected_serial.length);
+	$('#tableList tbody').find('tr:last .btnserial').text(selected_serial.length);
 }
 
 function checkSelectedSerial(checkbox){
@@ -1016,7 +1022,7 @@ $('.btnselectserial').on('click', function(){
 	var row 	= $('.linenum[value="'+linenum+'"]').closest('tr');
 
 	row.find('.serialnumbers').val(selected_serial.join(','));
-	row.find('.btnserial span').text(selected_serial.length);
+	row.find('.btnserial').text(selected_serial.length);
 	row.find('.issueqty').val(selected_serial.length);
 	row.find('.issueqty').trigger('blur');
 
@@ -1052,7 +1058,7 @@ $('#tableList tbody').on('blur recompute', '.issueqty', function(e) {
 $('tbody').on('ifUnchecked', '.chkitem', function() {
 	selected_serial = [];
 	$(this).closest('tr').find('.btnserial').attr('disabled', true);
-	$(this).closest('tr').find('.btnserial span').text(selected_serial.length);
+	$(this).closest('tr').find('.btnserial').text(selected_serial.length);
 	$(this).closest('tr').find('.issueqty').attr('readonly', 'readonly').val(0);
 	$(this).closest('tr').find('[name="discountrate[]"]').text('0.00');
 	$(this).closest('tr').find('.replacement').iCheck('uncheck').attr('disabled', true).iCheck('update');

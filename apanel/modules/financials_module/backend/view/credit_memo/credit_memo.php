@@ -515,8 +515,8 @@ echo $ui->loadElement('modal')
 				->setSplit('', 'col-md-12')
 				->setName('detailparticulars[]')
 				->setMaxLength(100)
-				->setValue('` +
-						details.detailparticulars +
+				->setValue('` + ((details.detailparticulars == null) ? "" :
+						details.detailparticulars) +
 						`')
 				->draw($show_input);
 				?>

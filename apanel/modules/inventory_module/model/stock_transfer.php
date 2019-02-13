@@ -686,10 +686,10 @@
 			return $result;
 		}
 
-		public function retrieveSerial($itemcode){
+		public function retrieveSerial($itemcode, $warehouse){
 			$result = $this->db->setTable('items_serialized')
 						->setFields("serialno, chassisno, engineno")
-						->setWhere("itemcode = '$itemcode' AND stat='Available'")
+						->setWhere("itemcode = '$itemcode' AND stat='Available' AND warehousecode='$warehouse'")
 						->runSelect()
 						->getResult();
 			return $result;
