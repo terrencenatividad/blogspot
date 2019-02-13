@@ -83,7 +83,7 @@ class controller extends wc_controller {
 			$table .= '<td class="text-right">' . number_format($row->service,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->goods,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->capital,2) . '</td>';
-			$table .= '<td class="text-right">' . number_format($row->wtaxamount,2) . '</td>';
+			$table .= '<td class="text-right">' . number_format($row->totaltax,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->grosstaxable,2) . '</td>';
 			$table .= '</tr>';
 		}
@@ -95,7 +95,7 @@ class controller extends wc_controller {
 		$servicetotal		= 	isset($footerdtl->service)		    ?	$footerdtl->service		    : 	0;
 		$goodstotal 		= 	isset($footerdtl->goods)		    ?	$footerdtl->goods		    : 	0;
 		$capitaltotal  		= 	isset($footerdtl->capital)			?	$footerdtl->capital			: 	0;
-		$outputtax 			= 	isset($footerdtl->wtaxamount)		?	$footerdtl->wtaxamount		: 	0;
+		$outputtax 			= 	isset($footerdtl->totaltax)			?	$footerdtl->totaltax		: 	0;
 		$grtaxable  		= 	isset($footerdtl->grosstaxable)		?	$footerdtl->grosstaxable	: 	0;
 
 		if ($pagination->page_limit > 1) {
@@ -198,7 +198,7 @@ class controller extends wc_controller {
 				$sheet->getCell('F'.$cell_row)->setValue($row->service);
 				$sheet->getCell('G'.$cell_row)->setValue($row->goods);
 				$sheet->getCell('H'.$cell_row)->setValue($row->capital);
-				$sheet->getCell('I'.$cell_row)->setValue($row->wtaxamount);
+				$sheet->getCell('I'.$cell_row)->setValue($row->totaltax);
 				$sheet->getCell('J'.$cell_row)->setValue($row->grosstaxable);
 
 				$cell_row++;
@@ -208,7 +208,7 @@ class controller extends wc_controller {
 				// $totalexempt+= $row->vat_exempt;
 				// $zerorated  += $row->vat_zerorated;
 				$taxablesale+= $row->vat_sales;
-				$outputtax 	+= $row->wtaxamount;
+				$outputtax 	+= $row->totaltax;
 				$grtaxable  += $row->grosstaxable;
 				$totalservice+=$row->service;
 				$totalgoods += $row->goods;
@@ -292,19 +292,19 @@ class controller extends wc_controller {
 				// $vat_exempt =	number_format($row->vat_exempt,2);
 				// $vat_zero 	= 	number_format($row->vat_zerorated,2);
 				$vat_sales 		=	number_format($row->vat_sales,2);
-				$wtaxamount 	=	number_format($row->wtaxamount,2);
+				$totaltax 		=	number_format($row->totaltax,2);
 				$grtaxable 		=	number_format($row->grosstaxable,2);
 				$service 		=	number_format($row->service,2);
 				$goods 			=	number_format($row->goods,2);
 				$capital		=	number_format($row->capital,2);
-				$csv->addRow(array($count, $row->transactiondate, $row->tinno, strtoupper($row->partnername), $gross, $vat_sales, $service, $goods, $capital, $wtaxamount, $grtaxable));
+				$csv->addRow(array($count, $row->transactiondate, $row->tinno, strtoupper($row->partnername), $gross, $vat_sales, $service, $goods, $capital, $totaltax, $grtaxable));
 
 				// COMPUTING TOTAL
 				$totalgross += $row->netamount;
 				// $totalexempt+= $row->vat_exempt;
 				// $zerorated  += $row->vat_zerorated;
 				$taxablesale	+= $row->vat_sales;
-				$outputtax 		+= $row->wtaxamount;
+				$outputtax 		+= $row->totaltax;
 				$grttaxable 	+= $row->grosstaxable;		
 				$totalservice 	+= $row->service;
 				$totalgoods 	+= $row->goods;	

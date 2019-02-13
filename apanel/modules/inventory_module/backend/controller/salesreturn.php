@@ -517,6 +517,13 @@ class controller extends wc_controller {
 					'stat' 				=> $arr_stat
 				);
 
+		$sourcetype = 'DR';
+		$source 	= $header['source_no'];
+
+		if (substr($header['source_no'], 0, 2) == 'SI') {
+			$sourcetype = 'SI';
+			$source 	= $this->db->getDRvoucher($source);
+		}
 /*
 	END : PREPARE DATA FOR QUERY
 */
@@ -538,9 +545,9 @@ class controller extends wc_controller {
 				$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
 				
 			}
-			$updateDRSerial = $this->sr_model->updateDRSerial($header['source_no'], $details['linenum'], $details['serialnumbers']);
+			$updateDRSerial = $this->sr_model->updateDRSerial($source, $details['linenum'], $details['serialnumbers']);
 
-			//$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
+			// $jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
 				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
 										->setDetails($values['customer'])
@@ -552,7 +559,6 @@ class controller extends wc_controller {
 										->generateBalanceTable();
 			}
 		}
-		//$jv = $this->sr_model->createClearingEntries($header['voucherno']);
 /*
 	END : RUN DATABASE OPERATIONS
 */
