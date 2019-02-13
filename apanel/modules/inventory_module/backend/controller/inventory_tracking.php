@@ -17,24 +17,26 @@ class controller extends wc_controller {
 	public function listing() {
 		$this->view->title 		= 'Inventory Tracking List';
 		$data['ui']				= $this->ui;
-		$data['item_list']		= $this->item_model->getItemDropdownList();
+		$data['item_list']		= $this->inventory_model->getItemDropdownList();
 		$data['warehouse_list']	= $this->inventory_model->getWarehouseDropdownList();
 		$data['brand_list'] = $this->brand_model->getBrandDropdownList();
 		$this->view->load('inventory_tracking/inventory_tracking_list', $data);
 	}
 
-	public function list_export($datefilter = '', $itemcode = '', $warehouse = '', $sort = '') {
+	public function list_export($datefilter = '', $itemcode = '', $warehouse = '', $sort = '', $brandcode = '') {
 		$datefilter	= base64_decode($datefilter);
 		$itemcode	= base64_decode($itemcode);
 		$warehouse	= base64_decode($warehouse);
 		$sort		= base64_decode($sort);
+		$brand		= base64_decode($brandcode);
 		$itemcode_label = ($itemcode) ? 'Item Code: ' . $itemcode : '';
 		header('Content-type: text/csv');
 		header('Content-Disposition: attachment; filename="Inventory Tracking - ' . $itemcode_label . ' - Date: ' . $datefilter . '.csv"');
-		$result = $this->inventory_model->getInventoryTracking($itemcode, $datefilter, $warehouse, $sort);
+		$result = $this->inventory_model->getInventoryTracking($itemcode, $datefilter, $warehouse, $sort, $brand);
 		$header = array(
 			'Date',
 			'Item Name',
+			'Brand',
 			'Warehouse',
 			'Reference No.',
 			'Particulars',
@@ -61,6 +63,7 @@ class controller extends wc_controller {
 			$csv .= "\n";
 			$csv .= '"' . $this->date->datetimeFormat($row->entereddate) . '",';
 			$csv .= '"' . $row->itemname . '",';
+			$csv .= '"' . $row->brandname . '",';
 			$csv .= '"' . $row->warehouse . '",';
 			$csv .= '"' . $row->reference . '",';
 			$csv .= '"' . $row->partnername . '",';
