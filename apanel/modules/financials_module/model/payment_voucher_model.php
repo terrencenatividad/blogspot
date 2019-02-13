@@ -434,24 +434,24 @@ class payment_voucher_model extends wc_model
 
 		$mainTable 		= "accountspayable main";
 		$mainFields 	= array("main.companycode, main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount - COALESCE(pv.payment,0)) balance, 
-								(main.convertedamount - COALESCE(pv.payment,0)) remaining_for_payment, COALESCE(pv.convertedamount,0) as payment, main.exchangerate as exchangerate");
+			(main.convertedamount - COALESCE(pv.payment,0)) remaining_for_payment, COALESCE(pv.convertedamount,0) as payment, main.exchangerate as exchangerate");
 		$mainCondition	= "main.stat = 'posted' AND main.vendor = '$vendorcode'";
 		$mainGroupBy 	= "main.voucherno";
 
 		$sub_fields 	= 'companycode, apvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(discount),0) - COALESCE(SUM(forexamount),0)) payment';
 
 		$sub_query 		= 	$this->db->setTable('pv_application')
-									 ->setFields($sub_fields)
-									 ->setWhere("stat IN ('open','posted')")
-									 ->setGroupBy('apvoucherno')
-									 ->buildSelect();
+		->setFields($sub_fields)
+		->setWhere("stat IN ('open','posted')")
+		->setGroupBy('apvoucherno')
+		->buildSelect();
 
 		$query  		=	$this->db->setTable($mainTable)
-									  ->setFields($mainFields)
-									  ->leftJoin("($sub_query) as pv ON pv.apvoucherno = main.voucherno AND pv.companycode = main.companycode")
-									  ->setWhere($mainCondition)
-									  ->setGroupBy($mainGroupBy)
-									  ->setHaving("remaining_for_payment > 0 OR balance > 0");
+		->setFields($mainFields)
+		->leftJoin("($sub_query) as pv ON pv.apvoucherno = main.voucherno AND pv.companycode = main.companycode")
+		->setWhere($mainCondition)
+		->setGroupBy($mainGroupBy)
+		->setHaving("remaining_for_payment > 0 OR balance > 0");
 		
 		// For Edit.. current selected RV
 		$result 		=	"";
@@ -460,18 +460,18 @@ class payment_voucher_model extends wc_model
 			$sub_fields 	= 'companycode, apvoucherno, voucherno, SUM(convertedamount) convertedamount, SUM(discount) discount, (COALESCE(SUM(convertedamount),0) + COALESCE(SUM(discount),0) - COALESCE(SUM(forexamount),0)) payment';
 
 			$edit_sub_query = 	$this->db->setTable('pv_application')
-									 ->setFields($sub_fields)
-									 ->setWhere("stat IN ('open','posted') AND voucherno = '$voucherno'")
-									 ->setGroupBy('apvoucherno')
-									 ->buildSelect();
+			->setFields($sub_fields)
+			->setWhere("stat IN ('open','posted') AND voucherno = '$voucherno'")
+			->setGroupBy('apvoucherno')
+			->buildSelect();
 
 			$edit_query  	=	$this->db->setTable($mainTable)
-										->setFields($mainFields)
-										->leftJoin("($edit_sub_query) as pv ON pv.apvoucherno = main.voucherno AND pv.companycode = main.companycode")
-										->setWhere($mainCondition)
-										->setGroupBy($mainGroupBy)
-										->setHaving("(amount - payment) <= 0")
-										->buildSelect();
+			->setFields($mainFields)
+			->leftJoin("($edit_sub_query) as pv ON pv.apvoucherno = main.voucherno AND pv.companycode = main.companycode")
+			->setWhere($mainCondition)
+			->setGroupBy($mainGroupBy)
+			->setHaving("(amount - payment) <= 0")
+			->buildSelect();
 
 										// echo $this->db->getQuery();
 			
@@ -480,13 +480,13 @@ class payment_voucher_model extends wc_model
 			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.payment");
 
 			$result  		=	$this->db->setTable("($main_query) c")
-										->setFields($fields)
-										->setOrderBy('c.transactiondate DESC, c.voucherno DESC')
-										->runPagination();	
+			->setFields($fields)
+			->setOrderBy('c.transactiondate DESC, c.voucherno DESC')
+			->runPagination();	
 										// echo $this->db->getQuery();
 		} else {
 			$result 	=	$query->setOrderBy('transactiondate DESC, voucherno DESC')
-									->runPagination();
+			->runPagination();
 		}
 
 		return $result;
@@ -1776,7 +1776,7 @@ class payment_voucher_model extends wc_model
 
 	public function get_check_no($vno){
 		$result = $this->db->setTable('pv_cheques')
-		->setFields("max(chequenumber) checknum,chequeaccount")
+		->setFields("max(chequenumber) checknum,chequeaccount, booknumber")
 		->setWhere("voucherno = '$vno' ")
 		->setGroupBy("chequeaccount")
 		->runSelect()
@@ -1894,7 +1894,6 @@ class payment_voucher_model extends wc_model
 		->setWhere("booknumber = '$booknumber'")
 		->setLimit(1)
 		->runUpdate();
-							// echo $this->db->getQuery();
 		return $result ;
 	}
 

@@ -1094,89 +1094,91 @@ class trial_balance extends wc_model {
 		$str_month 	=	date('F', strtotime($lastdayofdate));
 		$str_n_month=	date('F', strtotime($nextmonth));
 
-		$transtype 	=	"IT";
+		$transtype 	=	"JV";
 
 		// Accrual Entry
 		$getpartials 	= 	$this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
 		
-		// var_dump($getpartials);
 		foreach($getpartials as $key=>$row){
+			// var_dump($key);
+			// echo $key;
 			$releaseno 	= isset($row->releaseno)		?	$row->releaseno 	:	"";
 			$orderno	= isset($row->orderno)			?	$row->orderno 		:	"";
 			$totalamt 	= isset($row->totalamount)		?	$row->totalamount 	:	0;
 			$invacct 	= isset($row->invacct) 			?	$row->invacct 		:	"";
+	
+			if($releaseno != "" && $totalamt > 0) {
+				$ret_jr		= $this->getAccountsFromPartialReleasedJob($releaseno);
+				// var_dump($ret_jr);
 
-			$ret_jr		= $this->getAccountsFromPartialReleasedJob($releaseno);
-			// var_dump($ret_jr);
+				$totalamount 	=	isset($ret_jr->totalamount) 	? $ret_jr->totalamount 		: 0;
+				$credit_acct 	=	isset($ret_jr->credit_account)	? $ret_jr->credit_account 	: "";
+				$debit_acct 	=	isset($ret_jr->debit_account) 	? $ret_jr->debit_account 	: "";
 
-			$totalamount 	=	isset($ret_jr->totalamount) 	? $ret_jr->totalamount 		: 0;
-			$credit_acct 	=	isset($ret_jr->credit_account)	? $ret_jr->credit_account 	: "";
-			$debit_acct 	=	isset($ret_jr->debit_account) 	? $ret_jr->debit_account 	: "";
+				$reference		= ($type == "accrual_jv") ? "Accrual for $str_month, $year" : "Reversed Accrual for $str_n_month, $year";
+				$accrual_source = $type;
 
-			$reference		= ($type == "accrual_jv") ? "Accrual Entry for $str_month, $year" : "Reversed Accrual Entry for $str_n_month, $year";
-			$accrual_source = $type;
+				// Get Job Order Details -- items 
 
-			// Get Job Order Details -- items 
+				$header['voucherno'] 		=	$generatedvoucher;
+				$header['transtype'] 		=	$transtype;
+				$header['stat'] 			=	"posted";
+				$header['transactiondate'] 	=	$lastdayofdate;
+				$header['fiscalyear'] 		=	$year;
+				$header['period'] 			= 	$month;
+				$header['currencycode'] 	= 	"PHP";
+				$header['exchangerate'] 	=	1;
+				$header['amount'] 	 		=	$totalamount;
+				$header['convertedamount'] 	=	$totalamount;
+				$header['referenceno'] 		=	$reference;
+				$header['source'] 			=	$accrual_source;
+				$header['sourceno'] 		=	$sourceno;
 
-			$header['voucherno'] 		=	$generatedvoucher;
-			$header['transtype'] 		=	$transtype;
-			$header['stat'] 			=	"posted";
-			$header['transactiondate'] 	=	$lastdayofdate;
-			$header['fiscalyear'] 		=	$year;
-			$header['period'] 			= 	$month;
-			$header['currencycode'] 	= 	"PHP";
-			$header['exchangerate'] 	=	1;
-			$header['amount'] 	 		=	$totalamount;
-			$header['convertedamount'] 	=	$totalamount;
-			$header['referenceno'] 		=	$reference;
-			$header['source'] 			=	$accrual_source;
-			$header['sourceno'] 		=	$sourceno;
+				$result 					=	$this->insertdata('journalvoucher',$header);
 
-			$result 					=	$this->insertdata('journalvoucher',$header);
+				if($result){
+					$debit 					= $total_debit 	= 0;
+					$credit 				= $total_credit = 0;
+					$retained 				= 0;
+					$linenum 				= 1;
+			
+					$accounts['voucher'] 			=	$generatedvoucher;
+					$accounts['source'] 			=	$accrual_source;
+					$accounts['amount'] 			=	$totalamount;
+					$accounts['stat'] 				=	$header['stat'];
+					$accounts['transtype'] 			=	$header['transtype'];
 
-			if($result){
-				$debit 					= $total_debit 	= 0;
-				$credit 				= $total_credit = 0;
-				$retained 				= 0;
-				$linenum 				= 1;
-		
-				$accounts['voucher'] 			=	$generatedvoucher;
-				$accounts['source'] 			=	$accrual_source;
-				$accounts['amount'] 			=	$totalamount;
-				$accounts['stat'] 				=	$header['stat'];
-				$accounts['transtype'] 			=	$header['transtype'];
+					if($type == "accrual_jv"){
+						$accounts['account'] 			=	$debit_acct;
+						$accounts['linenum'] 			=	1;
+						$result  						=	$this->create_jvdetails_debit($accounts);
 
-				if($type == "accrual_jv"){
-					$accounts['account'] 			=	$debit_acct;
-					$accounts['linenum'] 			=	1;
-					$result  						=	$this->create_jvdetails_debit($accounts);
+						$accounts['account'] 			=	$credit_acct;
+						$accounts['linenum'] 			=	2;
+						$result  						=	$this->create_jvdetails_credit($accounts);
+					} else {
+						$accounts['account'] 			=	$debit_acct;
+						$accounts['linenum'] 			=	1;
+						$result  						=	$this->create_jvdetails_debit($accounts);
 
-					$accounts['account'] 			=	$credit_acct;
-					$accounts['linenum'] 			=	2;
-					$result  						=	$this->create_jvdetails_credit($accounts);
-				} else {
-					$accounts['account'] 			=	$debit_acct;
-					$accounts['linenum'] 			=	1;
-					$result  						=	$this->create_jvdetails_debit($accounts);
-
-					$accounts['account'] 			=	$credit_acct;
-					$accounts['linenum'] 			=	2;
-					$result  						=	$this->create_jvdetails_credit($accounts);
-				
-					if($result && $type == "reversed_ajv"){
-						$update['transactiondate']	=	$nextmonth;
-						$result  					=	$this->update_transaction_date($update, $generatedvoucher);
+						$accounts['account'] 			=	$credit_acct;
+						$accounts['linenum'] 			=	2;
+						$result  						=	$this->create_jvdetails_credit($accounts);
+					
+						if($result && $type == "reversed_ajv"){
+							$update['transactiondate']	=	$nextmonth;
+							$result  					=	$this->update_transaction_date($update, $generatedvoucher);
+						}
 					}
 				}
 			}
-
-			return array(
-				'result'=>$result,
-				'voucherno'=>$generatedvoucher
-			);
-		
-
 		}	
+
+		return array(
+			'result'=>$result,
+			'voucherno'=>$generatedvoucher
+		);
+	
 	}
 
 }	

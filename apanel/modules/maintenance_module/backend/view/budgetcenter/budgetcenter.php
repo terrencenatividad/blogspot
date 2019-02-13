@@ -135,7 +135,7 @@ var ajax = {};
 	var error_message 	=	'';	
 	var form_group	 	= 	$('#costcenter_code').closest('.form-group');
 
-	$.post('<?=BASE_URL?>maintenance/costcenter/ajax/get_duplicate',ajax, function(data) {
+	$.post('<?=MODULE_URL?>ajax/get_duplicate',ajax, function(data) {
 		if( data.msg == 'exists' )
 		{
 			error_message 	=	"<b>The Code you entered already exists!</b>";
@@ -169,7 +169,7 @@ $('#name').on('blur',function(){
 	var error_message 	=	'';	
 	var form_group	 	= 	$('#name').closest('.form-group');
 
-	$.post('<?=BASE_URL?>maintenance/costcenter/ajax/get_duplicate_name',ajax, function(data) {
+	$.post('<?=MODULE_URL?>ajax/get_duplicate_name',ajax, function(data) {
 		if( data.msg == 'exists' )
 		{
 			error_message 	=	"<b>The Name you entered already exists!</b>";

@@ -172,6 +172,7 @@
 			var daterangefilter	= $('#daterangefilter').val();
 			var itemcode		= $('#itemcode').val();
 			var warehouse		= $('#warehouse').val();
-			window.location		= '<?php echo MODULE_URL ?>list_export/' + btoa(daterangefilter) + '/' + btoa(itemcode) + '/' + btoa(warehouse) + '/' + btoa(ajax.sort);
+			var brandcode		= $('#brandcode').val();
+			window.location		= '<?php echo MODULE_URL ?>list_export/' + btoa(daterangefilter) + '/' + btoa(itemcode) + '/' + btoa(warehouse) + '/' + btoa(ajax.sort) + '/' + btoa(brandcode);
 		});
 	</script>
