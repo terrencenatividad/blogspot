@@ -7,8 +7,8 @@ class inventory_tracking_model extends wc_model {
 		return $result;
 	}
 
-	public function getInventoryTracking($itemcode, $datefilter, $warehouse, $sort) {
-		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort)
+	public function getInventoryTracking($itemcode, $datefilter, $warehouse, $sort, $brandcode) {
+		$result = $this->getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort, $brandcode)
 						->runSelect()
 						->getResult();
 		
@@ -26,15 +26,15 @@ class inventory_tracking_model extends wc_model {
 	}
 
 	private function getInventoryTrackingQuery($itemcode, $datefilter, $warehouse, $sort, $brandcode) {
-		$condition = '';
+		$condition = 'i.itemgroup="goods" ';
 		if ($itemcode && $itemcode != 'none') {
-			$condition = "il.itemcode = '$itemcode'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " il.itemcode = '$itemcode'";
 		}
 		if ($warehouse && $warehouse != 'none') {
-			$condition .= (empty($condition) ? '' : ' AND ') . "w.warehousecode = '$warehouse'";
+			$condition .= (empty($condition) ? '' : ' AND ') . " w.warehousecode = '$warehouse'";
 		}
 		if ($brandcode && $brandcode != 'none') {
-			$condition .= " b.brandcode = '$brandcode'";
+			$condition .=  (empty($condition) ? '' : ' AND ') . " b.brandcode = '$brandcode'";
 		}
 		$datefilter	= explode('-', $datefilter);
 		foreach ($datefilter as $key => $date) {
@@ -61,6 +61,18 @@ class inventory_tracking_model extends wc_model {
 			$temp[] = $arr . " LIKE '%" . str_replace(' ', '%', $search) . "%'";
 		}
 		return '(' . implode(' OR ', $temp) . ')';
+	}
+
+	public function getItemDropdownList($search="") {
+		$condition = " stat = 'active' AND itemgroup = 'goods'";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
+		return $this->db->setTable('items')
+						->setFields('itemcode ind, CONCAT(itemcode," - ",itemname) val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
 	}
 
 }

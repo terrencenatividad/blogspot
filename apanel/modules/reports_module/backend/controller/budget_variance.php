@@ -38,6 +38,8 @@ class controller extends wc_controller {
 		$total_variance = 0;
 		$total_available = 0;
 		$total_allocated = 0;
+		$total_avail = 0;
+		$total_var = 0;
 		if (empty($pagination->result)) {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
