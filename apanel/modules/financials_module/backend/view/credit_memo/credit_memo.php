@@ -279,12 +279,13 @@
 												echo $ui->drawSubmit(true);
 											}
 										}
-										if($ajax_task == 'ajax_view' && $display_edit && $status != 'cancelled') {
+										if($ajax_task == 'ajax_view' && $display_edit && $status != 'cancelled' && !$checker) {
 											echo $ui->drawSubmit($show_input);
 										}
 										?>
 						<!-- <a href="<?=MODULE_URL?>"  data-toggle="back_page" class="btn btn-default">Cancel</a> -->
-						<?php echo $ui->drawCancel(); ?>
+						<?php 
+							echo $ui->drawCancel(); ?>
 					</div>
 				</div>
 			</div>

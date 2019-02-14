@@ -67,6 +67,7 @@ class controller extends wc_controller {
 		);
 		$this->fields3			= array(
 			'itemcode',
+			'budgetcode',
 			'detailparticular',
 			'linenum',
 			'receiptqty',
@@ -116,7 +117,7 @@ class controller extends wc_controller {
 		$this->view->addCSS(array(
 			'jquery.fileupload.css'
 		)
-		);  
+	);  
 		$this->view->addJS(
 			array(
 				'jquery.dirrty.js',
@@ -172,7 +173,7 @@ class controller extends wc_controller {
 		$this->view->addCSS(array(
 			'jquery.fileupload.css'
 		)
-		);  
+	);  
 		$this->view->addJS(
 			array(
 				'jquery.dirrty.js',
@@ -236,7 +237,7 @@ class controller extends wc_controller {
 		$this->view->addCSS(array(
 			'jquery.fileupload.css'
 		)
-		);  
+	);  
 		$this->view->addJS(
 			array(
 				'jquery.dirrty.js',
@@ -307,18 +308,18 @@ class controller extends wc_controller {
 
 		$print = new purchase_print_model();
 		$print->setDocumentType('Purchase Receipt')
-				->setFooterDetails(array('Approved By', 'Checked By', 'Received By'))
-				->setVendorDetails($vendordetails)
-				->setDocumentDetails($documentdetails)
+		->setFooterDetails(array('Approved By', 'Checked By', 'Received By'))
+		->setVendorDetails($vendordetails)
+		->setDocumentDetails($documentdetails)
 				// ->addTermsAndConditon()
-				->addReceived();
+		->addReceived();
 
 		$print->setHeaderWidth(array(50, 110, 20, 20))
-				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'L'))
-				->setSummaryAlign(array('J'))	
-				->setSummaryWidth(array('200'));
+		->setHeaderAlign(array('C', 'C', 'C', 'C'))
+		->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+		->setRowAlign(array('L', 'L', 'R', 'L'))
+		->setSummaryAlign(array('J'))	
+		->setSummaryWidth(array('200'));
 		
 		$documentcontent	= $this->purchase_model->getDocumentContent($voucherno);		
 		
@@ -346,11 +347,11 @@ class controller extends wc_controller {
 			// 1 SERIAL FIELD ONLY
 				$first = ($serial == '1') ? 'S/N' : (($engine == '1') ? 'E/N' : 'C/N');
 				$print->setHeaderWidth(array(30, 90, 20, 20, 40))
-						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
-						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first))
-						->setRowAlign(array('L', 'L', 'R', 'L', 'L'))
-						->setSummaryAlign(array('J'))	
-						->setSummaryWidth(array('200'));		
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'L'))
+				->setSummaryAlign(array('J'))	
+				->setSummaryWidth(array('200'));		
 			} else if ($serial_total == 2) {
 			// 2 SERIAL FIELDS
 				if ($serial == '1' && $engine == '1' && $chassis == '0') {
@@ -363,21 +364,21 @@ class controller extends wc_controller {
 					$first = 'E/N';
 					$second = 'C/N';
 				}
-					
+
 				$print->setHeaderWidth(array(30, 40, 20, 20, 45, 45))
-						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second))
-						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
-						->setSummaryAlign(array('J'))	
-						->setSummaryWidth(array('200'));
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', $first, $second))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
+				->setSummaryAlign(array('J'))	
+				->setSummaryWidth(array('200'));
 			} else if ($serial_total == 3) {
 			// 3 SERIAL FIELDS
 				$print->setHeaderWidth(array(30, 40, 20, 20, 30, 30, 30))
-						->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
-						->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
-						->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
-						->setSummaryAlign(array('J'))	
-						->setSummaryWidth(array('200'));
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
+				->setSummaryAlign(array('J'))	
+				->setSummaryWidth(array('200'));
 			}
 		}
 
@@ -421,26 +422,26 @@ class controller extends wc_controller {
 					$documentserials	= $this->purchase_model->getDocumentSerials($voucherno,$row->ItemCode);
 					foreach($documentserials as $key => $rowserials) {
 						
-							$sndisplay = $rowserials->Serial;
-							$endisplay = $rowserials->Engine;
-							$cndisplay = $rowserials->Chassis;
-							if ($serial_total == 1) {
-								if ($serial == '1' && $engine == '0' && $chassis == '0')
-									$print->addRow(array('', '', '', '', $sndisplay, '', '',''));
-								if ($serial == '0' && $engine == '1' && $chassis == '0')
-									$print->addRow(array('', '', '', '', $endisplay, '', '',''));
-								if ($serial == '0' && $engine == '0' && $chassis == '1')
-									$print->addRow(array('', '', '', '', $cndisplay, '', '',''));
-							} else if ($serial_total == 2) {
-								if ($serial == '1' && $engine == '1' && $chassis == '0')
-									$print->addRow(array('', '', '', '', $sndisplay, $endisplay, '', '',''));
-								if ($serial == '1' && $engine == '0' && $chassis == '1')
-									$print->addRow(array('', '', '', '', $sndisplay, $cndisplay, '', '',''));
-								if ($serial == '0' && $engine == '1' && $chassis == '1')
-									$print->addRow(array('', '', '', '', $endisplay, $cndisplay, '', '',''));
-							} else if ($serial_total == 3) {
-								$print->addRow(array('', '', '', '', $sndisplay, $endisplay, $cndisplay, '', '',''));
-							}						
+						$sndisplay = $rowserials->Serial;
+						$endisplay = $rowserials->Engine;
+						$cndisplay = $rowserials->Chassis;
+						if ($serial_total == 1) {
+							if ($serial == '1' && $engine == '0' && $chassis == '0')
+								$print->addRow(array('', '', '', '', $sndisplay, '', '',''));
+							if ($serial == '0' && $engine == '1' && $chassis == '0')
+								$print->addRow(array('', '', '', '', $endisplay, '', '',''));
+							if ($serial == '0' && $engine == '0' && $chassis == '1')
+								$print->addRow(array('', '', '', '', $cndisplay, '', '',''));
+						} else if ($serial_total == 2) {
+							if ($serial == '1' && $engine == '1' && $chassis == '0')
+								$print->addRow(array('', '', '', '', $sndisplay, $endisplay, '', '',''));
+							if ($serial == '1' && $engine == '0' && $chassis == '1')
+								$print->addRow(array('', '', '', '', $sndisplay, $cndisplay, '', '',''));
+							if ($serial == '0' && $engine == '1' && $chassis == '1')
+								$print->addRow(array('', '', '', '', $endisplay, $cndisplay, '', '',''));
+						} else if ($serial_total == 3) {
+							$print->addRow(array('', '', '', '', $sndisplay, $endisplay, $cndisplay, '', '',''));
+						}						
 					}
 				}
 			} else {
@@ -465,10 +466,10 @@ class controller extends wc_controller {
 				// $wtax			= 0;
 				// $total_amount	= 0;
 				$print->drawSummary(array(array('Notes:'),
-											array($notes),
-											array(''),
-											array(''),
-											array('')
+					array($notes),
+					array(''),
+					array(''),
+					array('')
 				));
 			}
 		}
@@ -484,10 +485,10 @@ class controller extends wc_controller {
 		// );
 		// $print->drawSummary($summary);
 		$print->drawSummary(array(array('Notes:'),
-								array($notes),
-								array(''),
-								array(''),
-								array('')
+			array($notes),
+			array(''),
+			array(''),
+			array('')
 		));
 		$print->drawPDF('Purchase Receipt - ' . $voucherno);
 	}
@@ -520,14 +521,14 @@ class controller extends wc_controller {
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-									->addView()
+			->addView()
 									//->addEdit($row->stat == 'Received')
 									// ->addDelete($row->stat == 'Received' && $restrict_pr)
-									->addPrint()
+			->addPrint()
 									//->addCheckbox($row->stat == 'Received' && $restrict_pr)
-									->setLabels(array('delete' => 'Cancel'))
-									->setValue($row->voucherno)
-									->draw();
+			->setLabels(array('delete' => 'Cancel'))
+			->setValue($row->voucherno)
+			->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($transactiondate) . '</td>';
 			$table .= '<td>' . $row->voucherno . '</td>';
@@ -546,11 +547,11 @@ class controller extends wc_controller {
 		$color = 'default';
 		switch ($stat) {
 			case 'Received':
-				$color = 'success';
-				break;
+			$color = 'success';
+			break;
 			case 'Cancelled':
-				$color = 'warning';
-				break;
+			$color = 'warning';
+			break;
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
 	}
@@ -560,6 +561,14 @@ class controller extends wc_controller {
 		$submit						= $this->input->post('submit');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);
+		// for($i=0;$i<count($data2['budgetcode']);$i++) {
+		// 	if(!empty($data2['budgetcode'][$i])) {
+		// 		$getid = $this->purchase_model->getItemAccount($data2['itemcode'][$i]);
+		// 		$getallocatedamount = $this->purchase_model->getAllocatedAmount($data2['budgetcode'][$i], $getid->expense_account);
+		// 		var_dump($getid->expense_account);
+		// 	}
+		// }
+		unset($data2['budgetcode']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
 		$data['fiscalyear']			= $this->date->getYear($data['transactiondate']);
@@ -575,19 +584,24 @@ class controller extends wc_controller {
 		// retrieve  freight, insurance, packaging 
 		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
 		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;
+		// for($i=0;$i<count($data2['budgetcode']);$i++) {
+		// 	if(!empty($data2['budgetcode'][$i])) {
+		// 		var_dump($data2['budgetcode'][$i]);
+		// 	}
+		// }
 
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
-									->setDetails($data['vendor'])
-									->computeValues()
-									->logChanges();
+			->setDetails($data['vendor'])
+			->computeValues()
+			->logChanges();
 
 			$this->inventory_model->setReference($data['voucherno'])
-									->setDetails($data['vendor'])
-									->generateBalanceTable();
+			->setDetails($data['vendor'])
+			->generateBalanceTable();
 		}
 		
 		$columns['transactiontype'] = 'Received Asset';
@@ -631,7 +645,7 @@ class controller extends wc_controller {
 		// }
 		
 		$this->inventory_model->prepareInventoryLog('Purchase Receipt', $voucherno)
-								->preparePreviousValues();
+		->preparePreviousValues();
 
 		$result						= $this->purchase_model->updatePurchaseReceipt($data, $data2, $voucherno);
 		if ($result && $this->financial_model) {
@@ -640,8 +654,8 @@ class controller extends wc_controller {
 
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->computeValues()
-									->setDetails($data['vendor'])
-									->logChanges();
+			->setDetails($data['vendor'])
+			->logChanges();
 
 			$this->inventory_model->generateBalanceTable();
 		}
@@ -668,8 +682,8 @@ class controller extends wc_controller {
 
 			foreach ($delete_id as $voucherno) {
 				$this->inventory_model->prepareInventoryLog('Purchase Receipt', $voucherno)
-										->computeValues()
-										->logChanges('Cancelled');
+				->computeValues()
+				->logChanges('Cancelled');
 			}
 			$this->inventory_model->generateBalanceTable();
 		}
@@ -703,7 +717,7 @@ class controller extends wc_controller {
 		$warehouse	= $this->input->post('warehouse');
 		$transtype	= $this->purchase_model->getTransactionType($voucherno);
 		// if ($transtype == 'PO') {
-			$details	= $this->purchase_model->getPurchaseOrderDetails($voucherno, $warehouse);
+		$details	= $this->purchase_model->getPurchaseOrderDetails($voucherno, $warehouse);
 		// // } else {
 		// 	$details	= $this->purchase_model->getImportPurchaseOrderDetails($voucherno, $warehouse);
 		// }
@@ -725,7 +739,7 @@ class controller extends wc_controller {
 
 	private function getItemDetails() {
 		$data = array();
- 		$temp = $this->input->post($this->fields3);
+		$temp = $this->input->post($this->fields3);
 		foreach ($temp['receiptqty'] as $key => $quantity) {
 			if ($quantity < 1) {
 				foreach ($this->fields3 as $field) {
@@ -807,7 +821,7 @@ class controller extends wc_controller {
 		// 		 * @param custom condition
 		// 		 */
 		// 		$attachment_id = $this->case->getNextId("claim_report_attachments","attachment_id"," AND caseno = '$caseno' AND report_id = '$report' ");
-				
+
 		// 		foreach($upload_handler->response['files'] as $key => $row) {
 		// 			if ($row->deleteUrl) {
 		// 				$post_data['attachment_id'] 	= $attachment_id;
