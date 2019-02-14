@@ -29,6 +29,7 @@ class controller extends wc_controller
 			'address1',
 			'terms',
 			'transactiondate',
+			'deliverydate',
 			'currency',
 			'exchange_rate',
 			'department',
@@ -105,6 +106,7 @@ class controller extends wc_controller
 		$data["account_entries"]= $this->po->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
 		$data['transactiondate'] = $this->date->dateFormat();
+		$data['deliverydate'] = $this->date->dateFormat();
 
 		/**ADD NEW VENDOR**/
 		
@@ -132,6 +134,7 @@ class controller extends wc_controller
 			//$data["vendor"]      	 = $retrieved_data["header"]->requestor;
 			//$data["due_date"]    	 = date('M d,Y', strtotime($retrieved_data["header"]->duedate));
 			$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+			$data["deliverydate"] 	 = date('M d,Y', strtotime($retrieved_data["header"]->deliverydate));
 
 			//Footer Data
 			$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -187,6 +190,7 @@ class controller extends wc_controller
 				$data['department'] 	 = $retrieved_data['header']->department;
 
 				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+				$data["deliverydate"] 	 = date('M d,Y', strtotime($retrieved_data["header"]->deliverydate));
 				
 				//Footer Data
 				$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -316,6 +320,7 @@ class controller extends wc_controller
 
 		// Header Data
 		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
+		$deliverydate 		 	 = $retrieved_data["header"]->deliverydate;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["vendor"]      	 = $retrieved_data["header"]->vendor;
 		$data['currency'] 	 	 = $retrieved_data['header']->exchangecurrency;
@@ -325,6 +330,7 @@ class controller extends wc_controller
 		$data['discounttype'] 	 = $retrieved_data['header']->discounttype;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 		$data["transactiondate"] = date('M d,Y', strtotime($transactiondate));
+		$data["deliverydate"] 	= date('M d,Y', strtotime($deliverydate));
 		$data['freight'] 	 	= $retrieved_data['header']->freight;
 		$data['insurance'] 	 	= $retrieved_data['header']->insurance;
 		$data['packaging'] 	 	= $retrieved_data['header']->packaging;
@@ -422,6 +428,7 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$deliverydate 			= $retrieved_data["header"]->deliverydate;
 
 		// Header Data
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
@@ -431,6 +438,7 @@ class controller extends wc_controller
 		$data["remarks"]      	 = $retrieved_data["header"]->remarks;
 		$data['discounttype'] 	 = $retrieved_data['header']->discounttype;
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
+		$data["deliverydate"] 	 = $this->date->dateFormat($deliverydate);
 		$data['stat'] 			 = $retrieved_data["header"]->stat;
 		$data['currency'] 	 	 = $retrieved_data['header']->exchangecurrency;
 		$data['exchange_rate'] 	 = $retrieved_data['header']->exchangerate;

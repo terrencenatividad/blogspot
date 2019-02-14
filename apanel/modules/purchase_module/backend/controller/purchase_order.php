@@ -30,6 +30,7 @@ class controller extends wc_controller
 			'address1',
 			'terms',
 			'transactiondate',
+			'deliverydate',
 			'department'
 		);
 		
@@ -95,6 +96,7 @@ class controller extends wc_controller
 		$data["account_entries"]= $this->po->getValue("chartaccount", $acc_entry_data,$acc_entry_cond, "segment5");
 
 		$data['transactiondate'] = $this->date->dateFormat();
+		$data['deliverydate'] = $this->date->dateFormat();
 
 		/**ADD NEW VENDOR**/
 		
@@ -175,6 +177,7 @@ class controller extends wc_controller
 				$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 
 				$data["transactiondate"] = date('M d,Y', strtotime($retrieved_data["header"]->transactiondate));
+				$data["deliverydate"] 	 = date('M d,Y', strtotime($retrieved_data["header"]->deliverydate));
 				
 				//Footer Data
 				$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -299,12 +302,14 @@ class controller extends wc_controller
 
 		// Header Data
 		$transactiondate 		 = $retrieved_data["header"]->transactiondate;
+		$deliverydate 		 = $retrieved_data["header"]->deliverydate;
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
 		$data["vendor"]      	 = $retrieved_data["header"]->vendor;
 		$data['department'] 	 = $retrieved_data['header']->department;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 		$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 		$data["transactiondate"] = date('M d,Y', strtotime($transactiondate));
+		$data["deliverydate"] = date('M d,Y', strtotime($deliverydate));
 		
 		//Footer Data
 		$data['t_subtotal'] 	 = $retrieved_data['header']->amount;
@@ -391,6 +396,7 @@ class controller extends wc_controller
 		$data['cmp'] 			= $this->companycode;
 
 		$transactiondate 		= $retrieved_data["header"]->transactiondate;
+		$deliverydate 		= $retrieved_data["header"]->deliverydate;
 
 		// Header Data
 		$data["voucherno"]       = $retrieved_data["header"]->voucherno;
@@ -398,6 +404,7 @@ class controller extends wc_controller
 		$data['department'] 	 = $retrieved_data['header']->department;
 		$data['referenceno'] 	 = $retrieved_data['header']->referenceno;
 		$data["transactiondate"] = $this->date->dateFormat($transactiondate);
+		$data["deliverydate"] = $this->date->dateFormat($deliverydate);
 		$data['stat'] 			 = $retrieved_data["header"]->stat;
 		$data['remarks'] 	 	 = $retrieved_data['header']->remarks;
 
@@ -473,7 +480,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "purchaseorder as po";
-		$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
+		$docinfo_fields = array('po.deliverydate as deliverydate, po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -508,6 +515,7 @@ class controller extends wc_controller
 
 		$documentdetails	= array(
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
+			'Delivery Date'	=> $this->date->dateFormat($documentinfo->deliverydate),
 			'PO #'	=> $voucherno,
 			'Ref #'	=> $documentinfo->referenceno
 		);

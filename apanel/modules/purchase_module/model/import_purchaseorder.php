@@ -174,7 +174,7 @@ class import_purchaseorder extends wc_model
 	{	 
 		$retrieved_data =	array();
 		
-		$header_fields 	= 	"po.voucherno, po.transactiondate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.remarks as remarks, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat, po.exchangecurrency,po.exchangerate,po.freight,po.insurance,po.packaging,po.converted_freight,po.converted_insurance,po.converted_packaging";
+		$header_fields 	= 	"po.voucherno, po.transactiondate, po.deliverydate, po.referenceno, po.vendor, p.partnername as companyname,CONCAT(p.first_name, ' ',p.last_name) as vendor_name, po.remarks as remarks, po.amount, po.discounttype, po.discountamount, po.netamount, po.taxamount, po.wtaxamount, po.wtaxrate, po.wtaxcode, po.atcCode, po.department, po.stat, po.exchangecurrency,po.exchangerate,po.freight,po.insurance,po.packaging,po.converted_freight,po.converted_insurance,po.converted_packaging";
 
 		$condition 		=	" po.voucherno = '$voucherno' ";
 		
@@ -308,6 +308,8 @@ class import_purchaseorder extends wc_model
 
 		$transactiondate	= (isset($data['transaction_date']) && (!empty($data['transaction_date']))) ? htmlentities(addslashes(trim($data['transaction_date']))) : "";
 
+		$deliverydate		= (isset($data['deliverydate']) && (!empty($data['deliverydate']))) ? htmlentities(addslashes(trim($data['deliverydate']))) : "";
+
 		$referenceno 		= (isset($data['referenceno']) && (!empty($data['referenceno']))) ? htmlentities(addslashes(trim($data['referenceno']))) : "";
 		
 		$currency 			= (isset($data['currency']) && (!empty($data['currency']))) ? htmlentities(addslashes(trim($data['currency']))) : "";
@@ -369,11 +371,13 @@ class import_purchaseorder extends wc_model
 
 		/**FORMAT DATES**/
 		$transactiondate	= date("Y-m-d",strtotime($transactiondate));
+		$deliverydate		= date("Y-m-d",strtotime($deliverydate));
 		$period				= date("n",strtotime($transactiondate));
 		$fiscalyear			= date("Y",strtotime($transactiondate));
 
 		$post_header['voucherno'] 			=	$voucherno;
 		$post_header['transactiondate'] 	=	$transactiondate;
+		$post_header['deliverydate'] 		=	$deliverydate;
 		$post_header['referenceno'] 		= 	$referenceno;
 		$post_header['request_no'] 			= 	$request_no;
 		$post_header['vendor'] 				=	$vendor;

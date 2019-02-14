@@ -6,6 +6,7 @@ tbody  {
 </style>
 
 <section class="content">
+<form method="post" id="Form2307">
     <div class="row">
         <div class="col-md-12 text-center">
             <div><h3>Certificate of Creditable Tax<br/>Withheld at Source</h3></div>
@@ -120,7 +121,7 @@ tbody  {
     <div class="row">&nbsp;</div>
     <div class="row">
         <div class="table-responsive">
-            <table class="table table-striped table-condensed table-bordered">
+            <table class="table table-striped table-condensed table-bordered" id="table_2307">
                 <thead>
                     <tr>
                         <th class="text-center" rowspan="2">Income Payments Subject to Expanded Withholding Tax</th>
@@ -173,6 +174,7 @@ tbody  {
                             for($i = 0; $i < count($data["wtax_details"]); $i++)
                             {
                                 $accountlevel		= $data["wtax_details"][$i]->accountcode;
+                                $atc_code		    = $data["wtax_details"][$i]->atc_code;
                                 $accountname		= $data["wtax_details"][$i]->atccode;
                                 $accountcode		= $accountname;
                                 $detailparticulars	= $data["wtax_details"][$i]->detailparticulars;
@@ -198,7 +200,23 @@ tbody  {
                                                     ->setId("accountcode[".$row."]")
                                                     ->setValue($accountname)
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setPlaceholder('Select One')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName("accountcode".$row)
+                                                    ->setClass('accountcode')
+                                                    ->setValue($accountname)
+                                                    ->draw(true);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setPlaceholder('Select One')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName("atccode".$row)
+                                                    ->setValue($atc_code)
+                                                    ->draw(true);
                                         ?>
+                                        
                                     </td>
                                     <td class = "remove-margin text-right">
                                         <?php
@@ -209,6 +227,13 @@ tbody  {
                                                     ->setAttribute(array("maxlength" => "100"))
                                                     ->setValue((in_array($trans_date, range('1','4'))) ?  $taxbase_amount : '')
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('detailparticulars_first'.$row)
+                                                    ->setAttribute(array("maxlength" => "100"))
+                                                    ->setValue((in_array($trans_date, range('1','4'))) ?  $taxbase_amount : '')
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -220,6 +245,13 @@ tbody  {
                                                     ->setAttribute(array("maxlength" => "100"))
                                                     ->setValue((in_array($trans_date, range('5','8'))) ?  $taxbase_amount : '')
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('detailparticulars_second'.$row)
+                                                    ->setAttribute(array("maxlength" => "100"))
+                                                    ->setValue((in_array($trans_date, range('5','8'))) ?  $taxbase_amount : '')
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -231,6 +263,13 @@ tbody  {
                                                    ->setAttribute(array("maxlength" => "100"))
                                                    ->setValue((in_array($trans_date, range('9','12'))) ?  $taxbase_amount : '')
                                                    ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                   ->setSplit('', 'col-md-12')
+                                                   ->setName('detailparticulars_third'.$row)
+                                                   ->setAttribute(array("maxlength" => "100"))
+                                                   ->setValue((in_array($trans_date, range('9','12'))) ?  $taxbase_amount : '')
+                                                   ->draw(true);
                                        ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -242,6 +281,13 @@ tbody  {
                                                     ->setClass("format_values_db format_values text-right")
                                                     ->setValue($taxbase_amount)
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('debit'.$row)
+                                                    ->setClass("format_values_db format_values text-right")
+                                                    ->setValue($taxbase_amount)
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -253,6 +299,13 @@ tbody  {
                                                     ->setClass("format_values_cr format_values text-right credit")
                                                     ->setValue(number_format($credit,2))
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('credit'.$row)
+                                                    ->setClass("format_values_cr format_values text-right credit")
+                                                    ->setValue(number_format($credit,2))
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                 </tr>
@@ -284,6 +337,13 @@ tbody  {
                                                     ->setAttribute(array("maxlength" => "100"))
                                                     ->setValue((in_array($trans_date, range('1','4'))) ?  $tot_taxbase_amount : '')
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('totaldetailparticulars_first')
+                                                    ->setAttribute(array("maxlength" => "100"))
+                                                    ->setValue((in_array($trans_date, range('1','4'))) ?  $tot_taxbase_amount : '')
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -295,6 +355,13 @@ tbody  {
                                                     ->setAttribute(array("maxlength" => "100"))
                                                     ->setValue((in_array($trans_date, range('5','8'))) ?  $tot_taxbase_amount : '')
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('totaldetailparticulars_second')
+                                                    ->setAttribute(array("maxlength" => "100"))
+                                                    ->setValue((in_array($trans_date, range('5','8'))) ?  $tot_taxbase_amount : '')
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -306,6 +373,13 @@ tbody  {
                                                    ->setAttribute(array("maxlength" => "100"))
                                                    ->setValue((in_array($trans_date, range('9','12'))) ?  $tot_taxbase_amount : '')
                                                    ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                   ->setSplit('', 'col-md-12')
+                                                   ->setName('totaldetailparticulars_third')
+                                                   ->setAttribute(array("maxlength" => "100"))
+                                                   ->setValue((in_array($trans_date, range('9','12'))) ?  $tot_taxbase_amount : '')
+                                                   ->draw(true);
                                        ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -317,6 +391,14 @@ tbody  {
                                                     ->setClass("format_values_db format_values text-right")
                                                     ->setValue($tot_taxbase_amount)
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('totaldebit')
+                                                    ->setId('totaldebit')
+                                                    ->setClass("format_values_db format_values text-right")
+                                                    ->setValue($tot_taxbase_amount)
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                     <td class = "remove-margin text-right">
@@ -328,6 +410,14 @@ tbody  {
                                                     ->setClass("format_values_cr format_values text-right credit")
                                                     ->setValue(number_format($total_credit,2))
                                                     ->draw($show_input);
+
+                                            echo $ui->formField('hidden')
+                                                    ->setSplit('', 'col-md-12')
+                                                    ->setName('totalcredit')
+                                                    ->setId('totalcredit')
+                                                    ->setClass("format_values_cr format_values text-right credit")
+                                                    ->setValue(number_format($total_credit,2))
+                                                    ->draw(true);
                                         ?>
                                     </td>
                                 </tr>
@@ -342,17 +432,25 @@ tbody  {
         </div>
     </div> 
     <div class="row"><div class="col-md-12 text-center">
-        <input type="submit" class="btn btn-primary btn-md generate_pdf" id="print_2307" value="Generate PDF" name="generate_pdf">
+    <button type="button" class="btn btn-primary" id="print_2307">Generate PDF</button>
     </div></div>
-    </form>
+</form>
     </div>
-</div>         
+</div>   
+
 </section>
 
 <script>
-$('#print_2307').click(function(){
-    var vno =  $('#voucherno').val();
-    console.log(vno);
-    window.location = '<?=MODULE_URL?>generate_pdf/' + vno;
-});
+$('#Form2307 #print_2307').on('click',function(){
+    var vno = $('#voucherno').val();
+    console.log($('#Form2307').serialize());
+		$.post("<?=BASE_URL?>/financials/payment_voucher/ajax/print_form/2307",$('#Form2307').serialize()+'&vno='+vno)
+		.done(function( data ) 
+		{	
+			var url = data.url;
+			var win = window.open(url, '_blank');
+			win.focus();
+		});
+		
+	});
 </script>

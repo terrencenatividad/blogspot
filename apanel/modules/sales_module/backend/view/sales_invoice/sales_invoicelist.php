@@ -6,6 +6,7 @@
 						<?
 							echo $ui->CreateNewButton('');
 						?>
+						<!-- <button type="button" id="export" class="btn btn-info btn-flat"><span class = "glyphicon glyphicon-export"></span>Export</button> -->
 						<button type="button" id="item_multiple_cancel" class="btn btn-danger btn-flat">Cancel<span></span></button>
 					</div>
 					<div class="col-md-4">
@@ -221,4 +222,17 @@
 			var win = window.open(url, '_blank');
   			win.focus();
 		});
+		$('#tableList').on('click', '.export_to_csv',function(){
+			var voucher = $(this).attr('data-id');
+			url = '<?=MODULE_URL?>export_csv/' + voucher;
+			var win = window.open(url, '_blank');
+  			win.focus();
+		});
+		$('#export').click(function(){
+            var daterangefilter = ajax.daterangefilter;
+			var customer = ajax.customer;
+			var search = ajax.search;
+			var filter = ajax.filter;
+            window.open('<?php echo MODULE_URL ?>export?daterangefilter=' + daterangefilter + '&customer=' + customer + '&search=' + search + '&filter=' + filter);
+        });
 	</script>

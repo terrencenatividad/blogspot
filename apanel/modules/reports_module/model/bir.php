@@ -385,13 +385,24 @@ class bir extends wc_model {
 
     public function retrieveWTAX($data,$i){
         $year = $data['year'];
-        
-        return $this->db->setTable('ap_details a')
-                ->setFields('SUM(a.taxbase_amount) tax')
-                ->leftJoin('accountspayable ap ON ap.voucherno = a.voucherno')
-                ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year'")
-                ->runSelect()
-                ->getResult();
+
+        $company_info   = $this->getCompanyInfo('wtax_option');
+        $wtax_option    = $company_info->wtax_option;
+        if($wtax_option == 'AP'){
+            return $this->db->setTable('ap_details a')
+            ->setFields('SUM(a.taxbase_amount) tax')
+            ->leftJoin('accountspayable ap ON ap.voucherno = a.voucherno')
+            ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year'")
+            ->runSelect()
+            ->getResult();
+        }else if($wtax_option == 'PV'){
+            return $this->db->setTable('pv_details a')
+            ->setFields('SUM(a.taxbase_amount) tax')
+            ->leftJoin('paymentvoucher ap ON ap.voucherno = a.voucherno')
+            ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year'")
+            ->runSelect()
+            ->getResult();
+        }
     }
 
     public function getTotalRemittance($month, $year){
