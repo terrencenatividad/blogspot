@@ -106,7 +106,7 @@ class depreciation_run extends wc_model {
 
 		$date = $this->date->dateDbFormat();
 		
-		$condition .= " AND EXTRACT(YEAR_MONTH FROM depreciation_month) < EXTRACT(YEAR_MONTH FROM '$date')";
+		$condition .= " AND EXTRACT(YEAR_MONTH FROM depreciation_month) <= EXTRACT(YEAR_MONTH FROM '$date')";
 
 		$result = $this->db->setTable('asset_master am') 
 							->setFields($fields)
@@ -168,7 +168,7 @@ class depreciation_run extends wc_model {
 						->leftJoin('chartaccount coa ON coa.id = a.gl_asset')
 						->leftJoin('chartaccount asd ON asd.id = a.gl_accdep')
 						->leftJoin('chartaccount dsa ON dsa.id = a.gl_depexpense')
-						->setWhere("a.stat = 'active' AND EXTRACT(YEAR_MONTH FROM depreciation_month) < EXTRACT(YEAR_MONTH FROM '$date')")
+						->setWhere("a.stat = 'active' AND EXTRACT(YEAR_MONTH FROM depreciation_month) <= EXTRACT(YEAR_MONTH FROM '$date')")
 						->runSelect()
 						->getResult();
 						

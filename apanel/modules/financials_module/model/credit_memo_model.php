@@ -185,7 +185,7 @@ class credit_memo_model extends wc_model {
 	public function getJournalVoucherPagination($fields, $search, $typeid, $classid, $datefilter ,$partner, $limit, $sort) {
 		$condition = "transtype = 'CM' and (jv.stat = 'posted' or jv.stat = 'cancelled') ";
 		if ($search) {
-			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount','partner'));
+			$condition .= ' AND ' . $this->generateSearch($search, array('voucherno','transactiondate','referenceno','amount','partnername'));
 		}
 		if($partner && $partner != 'none'){
 			$condition .= "AND partner = '$partner' ";

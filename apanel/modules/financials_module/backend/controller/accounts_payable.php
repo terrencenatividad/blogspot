@@ -90,7 +90,7 @@ class controller extends wc_controller
 		$this->view->addCSS(array(
 			'jquery.fileupload.css'
 		)
-		);  
+	);  
 		$this->view->addJS(
 			array(
 				'jquery.dirrty.js',
@@ -129,7 +129,7 @@ class controller extends wc_controller
 		$this->view->addCSS(array(
 			'jquery.fileupload.css'
 		)
-		);  
+	);  
 		$this->view->addJS(
 			array(
 				'jquery.dirrty.js',
@@ -215,7 +215,7 @@ class controller extends wc_controller
 		$this->view->addCSS(array(
 			'jquery.fileupload.css'
 		)
-		);  
+	);  
 		$this->view->addJS(
 			array(
 				'jquery.dirrty.js',
@@ -634,7 +634,6 @@ class controller extends wc_controller
 		$ap_details['converteddebit'] = $convdebit;
 		$ap_details['convertedcredit'] = $convcredit;
 
-		$account = $this->input->post('account');
 		$checker = false;
 		$result = false;
 		$date_check = array();
@@ -819,9 +818,14 @@ class controller extends wc_controller
 				}
 			}
 		}
+		$accounts = array();
+		for($i = 0; $i < count($ap_details['accountcode']); $i++) {
+			$accounts[] = $ap_details['accountcode'][$i];
+		}
+		$all_accounts = implode(',', $accounts);
 
-		if(!empty($account)) {
-			$classcode = $this->accounts_payable->getAccountClasscode($account);
+		if(!empty($all_accounts)) {
+			$classcode = $this->accounts_payable->getAccountClasscode($all_accounts);
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$checker = true;
@@ -929,8 +933,12 @@ class controller extends wc_controller
 		$ap_details['converteddebit'] = $convdebit;
 		$ap_details['convertedcredit'] = $convcredit;
 
-		$account = $this->input->post('account');
-		$classcode = $this->accounts_payable->getAccountClasscode($account);
+		$accounts = array();
+		for($i = 0; $i < count($ap_details['accountcode']); $i++) {
+			$accounts[] = $ap_details['accountcode'][$i];
+		}
+		$all_accounts = implode(',', $accounts);
+		$classcode = $this->accounts_payable->getAccountClasscode($all_accounts);
 		$check = false;
 		$result = false;
 		$details = false;
@@ -1117,8 +1125,8 @@ class controller extends wc_controller
 				}
 			}
 		}
-
-		if(!empty($account)) {
+		
+		if(!empty($all_accounts)) {
 			foreach($classcode as $row) {
 				if($row->accountclasscode == 'ACCPAY') {
 					$check = true;
@@ -2080,13 +2088,13 @@ class controller extends wc_controller
 				if ($task == 'edit') {
 					$upload_result 	= $this->accounts_payable->replaceAttachment($post_data);
 					
-					}
+				}
 				else
 					$upload_result 	= $this->accounts_payable->uploadAttachment($post_data);
 
 			}else{
 				// if($upload_handler->response['files'][0]->name == "Sorry, but file already exists"){
-					
+
 				// }
 				$upload_result 	= false;
 			}

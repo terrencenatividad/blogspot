@@ -3,16 +3,16 @@ class inventory_adjustment_model extends wc_model {
 
 	public function getInventoryAdjustmentList($itemcode, $brandcode, $warehouse, $sort) {
 		$warehouse_cond = '';
-		$condition 		= '';
+		$condition 		= 'items.itemgroup="goods"';
 
 		if ($warehouse && $warehouse != 'none') {
-			$warehouse_cond .= " AND inv.warehouse = '$warehouse'";
+			$warehouse_cond .= (empty($condition) ? '' : ' AND ') . " inv.warehouse = '$warehouse'";
 			
 			if ($itemcode && $itemcode != 'none') {
-				$condition .= " items.itemcode = '$itemcode'";
+				$condition .= (empty($condition) ? '' : ' AND ') . " items.itemcode = '$itemcode'";
 			}
 			if ($brandcode && $brandcode != 'none') {
-				$condition .= " b.brandcode = '$brandcode'";
+				$condition .= (empty($condition) ? '' : ' AND ') . " b.brandcode = '$brandcode'";
 			}
 		}
 
@@ -834,5 +834,17 @@ class inventory_adjustment_model extends wc_model {
 						->runSelect()
 						->getResult();
 		return $result;
+	}
+	
+	public function getItemDropdownList($search="") {
+		$condition = " stat = 'active' AND itemgroup = 'goods'";
+		if ($search) {
+			$condition .= " AND itemcode = '$search'";
+		}
+		return $this->db->setTable('items')
+						->setFields('itemcode ind, CONCAT(itemcode," - ",itemname) val')
+						->setWhere($condition)
+						->runSelect()
+						->getResult();
 	}
 }

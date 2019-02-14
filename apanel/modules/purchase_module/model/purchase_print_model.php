@@ -48,7 +48,7 @@ class purchase_print_model extends fpdf {
 		$this->Ln();
 
 		$detail_start = 26;
-		$detail_width = 135;
+		$detail_width = 130;
 
 		$vendor		= (isset($this->vendor_details->vendor))	? $this->vendor_details->vendor		: '';
 		$address	= (isset($this->vendor_details->address))	? $this->vendor_details->address		: '';

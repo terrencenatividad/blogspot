@@ -684,7 +684,7 @@
 											$('#not_allowed_supplement').addClass('hidden');
 											getBudgetAccounts();
 										} else {
-											$('#modalApproveSupplement').modal('hide');
+											$('#modalRejectSupplement').modal('hide');
 											$('#modalSupplement').modal('show');
 											$('#not_allowed_supplement').removeClass('hidden');
 											$('#errmsg_supplement').html('You are not allowed to reject this budget supplement.');
