@@ -24,7 +24,7 @@ class controller extends wc_controller {
 	public function view() {
 		$this->view->title			= 'Asset History';
 		$data['ui']					= $this->ui;
-		$data['datefilter']			= date("M d, Y");
+		$data['datefilter'] 		= $this->date->datefilterMonth();
 		$data['asset_list']			= $this->asset_history->getAsset();		
 		$data['assetclass_list']	= $this->asset_history->getAssetClass();
 		$data['dept_list']			= $this->asset_history->getAssetDepartment();		
@@ -42,7 +42,7 @@ class controller extends wc_controller {
 	private function ajax_list() {
 		$this->report_model->generateAssetActivity();
 
-		$datefilter			= $this->input->post('datefilter');
+		$datefilter			= $this->input->post('daterangefilter');
 		$sort				= $this->input->post('sort');
 		$asset				= $this->input->post('asset_number');
 		$assetclass			= $this->input->post('assetclass');
@@ -88,8 +88,7 @@ class controller extends wc_controller {
 	}
 
 	private function get_export() {
-		$datefilter	= $this->input->post('datefilter');
-		$datefilter	= $this->date->dateDbFormat($datefilter);
+		$datefilter			= $this->input->post('daterangefilter');
 		$sort	= $this->input->post('sort');
 		$asset	= $this->input->post('asset_number');
 		$assetclass			= $this->input->post('assetclass');
@@ -108,10 +107,15 @@ class controller extends wc_controller {
 			'Transfer To'
 		);
 
+		$datefilterArr		= explode(' - ',$datefilter);
+		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+		
+
 		$csv = '';
 		$csv .= 'Asset History';
 		$csv .= "\n\n";
-		$csv .= '"Date:","' . $this->date->dateFormat($datefilter) . '"';
+		$csv .= '"Date:","' . $this->date->dateFormat($datefilterFrom) . ' - '. $this->date->dateFormat($datefilterTo)  . '"';
 		$csv .= "\n\n";
 		$csv .= '"' . implode('","', $header) . '"';
 		if (empty($result)) {
