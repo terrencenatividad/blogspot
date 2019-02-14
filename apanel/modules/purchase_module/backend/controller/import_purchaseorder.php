@@ -906,8 +906,8 @@ class controller extends wc_controller
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
 			}
-			if(isset($data_post['budgetcode'])){
-				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+			for($i=1;$i<=count($data_post['budgetcode']);$i++){
+				if(!empty($data_post['budgetcode'][$i])){
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
