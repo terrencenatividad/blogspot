@@ -102,7 +102,7 @@ class import_purchase_print_model extends fpdf {
 		$this->SetX(33);
 		$this->MultiCell(97, 4, $tinno, 0, 'L');
 
-		$content_width	= 40;
+		$content_width	= 34;
 		$gap			= 2;
 		$this->SetFillColor(230,230,230);
 

@@ -557,19 +557,19 @@ class controller extends wc_controller
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
-											array($notes, 'Total Purchase Tax', number_format($vat, 2)),
-											array('', 'Withholding Tax', number_format($wtaxamount, 2)),
-											array('', 'Total Amount Due', number_format($netamount, 2)),
-											array('', '', '')
+					array($notes, 'Total Purchase Tax', number_format($vat, 2)),
+					array('', 'Withholding Tax', number_format($wtaxamount, 2)),
+					array('', 'Total Amount Due', number_format($netamount, 2)),
+					array('', '', '')
 				));
 				$total_amount = 0;
 			}
 		}
 		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
-											array($notes, 'Total Purchase Tax', number_format($vat, 2)),
-											array('', 'Withholding Tax', number_format($wtaxamount, 2)),
-											array('', 'Total Amount Due', number_format($netamount, 2)),
-											array('', '', '')
+			array($notes, 'Total Purchase Tax', number_format($vat, 2)),
+			array('', 'Withholding Tax', number_format($wtaxamount, 2)),
+			array('', 'Total Amount Due', number_format($netamount, 2)),
+			array('', '', '')
 		));
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}
@@ -820,16 +820,16 @@ class controller extends wc_controller
 			if($this->report_model){
 				$this->report_model->generateAssetActivity();
 			}
-			if(isset($data_post['budgetcode'])){
-				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+			for($i=1;$i<=count($data_post['budgetcode']);$i++) {
+				if(!empty($data_post['budgetcode'][$i])){
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
 					$saveArr['allocated'] 		= str_replace(',','', $data_post['amount'][$i]);
 					$actualArr[]      		= $saveArr;
 				}
-				$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);
 			}
+			$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);
 		}
 		return $dataArray = array("msg" => $msg);
 	}

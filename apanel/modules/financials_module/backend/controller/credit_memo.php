@@ -123,6 +123,9 @@ class controller extends wc_controller {
 		$status						= $data['stat'];
 		$data['voucher_details']	= json_encode($this->cm_model->getJournalVoucherDetails								  ($this->fields2, $voucherno));
 		$data['show_input']			= false;
+		$checker_prtn 				= $this->cm_model->checkRefNo($data['referenceno']);
+		$checker 					= ($checker_prtn) ? true : false;
+		$data['checker'] 			= $checker;
 		$coa_array	= array();
 		$hey = json_decode($data['voucher_details']);
 			foreach ($hey as $index => $dtl){
@@ -140,6 +143,7 @@ class controller extends wc_controller {
 		$data['display_edit'] 		= $display_edit;
 		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
 		$data['currency'] = 		$data['currencycode'];
+		// $data['partner']			= $this->cm_model->getPartnerOrVendor($voucherno);
 
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
@@ -203,11 +207,13 @@ class controller extends wc_controller {
 				}else if($status == 'posted'){
 					$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 				}
+			$checker_prtn = $this->cm_model->checkRefNo($row->referenceno);
+			$prtn = ($checker_prtn == true);
 
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($restrict_cm && $display_edit_delete && $source != "excess")
+									->addEdit($restrict_cm && $display_edit_delete && $source != "excess" && !$prtn)
 									->addDelete($restrict_cm && $display_edit_delete && $source != "excess")
 									->addPrint()
 									->addCheckbox($restrict_cm  && $display_edit_delete && $source != "excess")
