@@ -38,13 +38,13 @@
 					<div class="col-md-2">
 						<?php
 							echo $ui->formField('text')
-								->setName('datefilter')
-								->setId('datefilter')
-								->setClass('datepicker-input')
-								->setAttribute(array('readonly'))
+								->setName('daterangefilter')
+								->setId('daterangefilter')
+								->setAttribute(array('data-daterangefilter' => 'month'))
 								->setAddon('calendar')
 								->setValue($datefilter)
-								->draw();
+								->setValidation('required')
+								->draw(true);
 						?>
 					</div>
 					<div class="col-md-4 text-right">
@@ -83,7 +83,7 @@
 		var ajax = {};
 		var ajax_call = '';
 		ajax.limit = 10;
-
+		ajaxToFilter(ajax, { daterangefilter : '#daterangefilter' });
 		tableSort('#tableList', function(value) {
 			ajax.sort = value;
 			ajax.page = 1;
@@ -98,6 +98,7 @@
 		});
 			
 		function getList() {
+			filterToURL();
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list',ajax, function(data) {
 				$('#tableList tbody').html(data.table);
 				$('#tableList tfoot').html(data.footer);
@@ -125,12 +126,10 @@
 			getList();
 		});
 
-		$('#datefilter').on('change', function() {
-			ajax.datefilter = $(this).val();
-			ajax.page = 1;
-			if (ajax_call != '') {
-				ajax_call.abort();
-			}
-			getList();
-		});
+		$("#daterangefilter").on("change",function(){
+		ajax.daterangefilter = $(this).val();
+		ajax.page = 1;
+		getList();
+		}).trigger('change');
+	
 	</script>

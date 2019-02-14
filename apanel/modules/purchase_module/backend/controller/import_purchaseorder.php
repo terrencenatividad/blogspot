@@ -520,7 +520,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "import_purchaseorder as po";
-		$docinfo_fields = array('po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","po.referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount');
+		$docinfo_fields = array('po.transactiondate AS documentdate', 'po.deliverydate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","po.referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -555,6 +555,7 @@ class controller extends wc_controller
 
 		$documentdetails	= array(
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
+			'EXP. DEL. DATE' => $this->date->dateFormat($documentinfo->deliverydate),
 			'PO #'	=> $voucherno,
 			'Currency' => $documentinfo->exchangecurrency,
 			'Ref #' => $documentinfo->referenceno
@@ -906,8 +907,8 @@ class controller extends wc_controller
 			if ( $this->inventory_model ) {
 				$this->inventory_model->generateBalanceTable();
 			}
-			if(isset($data_post['budgetcode'])){
-				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+			for($i=1;$i<=count($data_post['budgetcode']);$i++){
+				if(!empty($data_post['budgetcode'][$i])){
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
