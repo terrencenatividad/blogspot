@@ -86,6 +86,21 @@
 									}
 								?>
 							</div>
+							<div class = "col-md-6">
+								<?php
+									echo $ui->formField('text')
+										->setLabel('Target Shipping Date')
+										->setSplit('col-md-4', 'col-md-8')
+										->setName('deliverydate')
+										->setId('deliverydate')
+										->setClass('datepicker datepicker-input')
+										->setAttribute(array('readonly' => ''))
+										->setValidation('required')
+										->setAddon('calendar')
+										->setValue($deliverydate)
+										->draw($show_input);
+								?>
+							</div>
 
 							<div class = "col-md-6 hidden">
 								<label class="control-label col-md-4" for="daterangefilter">Due Date:</label>
@@ -99,6 +114,9 @@
 									</div>
 								</div>
 							</div>
+						</div>
+
+						<div class = "row">
 							<div class = "col-md-6">
 								<?php
 									echo $ui->formField('dropdown')
@@ -114,8 +132,9 @@
 										->setDefault('none')
 										->draw($show_input);
 								?>
-								<input type="hidden" value="" id="newdisctype" name="newdisctype">
 							</div>
+							<input type="hidden" value="" id="newdisctype" name="newdisctype">
+							
 						</div>
 
 						<div class = 'hidden'>

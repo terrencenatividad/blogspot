@@ -2,7 +2,7 @@
 
     class sales_relief extends wc_model {        
 		public function getCompany($code){
-			$fields = "companyname, address, tin, taxyear, periodstart";
+			$fields = "companyname, address, tin, taxyear, periodstart, rdo_code";
 
 			$result = $this->db->setTable('company')
 								->setFields($fields)
@@ -39,7 +39,7 @@
                 $condition .= " AND inv.customer = '$customer'";
             } 
             $query = $this->db->setTable("salesinvoice inv")
-                              ->setFields('inv.transactiondate, inv.voucherno, inv.period, inv.fiscalyear, p.partnername, p.tinno, inv.netamount, inv.vat_exempt, inv.vat_zerorated, inv.vat_sales, inv.taxamount, inv.amount')
+                              ->setFields('inv.transactiondate, inv.voucherno, inv.period, inv.fiscalyear, p.partnername, p.tinno, p.address1 address, inv.netamount, inv.vat_exempt, inv.vat_zerorated, inv.vat_sales, inv.taxamount, inv.amount')
                               ->leftJoin('partners p ON p.partnercode = inv.customer AND p.companycode = inv.companycode AND p.partnertype = "customer"')
                               ->setWhere("inv.stat NOT IN ('cancelled','temporary')".$condition)
                               ->setGroupBy('inv.voucherno')

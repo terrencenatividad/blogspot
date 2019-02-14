@@ -18,6 +18,18 @@ class controller extends wc_controller {
 			'payable_account',
 			'inventory_account',
 			'revenuetype',
+			'expensetype'
+		);
+		$this->csv_fields 			= array(
+			'id',
+			'label',
+			'parentid',
+			'receivable_account',
+			'revenue_account',
+			'expense_account',
+			'payable_account',
+			'inventory_account',
+			'revenuetype',
 			'expensetype',
 			'stat',
 		);
@@ -101,7 +113,7 @@ class controller extends wc_controller {
 	public function get_export($search = '') {
 		$search = base64_decode($search);
 		$csv = $this->csv_header();
-		$list = $this->item_class_model->getItemClassList($this->fields, $search);
+		$list = $this->item_class_model->getItemClassList($this->csv_fields, $search);
 		$csv .= $this->createCSVList($list['tree']);
 		echo $csv;
 	}
@@ -118,7 +130,7 @@ class controller extends wc_controller {
 		$data = $this->input->post(array('search', 'typeid', 'classid','limit'));
 		$search = $data['search'];
 		$limit = $data['limit'];
-		$list = $this->item_class_model->getItemClassList($this->fields, $search, $limit);
+		$list = $this->item_class_model->getItemClassList($this->csv_fields, $search, $limit);
 		$table = $this->createList($list['tree']);
 		return array(
 			'table' => $table,
