@@ -502,5 +502,15 @@ class credit_memo_model extends wc_model {
 
 		return $error_id;
 	}
+	
+	public function checkRefNo($referenceno) {
+		$result = $this->db->setTable('purchasereturn')
+						->setFields("voucherno")
+						->setWhere("voucherno = '$referenceno'")
+						->runSelect()
+						->getRow();
+		
+		return $result;
+	}
 
 }
