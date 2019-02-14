@@ -37,14 +37,14 @@ class vat_summary extends wc_model {
 	public function getRecords($start, $end, $type) {
 		
 		$filter 			= " AND (bt.transactiondate >= '$start' AND bt.transactiondate <= '$end') ";
-		$nature_condition 	= ($type == 'Input') ? " AND LOWER(ca.accountnature) = 'debit' " : " AND LOWER(ca.accountnature) = 'credit' ";
+		//$nature_condition 	= ($type == 'Input') ? " AND LOWER(ca.accountnature) = 'debit' " : " AND LOWER(ca.accountnature) = 'credit' ";
 		if($type != 'summary'){
 			$result =  $this->db->setTable('balance_table as bt')
 							->setFields("ca.accountname as accountname, bt.voucherno as voucher, part.partnername as partner, bt.transtype as transtype, 
 										bt.transactiondate as transactiondate, part.tinno as tin, SUM(bt.debit) as debit, SUM(bt.credit) as credit, part.address1 as address, bt.voucherno")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
 							->leftJoin('partners as part ON part.partnercode = bt.partnercode AND part.companycode = bt.companycode ')
-							->setWhere("bt.transtype IN('AR','AP','PV','RV','JV') AND ca.accountname LIKE '%$type%' $filter $nature_condition")
+							->setWhere("bt.transtype IN('AR','AP','PV','RV','JV') AND ca.accountname LIKE '%$type%' $filter ")
 							->setGroupBy("bt.voucherno")
 							->setOrderBy("bt.accountcode, part.partnername ASC")
 							->runPagination();
