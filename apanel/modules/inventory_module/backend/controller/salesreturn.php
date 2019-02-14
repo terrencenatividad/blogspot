@@ -356,7 +356,7 @@ class controller extends wc_controller {
 		$data		= $this->input->post(array('search', 'sort', 'customer', 'filter', 'daterangefilter'));
 		$sort		= $data['sort'];
 		$search		= $data['search'];
-		$customer		= $data['customer'];
+		$customer	= $data['customer'];
 		$filter		= $data['filter'];
 		$datefilter	= $data['daterangefilter'];
 
