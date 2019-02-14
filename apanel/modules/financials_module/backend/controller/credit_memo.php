@@ -143,6 +143,7 @@ class controller extends wc_controller {
 		$data['display_edit'] 		= $display_edit;
 		$data['currencycodes'] = $this->cm_model->getCurrencyCode();
 		$data['currency'] = 		$data['currencycode'];
+		// $data['partner']			= $this->cm_model->getPartnerOrVendor($voucherno);
 
 		$this->view->load('credit_memo/credit_memo', $data);
 	}
