@@ -418,16 +418,20 @@ class controller extends wc_controller {
 		$voucherno 	=	$this->input->post('voucherno');
 		$search 	= 	$this->input->post('search');
 		$limit 		= 	$this->input->post('limit');
+		$curr_page 	= 	$this->input->post('page');
 
 		$header 	=	$this->trial_balance->getJVHeader($voucherno);
 		$details 	= 	$this->trial_balance->getJVDetails($voucherno, $search, $limit);
+		$total 		=	$this->trial_balance->getJVTotal($voucherno, $search, $limit);
 
-		$totalcredit 	=	0;
-		$totaldebit 	=	0;
+		$totalcredit 	=	isset($total->credit) ? $total->credit : 0;
+		$totaldebit 	=	isset($total->debit) ? $total->debit : 0;
 		$table 			=	"";
-		// var_dump($details);
+
+		$total_page 	=	count($details->result);
+		$page_limit 	= 	$details->page_limit;
 		if(count($details->result)>0){
-			for($i=0;$i<count($details->result);$i++){	
+			for($i=0;$i<$total_page;$i++){	
 				$linenum          	= $details->result[$i]->linenum;
 				$accountid          = $details->result[$i]->accountcode;
 				$accountname 		= $details->result[$i]->accountname;
@@ -442,20 +446,20 @@ class controller extends wc_controller {
 							<td class="text-right"><strong>'.number_format($credit,2).'</strong></td>';
 				$table.= '</tr>';
 
-				$totaldebit 		+=	$debit;
-				$totalcredit 		+=	$credit;
+				// $totaldebit 		+=	$debit;
+				// $totalcredit 		+=	$credit;
 			}
 			
-			if($totaldebit != 0 || $totalcredit != 0){
+			if($page_limit==$curr_page && ($totaldebit != 0 || $totalcredit != 0)){
 				$table .= '<tr>
 							<td colspan="2"></td>
 							<td class="text-right"><strong>'.number_format($totaldebit,2).'</strong></td>
 							<td class="text-right"><strong>'.number_format($totalcredit,2).'</strong></td>';
 				$table.= '</tr>';
 			} else {
-				$table .= '<tr>
-								<td class="text-center" colspan="4"><b>No Entries for this Period.<b></td>';
-				$table.= '</tr>';
+				// $table .= '<tr>
+				// 				<td class="text-center" colspan="4"><b>No Entries for this Period.<b></td>';
+				// $table.= '</tr>';
 			}
 		}else{
 			$table .= '<tr><td colspan="4" class="text-center"><b>No Entries for this Period.</b></td></tr>';

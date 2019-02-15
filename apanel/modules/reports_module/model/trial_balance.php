@@ -454,21 +454,34 @@ class trial_balance extends wc_model {
 		$accounts_arr 		= $this->retrieveCOAdetails($currentyear,$prevyear,'IS');
 			
 		$h_amount 			= $h_total_debit 	= $h_total_credit = 0;
-		foreach($accounts_arr as $row){
-			$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
+		if($source == "closing") {
+			foreach($accounts_arr as $row){
+				$accountid 		= $row->accountid;
+				$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
+				$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
+				// var_dump($prev_carry);
+				// var_dump($amount);
+				if( $amount > 0 ){
+					$credit 			= 	$prev_carry	+ $amount;
+					$h_total_credit 	+=	$credit;
+				} else {
+					$debit 				= -($prev_carry + $amount);
+					$h_total_debit 		+=	$debit;
+				}
+			} 
+		} else {
+			$accountid 		= $current_year_id;
 			$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 			$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
 	
 			if( $amount > 0 ){
-				$credit 			= 	$prev_carry	+ $amount;
-				$h_total_credit 	+=	$credit;
+				$h_total_credit 	= 	$prev_carry	+ $amount;
 			} else {
-				$debit 				= -($prev_carry + $amount);
-				$h_total_debit 		+=	$debit;
+				$h_total_debit 		= -($prev_carry + $amount);
 			}
-		} 
+		}
 
-		$h_amount 	= 	($amount > 0) ? $h_total_credit :	$h_total_debit;
+		$h_amount 	= 	($h_total_credit > 0) ? $h_total_credit :	$h_total_debit;
 
 		$str_month 	=	date('F', strtotime($lastdayofdate));
 		$reference	=	($source == "closing") ? "Closing for $str_month, $year" : "Year-end Closing for $year";
@@ -514,20 +527,22 @@ class trial_balance extends wc_model {
 		
 					if( $amount > 0 ){
 						$credit 			= 	$prev_carry	+ $amount;
-						$accounts['amount'] 	=	$credit;
-						$result  			=	$this->create_jvdetails_credit($accounts);
-						$total_credit 		+=	$credit;
-	
-						$linenum 		+=	1;	
+						if($credit > 0) {
+							$accounts['amount'] =	$credit;
+							$result  			=	$this->create_jvdetails_credit($accounts);
+							$total_credit 		+=	$credit;
+		
+							$linenum 			+=	1;	
+						}
 					} else {
 						$debit 				= -($prev_carry	+ $amount);
-						$accounts['amount'] 	=	$debit;
-	
-						$total_debit 		+=	$debit;
-	
-						$result 			=	$this->create_jvdetails_debit($accounts);
-	
-						$linenum 			+=	1;	
+						if($debit > 0){
+							$accounts['amount'] =	$debit;
+							$total_debit 		+=	$debit;
+							$result 			=	$this->create_jvdetails_debit($accounts);
+		
+							$linenum 			+=	1;	
+						}
 					}
 				} 
 			} else {
@@ -546,20 +561,22 @@ class trial_balance extends wc_model {
 	
 				if( $amount > 0 ){
 					$credit 			= 	$prev_carry	+ $amount;
-					$accounts['amount'] 	=	$credit;
-					$result  			=	$this->create_jvdetails_credit($accounts);
-					$total_credit 		+=	$credit;
+					if($credit > 0){
+						$accounts['amount'] =	$credit;
+						$result  			=	$this->create_jvdetails_credit($accounts);
+						$total_credit 		+=	$credit;
 
-					$linenum 		+=	1;	
+						$linenum 		+=	1;	
+					}
 				} else {
 					$debit 				= -($prev_carry	+ $amount);
-					$accounts['amount'] 	=	$debit;
+					if($debit > 0){
+						$accounts['amount'] =	$debit;
+						$total_debit 		+=	$debit;
+						$result 			=	$this->create_jvdetails_debit($accounts);
 
-					$total_debit 		+=	$debit;
-
-					$result 			=	$this->create_jvdetails_debit($accounts);
-
-					$linenum 			+=	1;	
+						$linenum 			+=	1;	
+					}
 				}
 			}
 	
@@ -733,7 +750,18 @@ class trial_balance extends wc_model {
 						
 		return $result;
 	}
-
+	public function getJVTotal($voucherno, $search="", $limit=1){
+		$search_cond 	=	($search!="") 	?	" AND (jv.detailparticulars LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR ca.segment5 LIKE '%$search%' )" 	:	"";
+		$result 		= 	$this->db->setTable('journaldetails jv')
+									->leftJoin('chartaccount ca ON ca.id=jv.accountcode')
+									->setFields('jv.linenum, jv.accountcode, CONCAT(ca.segment5," - ",ca.accountname) accountname, jv.detailparticulars, SUM(jv.debit) debit, SUM(jv.credit) credit')
+									->setWhere("jv.voucherno = '$voucherno' AND jv.stat = 'temporary' AND jv.source IN ('closing','yrend_closing') AND ( jv.debit > 0 OR jv.credit > 0 ) $search_cond ")
+									->setGroupBy('jv.voucherno')
+									->setOrderBy("jv.linenum")
+									->runSelect(1)
+									->getRow();
+		return $result;
+	}
 	public function getJVDetails($voucherno, $search="", $limit=1){
 		$search_cond 	=	($search!="") 	?	" AND (jv.detailparticulars LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR ca.segment5 LIKE '%$search%' )" 	:	"";
 		$result 		= 	$this->db->setTable('journaldetails jv')
