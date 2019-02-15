@@ -25,7 +25,7 @@ class controller extends wc_controller {
 	public function view() {
 		$this->view->title			= 'Asset Transaction';
 		$data['ui']					= $this->ui;
-		$data['datefilter']			= date("M d, Y");
+		$data['datefilter'] 		= $this->date->datefilterMonth();
 		$data['asset_list']			= $this->asset_transaction->getAsset();	
 		$data['assetclass_list']	= $this->asset_transaction->getAssetClass();
 		$data['dept_list']			= $this->asset_transaction->getAssetDepartment();			
@@ -42,7 +42,8 @@ class controller extends wc_controller {
 
 	private function ajax_list() {
 		$this->report_model->generateAssetActivity();
-		$datefilter 	= $this->input->post('datefilter');
+		$datefilter			= $this->input->post('daterangefilter');
+		// var_dump($datefilter);
 		$sort 			= $this->input->post('sort');
 		$asset 			= $this->input->post('asset_number');
 		$assetclass	= $this->input->post('assetclass');
@@ -91,8 +92,7 @@ class controller extends wc_controller {
 	}
 
 	private function get_export() {
-		$datefilter	= $this->input->post('datefilter');
-		$datefilter	= $this->date->dateDbFormat($datefilter);
+		$datefilter			= $this->input->post('daterangefilter');
 		$sort		= $this->input->post('sort');
 		$asset		= $this->input->post('asset_number');
 		$assetclass	= $this->input->post('assetclass');
