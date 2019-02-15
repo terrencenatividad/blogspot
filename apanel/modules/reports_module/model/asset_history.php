@@ -41,7 +41,7 @@ class asset_history extends wc_model {
 		
 
 		if ($datefilter) {
-			$condition .= " ass.transactiondate AND transactiondate BETWEEN '$datefilterFrom 11:59:59' AND '$datefilterTo 11:59:59'";
+			$condition .= " ass.transactiondate AND transactiondate BETWEEN '$datefilterFrom 23:59:59.999' AND '$datefilterTo 23:59:59.999'";
 		 }
 		 
 		if($sort){
@@ -70,7 +70,6 @@ class asset_history extends wc_model {
 							->setWhere($condition)
 							->setOrderBy($orderby)
 							->runPagination();
-							// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -84,7 +83,7 @@ class asset_history extends wc_model {
 		
 
 		if ($datefilter) {
-			$condition .= " ass.transactiondate AND transactiondate BETWEEN '$datefilterFrom 11:59:59' AND '$datefilterTo 11:59:59'";
+			$condition .= " ass.transactiondate AND transactiondate BETWEEN '$datefilterFrom 23:59:59.999' AND '$datefilterTo 23:59:59.999'";
 		 }
 		 
 		if($sort){

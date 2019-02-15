@@ -35,7 +35,7 @@
 								->draw();
 						?>
 					</div>
-					<div class="col-md-2">
+					<div class="col-md-3">
 						<?php
 							echo $ui->formField('text')
 								->setName('daterangefilter')
@@ -47,7 +47,7 @@
 								->draw(true);
 						?>
 					</div>
-					<div class="col-md-4 text-right">
+					<div class="col-md-3 text-right">
 						<a href="" id="export_csv" download="Asset_History.csv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> Export</a>
 					</div>
 				</div>	
