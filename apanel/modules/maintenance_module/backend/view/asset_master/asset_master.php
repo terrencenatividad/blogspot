@@ -178,7 +178,6 @@
 													->setName('retirement_date')
 													->setId('retirement_date')
 													->setValue($retirement_date)
-													->setValidation('required')
 													->draw($show_input);
 										?>
 									</div>

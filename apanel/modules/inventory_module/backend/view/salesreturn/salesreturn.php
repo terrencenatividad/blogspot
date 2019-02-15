@@ -564,7 +564,7 @@ function addVoucherDetails(details, index) {
 
 			<?php else: ?>
 
-			<td class="text-right">
+			<td class="text-left">
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
@@ -576,7 +576,7 @@ function addVoucherDetails(details, index) {
 				?>
 			</td>
 
-			<td class="text-right">
+			<td class="text-left">
 				<?php
 					echo $ui->formField('text')
 						->setSplit('', 'col-md-12')
