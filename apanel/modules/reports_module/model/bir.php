@@ -79,152 +79,152 @@ class bir extends wc_model {
         $quarter    = $data['quarter']; 
     }
 
-    public function getPrivate($period) {
+    public function getPrivate($period, $fiscalyear) {
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
         ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_private' AND si.period IN $period")
+        ->setWhere("ic.revenuetype = 'vat_private' AND si.period = '$period' AND si.fiscalyear = '$fiscalyear'")
         ->runSelect()
         ->getRow();
     }
 
-    public function getGov($period) {
+    public function getGov($period, $fiscalyear) {
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
         ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
-        ->setWhere("sd.taxcode = 'SG' AND si.period IN $period AND si.stat NOT IN('cancelled','temporary') ")
+        ->setWhere("sd.taxcode = 'SG' AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getZero($period) {
+    public function getZero($period, $fiscalyear) {
         // return $this->db->setTable('salesinvoice_details as sd')
         // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
         // ->leftJoin('itemclass as ic ON i.classid = ic.id')
         // ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        // ->setWhere("ic.revenuetype = 'vat_zero' AND si.period IN $period")
+        // ->setWhere("ic.revenuetype = 'vat_zero' AND si.period = '$period'")
         // ->runSelect()
         // ->getRow();
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
         ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
-        ->setWhere("sd.taxcode = 'ZRS' AND si.period IN $period AND si.stat NOT IN('cancelled','temporary') ")
+        ->setWhere("sd.taxcode = 'ZRS' AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getExempt($period) {
+    public function getExempt($period, $fiscalyear) {
         // return $this->db->setTable('salesinvoice_details as sd')
         // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
         // ->leftJoin('itemclass as ic ON i.classid = ic.id')
         // ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        // ->setWhere("ic.revenuetype = 'vat_exempt' AND si.period IN $period ")
+        // ->setWhere("ic.revenuetype = 'vat_exempt' AND si.period = '$period' ")
         // ->runSelect()
         // ->getRow();
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
         ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
-        ->setWhere("sd.taxcode = 'ES' AND si.period IN $period AND si.stat NOT IN('cancelled','temporary') ")
+        ->setWhere("sd.taxcode = 'ES' AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getNotPurchasesExceeded($period) {
+    public function getNotPurchasesExceeded($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_not_exceed' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_not_exceed' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPurchasesExceeded($period) {
+    public function getPurchasesExceeded($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_exceed' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_exceed' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear'  ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPurchaseGoods($period) {
+    public function getPurchaseGoods($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_domestic_goods' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_domestic_goods' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear'  ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPurchaseImport($period) {
+    public function getPurchaseImport($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_import_goods' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_import_goods' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear'  ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPurchaseServices($period) {
+    public function getPurchaseServices($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_domestic_services' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_domestic_services' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear'  ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPurchaseNonResident($period) {
+    public function getPurchaseNonResident($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_non_resident' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_non_resident' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear'  ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPurchaseNotTax($period) {
+    public function getPurchaseNotTax($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_not' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_not' AND pr.period = '$period' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPrivateMonthly($period) {
+    public function getPrivateMonthly($period, $fiscalyear) {
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
         ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_private' AND si.period = '$period'")
+        ->setWhere("ic.revenuetype = 'vat_private' AND si.period = '$period' AND si.fiscalyear = '$fiscalyear'")
         ->runSelect()
         ->getRow();
     }
 
-    public function getGovMonthly($period) {
+    public function getGovMonthly($period, $fiscalyear) {
         // return $this->db->setTable('salesinvoice_details as sd')
         // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
@@ -237,12 +237,12 @@ class bir extends wc_model {
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
         ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
-        ->setWhere("sd.taxcode = 'SG' AND si.period IN('$period') AND si.stat NOT IN('cancelled','temporary') ")
+        ->setWhere("sd.taxcode = 'SG' AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getZeroMonthly($period) {
+    public function getZeroMonthly($period, $fiscalyear) {
         // return $this->db->setTable('salesinvoice_details as sd')
         // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
@@ -255,12 +255,12 @@ class bir extends wc_model {
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
         ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
-        ->setWhere("sd.taxcode = 'ZRS' AND si.period IN('$period') AND si.stat NOT IN('cancelled','temporary') ")
+        ->setWhere("sd.taxcode = 'ZRS' AND si.period = '$period'  AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getExemptMonthly($period) {
+    public function getExemptMonthly($period, $fiscalyear) {
         // return $this->db->setTable('salesinvoice_details as sd')
         // ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         // ->leftJoin('items AS i ON sd.itemcode = i.itemcode')
@@ -273,84 +273,84 @@ class bir extends wc_model {
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
         ->setFields('SUM(sd.amount) as sum_amount , SUM(sd.taxamount) as sum_taxamount')
-        ->setWhere("sd.taxcode = 'ES' AND si.period IN('$period') AND si.stat NOT IN('cancelled','temporary') ")
+        ->setWhere("sd.taxcode = 'ES' AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-     public function getNotPurchasesExceededMonthly($period) {
+     public function getNotPurchasesExceededMonthly($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_not_exceed' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_not_exceed' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-     public function getPurchasesExceededMonthly($period) {
+     public function getPurchasesExceededMonthly($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_exceed' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_exceed' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-     public function getPurchaseGoodsMonthly($period) {
+     public function getPurchaseGoodsMonthly($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_domestic_goods' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_domestic_goods' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-     public function getPurchaseImportMonthly($period) {
+     public function getPurchaseImportMonthly($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_import_goods' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_import_goods' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-     public function getPurchaseServicesMonthly($period) {
+     public function getPurchaseServicesMonthly($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_domestic_services' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_domestic_services' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-     public function getPurchaseNonResidentMonthly($period) {
+     public function getPurchaseNonResidentMonthly($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_non_resident' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_non_resident' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }
 
-    public function getPurchaseNotTaxMonthly($period) {
+    public function getPurchaseNotTaxMonthly($period, $fiscalyear) {
         return $this->db->setTable('purchasereceipt_details as pd')
         ->leftJoin('purchasereceipt as pr ON pd.voucherno = pr.voucherno')
         ->leftJoin('items AS i ON pd.itemcode = i.itemcode')
         ->leftJoin('itemclass as ic ON i.classid = ic.id')
-        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.taxamount) as sum_taxamount')
-        ->setWhere("ic.revenuetype = 'vat_not' AND pr.period IN $period ")
+        ->setFields('SUM(pr.amount) as sum_amount , SUM(pr.wtaxamount) as sum_taxamount')
+        ->setWhere("ic.revenuetype = 'vat_not' AND pr.period = '$period' AND pr.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
     }

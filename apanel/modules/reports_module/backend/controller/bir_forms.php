@@ -478,22 +478,22 @@ class controller extends wc_controller {
 				$atc 		= $this->bir->retrieveWTAX($data,$i);	
 				foreach ($atc as $atc_key => $row) {
 					$month = 1;
-						if($i == '1'){$month = 'JAN';}
-						else if($i == '2'){$month = 'FEB';}
-						else if($i == '3'){$month = 'MAR';}
-						else if($i == '4'){$month = 'APR';}
-						else if($i == '5'){$month = 'MAY';}
-						else if($i == '6'){$month = 'JUN';}
-						else if($i == '7'){$month = 'JUL';}
-						else if($i == '8'){$month = 'AUG';}
-						else if($i == '9'){$month = 'SEP';}
-						else if($i == '10'){$month = 'OCT';}
-						else if($i == '11'){$month = 'NOV';}
-						else if($i == '12'){$month = 'DEC';}
+					if($i == '1'){$month = 'JAN';}
+					else if($i == '2'){$month = 'FEB';}
+					else if($i == '3'){$month = 'MAR';}
+					else if($i == '4'){$month = 'APR';}
+					else if($i == '5'){$month = 'MAY';}
+					else if($i == '6'){$month = 'JUN';}
+					else if($i == '7'){$month = 'JUL';}
+					else if($i == '8'){$month = 'AUG';}
+					else if($i == '9'){$month = 'SEP';}
+					else if($i == '10'){$month = 'OCT';}
+					else if($i == '11'){$month = 'NOV';}
+					else if($i == '12'){$month = 'DEC';}
 
-						if($row->tax == NULL){
-							$row->tax = 0;
-						}
+					if($row->tax == NULL){
+						$row->tax = 0;
+					}
 					$table .= '<tr>';
 					$table .= '<td>';
 					$table .= '<strong>'.$month.'</strong>';
@@ -501,53 +501,53 @@ class controller extends wc_controller {
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-										->setName('date'.$i)
-										->setClass('text-right date')
-										->setValue('')
-										->draw(true);
+					->setName('date'.$i)
+					->setClass('text-right date')
+					->setValue('')
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-										->setName('bank'.$i)
-										->setClass('text-right bank')
-										->setValue('')
-										->draw(true);
+					->setName('bank'.$i)
+					->setClass('text-right bank')
+					->setValue('')
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-										->setName('taxwithheld'.$i)
-										->setId('taxwithheld'.$i)
-										->setClass('text-right tax')
-										->setPlaceholder('0.00')
-										->setValue(number_format($row->tax,'2'))					
-										->setValidation('decimal')
-										->setAttribute(array('readOnly' => 'readOnly'))
-										->draw(true);
+					->setName('taxwithheld'.$i)
+					->setId('taxwithheld'.$i)
+					->setClass('text-right tax')
+					->setPlaceholder('0.00')
+					->setValue(number_format($row->tax,'2'))					
+					->setValidation('decimal')
+					->setAttribute(array('readOnly' => 'readOnly'))
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-										->setName('penalties'.$i)
-										->setId('penalties'.$i)
-										->setClass('text-right penalties')
-										->setPlaceholder('0.00')
-										->setValue('')
-										->setValidation('decimal')
-										->draw(true);
+					->setName('penalties'.$i)
+					->setId('penalties'.$i)
+					->setClass('text-right penalties')
+					->setPlaceholder('0.00')
+					->setValue('')
+					->setValidation('decimal')
+					->draw(true);
 					$table .= '</td>';
 
 					$table .= '<td>';
 					$table .= $this->ui->formField('text')
-										->setName('totalamount'.$i)
-										->setId('totalamount'.$i)
-										->setClass('text-right totalamount')
-										->setPlaceholder('0.00')
-										->setValue(number_format($row->tax,'2'))				
-										->setValidation('decimal')
-										->setAttribute(array('readOnly' => 'readOnly'))
-										->draw(true);
+					->setName('totalamount'.$i)
+					->setId('totalamount'.$i)
+					->setClass('text-right totalamount')
+					->setPlaceholder('0.00')
+					->setValue(number_format($row->tax,'2'))				
+					->setValidation('decimal')
+					->setAttribute(array('readOnly' => 'readOnly'))
+					->draw(true);
 					$table .= '</td>';
 					
 					$table .= '</tr>';
@@ -667,194 +667,157 @@ class controller extends wc_controller {
 
 	private function getPrivate() {
 		$period = $this->input->post('period');
-
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-
-		$result = $this->bir->getPrivate($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPrivate($period, $year);
 		return $result;
 	}
 
 	private function getGov() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-		$result = $this->bir->getGov($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getGov($period, $year);
 		return $result;
 	}
 
 	private function getZero() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= "('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9')";
-		}else if($period=='4'){
-			$period	= "('10','11','12')";
-		}
-		$result = $this->bir->getZero($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getZero($period, $year);
 		return $result;
 	}
 
 	private function getExempt() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= "('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9')";
-		}else if($period=='4'){
-			$period	= "('10','11','12')";
-		}
-		$result = $this->bir->getExempt($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getExempt($period, $year);
 		return $result;
 	}
 
 	private function getNotPurchasesExceeded() {
 		$period = $this->input->post('period');
+		$year = $this->input->post('year');
 
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
 
-		$result = $this->bir->getNotPurchasesExceeded($period);
+		$result = $this->bir->getNotPurchasesExceeded($period, $year);
 		return $result;
 	}
 
 	private function getPurchasesExceeded() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-		$result = $this->bir->getPurchasesExceeded($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchasesExceeded($period, $year);
 		return $result;
 	}
 
 	private function getPurchaseGoods() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-		$result = $this->bir->getPurchaseGoods($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseGoods($period, $year);
 		return $result;
 	}
 
 	private function getPurchaseImport() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-		$result = $this->bir->getPurchaseImport($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseImport($period, $year);
 		return $result;
 	}
 
 	private function getPurchaseServices() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-		$result = $this->bir->getPurchaseServices($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseServices($period, $year);
 		return $result;
 	}
 
 	private function getPurchaseNonResident() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-		$result = $this->bir->getPurchaseNonResident($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseNonResident($period, $year);
 		return $result;
 	}
 
 	private function getPurchaseNotTax() {
 		$period = $this->input->post('period');
-		if($period=='1'){
-			$period	= "('1','2','3')";
-		}else if($period=='2'){
-			$period	= " ('4','5','6') ";
-		}else if($period=='3'){
-			$period	= "('7','8','9') ";
-		}else if($period=='4'){
-			$period	= "('10','11','12') ";
-		}
-		$result = $this->bir->getPurchaseNotTax($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseNotTax($period, $year);
 		return $result;
 	}
 
 	private function getPrivateMonthly() {
 		$period = $this->input->post('period');
-		$result = $this->bir->getPrivateMonthly($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getPrivateMonthly($period, $year);
 		return $result;
 	}
 
 	private function getGovMonthly() {
 		$period = $this->input->post('period');
-		$result = $this->bir->getGovMonthly($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getGovMonthly($period, $year);
 		return $result;
 	}
 
 	private function getZeroMonthly() {
 		$period = $this->input->post('period');
-		$result = $this->bir->getZeroMonthly($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getZeroMonthly($period, $year);
 		return $result;
 	}
 
 	private function getExemptMonthly() {
 		$period = $this->input->post('period');
-		$result = $this->bir->getExemptMonthly($period);
+		$year = $this->input->post('year');
+		$result = $this->bir->getExemptMonthly($period, $year);
+		return $result;
+	}
+
+	private function getNotPurchasesExceededMonthly() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getNotPurchasesExceededMonthly($period, $year);
+		return $result;
+	}
+
+	private function getPurchasesExceededMonthly() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchasesExceededMonthly($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseGoodsMonthly() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseGoodsMonthly($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseImportMonthly() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseImportMonthly($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseServicesMonthly() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseServicesMonthly($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseNonResidentMonthly() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseNonResidentMonthly($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseNotTaxMonthly() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseNotTaxMonthly($period, $year);
 		return $result;
 	}
 
