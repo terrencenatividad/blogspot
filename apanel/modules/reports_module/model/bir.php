@@ -66,7 +66,7 @@ class bir extends wc_model {
             ->leftJoin("atccode atc ON atc.atcId = apd.taxcode")
             ->leftJoin("paymentvoucher apv ON apv.voucherno = apd.voucherno")
             ->setGroupBy("apv.period, atc.atc_code")
-            ->setWhere(" (apd.taxcode IS NOT NULL AND apd.taxcode != '') AND apv.fiscalyear = '$year' AND apv.$months ")
+            ->setWhere(" (apd.taxcode IS NOT NULL AND apd.taxcode != '') AND apv.fiscalyear = '$year' AND apv.$months AND apv.stat = 'posted'")
             ->setOrderBy("atc.tax_rate")
             ->runSelect()
             ->getResult();
