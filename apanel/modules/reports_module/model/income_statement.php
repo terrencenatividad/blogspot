@@ -117,11 +117,13 @@ class income_statement extends wc_model {
 		$result3 =  $this->db->setTable('balance_table bt')
 		->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bt.accountcode as accountcode,ca.accountname as accountname, bt.transactiondate as transactiondate, SUM(bt.debit) as debit, SUM(bt.credit) as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
 		->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
-		->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('EXP','OPSEXP','OTREXP') $filter")
+		->setWhere("ca.fspresentation = 'IS' AND ca.accountclasscode IN('EXP','OPSEXP','OTREXP') AND bt.source != 'closing' $filter")
 		->setGroupBy('bt.accountcode')
 		->setOrderBy("bt.accountcode")
 		->runSelect()
 		->getResult();
+
+		// echo $this->db->getQuery();
 
 		// $result4 =  $this->db->setTable('budget b')
 		// ->setFields("ca.accountnature parentnature, ca.accountclasscode as accountclasscode, bd.accountcode as accountcode,ca.accountname as accountname, b.transactiondate as transactiondate, SUM(bd.amount) as debit, 0 as credit, ca.parentaccountcode as parent, ca.accountnature as accountnature")
@@ -159,7 +161,6 @@ class income_statement extends wc_model {
 		$inc_array 		= array('INCTAX');
 
 		$data_key = 0;
-		
 		foreach ($data as $key => $val) {
 			if (count($data[$data_key]) < count($val)) {
 				$data_key = $key;
@@ -179,8 +180,9 @@ class income_statement extends wc_model {
 			foreach ($data as $x) {
 				if (isset($x[$key])) {
 					$account	= $x[$key];
-					$tot = ($accounts->accountnature == 'Debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
-					if ($accounts->accountnature != $parentaccount) {
+					$accountnature = strtoupper($accounts->accountnature);
+					$tot = ($accountnature == 'Debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
+					if ($accountnature != $parentaccount) {
 						$tot = $tot * -1;
 					}
 					$total	+= $tot;
@@ -189,6 +191,8 @@ class income_statement extends wc_model {
 					$col[]	= 0;
 				}
 			}
+
+			// var_dump($col);
 
 			if (in_array($accountclasscode, $revenue_array)) {
 				$accounttype = 'Revenue';
