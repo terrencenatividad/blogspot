@@ -39,6 +39,7 @@ class balance_sheet_model extends wc_model {
 		{
 			$period_list[] = $value->period;
 		}
+		// var_dump($period_list);
 		for ($x = 1; $x <= 12; $x++) {
 			if ($period > 12) {
 				$period = 1;
@@ -67,7 +68,7 @@ class balance_sheet_model extends wc_model {
 		{
 			$period_list[] = $value->period;
 		}
-
+		
 		$period_start	= $period;
 		$period_end		= $period_start + 2;
 		$year_start		= $year;
@@ -83,17 +84,17 @@ class balance_sheet_model extends wc_model {
 			// 	$year_end++;
 			// }
 			
-			// if(isset($period_list)){
-			// 	if(in_array($period_start, $period_list)){
-			// 		${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
-			// 	}else{
-			// 		${"quarter{$x}"} = 0;
-			// 	}
-			// }else{
-			// 	${"quarter{$x}"} = 0;
-			// }
+			if(isset($period_list)){
+				if(in_array($period_start, $period_list)){
+					${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
+				}else{
+					${"quarter{$x}"} = 0;
+				}
+			}else{
+				${"quarter{$x}"} = 0;
+			}
 
-			${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
+			// ${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
 			
 			$period_start += 3;
 			$period_end += 3;
