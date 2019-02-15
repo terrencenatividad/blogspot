@@ -520,7 +520,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "import_purchaseorder as po";
-		$docinfo_fields = array('po.transactiondate AS documentdate', 'po.deliverydate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","po.referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount');
+		$docinfo_fields = array('po.transactiondate AS documentdate', 'po.deliverydate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","po.referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount','po.print print');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -563,18 +563,27 @@ class controller extends wc_controller
 
 		$print = new import_purchase_print_model();
 		$print->setDocumentType('Import Purchase Order')
-		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
-		->setVendorDetails($vendordetails)
-		->setDocumentDetails($documentdetails)
-		->setDocumentInfo($documentinfo)
-		->addReceived();
+			->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
+			->setVendorDetails($vendordetails)
+			->setDocumentDetails($documentdetails)
+			->setDocumentInfo($documentinfo)
+			->addReceived();
 
 		$print->setHeaderWidth(array(28, 40, 18, 26, 17, 17, 23, 31))
-		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-		->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
-		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
-		->setSummaryAlign(array('J','R','R', 'R'))	
-		->setSummaryWidth(array('120', '19', '30', '31'));
+			->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+			->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
+			->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
+			->setSummaryAlign(array('J','R','R', 'R'))	
+			->setSummaryWidth(array('120', '19', '30', '31'));
+
+		/**
+		 * Custom : Tag as printed
+		 * Also store user and timestamp
+		 */
+		$print_data['print'] = 1;
+		$print_data['printby'] = USERNAME;
+		$print_data['printdate'] = date("Y-m-d H:i:s");
+		$this->po->updateData($print_data, "import_purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
 		$detail_height = 37;
 
