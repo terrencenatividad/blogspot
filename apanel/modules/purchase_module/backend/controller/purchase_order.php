@@ -480,7 +480,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "purchaseorder as po";
-		$docinfo_fields = array('po.deliverydate as deliverydate, po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
+		$docinfo_fields = array('po.deliverydate as deliverydate, po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.print print');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -532,6 +532,7 @@ class controller extends wc_controller
 		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
+		->setDocumentInfo($documentinfo)
 		->addReceived();
 
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
@@ -540,6 +541,15 @@ class controller extends wc_controller
 		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
 		->setSummaryAlign(array('J','R','R', 'R'))	
 		->setSummaryWidth(array('120', '50', '30'));
+
+		/**
+		 * Custom : Tag as printed
+		 * Also store user and timestamp
+		 */
+		$print_data['print'] = 1;
+		$print_data['printby'] = USERNAME;
+		$print_data['printdate'] = date("Y-m-d H:i:s");
+		$this->po->updateData($print_data, "purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
 		$detail_height = 37;
 		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
