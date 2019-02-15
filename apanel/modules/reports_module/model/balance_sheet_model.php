@@ -74,25 +74,26 @@ class balance_sheet_model extends wc_model {
 		$year_end		= $year;
 
 		for ($x = 1; $x <= 4; $x++) {
-			if ($period_start > 11) {
-				$period_start = 1;
-				$year_start++;
-			}
-			if ($period_end > 12) {
-				$period_end -= 12;
-				$year_end++;
-			}
-
-			if(isset($period_list)){
-				if(in_array($period_start, $period_list)){
-					${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
-				}else{
-					${"quarter{$x}"} = 0;
-				}
-			}else{
-				${"quarter{$x}"} = 0;
-			}
+			// if ($period_start > 11) {
+			// 	$period_start = 1;
+			// 	$year_start++;
+			// }
+			// if ($period_end > 12) {
+			// 	$period_end -= 12;
+			// 	$year_end++;
+			// }
 			
+			// if(isset($period_list)){
+			// 	if(in_array($period_start, $period_list)){
+			// 		${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
+			// 	}else{
+			// 		${"quarter{$x}"} = 0;
+			// 	}
+			// }else{
+			// 	${"quarter{$x}"} = 0;
+			// }
+
+			${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
 			
 			$period_start += 3;
 			$period_end += 3;
@@ -108,7 +109,6 @@ class balance_sheet_model extends wc_model {
 		if ($this->period > date('n')) {
 			$year_end++;
 		}
-
 		$year1	= $this->getRecords(($year_start - 1) . "-{$period_start}-01", ($year_end - 1) . "-{$period_end}-31");
 		$year2	= $this->getRecords("{$year_start}-{$period_start}-01", "{$year_end}-{$period_end}-31");
 		return $this->buildStructure(array($year1, $year2));
@@ -142,6 +142,8 @@ class balance_sheet_model extends wc_model {
 	}
 
 	public function getEarnings($start, $end) {
+		// echo $start."<br>";
+		// echo $end."<br>";
 		// $check_codes		= array('COST', 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'REV', 'RETEAR', 'REVENU', 'OPSEXP', 'OTREXP');
 		// $current_earnings	= (object) array(
 		// 	'accountname'		=> 'Current Year Earnings',
@@ -194,22 +196,38 @@ class balance_sheet_model extends wc_model {
 		$current	=  $this->db->setTable('chartaccount c')
 							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
 							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
-							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'current' earnings")
-							->setWhere("c.fspresentation = 'BS' AND bt.source = 'closing'")
-							->setGroupBy('c.id')
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, c.accountclasscode, 'current' earnings")
+							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' AND bt.source != 'yrend_closing')")
+							// ->setGroupBy('c.id')
 							->setOrderBy("c.id")
 							->runSelect()
 							->getResult();
-		
+
+							// echo $this->db->getQuery();
+							// echo "<br><br>";
 		$previous	=  $this->db->setTable('chartaccount c')
-							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') ")
+							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP')  AND transactiondate < '$end' ")
 							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
 							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
-							->setWhere("c.fspresentation = 'BS' AND bt.source = 'yrend_closing'")
+							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' OR bt.source = 'yrend_closing')")
 							->setGroupBy('c.id')
 							->setOrderBy("c.id")
 							->runSelect()
 							->getResult();
+
+		// if( $start == '2018-1-01' && $end =='2018-12-31') {
+		// 	echo $this->db->getQuery();
+		// 	echo "<br><br>";
+		// }
+		// $previous	=  $this->db->setTable('chartaccount c')
+		// 					->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP')  AND transactiondate < '$start' ")
+		// 					->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+		// 					->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
+		// 					->setWhere("c.fspresentation = 'BS' AND bt.source = 'yrend_closing'")
+		// 					->setGroupBy('c.id')
+		// 					->setOrderBy("c.id")
+		// 					->runSelect()
+		// 					->getResult();
 							// echo $this->db->getQuery();
 		
 		$earnings = array_merge($current, $previous);
@@ -291,7 +309,8 @@ class balance_sheet_model extends wc_model {
 				} else {
 					$total = 0;
 				}
-				if (($total !== 0 && ! empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
+
+				if (($total !== 0 && ! empty($accounttype)) || ($total !== 0 && in_array($accountclasscode, $equity_array))) {
 					$y[$accounttype][$accountclass][$accountname] = $col;
 				}
 			}
