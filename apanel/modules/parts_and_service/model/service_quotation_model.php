@@ -130,7 +130,7 @@ class service_quotation_model extends wc_model
 							->leftJoin('uom u ON u.uomcode = i.uom_selling AND u.companycode = i.companycode')
 							->leftJoin('items_price p ON p.itemcode = i.itemcode AND p.companycode = i.companycode')
 							
-							->setFields("i.itemdesc as itemdesc,p.itemprice as itemprice, u.uomcode as uom, i.bundle as isbundle")
+							->setFields("i.itemdesc as itemdesc, itemgroup, p.itemprice as itemprice, u.uomcode as uom, i.bundle as isbundle")
 							->setWhere("i.itemcode = '$itemcode'")
 							->setLimit('1')
 							->runSelect()
@@ -162,7 +162,7 @@ class service_quotation_model extends wc_model
 	}
 
 	public function retrieveServiceQuotationDetails($voucherno=""){
-		$fields = "CONCAT(sq.itemcode,' - ',i.itemname) as itemname, sq.itemcode, sq.linenum, sq.haswarranty, sq.isbundle, sq.parentcode, sq.parentline, sq.childqty, sq.detailparticular, sq.warehouse, sq.qty, sq.uom, sq.unitprice, sq.taxcode, sq.taxrate, sq.discounttype, sq.discountrate, sq.discountamount, sq.taxamount, sq.amount";
+		$fields = "CONCAT(sq.itemcode,' - ',i.itemname) as itemname, sq.itemcode, i.itemgroup,  sq.linenum, sq.haswarranty, sq.isbundle, sq.parentcode, sq.parentline, sq.childqty, sq.detailparticular, sq.warehouse, sq.qty, sq.uom, sq.unitprice, sq.taxcode, sq.taxrate, sq.discounttype, sq.discountrate, sq.discountamount, sq.taxamount, sq.amount";
 		$result = $this->db->setTable('servicequotation_details sq')
 						->leftJoin('items i ON sq.itemcode = i.itemcode')
 						->setFields($fields)
