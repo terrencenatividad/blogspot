@@ -518,8 +518,8 @@ class ui {
 		}
 	}
 
-	public function drawCancel() {
-		return ' <a href="' . MODULE_URL . '" class="btn btn-default cancel" data-toggle="back_page">Cancel</a>';
+	public function drawCancel($draw = true) {
+		return ($draw) ? ' <a href="' . MODULE_URL . '" class="btn btn-default cancel" data-toggle="back_page">Cancel</a>' : ' <a href="' . MODULE_URL . '" class="btn btn-default cancel" >Exit</a>';
 	}
 
 	private function reset() {

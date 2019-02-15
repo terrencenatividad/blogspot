@@ -65,7 +65,8 @@ class bankrecon_model extends wc_model {
 		$bank		= $header['balance_bank'] + $header['deposit_transit'] - $header['outstanding_cheques'];
 		$book		= $header['balance_book'] + $header['unrecorded_deposit'] - $header['unrecorded_withdrawal'];
 		$finalize	= $header['finalize'];
-
+		$date		= $this->date->dateDbFormat();
+		
 		$finalize = ($finalize) ? (round($bank, 2) == round($book, 2)) : $finalize;
 
 		$result = false;
@@ -117,7 +118,7 @@ class bankrecon_model extends wc_model {
 					$ids = "'" . implode("', '", $id) . "'";
 					$where = ($account_field) ? " AND $account_field = '$accountcode'" : '';
 					$result = $this->db->setTable($table)
-										->setValues(array($stat_field => 'cleared'))
+										->setValues(array($stat_field => 'cleared','cleardate' => $date))
 										->setWhere("voucherno IN($ids)" . $where)
 										->runUpdate();
 				}

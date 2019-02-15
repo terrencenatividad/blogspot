@@ -265,24 +265,6 @@ class delivery_receipt_model extends wc_model {
 			if ($row != "") {
 				$ids = explode(",", $row);
 				foreach ($ids as $id) {
-					//$getData = $this->getSerials($id);
-						
-					// $itemcode = $row['itemcode'];
-					// $itemlinenum = $row['linenum'];
-
-					// $s_data['voucherno'] = $voucherno;
-					// $s_data['serialno'] = $getData->serialno;
-					// $s_data['engineno'] = $getData->engineno;
-					// $s_data['chassisno'] = $getData->chassisno;
-
-					// $this->db->setTable('dr_serialized')
-					// 		->setWhere("voucherno = '$voucherno' AND itemcode = '$itemcode' AND itemlinenum = '$itemlinenum'")
-					// 		->runDelete();
-
-					// $this->db->setTable('dr_serialized')
-					// 					->setValues($s_data)
-					// 					->runInsert();
-
 					$this->db->setTable('items_serialized')
 										->setValues(array('stat'=>'Not Available'))
 										->setWhere("id = '$id'")
@@ -657,7 +639,7 @@ class delivery_receipt_model extends wc_model {
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('deliveryreceipt dr')
 							->innerJoin('partners p ON p.partnercode = dr.customer AND p.companycode = dr.companycode AND p.partnertype = "customer"')
-							->setFields("dr.transactiondate documentdate, dr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) customer, source_no referenceno, dr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, netamount net, taxamount vat, s_address, remarks notes, dr.stat stat")
+							->setFields("dr.transactiondate documentdate, dr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) customer, source_no referenceno, dr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, netamount net, taxamount vat, s_address, remarks notes, dr.stat stat, dr.print print")
 							->setWhere("voucherno = '$voucherno'")
 							->runSelect()
 							->getRow();
@@ -843,4 +825,19 @@ class delivery_receipt_model extends wc_model {
 		return $result;
 	}
 
+	/**	
+	 * Dynamic update of single tables
+	 * @data
+	 * @database table
+	 * @condition
+	 */
+	public function updateData($data, $table, $cond)
+	{
+		$result = $this->db->setTable($table)
+		->setValues($data)
+		->setWhere($cond)
+		->runUpdate();
+		
+		return $result;
+	}
 }

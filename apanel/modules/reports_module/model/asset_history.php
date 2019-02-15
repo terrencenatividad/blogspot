@@ -34,10 +34,14 @@ class asset_history extends wc_model {
 	public function getAssetHistory($fields, $sort, $asset, $datefilter, $assetclass, $department) {
 		$orderby = '';
 		$condition = '';
-		$datefilter = $this->date->dateDbFormat($datefilter);
+
+		$datefilterArr		= explode(' - ',$datefilter);
+		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+		
 
 		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
+			$condition .= " ass.transactiondate AND transactiondate BETWEEN '$datefilterFrom 23:59:59.999' AND '$datefilterTo 23:59:59.999'";
 		 }
 		 
 		if($sort){
@@ -66,17 +70,20 @@ class asset_history extends wc_model {
 							->setWhere($condition)
 							->setOrderBy($orderby)
 							->runPagination();
-							// echo $this->db->getQuery();
 		return $result;
 	}
 
 	public function getAssetHistorycsv($fields,$sort,$asset,$datefilter, $assetclass, $department) {
 		$orderby = '';
 		$condition = '';
-		$datefilter = $this->date->dateDbFormat($datefilter);
+		
+		$datefilterArr		= explode(' - ',$datefilter);
+		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+		$datefilterTo		= (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
+		
 
 		if ($datefilter) {
-			$condition .= " ass.transactiondate <= '$datefilter 11:59:59'";
+			$condition .= " ass.transactiondate AND transactiondate BETWEEN '$datefilterFrom 23:59:59.999' AND '$datefilterTo 23:59:59.999'";
 		 }
 		 
 		if($sort){

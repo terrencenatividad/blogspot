@@ -932,7 +932,7 @@ class job_order_model extends wc_model
 
 	public function getJOheader($voucherno){
 		$result = $this->db->setTable('job_order jo')
-						->setFields("job_order_no voucherno, customer, reference, notes, stat, transactiondate")
+						->setFields("job_order_no voucherno, customer, reference, notes, stat, transactiondate, print")
 						->setWhere("job_order_no='$voucherno'")
 						->runSelect()
 						->getRow();

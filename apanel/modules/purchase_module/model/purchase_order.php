@@ -770,7 +770,6 @@ class purchase_order extends wc_model
 		->setValues($data)
 		->setWhere($cond)
 		->runUpdate();
-					//echo $this->db->getQuery();
 		return $result;
 	}
 

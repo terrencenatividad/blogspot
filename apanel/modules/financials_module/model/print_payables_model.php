@@ -93,7 +93,7 @@ class print_payables_model extends fpdf {
 		$address		= $companyinfo->address;
 		$email			= $companyinfo->email;
 		$tin			= $companyinfo->tin;
-		
+
 		/**DOCUMENT INFO**/
 		$documentinfo	= $this->documentinfo;
 		if ($documentinfo) {
@@ -104,6 +104,7 @@ class print_payables_model extends fpdf {
 			$exchangerate		= $documentinfo->exchangerate;
 			$referenceno	= isset($documentinfo->referenceno) ? $documentinfo->referenceno : '';
 			$amount			= (isset($documentinfo->amount) && $documentinfo->amount!="") 	? 	$documentinfo->amount 	: 	$documentinfo->pvamount;
+			$printed 			= $documentinfo->print;
 		} else if (DEBUGGING) {
 			echo 'Please use setDocumentInfo() to set Header Information';
 			exit();
@@ -119,22 +120,15 @@ class print_payables_model extends fpdf {
 		//Company Name
 		$this->SetFont('Arial', '', 12);
 		$this->Cell(200, $rowheight, $document_type, 0, 0, 'C');
-		$this->Ln();
-		$this->Ln();
 
-
-
-		// $this->SetTextColor(255,255,255);
-		// $w = $this->GetStringWidth($this->voucher_status);
-		// if ($this->voucher_status == 'PAID'){
-		// 	$this->SetFillColor(0,166,90);
-		// } else if ($this->voucher_status == 'UNPAID'){
-		// 	$this->SetFillColor(255,0,0);
-		// } else if ($this->voucher_status == 'PARTIAL'){
-		// 	$this->SetFillColor(0,192,239);
-		// } 
-		// $this->SetFont('Arial', 'B', 9);
-		// $this->Cell($w,5,$this->voucher_status,5,5,'L',true);
+		if($printed){
+			$this->Ln();
+			$this->SetTextColor(255,0,0);
+			$this->SetFont('Arial', 'B', 10);
+			$this->Cell(200, $rowheight, 'R E P R I N T', 0, 0, 'C');
+		} else {
+			$this->Ln();
+		}
 		
 		$this->Ln();
 		
@@ -171,9 +165,6 @@ class print_payables_model extends fpdf {
 		$this->Cell(30 ,$rowheight, 'Exchange Rate', 0, 0, 'L');
 		$this->SetFont('Arial', '', 9);
 		$this->Cell(40, $rowheight, $exchangerate, 'B', 0, 'L');
-
-		// $this->Ln();
-
 
 		$this->Ln();
 		
@@ -220,6 +211,20 @@ class print_payables_model extends fpdf {
 		$this->Ln();
 		$this->Cell(200,$rowheight,$second_part,'B',0,'L');
 		$this->Ln();
+	}
+
+	public function Footer(){
+		/**DOCUMENT INFO**/
+		$documentinfo	= $this->documentinfo;
+		if ($documentinfo) {
+			$printed 			= $documentinfo->print;
+			if($printed){
+				$this->Image(BASE_URL.'assets/images/reprint_bg.png',0,50,216,100);
+			}
+		} else if (DEBUGGING) {
+			echo 'Please use setDocumentInfo() to set Header Information';
+			exit();
+		}
 	}
 	
 	private function drawDocumentDetails() {
@@ -484,5 +489,35 @@ class print_payables_model extends fpdf {
 		}
 		return $nl;
 	}
+
+	function RotatedText($x, $y, $txt, $angle){
+        //Text rotated around its origin
+        $this->Rotate($angle, $x, $y);
+        $this->Text($x, $y, $txt);
+        $this->Rotate(0);
+    }
+
+    function Rotate($angle,$x=-1,$y=-1) 
+    {
+        if($x==-1)
+            $x=$this->x;
+        if($y==-1)
+            $y=$this->y;
+        if($angle!=0)
+			$this->_out('Q');
+        if($angle!=0)
+        {
+            $angle*=M_PI/180;
+            $c=cos($angle);
+            $s=sin($angle);
+            $cx=$x*$this->k;
+            $cy=($this->h-$y)*$this->k;
+            
+            $this->_out(sprintf('q %.5f %.5f %.5f %.5f %.2f %.2f cm 1 0 0 1 %.2f %.2f cm',$c,$s,-$s,$c,$cx,$cy,-$cx,-$cy));
+		}else{
+			$angle = 0;
+			$this->_out('Q');
+		}
+	} 
 	
 }

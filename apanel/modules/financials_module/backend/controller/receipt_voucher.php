@@ -249,36 +249,39 @@ class controller extends wc_controller
 				$applied_forexamount		= 0;
 
 				$ar_voucher 				= $this->receipt_voucher->getValue("rv_application", "arvoucherno", "voucherno = '$generatedvoucher'");
-				$ar_voucher 				= isset($ar_voucher[0]->arvoucherno) 	?	$ar_voucher[0]->arvoucherno 	:	"";
+				// $ar_voucher 				= isset($ar_voucher[0]->arvoucherno) 	?	$ar_voucher[0]->arvoucherno 	:	"";
 
-				$invoice_amounts			= $this->receipt_voucher->getValue("accountsreceivable", array("amount as convertedamount"), " voucherno = '$ar_voucher' AND stat IN('open','posted') ");
+				foreach($ar_voucher as $key => $voucher){
+					$arvoucher 	=	isset($row->arvoucherno) ? $row->arvoucherno : "";
 
-				$applied_amounts			= $this->receipt_voucher->getValue(
-												"rv_application",
-												array(
-													"COALESCE(SUM(amount),0) convertedamount",
-													"COALESCE(SUM(discount),0) discount",
-													"COALESCE(SUM(credits_used),0) credits",
-													"COALESCE(SUM(overpayment),0) overpayment",
-													"COALESCE(SUM(forexamount),0) forexamount"
-												), 
-												"  arvoucherno = '$ar_voucher' AND stat IN('open','posted') "
-											);
-				
-				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
-				$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
-				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
-				$applied_over 				= (!empty($applied_amounts[0]->overpayment)) ? $applied_amounts[0]->overpayment : 0;
-				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_over + $applied_disc;
-				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
-
-				$balance_info['amountreceived']	= $applied_sum;
-				$balance_info['excessamount'] 	= ($applied_over >= 0) 	?	$applied_over 	:	0;
-				$balance_amt 					= $invoice_amount - $applied_sum;
-				$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
-				
-				$updateTempRecord = $this->receipt_voucher->updateData("accountsreceivable", $balance_info, "voucherno = '$ar_voucher'");
+					$invoice_amounts			= $this->receipt_voucher->getValue("accountsreceivable", array("amount as convertedamount"), " voucherno = '$arvoucher' AND stat IN('open','posted') ");
+					$applied_amounts			= $this->receipt_voucher->getValue(
+													"rv_application",
+													array(
+														"COALESCE(SUM(amount),0) convertedamount",
+														"COALESCE(SUM(discount),0) discount",
+														"COALESCE(SUM(credits_used),0) credits",
+														"COALESCE(SUM(overpayment),0) overpayment",
+														"COALESCE(SUM(forexamount),0) forexamount"
+													), 
+													"  arvoucherno = '$arvoucher' AND stat IN('open','posted') "
+												);
 					
+					$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
+					$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
+					$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
+					$applied_over 				= (!empty($applied_amounts[0]->overpayment)) ? $applied_amounts[0]->overpayment : 0;
+					$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_credits + $applied_over + $applied_disc;
+					$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
+
+					$balance_info['amountreceived']	= $applied_sum;
+					$balance_info['excessamount'] 	= ($applied_over >= 0) 	?	$applied_over 	:	0;
+					$balance_amt 					= $invoice_amount - $applied_sum;
+					$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
+					
+					$updateTempRecord = $this->receipt_voucher->updateData("accountsreceivable", $balance_info, "voucherno = '$arvoucher'");
+						
+				}
 				if($updateTempRecord){
 					$partner_dtl 	=$this->receipt_voucher->getValue(
 											"partners", 
