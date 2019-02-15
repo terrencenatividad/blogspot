@@ -670,6 +670,17 @@ class controller extends wc_controller
 						$type = $get_amount->budget_check;
 						if($type == 'Monitored') {
 							if($ap_details['debit'][$count] != '0.00') {
+								// $check_code = in_array($ap_details['budgetcode'][$count], $codes);
+								// $check_account = in_array($ap_details['accountcode'][$count], $codes);
+								// if(!$check_code && !$check_account) {
+								// 	$codes['code'] = $ap_details['budgetcode'][$count];
+								// 	$codes['accountcode'] = $ap_details['accountcode'][$count];
+								// 	$codes['amount'] = $ap_details['debit'][$count];
+								// } else {
+								// 	$codes['code'] = $ap_details['budgetcode'][$count];
+								// 	$codes['accountcode'] = $ap_details['accountcode'][$count];
+								// 	$codes['amount'] += $ap_details['debit'][$count];
+								// }
 								$check = in_array($ap_details['budgetcode'][$count], $codes);
 								if(!$check) {
 									$codes['code'] = $ap_details['budgetcode'][$count];
