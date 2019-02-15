@@ -495,9 +495,43 @@ class trial_balance extends wc_model {
 			$credit 				= $total_credit = 0;
 			$retained 				= 0;
 			$linenum 				= 1;
-
-			foreach($accounts_arr as $row){
-				$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
+			// var_dump($accounts_arr);
+			
+			if($source == "closing") {
+				foreach($accounts_arr as $row){
+					$accountid 		= $row->accountid;
+	
+					$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
+					$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
+	
+					$accounts['voucher'] 			=	$generatedvoucher;
+					$accounts['account'] 			=	$accountid;
+					$accounts['linenum'] 			=	$linenum;
+					$accounts['detailparticulars'] 	= 	$detailparticular;
+					$accounts['source'] 			=	$source;
+					$accounts['stat'] 				= 	$stat;
+					$accounts['transtype'] 			= 	$transtype;
+		
+					if( $amount > 0 ){
+						$credit 			= 	$prev_carry	+ $amount;
+						$accounts['amount'] 	=	$credit;
+						$result  			=	$this->create_jvdetails_credit($accounts);
+						$total_credit 		+=	$credit;
+	
+						$linenum 		+=	1;	
+					} else {
+						$debit 				= -($prev_carry	+ $amount);
+						$accounts['amount'] 	=	$debit;
+	
+						$total_debit 		+=	$debit;
+	
+						$result 			=	$this->create_jvdetails_debit($accounts);
+	
+						$linenum 			+=	1;	
+					}
+				} 
+			} else {
+				$accountid 		= 	$current_year_id; 
 
 				$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 				$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
@@ -527,7 +561,7 @@ class trial_balance extends wc_model {
 
 					$linenum 			+=	1;	
 				}
-			} 
+			}
 	
 			$retained 		= ($total_debit > $total_credit) ? $total_debit - $total_credit : -($total_credit - $total_debit);
 
