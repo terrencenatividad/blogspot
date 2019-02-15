@@ -142,66 +142,81 @@ class balance_sheet_model extends wc_model {
 	}
 
 	public function getEarnings($start, $end) {
-		$check_codes		= array('COST', 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'REV', 'RETEAR', 'REVENU', 'OPSEXP', 'OTREXP');
-		$current_earnings	= (object) array(
-			'accountname'		=> 'Current Period Earnings',
-			'accountnature'		=> 'Credit',
-			'parentnature'		=> 'Credit',
-			'debit'				=> 0,
-			'credit'			=> 0,
-			'accountclasscode'	=> 'Current'
-		);
-		$previous_earnings	= (object) array(
-			'accountname'		=> 'Retained Earnings',
-			'accountnature'		=> 'Credit',
-			'parentnature'		=> 'Credit',
-			'debit'				=> 0,
-			'credit'			=> 0,
-			'accountclasscode'	=> 'Previous'
-		);
+		// $check_codes		= array('COST', 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'REV', 'RETEAR', 'REVENU', 'OPSEXP', 'OTREXP');
+		// $current_earnings	= (object) array(
+		// 	'accountname'		=> 'Current Year Earnings',
+		// 	'accountnature'		=> 'Credit',
+		// 	'parentnature'		=> 'Credit',
+		// 	'debit'				=> 0,
+		// 	'credit'			=> 0,
+		// 	'accountclasscode'	=> 'Current'
+		// );
+		// $previous_earnings	= (object) array(
+		// 	'accountname'		=> 'Retained Earnings',
+		// 	'accountnature'		=> 'Credit',
+		// 	'parentnature'		=> 'Credit',
+		// 	'debit'				=> 0,
+		// 	'credit'			=> 0,
+		// 	'accountclasscode'	=> 'Previous'
+		// );
+
+		// $current	=  $this->db->setTable('chartaccount c')
+		// 						->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
+		// 						->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+		// 						->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'current' earnings")
+		// 						->setWhere("c.fspresentation = 'IS' AND bt.source = 'closing'")
+		// 						->setGroupBy('c.id')
+		// 						->setOrderBy("c.id")
+		// 						->runSelect()
+		// 						->getResult();
+
+		// $previous	=  $this->db->setTable('chartaccount c')
+		// 						->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate < '$start'")
+		// 						->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+		// 						->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
+		// 						->setWhere("c.fspresentation = 'IS' AND bt.source = 'closing'")
+		// 						->setGroupBy('c.id')
+		// 						->setOrderBy("c.id")
+		// 						->runSelect()
+		// 						->getResult();
+		
+		// $earnings = array_merge($current, $previous);
+
+		// foreach ($earnings as $row) {
+		// 	if ($row->debit || $row->credit) {
+		// 		${$row->earnings . '_earnings'}->debit += $row->debit;
+		// 		${$row->earnings . '_earnings'}->credit += $row->credit;
+		// 	}
+		// }
+
+		// return array($current_earnings, $previous_earnings);
 
 		$current	=  $this->db->setTable('chartaccount c')
-								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
-								->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
-								->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'current' earnings")
-								->setWhere("c.fspresentation = 'IS'")
-								->setGroupBy('c.id')
-								->setOrderBy("c.id")
-								->runSelect()
-								->getResult();
-
+							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
+							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'current' earnings")
+							->setWhere("c.fspresentation = 'BS' AND bt.source = 'closing'")
+							->setGroupBy('c.id')
+							->setOrderBy("c.id")
+							->runSelect()
+							->getResult();
+		
 		$previous	=  $this->db->setTable('chartaccount c')
-								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate < '$start'")
-								->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
-								->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
-								->setWhere("c.fspresentation = 'IS'")
-								->setGroupBy('c.id')
-								->setOrderBy("c.id")
-								->runSelect()
-								->getResult();
+							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') ")
+							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
+							->setWhere("c.fspresentation = 'BS' AND bt.source = 'yrend_closing'")
+							->setGroupBy('c.id')
+							->setOrderBy("c.id")
+							->runSelect()
+							->getResult();
+							// echo $this->db->getQuery();
 		
 		$earnings = array_merge($current, $previous);
 
-		foreach ($earnings as $row) {
-			if ($row->debit || $row->credit) {
-				// if ($row->accountnature != $row->parentnature) {
-				// 	$row->debit = $row->debit * -1;
-				// 	$row->credit = $row->credit * -1;
-				// }
+		// var_dump($earnings);
 
-				// if ($row->accountnature == 'Credit') {
-				// 	$credit			= $row->credit;
-				// 	$debit			= $row->debit;
-				// 	$row->credit	= $debit;
-				// 	$row->debit		= $credit;
-				// }
-
-				${$row->earnings . '_earnings'}->debit += $row->debit;
-				${$row->earnings . '_earnings'}->credit += $row->credit;
-			}
-		}
-
-		return array($current_earnings, $previous_earnings);
+		return $earnings;
 	}
 
 	public function getYearList($year_now) {
@@ -268,12 +283,6 @@ class balance_sheet_model extends wc_model {
 					$accounttype	= 'Liabilities';
 					$accountclass	= 'Non - Current Liabilities';
 				} else if (in_array($accountclasscode, $equity_array)) {
-					$accounttype	= 'Equity';
-					$accountclass	= '';
-				} else if ($accountclasscode == 'Current') {
-					$accounttype	= 'Equity';
-					$accountclass	= '';
-				} else if ($accountclasscode == 'Previous') {
 					$accounttype	= 'Equity';
 					$accountclass	= '';
 				} else {
