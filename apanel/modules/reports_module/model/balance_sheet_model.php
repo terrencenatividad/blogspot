@@ -282,6 +282,9 @@ class balance_sheet_model extends wc_model {
 				} else if (in_array($accountclasscode, $liability2_array)) {
 					$accounttype	= 'Liabilities';
 					$accountclass	= 'Non - Current Liabilities';
+				} else if (in_array($accountclasscode, $earning_array)) {
+					$accounttype	= 'Equity';
+					$accountclass	= '';
 				} else if (in_array($accountclasscode, $equity_array)) {
 					$accounttype	= 'Equity';
 					$accountclass	= '';
