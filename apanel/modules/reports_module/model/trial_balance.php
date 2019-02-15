@@ -1069,7 +1069,7 @@ class trial_balance extends wc_model {
 		$jv_query 	=	$this->db->setTable("journalvoucher jv")
 								 ->leftJoin("journaldetails jvd ON jvd.voucherno = jv.voucherno AND jv.companycode = jvd.companycode")
 								 ->setFields("jv.referenceno, jv.companycode, SUM(COALESCE(jvd.debit,0)) amount, jvd.accountcode")
-								 ->setWhere("jv.source = 'jo_release' AND jv.stat NOT IN ('cancelled')")
+								 ->setWhere("jv.source = 'jo_release' AND jv.stat NOT IN ('cancelled')  AND (jv.transactiondate>='$startdate' AND jv.transactiondate<='$enddate')")
 								 ->setGroupBy('jvd.accountcode')
 								 ->buildSelect();
 
@@ -1168,7 +1168,7 @@ class trial_balance extends wc_model {
 			$orderno	= isset($row->orderno)			?	$row->orderno 		:	"";
 			$totalamt 	= isset($row->totalamount)		?	$row->totalamount 	:	0;
 			$invacct 	= isset($row->invacct) 			?	$row->invacct 		:	"";
-	
+		
 			if($releaseno != "" && $totalamt > 0) {
 				$ret_jr		= $this->getAccountsFromPartialReleasedJob($releaseno);
 				// var_dump($ret_jr);
@@ -1195,7 +1195,7 @@ class trial_balance extends wc_model {
 				$header['referenceno'] 		=	$reference;
 				$header['source'] 			=	$accrual_source;
 				$header['sourceno'] 		=	$sourceno;
-
+	
 				$result 					=	$this->insertdata('journalvoucher',$header);
 
 				if($result){
