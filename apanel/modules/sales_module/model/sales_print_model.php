@@ -170,14 +170,11 @@ class sales_print_model extends fpdf {
 
 	public function footer() {
 		$documentinfo	= $this->documentinfo;
-		if ($documentinfo) {
+		if ($documentinfo && isset($documentinfo->print)) {
 			$printed 			= $documentinfo->print;
 			if($printed){
 				$this->Image(BASE_URL.'assets/images/reprint_bg.png',0,60,216,100);
 			}
-		} else if (DEBUGGING) {
-			echo 'Please use setDocumentInfo() to set Header Information';
-			exit();
 		}
 		
 		$this->SetY(279 - $this->margin_top - $this->footer_height + 1);
