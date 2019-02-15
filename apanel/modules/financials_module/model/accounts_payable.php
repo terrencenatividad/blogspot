@@ -1856,6 +1856,12 @@ class accounts_payable extends wc_model
 		
 	}
 
+	/**	
+	 * Dynamic update of single tables
+	 * @data
+	 * @database table
+	 * @condition
+	 */
 	public function updateData($data, $table, $cond)
 	{
 		$result = $this->db->setTable($table)

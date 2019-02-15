@@ -129,18 +129,6 @@ class print_payables_model extends fpdf {
 		} else {
 			$this->Ln();
 		}
-
-		// $this->SetTextColor(255,255,255);
-		// $w = $this->GetStringWidth($this->voucher_status);
-		// if ($this->voucher_status == 'PAID'){
-		// 	$this->SetFillColor(0,166,90);
-		// } else if ($this->voucher_status == 'UNPAID'){
-		// 	$this->SetFillColor(255,0,0);
-		// } else if ($this->voucher_status == 'PARTIAL'){
-		// 	$this->SetFillColor(0,192,239);
-		// } 
-		// $this->SetFont('Arial', 'B', 9);
-		// $this->Cell($w,5,$this->voucher_status,5,5,'L',true);
 		
 		$this->Ln();
 		
@@ -177,9 +165,6 @@ class print_payables_model extends fpdf {
 		$this->Cell(30 ,$rowheight, 'Exchange Rate', 0, 0, 'L');
 		$this->SetFont('Arial', '', 9);
 		$this->Cell(40, $rowheight, $exchangerate, 'B', 0, 'L');
-
-		// $this->Ln();
-
 
 		$this->Ln();
 		
@@ -226,6 +211,20 @@ class print_payables_model extends fpdf {
 		$this->Ln();
 		$this->Cell(200,$rowheight,$second_part,'B',0,'L');
 		$this->Ln();
+	}
+
+	public function Footer(){
+		/**DOCUMENT INFO**/
+		$documentinfo	= $this->documentinfo;
+		if ($documentinfo) {
+			$printed 			= $documentinfo->print;
+			if($printed){
+				$this->Image(BASE_URL.'assets/images/reprint_bg.png',0,50,216,100);
+			}
+		} else if (DEBUGGING) {
+			echo 'Please use setDocumentInfo() to set Header Information';
+			exit();
+		}
 	}
 	
 	private function drawDocumentDetails() {
@@ -385,31 +384,6 @@ class print_payables_model extends fpdf {
 		$this->Cell(50, 4, '', 0, 0, 'C');
 		$this->Cell(100, 4, '', 0, 0, 'L');
 		$this->Cell(50, 4, '', 0, 0, 'C');
-
-		/**DOCUMENT INFO**/
-		$documentinfo	= $this->documentinfo;
-		if ($documentinfo) {
-			$printed 			= $documentinfo->print;
-			$this->Ln(10);
-			if($printed){
-				$this->SetFont('Arial','B',50);
-				$this->SetTextColor(255,192,203);
-				$this->RotatedText(70,150,'R E P R I N T',45);
-				// $this->SetFont('Arial', 'B', 7);
-				// $this->SetTextColor(255,10,10);
-				// $this->Cell(50, 4, '**REPRINTED COPY**', 0, 0, 'L');
-				// $this->SetFont('Arial','B',50);
-				// $this->SetTextColor(255,192,203);
-				// $this->RotatedText(70,150,'O R I G I N A L',45);
-			}else{
-				$this->SetFont('Arial','B',50);
-				$this->SetTextColor(255,192,203);
-				$this->RotatedText(70,150,'O R I G I N A L',45);
-			}
-		} else if (DEBUGGING) {
-			echo 'Please use setDocumentInfo() to set Header Information';
-			exit();
-		}
 	}
 	
 	/**START OF MULTICELL TABLE FUNCTION**/
