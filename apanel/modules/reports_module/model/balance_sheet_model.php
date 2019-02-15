@@ -106,7 +106,7 @@ class balance_sheet_model extends wc_model {
 			$period_start += 3;
 			$period_end += 3;
 		}
-		var_dump($quarter2);
+		// var_dump($quarter2);
 		return $this->buildStructure(array($quarter1, $quarter2, $quarter3, $quarter4));
 	}
 
