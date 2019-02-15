@@ -1219,11 +1219,11 @@ class trial_balance extends wc_model {
 						$accounts['linenum'] 			=	2;
 						$result  						=	$this->create_jvdetails_credit($accounts);
 					} else {
-						$accounts['account'] 			=	$debit_acct;
+						$accounts['account'] 			=	$credit_acct;
 						$accounts['linenum'] 			=	1;
 						$result  						=	$this->create_jvdetails_debit($accounts);
 
-						$accounts['account'] 			=	$credit_acct;
+						$accounts['account'] 			=	$debit_acct;
 						$accounts['linenum'] 			=	2;
 						$result  						=	$this->create_jvdetails_credit($accounts);
 					
