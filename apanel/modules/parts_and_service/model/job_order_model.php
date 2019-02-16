@@ -519,7 +519,7 @@ class job_order_model extends wc_model
 
 	public function getQty($jobreleaseno) {
 		$result = $this->db->setTable('job_release')
-							->setFields('quantity,itemcode,linenum,serialnumbers')
+							->setFields('quantity,itemcode,linenum,serialnumbers,issuancedate')
 							->setWhere("job_release_no = '$jobreleaseno'")
 							->setOrderBy('linenum')
 							->runSelect()

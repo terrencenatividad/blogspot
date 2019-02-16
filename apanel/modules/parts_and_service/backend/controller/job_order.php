@@ -75,6 +75,7 @@ class controller extends wc_controller {
 			'job_release_no',
 			'job_order_no',
 			'h_transactiondate' =>'transactiondate',
+			'issuancedate',
 			'h_itemcode' 		=> 'itemcode',
 			'linenum',
 			'h_detailparticular'=> 'detailparticulars',
@@ -332,6 +333,7 @@ class controller extends wc_controller {
 		$data						= (array) $this->job_order->getJOByID($this->fields, $id);
 		$data['ui']					= $this->ui;
 		$data['transactiondate']	= $this->date->dateFormat();
+		$data['issuancedate']		= $this->date->dateFormat();
 		$data['targetdate']			= $this->date->dateFormat();
 		$data['job_list']			= $this->job_order->getOption('job_type','code');
 		$data['customer_list']		= $this->job_order->getCustomerList();
@@ -667,6 +669,7 @@ class controller extends wc_controller {
 		$customer					= $this->input->post('h_customer');
 		$data['job_release_no'] 	= $job_release_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+		$data['issuancedate'] 		= date('Y-m-d', strtotime($data['issuancedate']));
 		foreach ($data['quantity'] as $key => $value) {
 			if ($value < 1) {
 				unset($data['itemcode'][$key]);
@@ -719,6 +722,8 @@ class controller extends wc_controller {
 	private function ajax_update_issue() {
 		$job_release_no = $this->input->post('jobreleaseno');
 		$data			= $this->input->post($this->fields4);
+		$data['issuancedate'] 		= date('Y-m-d', strtotime($data['issuancedate']));
+
 		$customer		= $this->input->post('h_customer');
 		
 		$this->inventory_model->prepareInventoryLog('Job Release', $job_release_no)
