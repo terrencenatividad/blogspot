@@ -125,9 +125,9 @@ class controller extends wc_controller {
 		$data['item_list']			= $this->asset_master->getItems();
 		$data['assetclass_list']	= $this->asset_master->getAssetClass();
 		$data['coa_list']			= $this->asset_master->getCOA();
-		$data['commissioning_date']	= date("M d, Y",strtotime($data['commissioning_date']));
-		$data['retirement_date']	= date("M d, Y",strtotime($data['retirement_date']));
-		$data['depreciation_month']	= date("M d, Y",strtotime($data['depreciation_month']));
+		$data['commissioning_date']	= $this->date->dateFormat($data['commissioning_date']);
+		$data['retirement_date']	= $this->date->dateFormat($data['retirement_date']);
+		$data['depreciation_month']	= $this->date->dateFormat($data['depreciation_month']);
 		$data['schedule']			= $this->asset_master->getSchedule($data['asset_number']);
 		$data['dept_list']			= $this->asset_master->getDepartment();
 		$data['ajax_task'] 			= 'view';
@@ -244,6 +244,7 @@ class controller extends wc_controller {
 		$data['salvage_value']	   		= str_replace(',', '', $data['salvage_value']);
 		$data['balance_value']	   		= str_replace(',', '', $data['balance_value']);
 
+		$data['retirement_date'] = (!empty($data['retirement_date'])) ? $data['retirement_date'] : '0000-00-00';
 
 		$capitalized_cost	   	= $data['capitalized_cost'];
 		$purchase_value	   		= $data['purchase_value'];

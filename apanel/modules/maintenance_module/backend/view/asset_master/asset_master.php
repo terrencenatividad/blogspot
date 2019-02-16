@@ -177,7 +177,7 @@
 													->setAddon('calendar')
 													->setName('retirement_date')
 													->setId('retirement_date')
-													->setValue($retirement_date)
+													->setValue(($ajax_task != 'ajax_create') ? $retirement_date : "")
 													->draw($show_input);
 										?>
 									</div>
