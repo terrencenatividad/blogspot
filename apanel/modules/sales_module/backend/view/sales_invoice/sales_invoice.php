@@ -1041,6 +1041,17 @@ function getDeliveries(code, voucher)
 		// $('#sales_invoice_form #discountamount').val(disc_amt.toFixed(2));
 		$('#sales_invoice_form #remarks').trigger('change');
 
+		if (voucher == 'jo') {
+			$('#itemsTable tbody tr').find('.price').prop('readonly', false);
+			$('#itemsTable tbody tr').find('.discount').prop('readonly', false);	
+			$('#itemsTable tbody tr').find('.taxcode').prop('disabled', false);
+		}
+		else {
+			$('#itemsTable tbody tr').find('.price').prop('readonly', true);
+			$('#itemsTable tbody tr').find('.discount').prop('readonly', true);	
+			$('#itemsTable tbody tr').find('.taxcode').prop('disabled', true);
+		}
+
 		computeAmount();
 	});
 }
