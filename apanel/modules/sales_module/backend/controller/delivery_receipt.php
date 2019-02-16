@@ -484,7 +484,7 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="9" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($pagination->result as $key => $row) {
-			$table .= '<tr data-id="' . $row->voucherno . '" data-address="'.$row->s_address.'" data-deliverydate="'.$row->deliverydate.'">';
+			$table .= '<tr data-id="' . $row->voucherno . '" data-address="'.$row->s_address.'" data-deliverydate="'.$this->date->dateFormat($row->deliverydate).'">';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->remarks . '</td>';

@@ -1295,7 +1295,7 @@
 					<div class="row">
 						<div class="modal-body">
 							<div class="row">
-								<div class="col-md-12"><p>No. of months for Asset</p></div>
+								<div class="col-md-12"><p>New Useful Life</p></div>
 							</div>
 							<div class="row">
 								<div class="col-md-12"><input type="text" id="addmonths" class="form-control"></div>

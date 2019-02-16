@@ -81,7 +81,7 @@ class controller extends wc_controller {
                 $table .= '<td>' . $row->atc_code . '</td>';
                 $table .= '<td>' . $row->paymenttype . '</td>';
                 $table .= '<td style = "text-align:right">' . $row->taxbase_amount . '</td>';
-                $table .= '<td style = "text-align:right">' . $row->tax_rate . '</td>';
+                $table .= '<td style = "text-align:right">' . number_format($row->tax_rate, 2) . '</td>';
                 $table .= '<td style = "text-align:right">' . $row->credit . '</td>';
                 $table .= '</tr>';
                 

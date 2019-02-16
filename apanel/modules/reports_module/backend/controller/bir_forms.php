@@ -252,6 +252,9 @@ class controller extends wc_controller {
 		$data['months'] 		= $this->months;
 		$data['years'] 			= $this->years;
 
+		$date = date('Y-m', strtotime('next month')) . '-10';
+		$data['datefilter']		=  $this->date->dateFormat($date);
+
 		$data['year'] 			= $this->getDate('year');
 		$data['month']			= $this->getDate('month');
 

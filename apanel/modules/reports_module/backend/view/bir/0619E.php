@@ -87,7 +87,7 @@
 															->setId('duedate')
 															->setClass('datepicker-input')
 															->setAttribute(array('readonly' => ''))
-															->setValue("")
+															->setValue($datefilter)
 															->setAddon('calendar')
 															->draw();
 												?>
