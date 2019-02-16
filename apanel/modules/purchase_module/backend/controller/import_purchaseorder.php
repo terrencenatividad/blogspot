@@ -563,18 +563,18 @@ class controller extends wc_controller
 
 		$print = new import_purchase_print_model();
 		$print->setDocumentType('Import Purchase Order')
-			->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
-			->setVendorDetails($vendordetails)
-			->setDocumentDetails($documentdetails)
-			->setDocumentInfo($documentinfo)
-			->addReceived();
+		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
+		->setVendorDetails($vendordetails)
+		->setDocumentDetails($documentdetails)
+		->setDocumentInfo($documentinfo)
+		->addReceived();
 
 		$print->setHeaderWidth(array(28, 40, 18, 26, 17, 17, 23, 31))
-			->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-			->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
-			->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
-			->setSummaryAlign(array('J','R','R', 'R'))	
-			->setSummaryWidth(array('120', '19', '30', '31'));
+		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+		->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
+		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
+		->setSummaryAlign(array('J','R','R', 'R'))	
+		->setSummaryWidth(array('120', '19', '30', '31'));
 
 		/**
 		 * Custom : Tag as printed
@@ -923,9 +923,9 @@ class controller extends wc_controller
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
 					$saveArr['allocated'] 		= str_replace(',','', $data_post['baseamount'][$i]);
 					$actualArr[]      		= $saveArr;
+					$save = $this->po->saveActual($actualArr, $voucher);
 				}
 			}
-			$save = $this->po->saveActual($actualArr, $voucher);
 		}
 
 		return $dataArray = array("msg" => $msg);
