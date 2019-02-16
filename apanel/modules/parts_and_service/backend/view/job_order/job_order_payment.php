@@ -74,13 +74,16 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-												->setLabel('Reference')
+												->setLabel('Issuance Date')
 												->setSplit('col-md-4', 'col-md-8')
-												->setName('reference')
-												->setId('reference')
-												->setValue($reference)
+												->setName('issuancedate')
+												->setId('issuancedate')
+												->setClass('datepicker-input')
+												->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
+												->setAddon('calendar')
+												->setValue($issuancedate)
 												->setValidation('required')
-												->draw($show_input);
+												->draw(true);
 									?>
 								</div>
 							</div>
@@ -111,6 +114,18 @@
 									?>
 								</div>
 							</div>
+							<div class="col-md-6">
+									<?php
+										echo $ui->formField('text')
+												->setLabel('Reference')
+												->setSplit('col-md-4', 'col-md-8')
+												->setName('reference')
+												->setId('reference')
+												->setValue($reference)
+												->setValidation('required')
+												->draw($show_input);
+									?>
+								</div>
 							<div class="row">
 								<div class="col-md-12">
 									<?php
@@ -1050,6 +1065,7 @@
 								$('#tableList tbody tr').each(function(aaa){
 									var linenums = $(this).data('linenum');
 									if(element.linenum == linenums) {
+										$('#issuancedate').val(element.issuancedate);
 										$(this).find('.quantity').val(element.quantity);
 										$(this).find('.serialnumbers').val(element.serialnumbers);
 										$(this).find('.unchecked').val(element.serialnumbers);
