@@ -193,7 +193,7 @@ class controller extends wc_controller {
 				->setShippingDetail($documentinfo->s_address)
 				->setStatDetail($documentinfo->stat)
 				->setDocumentDetails($documentdetails)
-				// ->addTermsAndCondition()
+				->setDocumentInfo($documentinfo)
 				->addReceived();
 
 		$print->setHeaderWidth(array(40, 100, 30, 30))
@@ -205,6 +205,15 @@ class controller extends wc_controller {
 		
 		$documentcontent	= $this->delivery_model->getDocumentContent($voucherno);
 		$detail_height = 37;
+
+		/**
+		 * Custom : Tag as printed
+		 * Also store user and timestamp
+		 */
+		$print_data['print'] = 1;
+		$print_data['printby'] = USERNAME;
+		$print_data['printdate'] = date("Y-m-d H:i:s");
+		$this->delivery_model->updateData($print_data, "deliveryreceipt", " voucherno = '$voucherno' AND print = '0' ");
 
 		$hasSerial = false;
 		foreach($documentcontent as $key => $row) {

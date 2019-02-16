@@ -2,7 +2,7 @@
 
     class purchase_relief extends wc_model {        
 		public function getCompany($code){
-			$fields = "companyname, address, tin, taxyear, periodstart";
+			$fields = "companyname, address, tin, taxyear, periodstart, rdo_code";
 
 			$result = $this->db->setTable('company')
 								->setFields($fields)
@@ -72,7 +72,7 @@
                                          ->buildSelect();
                                          
             $query = $this->db->setTable("purchasereceipt rpt")
-                              ->setFields('rpt.transactiondate, rpt.voucherno, rpt.period, rpt.fiscalyear, p.partnername, p.tinno, rpt.netamount, "0" vat_exempt, "0" vat_zerorated, rpt.amount vat_sales, 
+                              ->setFields('rpt.transactiondate, rpt.voucherno, rpt.period, rpt.fiscalyear, p.partnername, p.address1 address, p.tinno, rpt.netamount, "0" vat_exempt, "0" vat_zerorated, rpt.amount vat_sales, 
                                             COALESCE(in_query.service,0) service, COALESCE(in_query.goods,0) goods, COALESCE(in_query.capital, 0) capital, rpt.total_tax totaltax, rpt.netamount as grosstaxable')
                               ->leftJoin('partners p ON p.partnercode = rpt.vendor AND p.companycode = rpt.companycode AND p.partnertype = "supplier"')
                               ->leftJoin("($inner_query) in_query ON in_query.voucherno = rpt.voucherno AND in_query.companycode = rpt.companycode")

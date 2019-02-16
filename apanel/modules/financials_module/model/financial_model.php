@@ -257,6 +257,7 @@ class financial_model extends wc_model {
 			'transactiondate'	=> $header->transactiondate,
 			'duedate'			=> $header->transactiondate,
 			$this->partnertype	=> $header->{$this->partnertype},
+			// 'partner'			=> $header->{$this->partnertype},
 			'amount'			=> $header->netamount,
 			'convertedamount'	=> $header->netamount,
 			'period'			=> date('m'),
@@ -272,6 +273,10 @@ class financial_model extends wc_model {
 
 		if ($this->header_table != 'journalvoucher') {
 			$data['invoicedate'] = $header->transactiondate;
+		}
+
+		if ($this->header_table == 'journalvoucher') {
+			$data['partner'] = $header->{$this->partnertype};
 		}
 
 		$this->db->setTable($this->header_table)

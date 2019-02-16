@@ -480,7 +480,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "purchaseorder as po";
-		$docinfo_fields = array('po.deliverydate as deliverydate, po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate');
+		$docinfo_fields = array('po.deliverydate as deliverydate, po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.print print');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -532,6 +532,7 @@ class controller extends wc_controller
 		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 		->setVendorDetails($vendordetails)
 		->setDocumentDetails($documentdetails)
+		->setDocumentInfo($documentinfo)
 		->addReceived();
 
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
@@ -540,6 +541,15 @@ class controller extends wc_controller
 		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
 		->setSummaryAlign(array('J','R','R', 'R'))	
 		->setSummaryWidth(array('120', '50', '30'));
+
+		/**
+		 * Custom : Tag as printed
+		 * Also store user and timestamp
+		 */
+		$print_data['print'] = 1;
+		$print_data['printby'] = USERNAME;
+		$print_data['printdate'] = date("Y-m-d H:i:s");
+		$this->po->updateData($print_data, "purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
 		$detail_height = 37;
 		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
@@ -557,19 +567,19 @@ class controller extends wc_controller
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
-											array($notes, 'Total Purchase Tax', number_format($vat, 2)),
-											array('', 'Withholding Tax', number_format($wtaxamount, 2)),
-											array('', 'Total Amount Due', number_format($netamount, 2)),
-											array('', '', '')
+					array($notes, 'Total Purchase Tax', number_format($vat, 2)),
+					array('', 'Withholding Tax', number_format($wtaxamount, 2)),
+					array('', 'Total Amount Due', number_format($netamount, 2)),
+					array('', '', '')
 				));
 				$total_amount = 0;
 			}
 		}
 		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
-											array($notes, 'Total Purchase Tax', number_format($vat, 2)),
-											array('', 'Withholding Tax', number_format($wtaxamount, 2)),
-											array('', 'Total Amount Due', number_format($netamount, 2)),
-											array('', '', '')
+			array($notes, 'Total Purchase Tax', number_format($vat, 2)),
+			array('', 'Withholding Tax', number_format($wtaxamount, 2)),
+			array('', 'Total Amount Due', number_format($netamount, 2)),
+			array('', '', '')
 		));
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}
@@ -820,16 +830,16 @@ class controller extends wc_controller
 			if($this->report_model){
 				$this->report_model->generateAssetActivity();
 			}
-			if(isset($data_post['budgetcode'])){
-				for($i=1;$i<=count($data_post['budgetcode']);$i++){
+			for($i=1;$i<=count($data_post['budgetcode']);$i++) {
+				if(!empty($data_post['budgetcode'][$i])){
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
 					$saveArr['allocated'] 		= str_replace(',','', $data_post['amount'][$i]);
 					$actualArr[]      		= $saveArr;
 				}
-				$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);
 			}
+			$save = $this->po->saveActual($actualArr, $data_post['h_voucher_no']);
 		}
 		return $dataArray = array("msg" => $msg);
 	}

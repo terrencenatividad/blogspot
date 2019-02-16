@@ -107,7 +107,33 @@
 								->setOrderBy('linenum')
 								->runSelect()
 								->getResult();
-			
+
+			$srcqty = $this->getSOqty($sourceno, $source);
+
+			foreach ($result as $key => $row) {
+				foreach ($srcqty as $key => $row2) {
+					if ($row2->linenum == $row->linenum) {
+						$result[$key]->srcqty = $row2->srcqty;
+					}
+				}
+			}
+
+			return $result;
+		}
+
+		public function getSOqty($sourceno, $type){
+			$result = $this->db->setTable('salesorder_details s')
+								->setFields(array('linenum','issueqty srcqty'))
+								->leftJoin('deliveryreceipt d ON s.voucherno=d.source_no');
+			if ($type == 'SI') {
+				$result = $this->db->leftJoin('salesinvoice i ON d.voucherno=i.sourceno')
+								->setWhere("i.voucherno='$sourceno'");
+			} else{
+				$result = $this->db->setWhere("d.voucherno='$sourceno'");
+			}
+			$result = $this->db->runSelect()
+								->getResult();
+
 			return $result;
 		}
 
@@ -224,6 +250,15 @@
 
 			$result['header'] 	= $this->getSourceHeader($table, $fields, $voucherno);
 			$result['details'] 	= $this->getSourceDetails($table_details, $fields_details, $voucherno);
+			$srcqty = $this->getSOqty($voucherno, $source);
+
+			foreach ($result['details'] as $key => $row) {
+				foreach ($srcqty as $key => $row2) {
+					if ($row2->linenum == $row->linenum) {
+						$result['details'][$key]->srcqty = $row2->srcqty;
+					}
+				}
+			}
 
 			return $result;
 		}

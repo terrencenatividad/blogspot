@@ -502,5 +502,35 @@ class credit_memo_model extends wc_model {
 
 		return $error_id;
 	}
+	
+	public function checkRefNo($referenceno) {
+		$result = $this->db->setTable('purchasereturn')
+						->setFields("voucherno")
+						->setWhere("voucherno = '$referenceno'")
+						->runSelect()
+						->getRow();
+		
+		return $result;
+	}
 
+	// public function getPartnerOrVendor($voucherno) {
+	// 	$query = $this->db->setTable('journalvoucher')
+	// 						->setFields('partner, vendor')
+	// 						->setWhere("voucherno = '$voucherno'")
+	// 						->runSelect()
+	// 						->getRow();
+		
+	// 	$partner = $query->partner;
+	// 	$vendor = $query->vendor;
+		
+	// 	if ($partner != '') {
+	// 		$result = $partner;
+	// 	} else if ($vendor != '') {
+	// 		$result = $vendor;
+	// 	} else {
+	// 		$result = '';
+	// 	}
+		
+	// 	return $result;
+	// }
 }

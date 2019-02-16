@@ -4,7 +4,7 @@
 		<?if(!$show_input && !empty($filename)):?><li><a href="Attachment" data-toggle="tab">Attachments</a></li><?endif;?>
 	</ul>
 	<div id='Details' class="box box-primary tab-pane">
-		<form action="" method="post" class="form-horizontal">
+		<form id='myform' action="" method="post" class="form-horizontal">
 			<div class="box-body">
 				<br>
 				<div class="row">
@@ -194,6 +194,7 @@
 					<tbody>
 					<?php foreach ($voucher_details as $key => $row) { ?>
 						<?php 
+							$itemgroup[] = $row->itemgroup;
 							$checkval = ($row->haswarranty == 'Yes') ? 'check' : 'uncheck';
 							if($row->parentcode != ''){
 								$attrdisabled 	= array('disabled',true);
@@ -640,6 +641,7 @@
 	var ajax_call	= '';
 	var min_row		= 1;
 	var prev_discountype = '<?=$discount_type;?>';
+	var itemgroup = <?php echo json_encode($itemgroup) ?>;
 
 	function addVoucherDetails() {
 		var linenum = $('tableList tbody tr').length + 1;
@@ -802,7 +804,15 @@
 		var parentline 	= row.find('.linenum').val();
 		var customer 	= $('#customer').val();
 		$.post("<?=MODULE_URL?>ajax/get_item_details","itemcode="+itemcode, function(data){
-
+			if (data.itemgroup == 'services') {
+				var warehouse = row.find("select.warehouse");
+				warehouse.removeAttr('data-validation');
+				warehouse.closest('.form-group').removeClass('has-error').find('p.help-block.m-none').html('');
+				warehouse.trigger('blur_validate');
+			}
+			else {
+				row.find("select.warehouse").attr('data-validation', 'required');
+			}
 			row.find(".detailparticular").val(data.itemdesc);
 			row.find(".warranty").iCheck('uncheck');
 			row.find(".haswarranty").val('No');
@@ -951,8 +961,15 @@
 			addVoucherDetails();
 			setLineNum();
 		}
-		else
+		else{
+			$.each($('#tableList tbody tr'), function(ind, val){
+				if (itemgroup[ind] == 'services') {
+					var warehouse = $(this).find("select.warehouse");
+					warehouse.removeAttr('data-validation');
+				}
+			});
 			recomputeAll();
+		}
 	});
 	
 	$('body').on('click', '#addNewItem', function() {
@@ -1081,18 +1098,6 @@
 			});
 		}
     });
-
-	$('#tableList tbody').on('change', '.warehouse', function(e) {
-		var warehouse 	= $(this).val();
-		var formgroup 	= $(this).parent().parent();
-
-		if( warehouse != '' )
-			formgroup.removeClass('has-error');
-		
-		else
-			formgroup.addClass('has-error');
-		
-	});
 
 	$("#discount_type").on("change", function(){
 		if (prev_discountype != 'none'){

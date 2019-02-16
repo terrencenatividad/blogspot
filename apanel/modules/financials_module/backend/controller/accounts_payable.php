@@ -346,7 +346,7 @@ class controller extends wc_controller
 		$apamount[0]->amount;
 
 		$docinfo_table  = "accountspayable as ap";
-		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "referenceno AS referenceno", "particulars AS remarks", "p.partnername AS vendor", 'ap.currencycode as currencycode', 'ap.exchangerate as exchangerate');
+		$docinfo_fields = array('ap.transactiondate AS documentdate','ap.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ap.amount AS apamount', "referenceno AS referenceno", "particulars AS remarks", "p.partnername AS vendor", 'ap.currencycode as currencycode', 'ap.exchangerate as exchangerate', 'ap.print as print');
 		$docinfo_join   = "partners as p ON p.partnercode = ap.vendor AND p.companycode = ap.companycode";
 		$docinfo_cond 	= "ap.voucherno = '$voucherno'";
 
@@ -387,6 +387,15 @@ class controller extends wc_controller
 			$cheque_join = "chartaccount chart ON pvc.chequeaccount = chart.id";
 			$chequeArray = $this->accounts_payable->retrieveData($cheque_table, $cheque_fields, $cheque_cond, $cheque_join);
 		}
+
+		/**
+		 * Custom : Tag as printed
+		 * Also store user and timestamp
+		 */
+		$print_data['print'] = 1;
+		$print_data['printby'] = USERNAME;
+		$print_data['printdate'] = date("Y-m-d H:i:s");
+		$this->accounts_payable->updateData($print_data, "accountspayable", " voucherno = '$voucherno' AND print = '0' ");
 		
 		// Setting for PDFs
 		$print = new print_payables_model('P', 'mm', 'Letter');
@@ -661,6 +670,17 @@ class controller extends wc_controller
 						$type = $get_amount->budget_check;
 						if($type == 'Monitored') {
 							if($ap_details['debit'][$count] != '0.00') {
+								// $check_code = in_array($ap_details['budgetcode'][$count], $codes);
+								// $check_account = in_array($ap_details['accountcode'][$count], $codes);
+								// if(!$check_code && !$check_account) {
+								// 	$codes['code'] = $ap_details['budgetcode'][$count];
+								// 	$codes['accountcode'] = $ap_details['accountcode'][$count];
+								// 	$codes['amount'] = $ap_details['debit'][$count];
+								// } else {
+								// 	$codes['code'] = $ap_details['budgetcode'][$count];
+								// 	$codes['accountcode'] = $ap_details['accountcode'][$count];
+								// 	$codes['amount'] += $ap_details['debit'][$count];
+								// }
 								$check = in_array($ap_details['budgetcode'][$count], $codes);
 								if(!$check) {
 									$codes['code'] = $ap_details['budgetcode'][$count];

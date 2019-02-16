@@ -1,6 +1,7 @@
 <?php
 class purchase_print_model extends fpdf {
 
+	public $documentinfo	= array();
 	private $margin_side		= 8;
 	private $margin_top			= 8;
 	private $termsandcondition	= '';
@@ -160,6 +161,13 @@ class purchase_print_model extends fpdf {
 	}
 
 	public function footer() {
+		$documentinfo	= $this->documentinfo;
+		if ($documentinfo && isset($documentinfo->print)) {
+			$printed 			= $documentinfo->print;
+			if($printed){
+				$this->Image(BASE_URL.'assets/images/reprint_bg.png',0,60,216,100);
+			}
+		}
 		$this->SetY(279 - $this->margin_top - $this->footer_height + 1);
 		if ($this->termsandcondition) {
 			$this->SetFont('Arial', '', 8);
@@ -251,6 +259,11 @@ class purchase_print_model extends fpdf {
 
 	public function setDocumentDetails($document_details) {
 		$this->document_details = $document_details;
+		return $this;
+	}
+
+	public function setDocumentInfo($details) {
+		$this->documentinfo = $details;
 		return $this;
 	}
 

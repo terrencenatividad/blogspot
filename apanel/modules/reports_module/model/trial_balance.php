@@ -454,21 +454,34 @@ class trial_balance extends wc_model {
 		$accounts_arr 		= $this->retrieveCOAdetails($currentyear,$prevyear,'IS');
 			
 		$h_amount 			= $h_total_debit 	= $h_total_credit = 0;
-		foreach($accounts_arr as $row){
-			$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
+		if($source == "closing") {
+			foreach($accounts_arr as $row){
+				$accountid 		= $row->accountid;
+				$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
+				$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
+				// var_dump($prev_carry);
+				// var_dump($amount);
+				if( $amount > 0 ){
+					$credit 			= 	$prev_carry	+ $amount;
+					$h_total_credit 	+=	$credit;
+				} else {
+					$debit 				= -($prev_carry + $amount);
+					$h_total_debit 		+=	$debit;
+				}
+			} 
+		} else {
+			$accountid 		= $current_year_id;
 			$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 			$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
 	
 			if( $amount > 0 ){
-				$credit 			= 	$prev_carry	+ $amount;
-				$h_total_credit 	+=	$credit;
+				$h_total_credit 	= 	$prev_carry	+ $amount;
 			} else {
-				$debit 				= -($prev_carry + $amount);
-				$h_total_debit 		+=	$debit;
+				$h_total_debit 		= -($prev_carry + $amount);
 			}
-		} 
+		}
 
-		$h_amount 	= 	($amount > 0) ? $h_total_credit :	$h_total_debit;
+		$h_amount 	= 	($h_total_credit > 0) ? $h_total_credit :	$h_total_debit;
 
 		$str_month 	=	date('F', strtotime($lastdayofdate));
 		$reference	=	($source == "closing") ? "Closing for $str_month, $year" : "Year-end Closing for $year";
@@ -495,9 +508,45 @@ class trial_balance extends wc_model {
 			$credit 				= $total_credit = 0;
 			$retained 				= 0;
 			$linenum 				= 1;
-
-			foreach($accounts_arr as $row){
-				$accountid 		= ($source == "closing") ? $row->accountid : $current_year_id;
+			// var_dump($accounts_arr);
+			
+			if($source == "closing") {
+				foreach($accounts_arr as $row){
+					$accountid 		= $row->accountid;
+	
+					$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
+					$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
+	
+					$accounts['voucher'] 			=	$generatedvoucher;
+					$accounts['account'] 			=	$accountid;
+					$accounts['linenum'] 			=	$linenum;
+					$accounts['detailparticulars'] 	= 	$detailparticular;
+					$accounts['source'] 			=	$source;
+					$accounts['stat'] 				= 	$stat;
+					$accounts['transtype'] 			= 	$transtype;
+		
+					if( $amount > 0 ){
+						$credit 			= 	$prev_carry	+ $amount;
+						if($credit > 0) {
+							$accounts['amount'] =	$credit;
+							$result  			=	$this->create_jvdetails_credit($accounts);
+							$total_credit 		+=	$credit;
+		
+							$linenum 			+=	1;	
+						}
+					} else {
+						$debit 				= -($prev_carry	+ $amount);
+						if($debit > 0){
+							$accounts['amount'] =	$debit;
+							$total_debit 		+=	$debit;
+							$result 			=	$this->create_jvdetails_debit($accounts);
+		
+							$linenum 			+=	1;	
+						}
+					}
+				} 
+			} else {
+				$accountid 		= 	$current_year_id; 
 
 				$prev_carry 	= $this->getPrevCarry($accountid,$firstdayofdate);
 				$amount			= $this->getCurrent($accountid,$firstdayofdate,$lastdayofdate);
@@ -512,22 +561,24 @@ class trial_balance extends wc_model {
 	
 				if( $amount > 0 ){
 					$credit 			= 	$prev_carry	+ $amount;
-					$accounts['amount'] 	=	$credit;
-					$result  			=	$this->create_jvdetails_credit($accounts);
-					$total_credit 		+=	$credit;
+					if($credit > 0){
+						$accounts['amount'] =	$credit;
+						$result  			=	$this->create_jvdetails_credit($accounts);
+						$total_credit 		+=	$credit;
 
-					$linenum 		+=	1;	
+						$linenum 		+=	1;	
+					}
 				} else {
 					$debit 				= -($prev_carry	+ $amount);
-					$accounts['amount'] 	=	$debit;
+					if($debit > 0){
+						$accounts['amount'] =	$debit;
+						$total_debit 		+=	$debit;
+						$result 			=	$this->create_jvdetails_debit($accounts);
 
-					$total_debit 		+=	$debit;
-
-					$result 			=	$this->create_jvdetails_debit($accounts);
-
-					$linenum 			+=	1;	
+						$linenum 			+=	1;	
+					}
 				}
-			} 
+			}
 	
 			$retained 		= ($total_debit > $total_credit) ? $total_debit - $total_credit : -($total_credit - $total_debit);
 
@@ -699,7 +750,18 @@ class trial_balance extends wc_model {
 						
 		return $result;
 	}
-
+	public function getJVTotal($voucherno, $search="", $limit=1){
+		$search_cond 	=	($search!="") 	?	" AND (jv.detailparticulars LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR ca.segment5 LIKE '%$search%' )" 	:	"";
+		$result 		= 	$this->db->setTable('journaldetails jv')
+									->leftJoin('chartaccount ca ON ca.id=jv.accountcode')
+									->setFields('jv.linenum, jv.accountcode, CONCAT(ca.segment5," - ",ca.accountname) accountname, jv.detailparticulars, SUM(jv.debit) debit, SUM(jv.credit) credit')
+									->setWhere("jv.voucherno = '$voucherno' AND jv.stat = 'temporary' AND jv.source IN ('closing','yrend_closing') AND ( jv.debit > 0 OR jv.credit > 0 ) $search_cond ")
+									->setGroupBy('jv.voucherno')
+									->setOrderBy("jv.linenum")
+									->runSelect(1)
+									->getRow();
+		return $result;
+	}
 	public function getJVDetails($voucherno, $search="", $limit=1){
 		$search_cond 	=	($search!="") 	?	" AND (jv.detailparticulars LIKE '%$search%' OR ca.accountname LIKE '%$search%' OR ca.segment5 LIKE '%$search%' )" 	:	"";
 		$result 		= 	$this->db->setTable('journaldetails jv')
@@ -1007,7 +1069,7 @@ class trial_balance extends wc_model {
 		$jv_query 	=	$this->db->setTable("journalvoucher jv")
 								 ->leftJoin("journaldetails jvd ON jvd.voucherno = jv.voucherno AND jv.companycode = jvd.companycode")
 								 ->setFields("jv.referenceno, jv.companycode, SUM(COALESCE(jvd.debit,0)) amount, jvd.accountcode")
-								 ->setWhere("jv.source = 'jo_release' AND jv.stat NOT IN ('cancelled')")
+								 ->setWhere("jv.source = 'jo_release' AND jv.stat NOT IN ('cancelled')  AND (jv.transactiondate>='$startdate' AND jv.transactiondate<='$enddate')")
 								 ->setGroupBy('jvd.accountcode')
 								 ->buildSelect();
 
@@ -1106,7 +1168,7 @@ class trial_balance extends wc_model {
 			$orderno	= isset($row->orderno)			?	$row->orderno 		:	"";
 			$totalamt 	= isset($row->totalamount)		?	$row->totalamount 	:	0;
 			$invacct 	= isset($row->invacct) 			?	$row->invacct 		:	"";
-	
+		
 			if($releaseno != "" && $totalamt > 0) {
 				$ret_jr		= $this->getAccountsFromPartialReleasedJob($releaseno);
 				// var_dump($ret_jr);
@@ -1133,7 +1195,7 @@ class trial_balance extends wc_model {
 				$header['referenceno'] 		=	$reference;
 				$header['source'] 			=	$accrual_source;
 				$header['sourceno'] 		=	$sourceno;
-
+	
 				$result 					=	$this->insertdata('journalvoucher',$header);
 
 				if($result){
@@ -1157,11 +1219,11 @@ class trial_balance extends wc_model {
 						$accounts['linenum'] 			=	2;
 						$result  						=	$this->create_jvdetails_credit($accounts);
 					} else {
-						$accounts['account'] 			=	$debit_acct;
+						$accounts['account'] 			=	$credit_acct;
 						$accounts['linenum'] 			=	1;
 						$result  						=	$this->create_jvdetails_debit($accounts);
 
-						$accounts['account'] 			=	$credit_acct;
+						$accounts['account'] 			=	$debit_acct;
 						$accounts['linenum'] 			=	2;
 						$result  						=	$this->create_jvdetails_credit($accounts);
 					

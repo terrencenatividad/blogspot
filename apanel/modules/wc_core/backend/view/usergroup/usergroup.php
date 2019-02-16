@@ -14,6 +14,7 @@
 									->setId('groupname')
 									->setValue($groupname)
 									->setValidation('required')
+									->setMaxLength(25)
 									->draw($show_input);
 							?>
 						</div>

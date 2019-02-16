@@ -202,7 +202,7 @@
 											)
 										)
 										->setClass("input_label")
-										->setValue(($sr_amount) ? number_format($sr_amount, 2) : '0.00')
+										->setValue(($amount) ? number_format($amount, 2) : '0.00')
 										->draw($show_input);
 										?>
 					</div>
@@ -279,12 +279,13 @@
 												echo $ui->drawSubmit(true);
 											}
 										}
-										if($ajax_task == 'ajax_view' && $display_edit && $status != 'cancelled') {
+										if($ajax_task == 'ajax_view' && $display_edit && $status != 'cancelled' && !$checker) {
 											echo $ui->drawSubmit($show_input);
 										}
 										?>
 						<!-- <a href="<?=MODULE_URL?>"  data-toggle="back_page" class="btn btn-default">Cancel</a> -->
-						<?php echo $ui->drawCancel(); ?>
+						<?php 
+							echo $ui->drawCancel(); ?>
 					</div>
 				</div>
 			</div>
@@ -883,18 +884,19 @@ echo $ui->loadElement('modal')
 				}
 			}
 		}
-
+		<?php if ($ajax_task != 'ajax_view') { ?>
 		$('#referenceno').on('click', function () {
 			var customer = $('#partner').val();
 			ajax.customer = customer;
 			if (customer == '') {
 				$('#warning_modal').modal('show').find('#warning_message').html('Please Select a Partner');
 				$('#customer').trigger('blur');
-			} else {
+			} else {		
 				$('#ordered_list_modal').modal('show');
 				getList();
 			}
 		});
+		<?php } ?>
 
 		$('#ordered_tableList').on('click', 'tr[data-id]', function () {
 			var so = $(this).attr('data-id');

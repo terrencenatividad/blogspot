@@ -274,6 +274,7 @@ class controller extends wc_controller {
 				->setRemarksDetail($header->notes)
 				->setDocumentDetails($docheader)
 				->setStatDetail($header->stat)
+				->setDocumentInfo($header)
 				// ->addTermsAndCondition()
 				->addReceived();
 
@@ -287,6 +288,15 @@ class controller extends wc_controller {
 		$detail_height = 37;
 		$total_quantity = 0;
 
+		/**
+		 * Custom : Tag as printed
+		 * Also store user and timestamp
+		 */
+		$print_data['print'] = 1;
+		$print_data['printby'] = USERNAME;
+		$print_data['printdate'] = date("Y-m-d H:i:s");
+		$this->job_order->updateData($print_data, "job_order", " job_order_no = '$voucherno' AND print = '0' ");
+		
 		$notes = preg_replace('!\s+!', ' ', $header->notes);
 		foreach ($details as $key => $row) {
 			if ($key % $detail_height == 0) {

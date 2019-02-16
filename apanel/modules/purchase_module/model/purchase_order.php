@@ -540,6 +540,7 @@ class purchase_order extends wc_model
 							->setFields('ic.expense_account as expense_account, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
 							->leftJoin('items as i ON i.classid = ic.id')
 							->leftJoin('chartaccount as ca ON ca.id = ic.expense_account')
+							->setWhere("i.itemcode = '$itemcode'")
 							->runSelect()
 							->getRow();
 
@@ -769,7 +770,6 @@ class purchase_order extends wc_model
 		->setValues($data)
 		->setWhere($cond)
 		->runUpdate();
-					//echo $this->db->getQuery();
 		return $result;
 	}
 

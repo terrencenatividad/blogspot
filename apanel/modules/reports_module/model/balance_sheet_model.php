@@ -39,6 +39,7 @@ class balance_sheet_model extends wc_model {
 		{
 			$period_list[] = $value->period;
 		}
+		// var_dump($period_list);
 		for ($x = 1; $x <= 12; $x++) {
 			if ($period > 12) {
 				$period = 1;
@@ -61,42 +62,51 @@ class balance_sheet_model extends wc_model {
 	public function getQuarterly($year = false) {
 		$year	= ($year) ? $year : date('Y');
 		$period	= $this->period;
+		// echo $period;
 		$periods = $this->getPeriodList($year);
 		$period_list 	= array();
 		foreach ($periods as $key => $value)
 		{
 			$period_list[] = $value->period;
 		}
-
-		$period_start	= $period;
-		$period_end		= $period_start + 2;
+		// var_dump($period_list);
+		
+		$period_start	= $period; 	//1 
+		$period_end		= $period_start + 2; //3
 		$year_start		= $year;
 		$year_end		= $year;
 
 		for ($x = 1; $x <= 4; $x++) {
+			// echo "start ".$period_start."<br>";
 			if ($period_start > 11) {
 				$period_start = 1;
 				$year_start++;
 			}
+			// echo "End ".$period_end."<br>";
 			if ($period_end > 12) {
 				$period_end -= 12;
 				$year_end++;
 			}
-
+			// echo $period_start."<br>";
+			
 			if(isset($period_list)){
-				if(in_array($period_start, $period_list)){
-					${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
-				}else{
-					${"quarter{$x}"} = 0;
+				foreach($period_list as $key=>$actual_period){ // 5 & 12
+					// echo $actual_period."<br>";
+					// echo $period_start." - ".$period_end."<br>";
+					if($actual_period >= $period_start && $actual_period <= $period_end){
+						${"quarter{$x}"} = $this->getRecords("{$year_start}-{$period_start}-01", $this->getMonthEnd("{$year_end}-{$period_end}-01"));
+					}else{
+						${"quarter{$x}"} = 0;
+					}
 				}
 			}else{
 				${"quarter{$x}"} = 0;
 			}
-			
-			
+
 			$period_start += 3;
 			$period_end += 3;
 		}
+		// var_dump($quarter2);
 		return $this->buildStructure(array($quarter1, $quarter2, $quarter3, $quarter4));
 	}
 
@@ -108,13 +118,13 @@ class balance_sheet_model extends wc_model {
 		if ($this->period > date('n')) {
 			$year_end++;
 		}
-
 		$year1	= $this->getRecords(($year_start - 1) . "-{$period_start}-01", ($year_end - 1) . "-{$period_end}-31");
 		$year2	= $this->getRecords("{$year_start}-{$period_start}-01", "{$year_end}-{$period_end}-31");
 		return $this->buildStructure(array($year1, $year2));
 	}
 
 	public function getRecords($start, $end) {
+		
 		$result		=  $this->db->setTable('chartaccount c')
 								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('OTHCA', 'CUASET', 'ACCREC', 'CASH', 'OTHNCA', 'PPE', 'PREPAID', 'INV', 'VAT', 'OTHCL', 'CULIAB', 'ACCPAY', 'LTP', 'TAX', 'INPVAT', 'NVNTRY', 'NCASET', 'NCLIAB', 'OUTVAT') AND transactiondate <= '$end'")
 								->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
@@ -124,7 +134,9 @@ class balance_sheet_model extends wc_model {
 								->setOrderBy("CASE c.accountclasscode WHEN 'CASH' THEN 1 WHEN 'ACCREC' THEN 2 WHEN 'INV' THEN 3 WHEN 'OTHCA' THEN 4 WHEN 'PREPAID' THEN 5 WHEN 'VAT' THEN 6 WHEN 'PPE' THEN 7 WHEN 'OTHNCA' THEN 8 WHEN 'ACCPAY' THEN 9 WHEN 'OTHCL' THEN 10 WHEN 'TAX' THEN 11 WHEN 'LTP' THEN 12 WHEN 'EQUITY' THEN 13 END, c.id")
 								->runSelect()
 								->getResult();
-
+		// if($end == "2018-06-30") {
+		// 	echo $this->db->getQuery();
+		// }
 		$earnings = $this->getEarnings($start, $end);
 
 		return array_merge($result, $earnings);
@@ -142,66 +154,99 @@ class balance_sheet_model extends wc_model {
 	}
 
 	public function getEarnings($start, $end) {
-		$check_codes		= array('COST', 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'REV', 'RETEAR', 'REVENU', 'OPSEXP', 'OTREXP');
-		$current_earnings	= (object) array(
-			'accountname'		=> 'Current Period Earnings',
-			'accountnature'		=> 'Credit',
-			'parentnature'		=> 'Credit',
-			'debit'				=> 0,
-			'credit'			=> 0,
-			'accountclasscode'	=> 'Current'
-		);
-		$previous_earnings	= (object) array(
-			'accountname'		=> 'Retained Earnings',
-			'accountnature'		=> 'Credit',
-			'parentnature'		=> 'Credit',
-			'debit'				=> 0,
-			'credit'			=> 0,
-			'accountclasscode'	=> 'Previous'
-		);
+		// echo $start."<br>";
+		// echo $end."<br>";
+		// $check_codes		= array('COST', 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'REV', 'RETEAR', 'REVENU', 'OPSEXP', 'OTREXP');
+		// $current_earnings	= (object) array(
+		// 	'accountname'		=> 'Current Year Earnings',
+		// 	'accountnature'		=> 'Credit',
+		// 	'parentnature'		=> 'Credit',
+		// 	'debit'				=> 0,
+		// 	'credit'			=> 0,
+		// 	'accountclasscode'	=> 'Current'
+		// );
+		// $previous_earnings	= (object) array(
+		// 	'accountname'		=> 'Retained Earnings',
+		// 	'accountnature'		=> 'Credit',
+		// 	'parentnature'		=> 'Credit',
+		// 	'debit'				=> 0,
+		// 	'credit'			=> 0,
+		// 	'accountclasscode'	=> 'Previous'
+		// );
+
+		// $current	=  $this->db->setTable('chartaccount c')
+		// 						->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
+		// 						->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+		// 						->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'current' earnings")
+		// 						->setWhere("c.fspresentation = 'IS' AND bt.source = 'closing'")
+		// 						->setGroupBy('c.id')
+		// 						->setOrderBy("c.id")
+		// 						->runSelect()
+		// 						->getResult();
+
+		// $previous	=  $this->db->setTable('chartaccount c')
+		// 						->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate < '$start'")
+		// 						->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+		// 						->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
+		// 						->setWhere("c.fspresentation = 'IS' AND bt.source = 'closing'")
+		// 						->setGroupBy('c.id')
+		// 						->setOrderBy("c.id")
+		// 						->runSelect()
+		// 						->getResult();
+		
+		// $earnings = array_merge($current, $previous);
+
+		// foreach ($earnings as $row) {
+		// 	if ($row->debit || $row->credit) {
+		// 		${$row->earnings . '_earnings'}->debit += $row->debit;
+		// 		${$row->earnings . '_earnings'}->credit += $row->credit;
+		// 	}
+		// }
+
+		// return array($current_earnings, $previous_earnings);
 
 		$current	=  $this->db->setTable('chartaccount c')
-								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
-								->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
-								->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'current' earnings")
-								->setWhere("c.fspresentation = 'IS'")
-								->setGroupBy('c.id')
-								->setOrderBy("c.id")
-								->runSelect()
-								->getResult();
+							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
+							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, c.accountclasscode, 'current' earnings")
+							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' AND bt.source != 'yrend_closing')")
+							// ->setGroupBy('c.id')
+							->setOrderBy("c.id")
+							->runSelect()
+							->getResult();
 
+							// echo $this->db->getQuery();
+							// echo "<br><br>";
 		$previous	=  $this->db->setTable('chartaccount c')
-								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate < '$start'")
-								->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
-								->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
-								->setWhere("c.fspresentation = 'IS'")
-								->setGroupBy('c.id')
-								->setOrderBy("c.id")
-								->runSelect()
-								->getResult();
+							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP')  AND transactiondate < '$end' ")
+							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
+							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' OR bt.source = 'yrend_closing')")
+							->setGroupBy('c.id')
+							->setOrderBy("c.id")
+							->runSelect()
+							->getResult();
+
+		// if( $start == '2018-1-01' && $end =='2018-12-31') {
+		// 	echo $this->db->getQuery();
+		// 	echo "<br><br>";
+		// }
+		// $previous	=  $this->db->setTable('chartaccount c')
+		// 					->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP')  AND transactiondate < '$start' ")
+		// 					->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
+		// 					->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
+		// 					->setWhere("c.fspresentation = 'BS' AND bt.source = 'yrend_closing'")
+		// 					->setGroupBy('c.id')
+		// 					->setOrderBy("c.id")
+		// 					->runSelect()
+		// 					->getResult();
+							// echo $this->db->getQuery();
 		
 		$earnings = array_merge($current, $previous);
 
-		foreach ($earnings as $row) {
-			if ($row->debit || $row->credit) {
-				// if ($row->accountnature != $row->parentnature) {
-				// 	$row->debit = $row->debit * -1;
-				// 	$row->credit = $row->credit * -1;
-				// }
+		// var_dump($earnings);
 
-				// if ($row->accountnature == 'Credit') {
-				// 	$credit			= $row->credit;
-				// 	$debit			= $row->debit;
-				// 	$row->credit	= $debit;
-				// 	$row->debit		= $credit;
-				// }
-
-				${$row->earnings . '_earnings'}->debit += $row->debit;
-				${$row->earnings . '_earnings'}->credit += $row->credit;
-			}
-		}
-
-		return array($current_earnings, $previous_earnings);
+		return $earnings;
 	}
 
 	public function getYearList($year_now) {
@@ -267,19 +312,17 @@ class balance_sheet_model extends wc_model {
 				} else if (in_array($accountclasscode, $liability2_array)) {
 					$accounttype	= 'Liabilities';
 					$accountclass	= 'Non - Current Liabilities';
+				} else if (in_array($accountclasscode, $earning_array)) {
+					$accounttype	= 'Equity';
+					$accountclass	= '';
 				} else if (in_array($accountclasscode, $equity_array)) {
-					$accounttype	= 'Equity';
-					$accountclass	= '';
-				} else if ($accountclasscode == 'Current') {
-					$accounttype	= 'Equity';
-					$accountclass	= '';
-				} else if ($accountclasscode == 'Previous') {
 					$accounttype	= 'Equity';
 					$accountclass	= '';
 				} else {
 					$total = 0;
 				}
-				if (($total !== 0 && ! empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
+
+				if (($total !== 0 && ! empty($accounttype)) || ($total !== 0 && in_array($accountclasscode, $equity_array))) {
 					$y[$accounttype][$accountclass][$accountname] = $col;
 				}
 			}
