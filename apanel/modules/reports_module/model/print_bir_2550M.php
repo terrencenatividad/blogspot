@@ -281,7 +281,7 @@ class print_bir_2550M extends fpdf {
 		$this->SetX(149);
 		$this->Cell(5, 19, number_format($vat_privateA, 2), 0, 0, 'R');
 		$this->SetX(199);
-		$this->Cell(5, 19, number_format($vat_privateA,2), 0, 0, 'R');
+		$this->Cell(5, 19, number_format($vat_privateB,2), 0, 0, 'R');
 		$this->SetY(69);
 		$this->SetX(149);
 		$this->Cell(5, 19, number_format($vat_govA,2), 0, 0, 'R');

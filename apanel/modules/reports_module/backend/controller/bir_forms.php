@@ -821,6 +821,261 @@ class controller extends wc_controller {
 		return $result;
 	}
 
+	private function getPrivate2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPrivate2550Q($period, $year);
+		return $result;
+	}
+
+	private function getGov2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getGov2550Q($period, $year);
+		return $result;
+	}
+
+	private function getZero2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getZero2550Q($period, $year);
+		return $result;
+	}
+
+	private function getExempt2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getExempt2550Q($period, $year);
+		return $result;
+	}
+
+	private function getNotPurchasesExceeded2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+
+
+		$result = $this->bir->getNotPurchasesExceeded2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchasesExceeded2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchasesExceeded2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseGoods2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseGoods2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseImport2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseImport2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseServices2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseServices2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseNonResident2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseNonResident2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseNotTax2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		if($period=='1'){
+			$period	= "('1','2','3')";
+		}else if($period=='2'){
+			$period	= " ('4','5','6') ";
+		}else if($period=='3'){
+			$period	= "('7','8','9') ";
+		}else if($period=='4'){
+			$period	= "('10','11','12') ";
+		}
+		$result = $this->bir->getPurchaseNotTax2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPrivateMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPrivateMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getGovMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getGovMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getZeroMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getZeroMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getExemptMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getExemptMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getNotPurchasesExceededMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getNotPurchasesExceededMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchasesExceededMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchasesExceededMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseGoodsMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseGoodsMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseImportMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseImportMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseServicesMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseServicesMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseNonResidentMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseNonResidentMonthly2550Q($period, $year);
+		return $result;
+	}
+
+	private function getPurchaseNotTaxMonthly2550Q() {
+		$period = $this->input->post('period');
+		$year = $this->input->post('year');
+		$result = $this->bir->getPurchaseNotTaxMonthly2550Q($period, $year);
+		return $result;
+	}
+
 	private function getMonthYear() {
 		$year = $this->input->post('year');
 		$month = $this->input->post('month');
