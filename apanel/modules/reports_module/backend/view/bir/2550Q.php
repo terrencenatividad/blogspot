@@ -1246,7 +1246,7 @@
 									<tr>
 										<td colspan= "1"></td>
 										<td colspan= "3">
-											<p><strong>26A</strong> Monthly VAT Payments - previous two months</p>
+											<p><strong>26A</strong> Monthly  VAT Payments - previous two months</p>
 										</td>
 										<td class = "text-right"><b>26A</b></td>
 										<td>
@@ -1721,10 +1721,12 @@
 		allowableInputTax20F();
 		totalpurchases21P();
 		var period = 0;
+		var year = 0;
 		$('.tableList tbody tr td .quarter').each(function() {
 			if($(this).is(':checked')) {
 				period = $(this).val();
-				$.post("<?=MODULE_URL?>ajax/getPrivate", { period : period }, function(data) {
+				year = $('#yearfilter').val();
+				$.post("<?=MODULE_URL?>ajax/getPrivate2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1737,7 +1739,7 @@
 					sumSales();
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getGov2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1749,7 +1751,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getZero", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getZero2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1759,7 +1761,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getExempt", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getExempt2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1769,7 +1771,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceeded", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceeded2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1781,7 +1783,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getPurchasesExceeded", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getPurchasesExceeded2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1793,7 +1795,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getPurchaseGoods", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getPurchaseGoods2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1805,7 +1807,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getPurchaseImport", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getPurchaseImport2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1817,7 +1819,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getPurchaseServices", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getPurchaseServices2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1829,7 +1831,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getPurchaseNonResident", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getPurchaseNonResident2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1841,7 +1843,7 @@
 					}
 				});
 
-				$.post("<?=MODULE_URL?>ajax/getPurchaseNotTax", { period : period }, function(data) {
+				$.post("<?=MODULE_URL?>ajax/getPurchaseNotTax2550Q", { period : period, year : year }, function(data) {
 					var sum = data.sum_amount;
 					var taxamount = data.sum_taxamount;
 					if(sum == null || taxamount == null) {
@@ -1854,6 +1856,274 @@
 		});
 });
 
+$('#monthfilter').on('change', function() {
+	makeZero();
+	allowableInputTax20F();
+	totalpurchases21P();
+	var period = $(this).val();
+	var year = $('#yearfilter').val();
+	$.post("<?=MODULE_URL?>ajax/getPrivateMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_privateA').val('0.00');
+			$('#vat_privateB').val('0.00');
+		} else {
+			$('#vat_privateA').val(sum);
+			$('#vat_privateB').val(taxamount);
+		}
+		sumSales();
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getGovMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_govA').val('0.00');
+			$('#vat_govB').val('0.00');
+		} else {
+			$('#vat_govA').val(sum);
+			$('#vat_govB').val(taxamount);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getZeroMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_zero').val('0.00');
+		} else {
+			$('#vat_zero').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getExemptMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_exempt').val('0.00');
+		} else {
+			$('#vat_exempt').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceededMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#cgnotexceed21A').val('0.00');
+			$('#cgnotexceed21B').val('0.00');
+		} else {
+			$('#cgnotexceed21A').val(sum);
+			$('#cgnotexceed21B').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchasesExceededMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#cgexceed21C').val('0.00');
+			$('#cgexceed21D').val('0.00');
+		} else {
+			$('#cgexceed21C').val(sum);
+			$('#cgexceed21D').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseGoodsMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#dompurchase21E').val('0.00');
+			$('#dompurchase21F').val('0.00');
+		} else {
+			$('#dompurchase21E').val(sum);
+			$('#dompurchase21F').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#importation21G').val('0.00');
+			$('#importation21H').val('0.00');
+		} else {
+			$('#importation21G').val(sum);
+			$('#importation21H').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseServicesMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#dompurchaseserv21I').val('0.00');
+			$('#dompurchaseserv21J').val('0.00');
+		} else {
+			$('#dompurchaseserv21I').val(sum);
+			$('#dompurchaseserv21J').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseNonResidentMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#servicerenderedK').val('0.00');
+			$('#servicerenderedL').val('0.00');
+		} else {
+			$('#servicerenderedK').val(sum);
+			$('#servicerenderedL').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseNotTaxMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#purchasenotqualified21M').val('0.00');
+		} else {
+			$('#purchasenotqualified21M').val(sum);
+		}
+	});
+});
+
+$('#yearfilter').on('change', function() {
+	makeZero();
+	allowableInputTax20F();
+	totalpurchases21P();
+	var year = $(this).val();
+	var period = $('#monthfilter').val();
+	$.post("<?=MODULE_URL?>ajax/getPrivateMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_privateA').val('0.00');
+			$('#vat_privateB').val('0.00');
+		} else {
+			$('#vat_privateA').val(sum);
+			$('#vat_privateB').val(taxamount);
+		}
+		sumSales();
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getGovMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_govA').val('0.00');
+			$('#vat_govB').val('0.00');
+		} else {
+			$('#vat_govA').val(sum);
+			$('#vat_govB').val(taxamount);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getZeroMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_zero').val('0.00');
+		} else {
+			$('#vat_zero').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getExemptMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_exempt').val('0.00');
+		} else {
+			$('#vat_exempt').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceededMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#cgnotexceed21A').val('0.00');
+			$('#cgnotexceed21B').val('0.00');
+		} else {
+			$('#cgnotexceed21A').val(sum);
+			$('#cgnotexceed21B').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchasesExceededMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#cgexceed21C').val('0.00');
+			$('#cgexceed21D').val('0.00');
+		} else {
+			$('#cgexceed21C').val(sum);
+			$('#cgexceed21D').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseGoodsMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#dompurchase21E').val('0.00');
+			$('#dompurchase21F').val('0.00');
+		} else {
+			$('#dompurchase21E').val(sum);
+			$('#dompurchase21F').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#importation21G').val('0.00');
+			$('#importation21H').val('0.00');
+		} else {
+			$('#importation21G').val(sum);
+			$('#importation21H').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseServicesMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#dompurchaseserv21I').val('0.00');
+			$('#dompurchaseserv21J').val('0.00');
+		} else {
+			$('#dompurchaseserv21I').val(sum);
+			$('#dompurchaseserv21J').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseNonResidentMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#servicerenderedK').val('0.00');
+			$('#servicerenderedL').val('0.00');
+		} else {
+			$('#servicerenderedK').val(sum);
+			$('#servicerenderedL').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseNotTaxMonthly2550Q", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#purchasenotqualified21M').val('0.00');
+		} else {
+			$('#purchasenotqualified21M').val(sum);
+		}
+	});
+});
+
 $('.tableList').on('ifToggled', '.quarter', function() {
 	var period = 0;
 	makeZero();
@@ -1861,7 +2131,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 	totalpurchases21P();
 	if($(this).is(':checked')) {
 		period = $(this).val();
-		$.post("<?=MODULE_URL?>ajax/getPrivate", { period : period }, function(data) {
+		var year = $('#yearfilter').val();
+		$.post("<?=MODULE_URL?>ajax/getPrivate2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1874,7 +2145,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			sumSales();
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getGov", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getGov2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1886,7 +2157,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getZero", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getZero2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1896,7 +2167,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getExempt", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getExempt2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1906,7 +2177,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceeded", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceeded2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1918,7 +2189,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getPurchasesExceeded", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getPurchasesExceeded2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1930,7 +2201,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getPurchaseGoods", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getPurchaseGoods2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1942,7 +2213,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getPurchaseImport", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getPurchaseImport2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1954,7 +2225,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getPurchaseServices", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getPurchaseServices2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1966,7 +2237,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getPurchaseNonResident", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNonResident2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
@@ -1978,7 +2249,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getPurchaseNotTax", { period : period }, function(data) {
+		$.post("<?=MODULE_URL?>ajax/getPurchaseNotTax2550Q", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
 			if(sum == null || taxamount == null) {
