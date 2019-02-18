@@ -119,141 +119,90 @@ class controller extends wc_controller {
 
 		$pagination->table = $table;
 		$pagination->tabledetails	= $tabledetails;
+		$pagination->csv 			= $this->get_csv($vendfilter, $data['datefilter'], $sortfilter);
 		return $pagination;
 	}
 
-	public function get_csv() {
-		$data 		= $this->input->get(array('vendor','datefilter','sort'));
-		$datefilter 	= 	explode('-', urldecode($data['datefilter']));
+	public function get_csv($vendfilter, $date, $sortfilter) {
+		$datefilter 	= 	explode('-', $date);
 		$dates			= 	array();
 		foreach ($datefilter as $date) {
 			$dates[] = $this->date->dateDbFormat($date);
 		}	
 		
-        $vendfilter = urldecode($data['vendor']);
-		$sortfilter = urldecode($data['sort']);
+        $vendfilter = urldecode($vendfilter);
+		$sortfilter = urldecode($sortfilter);
 
 		$details 	= $this->report->getPurchaseReliefDetails($vendfilter, $sortfilter, $dates[0], $dates[1]);
 		$company 	= $this->report->getCompany($this->companycode);
 		
-		$filename = 'Purchase Relief';
-
-		$excel = new PHPExcel();
-		$excel->getProperties()
-				->setCreator('Cid')
-				->setLastModifiedBy('Cid')
-				->setTitle($filename)
-				->setSubject('Purchase Relief')
-				->setDescription('Purchase Relief')
-				->setKeywords('Purchase Relief')
-				->setCategory('Purchase Relief');
-
-		$excel->getActiveSheet()->setTitle('Purchase Relief');
-		$excel->setActiveSheetIndex(0);
-		$sheet = $excel->getActiveSheet();
-
-		// $sheet->getCell('A1')->setValue('PURCHASE RELIEF '.$dates[0].' - '.$dates[1]);
-		$sheet->getCell('A1')->setValue('SUMMARY LIST OF PURCHASES');
-
-		$sheet->getCell('A3')->setValue('PURCHASE TRANSACTION');
-		$sheet->getCell('A4')->setValue('RECONCILIATION OF LISTING FOR ENFORCEMENT');
-		$sheet->getCell('A5')->setValue('FOR '.strtoupper($this->date->dateFormat($dates[0])). ' to '.strtoupper($this->date->dateFormat($dates[1])));
-
-		$sheet->getCell('A7')->setValue('TIN: '.$company->tin);
-		$sheet->getCell('A8')->setValue("OWNER'S NAME: ".strtoupper($company->companyname));
-		$sheet->getCell('A9')->setValue("OWNER'S TRADE NAME: ".strtoupper($company->companyname));
-		$sheet->getCell('A10')->setValue("OWNER'S ADDRESS: ".strtoupper($company->address));
-
-		// HEADER STARTS HERE
-		$sheet->getCell('A12')->setValue('TAXABLE MONTH');
-		$sheet->getCell('B12')->setValue('TIN');
-		$sheet->getCell('C12')->setValue('VENDOR');
-		$sheet->getCell('D12')->setValue('GROSS AMOUNT');
-		$sheet->getCell('E12')->setValue('TAXABLE PURCHASE');
-		$sheet->getCell('F12')->setValue('PURCHASE OF SERVICES');
-		$sheet->getCell('G12')->setValue('PURCHASE OF CAPITAL GOODS');
-		$sheet->getCell('H12')->setValue('PURCHASE OF GOODS OTHER THAN CAPITAL GOODS');
-		$sheet->getCell('I12')->setValue('INPUT TAX');
-		$sheet->getCell('J12')->setValue('GROSS TAXABLE PURCHASE');
-
-		$totalgross = 0;
-		$totalexempt= 0;
-		$zerorated  = 0;
-		$taxablesale= 0;
-		$outputtax 	= 0;
-		$grtaxable  = 0;
-		$totalservice=0;
-		$totalgoods = 0;
-		$totalcapital=0;
-		$cell_row   = 13;
-		if ($details) {
-			foreach ($details as $row) {
-				$sheet->getCell('A'.$cell_row)->setValue($row->transactiondate);
-				$sheet->getCell('B'.$cell_row)->setValue($row->tinno);
-				$sheet->getCell('C'.$cell_row)->setValue(strtoupper($row->partnername));
-				$sheet->getCell('D'.$cell_row)->setValue($row->netamount);
-				// $sheet->getCell('E'.$cell_row)->setValue($row->vat_exempt);
-				// $sheet->getCell('F'.$cell_row)->setValue($row->vat_zerorated);
-				$sheet->getCell('E'.$cell_row)->setValue($row->vat_sales);
-				$sheet->getCell('F'.$cell_row)->setValue($row->service);
-				$sheet->getCell('G'.$cell_row)->setValue($row->goods);
-				$sheet->getCell('H'.$cell_row)->setValue($row->capital);
-				$sheet->getCell('I'.$cell_row)->setValue($row->totaltax);
-				$sheet->getCell('J'.$cell_row)->setValue($row->grosstaxable);
-
-				$cell_row++;
-
-				// COMPUTING TOTAL
-				$totalgross += $row->netamount;
-				// $totalexempt+= $row->vat_exempt;
-				// $zerorated  += $row->vat_zerorated;
-				$taxablesale+= $row->vat_sales;
-				$outputtax 	+= $row->totaltax;
-				$grtaxable  += $row->grosstaxable;
-				$totalservice+=$row->service;
-				$totalgoods += $row->goods;
-				$totalcapital+=$row->capital;
-			}
-		}
-
-		$fortotal_row 	= $cell_row + 1;
-		$forend_report 	= $cell_row + 3;
-		$fortotal_amount= $cell_row + 1;
-
-		$sheet->getCell('A'.$fortotal_row)->setValue('GRAND TOTAL:');
-		$sheet->getCell('A'.$forend_report)->setValue('END OF REPORT');
+		$header 	=	array('TAXABLE MONTH','TIN','VENDOR','GROSS AMOUNT','TAXABLE PURCHASE','PURCHASE OF SERVICES','PURCHASE OF CAPITAL GOODS','PURCHASE OF GOODS OTHER THAN CAPITAL GOODS','INPUT TAX','GROSS TAXABLE PURCHASE');
 		
-		// SETTING FOOTER TOTAL
-		$sheet->getCell('D'.$fortotal_amount)->setValue($totalgross);
-		// $sheet->getCell('E'.$fortotal_amount)->setValue($totalexempt);
-		// $sheet->getCell('F'.$fortotal_amount)->setValue($zerorated);
-		$sheet->getCell('E'.$fortotal_amount)->setValue($taxablesale);
-		$sheet->getCell('F'.$fortotal_amount)->setValue($totalservice);
-		$sheet->getCell('G'.$fortotal_amount)->setValue($totalgoods);
-		$sheet->getCell('H'.$fortotal_amount)->setValue($totalcapital);
-		$sheet->getCell('I'.$fortotal_amount)->setValue($outputtax);
-		$sheet->getCell('J'.$fortotal_amount)->setValue($grtaxable);
+		$totalamount=	0;
 
-		$sheet->getStyle('D13:J38')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$table = '';
+		$table .= '"PURCHASE RELIEF REPORT"';
+		$table .= "\n\n";
+		$table .= '"SUMMARY LIST OF PURCHASES"';
+		$table .= "\n\n";
+		$table .= '"PURCHASE TRANSACTION"';
+		$table .= "\n";
+		$table .= '"RECONCILIATION OF LISTING FOR ENFORCEMENT"';
+		$table .= "\n";
+		$table .= '"FOR '.strtoupper($this->date->dateFormat($dates[0])) . ' to ' . strtoupper($this->date->dateFormat($dates[1])).'"';
+		$table .= "\n\n";
+		$table .= '"TIN : ","'.$company->tin.'"';
+		$table .= "\n";
+		$table .= '"OWNER\'S NAME : ","'.strtoupper($company->companyname).'"';
+		$table .= "\n";
+		$table .= '"OWNER\'S TRADE NAME : ","'.strtoupper($company->companyname).'"';
+		$table .= "\n";
+		$table .= '"OWNER\'S ADDRESS : ","'.strtoupper($company->address).'"';
+		$table .= "\n\n";
 
-		foreach ($excel->getAllSheets() as $sheet) {
-			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
-				$sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
-			}
+		$totalgross 	= 0;
+		$totalexempt	= 0;
+		$zerorated  	= 0;
+		$taxablesale	= 0;
+		$outputtax 		= 0;
+		$grtaxable  	= 0;
+		$totalservice 	= 0;
+		$totalgoods 	= 0;
+		$totalcapital 	= 0;
+		
+		$table .= '"' . implode('","', $header) . '"';
+		$table .= "\n";
+
+		foreach ($details as $key => $row) {
+			$transactiondate = isset($row->transactiondate)	? strtoupper($this->date->dateFormat($row->transactiondate)) : "";
+			$tinno 			 = isset($row->tinno) 			? $row->tinno 					: "";
+			$partnername 	 = isset($row->partnername) 	? strtoupper($row->partnername) : "";
+			$netamount 		 = isset($row->netamount) 		? $row->netamount 				: 0;
+			$vat_sales 		 = isset($row->vat_sales) 		? $row->vat_sales 				: 0;
+			$service 		 = isset($row->service) 		? $row->service 				: 0;
+			$goods 		 	 = isset($row->goods) 			? $row->goods 					: 0;
+			$capital 		 = isset($row->capital) 		? $row->capital 				: 0;
+			$totaltax 		 = isset($row->totaltax) 		? $row->totaltax 				: 0;
+			$grosstaxable 	 = isset($row->grosstaxable) 	? $row->grosstaxable 			: 0;
+
+			$table 	.= '"'.$transactiondate.'","'.$tinno.'","'.$partnername.'","'.number_format($netamount,2).'","'.number_format($vat_sales,2).'","'.number_format($service,2).'","'.number_format($goods,2).'","'.number_format($capital,2).'","'.number_format($totaltax,2).'","'.number_format($grosstaxable,2).'"';
+			$table  .= "\n";
+
+			// COMPUTING TOTAL
+			$totalgross 	+= $row->netamount;
+			$taxablesale	+= $row->vat_sales;
+			$totalservice	+= $row->service;
+			$totalgoods		+= $row->goods;
+			$totalcapital	+= $row->capital;
+			$outputtax 		+= $row->totaltax;
+			$grtaxable  	+= $row->grosstaxable;
 		}
+		
+		$table 	.= '"GRAND TOTAL : ","","","'.number_format($totalgross,2).'","'.number_format($taxablesale,2).'","'.number_format($totalservice,2).'","'.number_format($totalgoods,2).'","'.number_format($totalcapital,2).'","'.number_format($outputtax,2).'","'.number_format($grtaxable,2).'"';
+		$table  .= "\n\n";
+		$table  .= '"","","","","END OF REPORT","","","",""';
 
-		$filename.= '.xlsx';
-
-		header('Content-type: application/vnd.ms-excel');
-		header("Content-Disposition: attachment; filename=\"$filename\"");
-		header("Pragma: no-cache");
-		header("Expires: 0");
-
-		flush();
-
-		$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
-
-		$writer->save('php://output');
+		return $table;
 	}
 
 	public function get_dat() {

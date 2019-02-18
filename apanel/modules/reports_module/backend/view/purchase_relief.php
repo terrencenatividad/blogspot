@@ -46,7 +46,7 @@
 			</div>
 			<div class = "row">
 				<div style = "float:right; margin-right:15px">
-					<a href="" id="downloadcsv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> CSV</a>
+					<a href="" id="downloadcsv" class="btn btn-primary" download="Purchase Relief.csv"><span class="glyphicon glyphicon-export"></span> CSV</a>
 					<a href="" id="downloadDat" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> DAT</a>
 				</div>
 			</div>
@@ -163,6 +163,7 @@
 				ajax.page = data.page_limit;
 				getList();
 			}
+			$("#downloadcsv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));;
 		});
 	}
 	// getList();
@@ -172,12 +173,12 @@
 		getList();
 	}).trigger('change');
 	
-	$('#downloadcsv').click(function(){
-		var datepicker 	= $('#daterangefilter').val();
-		var sort 		= ajax.sort
-		var vendor 		= $('#vendor').val();
-		window.open('<?php echo MODULE_URL ?>get_csv?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&vendor=' + encodeURIComponent(vendor));
-	});
+	// $('#downloadcsv').click(function(){
+	// 	var datepicker 	= $('#daterangefilter').val();
+	// 	var sort 		= ajax.sort
+	// 	var vendor 		= $('#vendor').val();
+	// 	window.open('<?php echo MODULE_URL ?>get_csv?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&vendor=' + encodeURIComponent(vendor));
+	// });
 	$('#downloadDat').click(function(){
 		var datepicker = $('#daterangefilter').val();
 		var sort 		= ajax.sort
