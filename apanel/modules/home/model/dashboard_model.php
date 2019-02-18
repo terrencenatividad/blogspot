@@ -260,4 +260,79 @@ class dashboard_model extends wc_model {
 		return $aging;
 	}
 
+	public function getHeavySalesAndPurchases() {
+		$sales		= $this->db->setTable("({$this->current_month_query}) m")
+								->setFields("IFNULL(SUM(si.amount), 0) value, CONCAT(m.year, '-', m.month) month")
+								->leftJoin("salesinvoice si ON MONTH(si.transactiondate) = m.month AND si.companycode = m.companycode AND YEAR(si.transactiondate) = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->leftJoin("salesinvoice_details sid ON sid.voucherno = si.voucherno AND sid.companycode = m.companycode")
+								->leftJoin("items itm ON itm.itemcode = sid.itemcode AND itm.companycode = m.companycode")
+								->leftJoin("itemclass itc ON itc.id = itm.classid AND itc.companycode = m.companycode AND itc.revenue_account = '473'")
+								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
+								->runSelect()
+								->getResult();
+
+		$purchases	= $this->db->setTable("({$this->current_month_query}) m")
+								->leftJoin("purchasereceipt pr ON MONTH(pr.transactiondate) = m.month AND pr.companycode = m.companycode AND YEAR(pr.transactiondate) = m.year AND pr.stat NOT IN ('temporary', 'Cancelled')")
+								->setFields("IFNULL(SUM(netamount), 0) value, CONCAT(m.year, '-', m.month) month")
+								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
+								->runSelect()
+								->getResult();
+
+		$aging = array(
+			'heavy_sales'		=> $sales,
+			'heavy_purchases'	=> $purchases
+		);
+		return $aging;
+	}
+
+	public function getSales() {
+		$equipment_class 	= 'EQUIPMENT';
+		$parts_class 		= 'SPARE PARTS';
+		$service_class 		= 'SERVICES';
+
+		$sales_equipment		= $this->db->setTable("({$this->current_month_query}) m")
+								->setFields("CONCAT(m.year, '-', m.month) month, IFNULL(SUM(bal.amount), 0) equipment, '0' parts, '0' service")
+								->leftJoin("balance_table_sales bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND bal.itemclass = '$equipment_class' ")
+								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
+								->runSelect()
+								->getResult();
+		$sales_parts			= $this->db->setTable("({$this->current_month_query}) m")
+								->setFields("CONCAT(m.year, '-', m.month) month, '0' equipment, IFNULL(SUM(bal.amount), 0) parts, '0' service")
+								->leftJoin("balance_table_sales bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND bal.itemclass = '$parts_class' ")
+								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
+								->runSelect()
+								->getResult();
+		$sales_service			= $this->db->setTable("({$this->current_month_query}) m")
+								->setFields("CONCAT(m.year, '-', m.month) month, '0' equipment, '0' parts, IFNULL(SUM(si.netamount), 0) service")
+								->leftJoin("billing si ON MONTH(si.transactiondate) = m.month AND si.companycode = m.companycode AND YEAR(si.transactiondate) = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
+								->runSelect()
+								->getResult();
+		$sales 	= array();
+		foreach ($sales_equipment as $key => $value) {
+			$sales[$key]['month'] 		= $value->month;
+			$sales[$key]['equipment'] 	= $value->equipment;
+			$sales[$key]['parts'] 		= $value->parts;
+			$sales[$key]['service'] 	= $value->service;
+		}
+		foreach ($sales_parts as $key => $value) {
+			$sales[$key]['equipment'] 	+= $value->equipment;
+			$sales[$key]['parts'] 		+= $value->parts;
+			$sales[$key]['service'] 	+= $value->service;
+		}
+		foreach ($sales_service as $key => $value) {
+			$sales[$key]['equipment'] 	+= $value->equipment;
+			$sales[$key]['parts'] 		+= $value->parts;
+			$sales[$key]['service'] 	+= $value->service;
+		}			
+		$aging = array(
+			'sales'		=> $sales
+		);
+		return $aging;
+	}
 }
