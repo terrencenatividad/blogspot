@@ -167,7 +167,7 @@ class print_bir_0619E extends fpdf {
 		/**	
 		 * For the Year
 		 */
-		$this->SetFont('Arial', 'B', '13');
+		$this->SetFont('Arial', '', '13');
 		$this->SetY(57);
 		$this->SetX(6);
 		$this->Cell(20, 5, $monthfilter, 0, 0, 'R');
@@ -175,7 +175,7 @@ class print_bir_0619E extends fpdf {
 		$this->SetX(26.5);
 		$this->Cell(20, 5, $yearfilter, 0, 0, 'C');
 
-		$this->SetFont('Arial', 'B', '13');
+		$this->SetFont('Arial', '', '13');
 
 		$this->SetX(61.5);
 		$this->Cell(20, 5, $duedate, 0, 0, 'C');
@@ -201,7 +201,7 @@ class print_bir_0619E extends fpdf {
 		/**
 		 * Amend Return
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		$this->SetY(56);
 		if($amendreturn == "yes"){
 			$this->SetX(97);
@@ -214,7 +214,7 @@ class print_bir_0619E extends fpdf {
 		/**
 		 * Taxes Withheld
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		if($anytaxwithheld == "yes"){
 			$this->SetX(133);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
@@ -252,7 +252,7 @@ class print_bir_0619E extends fpdf {
 		/**
 		 * Agent's Name
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		$this->SetX(6.4);
 		$array = str_split($agentname);
 		$this->cellSpacing($array);
@@ -291,7 +291,7 @@ class print_bir_0619E extends fpdf {
 		/**
 		 * Category of Withholding Tax
 		 */
-		$this->SetFont('Arial', 'B', '11');
+		$this->SetFont('Arial', '', '11');
 		$this->SetTextColor(0,0,0);
 		$this->SetY(109.5);
 		if($category == "private"){
@@ -310,6 +310,7 @@ class print_bir_0619E extends fpdf {
 		$array = str_split($email);
 		$this->cellSpacing($array);
 
+		$this->SetFont('Arial', '', '11');
 		/**	
 		 * Amount of Remittance
 		 */

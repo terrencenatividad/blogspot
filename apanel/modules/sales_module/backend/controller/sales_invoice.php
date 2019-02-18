@@ -479,7 +479,8 @@ class controller extends wc_controller
 		$documentinfo  	= $this->invoice->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
 		$documentinfo	= $documentinfo[0]; 
 		$customer 	    = $documentinfo->customer;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes 			= htmlentities($documentinfo->remarks);
 		/** HEADER INFO - END**/
 
 		/** DETAILS INFO **/

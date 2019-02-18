@@ -552,9 +552,14 @@ class controller extends wc_controller
 		$this->po->updateData($print_data, "purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
 		$detail_height = 37;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$total_amount = 0;
+		$line_count = 0;
 		foreach ($documentcontent as $key => $row) {
+			if($line_count == 26){
+				$print->AddPage();
+				$line_count = 0;
+			}
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
@@ -574,6 +579,7 @@ class controller extends wc_controller
 				));
 				$total_amount = 0;
 			}
+			$line_count++;
 		}
 		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
 			array($notes, 'Total Purchase Tax', number_format($vat, 2)),
@@ -830,8 +836,22 @@ class controller extends wc_controller
 			if($this->report_model){
 				$this->report_model->generateAssetActivity();
 			}
+			$codes = array();
 			for($i=1;$i<=count($data_post['budgetcode']);$i++) {
 				if(!empty($data_post['budgetcode'][$i])){
+					// if(!in_array($data_post['budgetcode'][$i],$codes) && !in_array($result['accountcode'],$codes)){
+					// 	$codes['budgetcode'] = $data_post['budgetcode'][$i];
+					// 	$codes['accountcode'] = $result['accountcode'];
+					// 	$codes['amount'] = str_replace(',','',$data_post['amount'][$i]);
+					// } else {
+					// 	$codes['budgetcode'] = $data_post['budgetcode'][$i];
+					// 	$codes['accountcode'] = $result['accountcode'];
+					// 	$codes['yes'] = 'yes';
+					// 	$codes['amount'] += str_replace(',','',$data_post['amount'][$i]);
+					// }
+					// if(in_array($data_post['yes'][$i],$codes) && in_array($result['accountcode'],$codes)) {
+					// 	var_dump($codes);
+					// }
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];

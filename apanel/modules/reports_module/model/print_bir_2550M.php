@@ -64,8 +64,7 @@ class print_bir_2550M extends fpdf {
 		if($documentInfo){
 			$monthfilter 	= $documentInfo['monthfilter'];
 			$yearfilter 	= $documentInfo['yearfilter'];
-			$monthfilter 	= $monthfilter >= 1 && $monthfilter <= 9 ? '0'. ' '. ' '. ' ' .$monthfilter : $monthfilter;
-			$monthfilter 	= implode('   ',str_split($monthfilter));
+			$monthfilter 	= $monthfilter >= 1 && $monthfilter <= 9 ? '0'. ' '. ' ' .$monthfilter : $monthfilter;
 			$yearfilter 	= implode('   ',str_split($yearfilter));
 			$amendreturn 	= isset($documentInfo['amendreturn']) ? $documentInfo['amendreturn'] : "yes";
 			$shortperiod 	= isset($documentInfo['shortperiod']) ? $documentInfo['shortperiod'] : "yes";
@@ -206,7 +205,7 @@ class print_bir_2550M extends fpdf {
 
 		$this->SetFont('Arial', 'B', '11');
 		$this->SetX(189);
-		$this->Cell(10, 4, $attachments, 0, 0, 'C');
+		$this->Cell(10, 3, $attachments, 0, 0, 'C');
 
 		/**
 		 * Taxpayer Identification Number (TIN)
@@ -228,7 +227,7 @@ class print_bir_2550M extends fpdf {
 		$this->Cell(105, 5, $rdo, 0, 0, 'R');
 
 		$this->SetY(39);
-		$this->SetX(160);
+		$this->SetX(170);
 		$this->Cell(5, 5, $businessline, 0, 0, 'C');
 
 		/**

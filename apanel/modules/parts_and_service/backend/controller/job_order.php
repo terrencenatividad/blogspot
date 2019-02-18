@@ -298,7 +298,8 @@ class controller extends wc_controller {
 		$print_data['printdate'] = date("Y-m-d H:i:s");
 		$this->job_order->updateData($print_data, "job_order", " job_order_no = '$voucherno' AND print = '0' ");
 		
-		$notes = preg_replace('!\s+!', ' ', $header->notes);
+		//$notes = preg_replace('!\s+!', ' ', $header->notes);
+		$notes = htmlentities($header->notes);
 		foreach ($details as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
@@ -835,6 +836,7 @@ class controller extends wc_controller {
 		$data['stat'] = 'prepared';
 		$data['job_order_no'] = $job_order_no[0];
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
+		$data['print']				= '0';
 		$data2 = $this->input->post($this->fields2);
 		
 		// $itemcodewosq					= $this->input->post('detail_itemcode');
