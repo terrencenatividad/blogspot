@@ -169,7 +169,7 @@ class print_bir_1601EQ extends fpdf {
 		/**	
 		 * For the Year
 		 */
-		$this->SetFont('Arial', 'B', '10');
+		$this->SetFont('Arial', '', '10');
 		$this->SetY(42.8);
 		$this->SetX(11.5);
 		$this->Cell(20, 5, $yearfilter, 0, 0, 'C');
@@ -177,7 +177,7 @@ class print_bir_1601EQ extends fpdf {
 		/**
 		 * Quarter
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		if($quarter == 1){
 			$this->SetX(41.3);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
@@ -195,7 +195,7 @@ class print_bir_1601EQ extends fpdf {
 		/**
 		 * Amend Return
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		if($amendreturn == "yes"){
 			$this->SetX(107.7);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
@@ -207,7 +207,7 @@ class print_bir_1601EQ extends fpdf {
 		/**
 		 * Taxes Withheld
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		if($anytaxwithheld == "yes"){
 			$this->SetX(143.3);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
@@ -219,7 +219,7 @@ class print_bir_1601EQ extends fpdf {
 		/**
 		 * Sheets Attached
 		 */
-		$this->SetFont('Arial', 'B', '11');
+		$this->SetFont('Arial', '', '11');
 		$this->SetX(184.5);
 		$this->Cell(10, 5, $attachments, 0, 0, 'C');
 
@@ -252,7 +252,7 @@ class print_bir_1601EQ extends fpdf {
 		/**
 		 * Agent's Name
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		$this->SetX(6.4);
 		$array = str_split($agentname);
 		$this->cellSpacing($array);
@@ -291,7 +291,7 @@ class print_bir_1601EQ extends fpdf {
 		/**
 		 * Category of Withholding Tax
 		 */
-		$this->SetFont('Arial', 'B', '11');
+		$this->SetFont('Arial', '', '11');
 		$this->SetY(87.4);
 		if($category == "private"){
 			$this->SetX(158);
@@ -427,7 +427,7 @@ class print_bir_1601EQ extends fpdf {
 		/**
 		 * Over-Remittance options
 		 */
-		$this->SetFont('Arial', 'B', '11');
+		$this->SetFont('Arial', '', '11');
 		$this->SetY(225.7);
 		if($remittance == "refunded"){
 			$this->SetX(67.4);

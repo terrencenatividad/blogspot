@@ -244,7 +244,7 @@ class print_bir_1604E extends fpdf {
 		/**	
 		 * For the Year
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		$this->SetY(35.9);
 		$this->SetX(43.5);
 		$this->Cell(20, 5, $yearfilter, 0, 0, 'C');
@@ -254,7 +254,7 @@ class print_bir_1604E extends fpdf {
 		/**
 		 * Amend Return
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		if($amendreturn == "yes"){
 			$this->SetX(99);
 			$this->Cell(5, 5, 'X', 0, 0, 'C');
@@ -266,7 +266,7 @@ class print_bir_1604E extends fpdf {
 		/**
 		 * Sheets Attached
 		 */
-		$this->SetFont('Arial', 'B', '13');
+		$this->SetFont('Arial', '', '13');
 		$this->SetX(187.5);
 		$this->Cell(10, 5, $attachments, 0, 0, 'C');
 
@@ -275,7 +275,7 @@ class print_bir_1604E extends fpdf {
 		/**
 		 * Taxpayer Identification Number (TIN)
 		 */
-		$this->SetFont('Arial', 'B', '12');
+		$this->SetFont('Arial', '', '12');
 		
 		$this->SetX(14);
 		$this->Cell(20, 5, $tin1, 0, 0, 'C');
@@ -299,7 +299,7 @@ class print_bir_1604E extends fpdf {
 		/**
 		 * Agent's Name
 		 */
-		$this->SetFont('Arial', 'B', '11');
+		$this->SetFont('Arial', '', '11');
 		$this->SetX(17);
 		$this->Cell(15, 5, $agentname, 0, 0, 'L');
 
@@ -313,14 +313,14 @@ class print_bir_1604E extends fpdf {
 		/**
 		 * First Address Line
 		 */
-		$this->SetFont('Arial', 'B', '9');
+		$this->SetFont('Arial', '', '9');
 		$this->SetX(17);
 		$this->Cell(15, 5, $firstaddress, 0, 0, 'L');
 
 		/**
 		 * ZIP Code
 		 */
-		$this->SetFont('Arial', 'B', '12');		
+		$this->SetFont('Arial', '', '12');		
 		$this->SetTextColor(0,0,0);
 		$this->SetY(62);		
 		$this->SetX(178);
@@ -330,7 +330,7 @@ class print_bir_1604E extends fpdf {
 		/**
 		 * Category of Withholding Tax
 		 */
-		$this->SetFont('Arial', 'B', '11');
+		$this->SetFont('Arial', '', '11');
 		$this->SetY(67);
 		if($category == "private"){
 			$this->SetX(59);
@@ -354,7 +354,7 @@ class print_bir_1604E extends fpdf {
 			/**
 			 * Date
 			 */
-			$this->SetFont('Arial', 'B', '9');
+			$this->SetFont('Arial', '', '9');
 			$this->SetTextColor(0,0,0);
 			$this->SetY(88+$line);
 			$this->SetX(22.5);
@@ -366,6 +366,7 @@ class print_bir_1604E extends fpdf {
 			$this->SetX(42);
 			$this->Cell(43, 4, ${'bank' . $x}, 0, 0, 'C');
 
+			$this->SetFont('Arial', '', '9');
 			/**
 			 * Tax Withheld
 			 */
