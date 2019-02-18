@@ -327,7 +327,7 @@ class controller extends wc_controller {
 		$serials['voucherno']		= $data['source_no'];
 		$result						= $this->purchase_model->updatePurchaseReturn($data, $data2, $voucherno);
 		$result2					= $this->purchase_model->updateSerialData($serials);
-		$result3					= $this->purchase_model->updatePurchaseReturnDetailsSerials($temp_voucherno,$serials);
+		$result3					= $this->purchase_model->updatePurchaseReturnDetailsSerials($voucherno,$serials);
 
 		switch ($data['reason']) {
 			case "1":
@@ -485,15 +485,19 @@ class controller extends wc_controller {
 			$voucherno = $this->input->post('voucherno');
 		// } 
 
-		// $curr = $this->delivery_model->getDRSerials($itemcode, $voucherno, $linenum);
-		// if ($curr) {
-		// 	$current_id = explode(",", $curr->serialnumbers);
-		// 	$curr_serialnumbers = $curr->serialnumbers;
-		// }
-		// else {
-			$current_id = [];
-			$curr_serialnumbers = '';
-		// }
+		$curr = $this->purchase_model->getPRSerials($itemcode, $voucherno, $linenum);
+		if ($curr) {
+			$current_serials = explode(",", $curr->serialnumbers);
+			$current_engine = explode(",", $curr->enginenumbers);
+			$current_chassis = explode(",", $curr->chassisnumbers);
+			// $curr_serialnumbers = $curr->serialnumbers;
+		}
+		else {
+			$current_serials = [];
+			$current_engine = [];
+			$current_chassis = [];
+			// $curr_serialnumbers = '';
+		}
 		$array_id = explode(',', $id);
 		$all_id = explode(',', $allserials);
 		$checked_id = explode(',', $checked_serials);
@@ -508,7 +512,8 @@ class controller extends wc_controller {
 			// else {
 			// 	$checker = (in_array($row->id, $array_id) || in_array($row->id, $checked_id)) ? 'checked' : '';
 			// }
-			$checker = ($row->stat == 'Not Available') ? 'checked' : '';
+			// $checker = ($row->stat == 'Not Available') ? 'checked' : '';
+			$checker = (in_array($row->serialno, $current_serials) || in_array($row->engineno, $current_engine) || in_array($row->chassisno, $current_chassis)) ? 'checked' : '';
 			$disabler = ($task == '') ? 'disabled' : '';
 			$hide_tr = ((in_array($row->id, $all_id) && !in_array($row->id, $array_id))) ? 'hidden' : '';
 			$table .= '<tr class = "'.$hide_tr.'">';

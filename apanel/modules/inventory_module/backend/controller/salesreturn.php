@@ -686,6 +686,13 @@ class controller extends wc_controller {
 					'netamount' 		=> $details['netamount'],
 					'stat' 				=> $arr_stat
 				);
+		$sourcetype = 'DR';
+		$source 	= $header['source_no'];
+
+		if (substr($header['source_no'], 0, 2) == 'SI') {
+			$sourcetype = 'SI';
+			$source 	= $this->db->getDRvoucher($source);
+		}
 
 /*
 	END : PREPARE DATA FOR QUERY
