@@ -671,9 +671,11 @@ $('#cancelprice').on('click', function(){
 	$('#itemcode').val('').trigger('change');
 });
 
-$('#useful_life').on('change', function(){
-	$('#orig_useful_life').val($(this).val());
-});
+if('<?=$ajax_task?>' == 'ajax_create'){
+	$('#useful_life').on('change', function(){
+		$('#orig_useful_life').val($(this).val());
+	});
+}
 
 $('body').on('blur blur_validate keyup keydown', '[data-validation~="alpha_num_special"]', function(e) {
     var error_message = `Invalid Input <a href="#invalid_characters" class="glyphicon glyphicon-info-sign" data-toggle="modal" data-error_message="<p><b>Allowed Characters:</b> a-z A-Z 0-9</p><p>Letters and Numbers Only</p><p><b>Note:</b> Space is an Invalid Character</p>"></a>`;
