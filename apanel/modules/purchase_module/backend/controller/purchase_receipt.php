@@ -21,6 +21,7 @@ class controller extends wc_controller {
 			'remarks',
 			'warehouse',
 			'assetid',
+			'months',
 			'amount',
 			'discounttype',
 			'discountrate',
@@ -588,8 +589,8 @@ class controller extends wc_controller {
 		// 	if(!empty($data2['budgetcode'][$i])) {
 		// 		var_dump($data2['budgetcode'][$i]);
 		// 	}
-		// }
-
+		// }	
+			
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}

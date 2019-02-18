@@ -372,6 +372,32 @@
 				</div>
 			</div>
 		</div>
+		
+		<div class="modal fade" id="months" tabindex="-1" >
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Useful Life</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-12"><p>Useful Life of Asset in Months</p></div>
+								</div>
+								<div class="row">
+									<div class="col-md-12"><input type="text" id="addmonths" class="form-control" data-addmonths=""></div>
+								</div>
+							</div>
+							<div class="modal-footer text-center">
+								<button type="button" class="btn btn-primary" id="yes_or_yes" disabled>Yes</button>
+								<button type="button" class="btn btn-default" id="no_or_no" data-dismiss="modal">No</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<div id="serialize_modal" class="modal fade" tabindex="-1" role="dialog" data-item="" data-itemcode="">
 			<div class="modal-dialog modal-lg" role="document">
@@ -1775,7 +1801,8 @@
 					items += removeComma($(this).val());
 				});
 				if ($('.receiptqty:not([readonly])').length > 0 && items > 0) {
-					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
+					var addmonths = $('#addmonths').val();
+					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '&months=' + addmonths + '<?=$ajax_post?>' + submit_data, function(data) {
 						if (data.success) {
 							$('#delay_modal').modal('show');
 							setTimeout(function() {							
@@ -1794,6 +1821,50 @@
 				$('#submit_container [type="submit"]').attr('disabled', false);
 			}
 		});
+
+		$('#assetid').on('focus', function() {
+			var assetcode = $('#assetid').val();
+			
+			if (assetcode != 'none') {
+				$('#months').modal('show');
+			} else {
+				$('#addmonths').val('');
+				$('#addmonths').attr("data-addmonths",'');
+			}
+		});
+
+		$('#yes_or_yes').click(function() {
+			var addmonths_val = $("#addmonths").val();
+			$('#addmonths').attr("data-addmonths",addmonths_val);
+
+			addmonths_val = '';
+			$('#months').modal('hide');
+		});
+
+		$('#no_or_no').click(function() {
+			$('#addmonths').val($('#addmonths').attr("data-addmonths"));
+			if ($('#addmonths').val() == ""){
+				$('#select2-assetid-container').text("None").data("title0","None");
+			}
+		});
+
+		$('#addmonths').on('keypress', function(event) {
+			var regex = new RegExp("^[0-9\b\-]+$");
+			var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+			
+			if (!regex.test(key)) {
+				event.preventDefault();
+				return false;
+			}
+			$('#addmonths').on('keyup', function() {
+				if($('#addmonths').val() != '' && $('#addmonths').val() != 0) {
+					$('#yes_or_yes').prop('disabled', false);
+				} else {
+					$('#yes_or_yes').prop('disabled', true);
+				}
+			});
+		});
+
 	</script>
 	<?php endif ?>
 	<script>
