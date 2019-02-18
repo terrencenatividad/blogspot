@@ -64,10 +64,13 @@ class position extends wc_model {
 	}
 
 	public function getPositionListPagination($fields, $search = '', $sort) {
-
+		$condition = '';
+		if ($search) {
+			$condition = $this->generateSearch($search, array('description', 'position'));
+		}
 			$result = $this->db->setTable("position")
 								->setFields("id,position,description,stat")
-								->setWhere(1)
+								->setWhere($condition)
 								->setOrderBy($sort)
 								->runPagination();
 	
