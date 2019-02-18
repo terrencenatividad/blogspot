@@ -182,6 +182,7 @@ class controller extends wc_controller {
 		$customerdetails	= $this->delivery_model->getCustomerDetails($documentinfo->partnercode);
 		$documentdetails	= array(
 			'Date'	=> $this->date->dateFormat($documentinfo->documentdate),
+			'Shipping'	=> $this->date->dateFormat($documentinfo->deliverydate),
 			'DR #'	=> $voucherno,
 			'SO #'	=> $documentinfo->referenceno
 		);
