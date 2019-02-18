@@ -2276,7 +2276,6 @@ class accounts_payable extends wc_model
 
 	public function updateAsset($assetid,$amount,$asd1,$asd2,$useful_life,$addmonths)
 	{
-		$amount = str_replace(",","",$amount);
 		$asd1 = str_replace(",","",$asd1);
 		$asd2 = str_replace(",","",$asd2);
 		$addmonths = str_replace(",","",$addmonths);

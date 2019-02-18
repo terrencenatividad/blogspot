@@ -610,8 +610,8 @@ class controller extends wc_controller
 			$depreciation_month = $getAsset->depreciation_month;
 			$time  					= strtotime($depreciation_month);
 			
-			$convdebit = $ap_details['debit'][0] * $ap['exchangerate'];
-			
+			$convdebit = str_replace(',', '',$ap_details['debit'][0]) * str_replace(',', '',$ap['exchangerate']);
+
 			$bv = $balance_value + $convdebit;
 
 			$this->accounts_payable->updateAsset($ap['assetid'],$convdebit,$capitalized_cost,$balance_value,$useful_life,$addmonths);

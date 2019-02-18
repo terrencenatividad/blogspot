@@ -47,7 +47,7 @@
 				</div>
                 <div class = "row">
                     <div style = "float:right; margin-right:15px">
-                        <button type = "button" class="btn btn-primary btn-flat" id = "sawtCsvBtn"><span class="glyphicon glyphicon-export">CSV</button>&nbsp;
+                        <a href type = "button" class="btn btn-primary btn-flat" download="SAWT.csv" id = "sawtCsvBtn"><span class="glyphicon glyphicon-export">CSV</a>&nbsp;
                         <button type = "button" class="btn btn-primary btn-flat" id = "sawtDatBtn"><span class="glyphicon glyphicon-export">DAT</button>
                     </div>
                 </div>
@@ -142,6 +142,7 @@
 					ajax.page = data.page_limit;
 					getList();
 				}
+				$("#sawtCsvBtn").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));;
 			});
 		}
 		getList();
@@ -150,10 +151,10 @@
 			ajax.datepicker = $(this).val();
 			getList();
 		});
-        $('#sawtCsvBtn').click(function(){
-            var datepicker = $('#datepicker').val();
-            window.open('<?php echo MODULE_URL ?>sawt_csv?datepicker=' + datepicker);
-        });
+        // $('#sawtCsvBtn').click(function(){
+        //     var datepicker = $('#datepicker').val();
+        //     window.open('<?php echo MODULE_URL ?>sawt_csv?datepicker=' + datepicker);
+        // });
         $('#sawtDatBtn').click(function(){
             var datepicker = $('#datepicker').val();
             window.open('<?php echo MODULE_URL ?>sawt_dat?datepicker=' + datepicker);

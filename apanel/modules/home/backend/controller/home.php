@@ -26,11 +26,12 @@ class controller extends wc_controller {
 	}
 
 	private function get_chart() {
-		$ajax						= array();
-		$ajax['revenue_expense']	= $this->dashboard->getRevenuesAndExpenses();
-		$ajax['aging']				= $this->dashboard->getAging();
-		$ajax['sales_purchases']	= $this->dashboard->getSalesAndPurchases();
-
+		$ajax							= array();
+		$ajax['revenue_expense']		= $this->dashboard->getRevenuesAndExpenses();
+		$ajax['aging']					= $this->dashboard->getAging();
+		$ajax['sales_purchases']		= $this->dashboard->getSalesAndPurchases();
+		$ajax['sales']					= $this->dashboard->getSales();
+		
 		return $ajax;
 	}
 
