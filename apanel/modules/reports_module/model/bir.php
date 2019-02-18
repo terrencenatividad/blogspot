@@ -524,16 +524,16 @@ class bir extends wc_model {
         $wtax_option    = $company_info->wtax_option;
         if($wtax_option == 'AP'){
             return $this->db->setTable('ap_details a')
-            ->setFields('SUM(a.taxbase_amount) tax')
+            ->setFields('SUM(a.convertedcredit) tax')
             ->leftJoin('accountspayable ap ON ap.voucherno = a.voucherno')
-            ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year'")
+            ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year' AND taxcode != ''")
             ->runSelect()
             ->getResult();
         }else if($wtax_option == 'PV'){
             return $this->db->setTable('pv_details a')
-            ->setFields('SUM(a.taxbase_amount) tax')
+            ->setFields('SUM(a.convertedcredit) tax')
             ->leftJoin('paymentvoucher ap ON ap.voucherno = a.voucherno')
-            ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year'")
+            ->setWhere("MONTH(transactiondate) = '$i' and YEAR(transactiondate) = '$year' AND taxcode != ''")
             ->runSelect()
             ->getResult();
         }
