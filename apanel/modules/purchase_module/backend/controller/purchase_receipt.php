@@ -569,6 +569,7 @@ class controller extends wc_controller {
 		// 		var_dump($getid->expense_account);
 		// 	}
 		// }
+		var_dump($data);
 		unset($data2['budgetcode']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
@@ -584,16 +585,12 @@ class controller extends wc_controller {
 		$attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
 		// retrieve  freight, insurance, packaging 
 		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
-		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;
-		// for($i=0;$i<count($data2['budgetcode']);$i++) {
-		// 	if(!empty($data2['budgetcode'][$i])) {
-		// 		var_dump($data2['budgetcode'][$i]);
-		// 	}
-		// }	
+		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;	
 			
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
+
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
 			->setDetails($data['vendor'])
@@ -603,6 +600,25 @@ class controller extends wc_controller {
 			$this->inventory_model->setReference($data['voucherno'])
 			->setDetails($data['vendor'])
 			->generateBalanceTable();
+		}
+
+		if($data['assetid'] != ''){
+			$getAsset = $this->purchase_model->getAsset($data['assetid']);
+			$capitalized_cost 	= $getAsset->capitalized_cost;
+			$balance_value    	= $getAsset->balance_value;
+			$salvage_value	  	= $getAsset->salvage_value;
+			$useful_life	  	= $getAsset->useful_life;
+			$depreciation_month = $getAsset->depreciation_month;
+			$time  				= strtotime($depreciation_month);
+			
+			$getAP 				= $this->purchase_model->getAP($data['voucherno']);
+			$debit 				= $getAP->converteddebit;
+			// $exchangerate = $getAP->exchangerate;
+			$convdebit 			= str_replace(',', '',$debit);
+
+			$bv = $balance_value + $convdebit;
+
+			$this->purchase_model->updateAsset($data['assetid'],$convdebit,$capitalized_cost,$balance_value,$useful_life,$data['months']);
 		}
 		
 		$columns['transactiontype'] = 'Received Asset';

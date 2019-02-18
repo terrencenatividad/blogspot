@@ -277,7 +277,7 @@ class print_bir_2550Q extends fpdf {
 		$this->Cell(10, 4.5, $attachments, 0, 0, 'C');
 
 		$this->SetY(40.5);
-		$this->SetX(170);
+		$this->SetX(180);
 		$this->Cell(5, 5, $businessline, 0, 0, 'C');
 
 		/**

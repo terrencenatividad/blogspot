@@ -778,6 +778,24 @@ class job_order_model extends wc_model
 				->setWhere("job_release_no = '$id'")
 				->runUpdate();
 
+				$serialnumbers = $this->db->setTable('job_release')
+						->setFields(array('serialnumbers'))
+						->setWhere("job_release_no = '$id'")
+						->runSelect()
+						->getResult();
+
+				foreach ($serialnumbers[0] as $row) {
+					if ($row != "") {
+						$ids = explode(",", $row);
+					foreach ($ids as $id) {
+							$this->db->setTable('items_serialized')
+												->setValues(array('stat'=>'Available'))
+												->setWhere("id = '$id'")
+												->runUpdate();
+						}
+					}
+				}
+
 			if ($result) {
 				$this->log->saveActivity("Deleted Job Release [$id]");
 			}

@@ -1621,6 +1621,15 @@
 		$('#monthfilter').trigger('change');
 	});
 
+	function ready() {
+		$(document).ajaxComplete(function() {
+			var total_19a = Math.round($('#vat_privateA').val()) + Math.round($('#vat_govA').val()) + Math.round($('#vat_zero').val()) + Math.round($('#vat_exempt').val());
+			var total_19b = Math.round($('#vat_privateB').val()) + Math.round($('#vat_govB').val());
+			$('#totalsales19A').val(addComma(total_19a));
+			$('#totalsales19B').val(addComma(total_19b));
+		});
+	}
+
 	$('#yearfilter').on('change', function() {
 		var year = $(this).val();
 		var period = $('#monthfilter').val();
@@ -1639,7 +1648,6 @@
 				$('#vat_privateA').val(sum);
 				$('#vat_privateB').val(taxamount);
 			}
-			sumSales();
 		});
 
 		$.post("<?=MODULE_URL?>ajax/getGovMonthly", { period : period, year : year }, function(data) {
@@ -1755,156 +1763,144 @@
 				$('#purchasenotqualified21M').val(sum);
 			}
 		});
+		ready();
 	});
 
-	$('#monthfilter').on('change', function() {
-		var period = $(this).val();
-		var year = $('#yearfilter').val();
-		$('#others21N').val('0.00');
-		$('#others21O').val('0.00');
-		makeZero();
-		allowableInputTax20F();
-		totalpurchases21P();
-		$.post("<?=MODULE_URL?>ajax/getPrivateMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#vat_privateA').val('0.00');
-				$('#vat_privateB').val('0.00');
-			} else {
-				$('#vat_privateA').val(sum);
-				$('#vat_privateB').val(addComma(taxamount));
-			}
-			sumSales();
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getGovMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#vat_govA').val('0.00');
-				$('#vat_govB').val('0.00');
-			} else {
-				$('#vat_govA').val(sum);
-				$('#vat_govB').val(taxamount);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getZeroMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#vat_zero').val('0.00');
-			} else {
-				$('#vat_zero').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getExemptMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#vat_exempt').val('0.00');
-			} else {
-				$('#vat_exempt').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceededMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#cgnotexceed21A').val('0.00');
-				$('#cgnotexceed21B').val('0.00');
-			} else {
-				$('#cgnotexceed21A').val(sum);
-				$('#cgnotexceed21B').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getPurchasesExceededMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#cgexceed21C').val('0.00');
-				$('#cgexceed21D').val('0.00');
-			} else {
-				$('#cgexceed21C').val(sum);
-				$('#cgexceed21D').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getPurchaseGoodsMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#dompurchase21E').val('0.00');
-				$('#dompurchase21F').val('0.00');
-			} else {
-				$('#dompurchase21E').val(sum);
-				$('#dompurchase21F').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#importation21G').val('0.00');
-				$('#importation21H').val('0.00');
-			} else {
-				$('#importation21G').val(sum);
-				$('#importation21H').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getPurchaseServicesMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#dompurchaseserv21I').val('0.00');
-				$('#dompurchaseserv21J').val('0.00');
-			} else {
-				$('#dompurchaseserv21I').val(sum);
-				$('#dompurchaseserv21J').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getPurchaseNonResidentMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#servicerenderedK').val('0.00');
-				$('#servicerenderedL').val('0.00');
-			} else {
-				$('#servicerenderedK').val(sum);
-				$('#servicerenderedL').val(sum);
-			}
-		});
-
-		$.post("<?=MODULE_URL?>ajax/getPurchaseNotTaxMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#purchasenotqualified21M').val('0.00');
-			} else {
-				$('#purchasenotqualified21M').val(sum);
-			}
-		});
+$('#monthfilter').on('change', function() {
+	var period = $(this).val();
+	var year = $('#yearfilter').val();
+	$('#others21N').val('0.00');
+	$('#others21O').val('0.00');
+	makeZero();
+	allowableInputTax20F();
+	totalpurchases21P();
+	$.post("<?=MODULE_URL?>ajax/getPrivateMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_privateA').val('0.00');
+			$('#vat_privateB').val('0.00');
+		} else {
+			$('#vat_privateA').val(sum);
+			$('#vat_privateB').val(addComma(taxamount));
+		}
 	});
 
-function sumSales() {
-	var privateA = Math.round(removeComma($('#vat_privateA').val()));
-	var privateB = Math.round(removeComma($('#vat_privateB').val()));
-	var govA = Math.round(removeComma($('#vat_govA').val()));
-	var govB = Math.round(removeComma($('#vat_govB').val()));
-	var exempt = Math.round(removeComma($('#vat_exempt').val()));
-	var zero = Math.round(removeComma($('#vat_zero').val()));
-	var sumA = privateA + govA + exempt + zero;
-	var sumB =  privateB + govB;
-	$('#totalsales19A').val(addComma(sumA.toFixed(2)));
-	$('#totalsales19B').val(addComma(sumB.toFixed(2)));
-}
+	$.post("<?=MODULE_URL?>ajax/getGovMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_govA').val('0.00');
+			$('#vat_govB').val('0.00');
+		} else {
+			$('#vat_govA').val(sum);
+			$('#vat_govB').val(taxamount);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getZeroMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_zero').val('0.00');
+		} else {
+			$('#vat_zero').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getExemptMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#vat_exempt').val('0.00');
+		} else {
+			$('#vat_exempt').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getNotPurchasesExceededMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#cgnotexceed21A').val('0.00');
+			$('#cgnotexceed21B').val('0.00');
+		} else {
+			$('#cgnotexceed21A').val(sum);
+			$('#cgnotexceed21B').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchasesExceededMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#cgexceed21C').val('0.00');
+			$('#cgexceed21D').val('0.00');
+		} else {
+			$('#cgexceed21C').val(sum);
+			$('#cgexceed21D').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseGoodsMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#dompurchase21E').val('0.00');
+			$('#dompurchase21F').val('0.00');
+		} else {
+			$('#dompurchase21E').val(sum);
+			$('#dompurchase21F').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#importation21G').val('0.00');
+			$('#importation21H').val('0.00');
+		} else {
+			$('#importation21G').val(sum);
+			$('#importation21H').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseServicesMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#dompurchaseserv21I').val('0.00');
+			$('#dompurchaseserv21J').val('0.00');
+		} else {
+			$('#dompurchaseserv21I').val(sum);
+			$('#dompurchaseserv21J').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseNonResidentMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#servicerenderedK').val('0.00');
+			$('#servicerenderedL').val('0.00');
+		} else {
+			$('#servicerenderedK').val(sum);
+			$('#servicerenderedL').val(sum);
+		}
+	});
+
+	$.post("<?=MODULE_URL?>ajax/getPurchaseNotTaxMonthly", { period : period, year : year }, function(data) {
+		var sum = data.sum_amount;
+		var taxamount = data.sum_taxamount;
+		if(sum == null || taxamount == null) {
+			$('#purchasenotqualified21M').val('0.00');
+		} else {
+			$('#purchasenotqualified21M').val(sum);
+		}
+	});
+	ready();
+});
 
 function allowableInputTax20F() {
 	var allowableInputTax20A = Math.round($('#vat_privateA').val());
