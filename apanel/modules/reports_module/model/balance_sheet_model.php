@@ -35,9 +35,11 @@ class balance_sheet_model extends wc_model {
 		$period			= $this->period;
 		$periods 		= $this->getPeriodList($year);
 		$period_list 	= array();
-		foreach ($periods as $key => $value)
-		{
-			$period_list[] = $value->period;
+		if($periods) {
+			foreach ($periods as $key => $value)
+			{
+				$period_list[] = $value->period;
+			}
 		}
 		// var_dump($period_list);
 		for ($x = 1; $x <= 12; $x++) {
@@ -65,9 +67,11 @@ class balance_sheet_model extends wc_model {
 		// echo $period;
 		$periods = $this->getPeriodList($year);
 		$period_list 	= array();
-		foreach ($periods as $key => $value)
-		{
-			$period_list[] = $value->period;
+		if($periods) {
+			foreach ($periods as $key => $value)
+			{
+				$period_list[] = $value->period;
+			}
 		}
 		// var_dump($period_list);
 		
@@ -76,6 +80,10 @@ class balance_sheet_model extends wc_model {
 		$year_start		= $year;
 		$year_end		= $year;
 
+		$quarter1 		= array();
+		$quarter2 		= array();
+		$quarter3 		= array();
+		$quarter4 		= array();
 		for ($x = 1; $x <= 4; $x++) {
 			// echo "start ".$period_start."<br>";
 			if ($period_start > 11) {
@@ -236,7 +244,7 @@ class balance_sheet_model extends wc_model {
 							
 
 		$previous	=  array();
-		
+
 		// if( $start == '2018-1-01' && $end =='2018-12-31') {
 		// 	echo $this->db->getQuery();
 		// 	echo "<br><br>";
