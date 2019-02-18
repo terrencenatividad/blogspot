@@ -368,6 +368,9 @@ class purchase_order extends wc_model
 		$post_header['wtaxcode'] 			=	$wtaxcode;
 		$post_header['wtaxamount'] 			=	$wtax;
 		$post_header['wtaxrate'] 			=	$wtaxrate;
+		if($task == 'edit'){
+			$post_header['print'] 				= 	'0';
+		}
 
 		/**INSERT HEADER**/
 		if($status=='temporary' && $task == 'create')

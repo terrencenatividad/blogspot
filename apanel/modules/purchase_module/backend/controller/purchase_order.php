@@ -552,7 +552,7 @@ class controller extends wc_controller
 		$this->po->updateData($print_data, "purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
 		$detail_height = 37;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$total_amount = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
