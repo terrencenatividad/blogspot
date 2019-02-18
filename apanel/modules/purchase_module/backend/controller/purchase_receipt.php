@@ -594,6 +594,7 @@ class controller extends wc_controller {
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
+
 		if ($result && $this->inventory_model) {
 			$this->inventory_model->prepareInventoryLog('Purchase Receipt', $data['voucherno'])
 			->setDetails($data['vendor'])
@@ -603,6 +604,25 @@ class controller extends wc_controller {
 			$this->inventory_model->setReference($data['voucherno'])
 			->setDetails($data['vendor'])
 			->generateBalanceTable();
+		}
+
+		if($data['assetid'] != ''){
+			$getAsset = $this->purchase_model->getAsset($data['assetid']);
+			$capitalized_cost 	= $getAsset->capitalized_cost;
+			$balance_value    	= $getAsset->balance_value;
+			$salvage_value	  	= $getAsset->salvage_value;
+			$useful_life	  	= $getAsset->useful_life;
+			$depreciation_month = $getAsset->depreciation_month;
+			$time  				= strtotime($depreciation_month);
+			
+			$getAP 				= $this->purchase_model->getAP($data['voucherno']);
+			$debit 				= $getAP->converteddebit;
+			// $exchangerate = $getAP->exchangerate;
+			$convdebit 			= str_replace(',', '',$debit);
+
+			$bv = $balance_value + $convdebit;
+
+			$this->purchase_model->updateAsset($data['assetid'],$convdebit,$capitalized_cost,$balance_value,$useful_life,$data['months']);
 		}
 		
 		$columns['transactiontype'] = 'Received Asset';
