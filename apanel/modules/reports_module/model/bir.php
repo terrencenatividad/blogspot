@@ -682,26 +682,24 @@ class bir extends wc_model {
     }
 
     public function getTotalRemittance($month, $year){
-        $ap	= $this->db->setTable('ap_details apd')
-                                ->setFields(array('convertedcredit'))
+        $company_info   = $this->getCompanyInfo('wtax_option');
+        $wtax_option    = $company_info->wtax_option;
+        if($wtax_option == 'AP'){
+            $result =  $this->db->setTable('ap_details apd')
+                                ->setFields(array('SUM(convertedcredit) convertedcredit'))
                                 ->leftJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
-								->setWhere("taxcode IS NOT NULL AND taxcode != '' AND ap.stat = 'posted' AND (MONTH(transactiondate) = '$month' AND YEAR(transactiondate) = '$year')")
-                                ->buildSelect();
-
-        $pv	= $this->db->setTable('pv_details pvd')
-								->setFields(array('convertedcredit'))
+                                ->setWhere("taxcode IS NOT NULL AND taxcode != '' AND ap.stat = 'posted' AND (MONTH(transactiondate) = '$month' AND YEAR(transactiondate) = '$year')")
+                                ->runSelect()
+                                ->getResult();
+        }else if($wtax_option == 'PV'){
+            $result = $this->db->setTable('pv_details pvd')
+                                ->setFields(array('SUM(convertedcredit) convertedcredit'))
                                 ->leftJoin('paymentvoucher pv ON pv.voucherno = pvd.voucherno')
-								->setWhere("taxcode IS NOT NULL AND taxcode != '' AND pv.stat = 'posted' AND (MONTH(transactiondate) = '$month' AND YEAR(transactiondate) = '$year')")
-                                ->buildSelect();
-        
-        $union = $ap . ' UNION ALL ' . $pv;
-        
-        $result = $this->db->setTable("($union) u")
-                        ->setFields('SUM(convertedcredit) total')
-                        ->setWhere(1)
-                        ->runSelect(false)
-                        ->getResult();
-                        
-        return $result[0]->total;
+                                ->setWhere("taxcode IS NOT NULL AND taxcode != '' AND pv.stat = 'posted' AND (MONTH(transactiondate) = '$month' AND YEAR(transactiondate) = '$year')")   
+                                ->runSelect()
+                                ->getResult();
+        }
+
+        return $result[0]->convertedcredit;
     }
 }	
