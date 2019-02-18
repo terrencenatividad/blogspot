@@ -41,7 +41,7 @@
 		</div>
 		<br><br><br>
 		<div class="box-body table-responsive no-padding" id="report_content">
-			<table id="tableList" class="table table-hover table-striped table-sidepad">
+			<table id="tableList" class="table table-hover table-striped table-sidepad table-bordered">
 				<thead>
 					<tr class="info">
 						<th class="col-md-1">Code</th>
