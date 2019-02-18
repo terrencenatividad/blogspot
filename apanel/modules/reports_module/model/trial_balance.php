@@ -364,7 +364,7 @@ class trial_balance extends wc_model {
 
 		$result 	= $this->db->setTable("journalvoucher")
 							   ->setFields(array('voucherno'))
-							   ->setWhere("transactiondate = '$date_last_month' AND source='closing'")
+							   ->setWhere("transactiondate = '$curr_close_date' AND source='closing'")
 								->runSelect(false)
 								->getResult();
 
@@ -382,6 +382,25 @@ class trial_balance extends wc_model {
 
 		return $result;
 	}	
+
+	public function check_depreciation_run($date) {
+		// $datestring 		= date('Y-m-d', strtotime($date)).' last day of last month';
+		// $date_last_month 	= date_create($datestring);
+		// $date_last_month	= $date_last_month->format('Y-m-d'); 
+		// echo $date_last_month;
+
+
+		$curr_close_date 	=	$this->date->dateDBFormat($date);
+		echo $curr_close_date;
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('voucherno'))
+							   ->setWhere("transactiondate = '$curr_close_date' AND source='depreciation'")
+								
+							   ->runSelect(false)
+							   ->getResult();
+
+		return $result;
+	}
 
 	public function check_latest_closedmonth($year=""){
 		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";

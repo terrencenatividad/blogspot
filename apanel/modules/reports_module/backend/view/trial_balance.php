@@ -450,12 +450,21 @@
 		ajax.page = 1;
 		getTrialBalance();
 	}).trigger('change');
+
 	$('#close_book').on('click',function(){
 		var daterangefilter 	=	$('#daterangefilter').val();
 		$('#reference').val("");
 		$('#notes').val("");
 		$("#jvModal").modal('show');
 		$('#btnSaveDetails').prop('disabled',false);
+
+		var current_date 		=	$('#jvModal #datefrom').val();	
+		var date_array 			=	current_date.split(' - ');
+
+		ajax4.datefrom 			=	current_date;
+		$.post('<?=MODULE_URL?>ajax/check_depreciation_run', ajax4 , function(response) {
+			
+		});
 	});
 	
 	//if current month = date

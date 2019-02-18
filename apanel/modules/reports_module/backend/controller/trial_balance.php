@@ -142,6 +142,8 @@ class controller extends wc_controller {
 			$result = $this->eradicate_temporary_jv();
 		}else if($task == "check_existing_yrendjv") {
 			$result = $this->check_existing_yrendjv();
+		}else if($task == "check_depreciation_run") {
+			$result = $this->check_depreciation_run();
 		}
 
 		echo json_encode($result); 
@@ -527,6 +529,21 @@ class controller extends wc_controller {
 
 		$dataArray 	= 	array("result"=>$result);
 		return $dataArray;
+	}
+
+	public function check_depreciation_run() {
+		$transaction_date  	=	$this->input->post('datefrom');
+
+		$result = $this->trial_balance->check_depreciation_run($transaction_date);
+		var_dump($result);
+		// $existing 	=	0;
+		// if( !empty($result) ){
+		// 	$existing 	=	1;
+		// }
+
+		// return array(
+		// 	'existing' => $existing
+		// );
 	}
 }
 ?>
