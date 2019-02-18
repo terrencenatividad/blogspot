@@ -123,6 +123,23 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="export_modal" tabindex="-1"  data-backdrop="static" data-keyboard="false" >
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					Confirmation
+					<input type="hidden" name="voucherno" id='input_voucherno'>
+				</div>
+				<div class="modal-body" id="message">
+					Continue exporting file?
+				</div>
+				<div class="modal-footer text-center">
+					<a href type="button" class="btn btn-info btn-flat" download = "SalesInvoice.csv" id="disc_yes">Yes</a>
+					<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script>
 		var ajax = {}
 		var ajax_call = {};
@@ -177,6 +194,12 @@
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
+				// $('.export_to_csv').each(function(e){
+				// 	var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8,";
+				// 	var voucher = $(this).attr('data-id'); 
+				// 	$(this).prop('download', voucher+'.csv');
+				// 	$(this).prop('href', uriContent);
+				// });
 			});
 		}
 		getList();
@@ -224,15 +247,40 @@
 		});
 		$('#tableList').on('click', '.export_to_csv',function(){
 			var voucher = $(this).attr('data-id');
-			url = '<?=MODULE_URL?>export_csv/' + voucher;
-			var win = window.open(url, '_blank');
-  			win.focus();
+			$('#input_voucherno').val(voucher);
+			$('#export_modal').modal('show');
+
+			
+			// url = '<?=MODULE_URL?>export_csv/' + voucher;
+			// var win = window.open(url, '_blank');
+  			// win.focus();
+			ajax.voucher = voucher;
+			
+			$.post('<?=MODULE_URL?>ajax/export_csv', ajax, function(data) {
+				// var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8," + encodeURIComponent(data.csv);
+				// $(this).prop('href',uriContent);
+				// var win = window.open(uriContent);
+				var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8," + encodeURIComponent(data.csv);
+				console.log(uriContent);
+				$('#disc_yes').prop('download', voucher+'.csv');
+				$('#disc_yes').prop('href', uriContent);
+			});
 		});
-		$('#export').click(function(){
-            var daterangefilter = ajax.daterangefilter;
-			var customer = ajax.customer;
-			var search = ajax.search;
-			var filter = ajax.filter;
-            window.open('<?php echo MODULE_URL ?>export?daterangefilter=' + daterangefilter + '&customer=' + customer + '&search=' + search + '&filter=' + filter);
-        });
+
+		$('body').on('click','#disc_yes',function(){
+			$('#export_modal').modal('hide');
+		});
+
+		// $('#disc_yes').on('click', function() {
+		// 	var voucher = $('#input_voucherno').val();
+		// 	ajax.voucher = voucher;
+
+		// 	$.post('<?=MODULE_URL?>ajax/export_csv', ajax, function(data) {
+		// 		// var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8," + encodeURIComponent(data.csv);
+		// 		// $(this).prop('href',uriContent);
+		// 		// var win = window.open(uriContent);
+		// 		//$(this).attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
+				
+		// 	});
+		// });
 	</script>
