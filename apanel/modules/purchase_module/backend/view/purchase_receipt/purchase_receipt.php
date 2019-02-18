@@ -1843,7 +1843,7 @@
 
 		$('#no_or_no').click(function() {
 			$('#addmonths').val($('#addmonths').attr("data-addmonths"));
-			if ($('#addmonths').val() == ""){
+			if ($('#addmonths').val() == "" || $('#addmonths').val() == 0){
 				$('#select2-assetid-container').text("None").data("title0","None");
 			}
 		});
@@ -1863,6 +1863,12 @@
 					$('#yes_or_yes').prop('disabled', true);
 				}
 			});
+		});
+
+		$('#months').on('hide.bs.modal', function () {
+			if ($('#addmonths').val() == "" || $('#addmonths').val() == 0){
+				$('#select2-assetid-container').text("None").data("title0","None");
+			}
 		});
 
 	</script>
