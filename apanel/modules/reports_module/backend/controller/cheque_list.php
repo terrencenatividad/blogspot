@@ -201,7 +201,7 @@ class controller extends wc_controller {
 				$prev_date			=	$chequedate;
 				
 				$dropdown = $this->ui->loadElement('check_task')
-									 ->addCheckbox($stat!='released' && $stat!='cancelled' && $stat!='void')
+									 ->addCheckbox($stat!='cleared' && $stat!='released' && $stat!='cancelled' && $stat!='void')
 									 ->setValue($transtype."-".$chequenumber)
 									 ->draw();
 				
