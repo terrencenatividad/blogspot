@@ -226,7 +226,7 @@
 				ajax_call.abort();
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
-				if(data.check != false){
+				if(data.check != 'false'){
 					$('#run').prop('disabled', true);
 				}
 				$('#tableList tbody').html(data.table);

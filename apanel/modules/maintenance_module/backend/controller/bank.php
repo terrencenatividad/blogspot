@@ -20,6 +20,16 @@ class controller extends wc_controller
 			'accountno',
 			'currency',
 			'checking_account',
+			'address1'
+		);
+
+		$this->csv_fields = array(
+			'gl_code',
+			'shortname',
+			'bankcode',
+			'accountno',
+			'currency',
+			'checking_account',
 			'address1',
 			'stat'
 		);
@@ -786,7 +796,7 @@ class controller extends wc_controller
 	private function export()
 	{
 		$data_post = $this->input->post("search");
-		$result = $this->bank->exportBank($this->fields, $data_post);
+		$result = $this->bank->exportBank($this->csv_fields, $data_post);
 
 		$header = array("Bank Account GL Code","Bank Code","Bank Name","Bank Account Number","Currency Code","Checking Account (yes/no)", "Bank Address", "Status");
 

@@ -79,7 +79,7 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-6">
+			<!-- <div class="col-md-6">
 				<div class="box box-solid bg-teal-gradient">
 					<div class="box-header">
 						<i class="fa fa-th"></i>
@@ -87,6 +87,17 @@
 					</div>
 					<div class="box-body border-radius-none no-padding">
 						<div class="chart" id="sales" style="height: 250px;"></div>
+					</div>
+				</div>
+			</div> -->
+			<div class="col-md-6">
+				<div class="box box-solid bg-blue-gradient">
+					<div class="box-header">
+						<i class="fa fa-th"></i>
+						<h3 class="box-title">Sales Graph <?php echo $year ?></h3>
+					</div>
+					<div class="box-body border-radius-none no-padding">
+						<div class="chart" id="sales_summary" style="height: 250px;"></div>
 					</div>
 				</div>
 			</div>
@@ -136,6 +147,7 @@
 		var revenue_expense = '';
 		var aging = '';
 		var sales_purchases = '';
+		var sales = '';
 		var shortMonth	= ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 		var fullMonth	= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -143,6 +155,7 @@
 			revenue_expense = data.revenue_expense;
 			aging = data.aging;
 			sales_purchases = data.sales_purchases;
+			sales = data.sales;
 			showChart();
 		});
 
@@ -211,15 +224,42 @@
 				}, 10);
 			});
 			
+			// new Morris.Line({
+			// 	gridTextSize: 8,
+			// 	element: 'sales',
+			// 	data: sales_purchases.sales,
+			// 	xkey: 'month',
+			// 	ykeys: ['value'],
+			// 	labels: ['Value'],
+			// 	gridTextColor: '#efefef',
+			// 	lineColors: ['#efefef'],
+			// 	gridLineColor: ['#efefef'],
+			// 	hideHover: true,
+			// 	xLabelFormat: function (x){
+			// 		var month = shortMonth[new Date(x).getMonth()];
+			// 		return month;
+			// 	},
+			// 	dateFormat: function (x) { 
+			// 		var month = fullMonth[new Date(x).getMonth()];
+			// 		return month;
+			// 	},
+			// 	yLabelFormat: function(y) {
+			// 		let val = parseFloat(y);
+			// 		return val.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+			// 	}
+			// });
+			/**	
+			 * Cystiner
+			 */
 			new Morris.Line({
 				gridTextSize: 8,
-				element: 'sales',
-				data: sales_purchases.sales,
+				element: 'sales_summary',
+				data: sales.sales,
 				xkey: 'month',
-				ykeys: ['value'],
-				labels: ['Value'],
+				ykeys: ['equipment','parts','service'],
+				labels: ['Equipment','Parts','Service'],
 				gridTextColor: '#efefef',
-				lineColors: ['#efefef'],
+				lineColors: ['#f4415b','#efefef','yellow'],
 				gridLineColor: ['#efefef'],
 				hideHover: true,
 				xLabelFormat: function (x){

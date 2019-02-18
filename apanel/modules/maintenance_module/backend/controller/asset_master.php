@@ -21,6 +21,7 @@ class controller extends wc_controller {
 			'accountable_person',
 			'commissioning_date',
 			'retirement_date',
+			'orig_useful_life',
 			'useful_life',
 			'depreciation_month',
 			'depreciation_amount',

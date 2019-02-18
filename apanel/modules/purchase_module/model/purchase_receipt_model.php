@@ -852,4 +852,51 @@ class purchase_receipt_model extends wc_model {
 		return $result;
 	}
 
+	public function getAsset($assetid)
+	{
+		$fields = array('capitalized_cost','balance_value','useful_life','salvage_value','depreciation_month');
+		$result = $this->db->setTable('asset_master')
+		->setFields($fields)
+		->setWhere("asset_number = '$assetid'")
+		->runSelect()
+		->getRow();
+
+		return $result;
+	}
+
+	public function updateAsset($assetid,$amount,$asd1,$asd2,$useful_life,$addmonths)
+	{
+		$asd1 = str_replace(",","",$asd1);
+		$asd2 = str_replace(",","",$asd2);
+		$addmonths = str_replace(",","",$addmonths);
+		$fields['capitalized_cost'] = $amount+$asd1;
+		$fields['balance_value'] = $amount+$asd2;
+		$fields['useful_life'] = $addmonths;
+		$result = $this->db->setTable('asset_master')
+		->setValues($fields)
+		->setWhere("asset_number = '$assetid'")
+		->setLimit(1)
+		->runUpdate();
+
+		if ($result) {
+			$this->log->saveActivity("Update Asset Value [$assetid]");
+		}
+
+		return $result;
+	}
+
+	public function getAP($referenceno) {
+		$fields = array('converteddebit');
+
+		$result = $this->db->setTable('ap_details apd')
+							->setFields($fields)
+							->innerJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
+							->setWhere("ap.referenceno = '$referenceno'")
+							->runSelect()
+							->getRow();
+
+		return $result;
+
+	}
+
 }
