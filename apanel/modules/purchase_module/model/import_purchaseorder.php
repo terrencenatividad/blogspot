@@ -406,7 +406,9 @@ class import_purchaseorder extends wc_model
 		$post_header['converted_insurance'] =	$convinsurance;
 		$post_header['converted_packaging'] =	$convpackaging;
 		$post_header['convertedamount'] 	=	$convertedamount;
-		
+		if($task == 'edit'){
+			$post_header['print'] 			= 	'0';
+		}
 
 		/**INSERT HEADER**/
 		if($status=='temporary' && $task == 'create')

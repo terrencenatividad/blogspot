@@ -450,12 +450,36 @@
 		ajax.page = 1;
 		getTrialBalance();
 	}).trigger('change');
+
 	$('#close_book').on('click',function(){
 		var daterangefilter 	=	$('#daterangefilter').val();
 		$('#reference').val("");
 		$('#notes').val("");
-		$("#jvModal").modal('show');
-		$('#btnSaveDetails').prop('disabled',false);
+
+		var current_date 		=	$('#jvModal #datefrom').val();	
+		var date_array 			=	current_date.split(' - ');
+			date 				= 	new Date(current_date);
+			current_month 		=	date.getMonth();
+			current_year 		=	date.getFullYear();
+
+		var month_name = function(val){
+			mlist = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+			return mlist[val];
+		};
+
+		ajax4.datefrom 			=	current_date;
+		$.post('<?=MODULE_URL?>ajax/check_depreciation_run', ajax4 , function(response) {
+			var has_depreciation = response.has_depreciation;
+
+			if(has_depreciation == 0) {
+				$('#alert_modal .modal-body').html("<p>Please make sure to run depreciation for the "+month_name(current_month)+", "+current_year+".</p>");
+				$('#alert_modal').modal('show');
+				$('#btnSaveDetails').prop('disabled',true);
+			} else {
+				$("#jvModal").modal('show');
+				$('#btnSaveDetails').prop('disabled',false);
+			}
+		});
 	});
 	
 	//if current month = date
@@ -539,10 +563,10 @@
 					current_year 		=	date.getFullYear();
 					last_closed_month 	= 	(response.period!="") ? response.period :	last_closed_month;
 					if(!response2.existing){
-						console.log(last_closed_month);
-						console.log(period_end);
-						console.log(prev_year);
-						console.log(current_year);
+						// console.log(last_closed_month);
+						// console.log(period_end);
+						// console.log(prev_year);
+						// console.log(current_year);
 						if(last_closed_month == period_end ){ // && prev_year != current_year
 							$('#previewModal').modal('hide');
 							$('#jvModal #datefrom').val(year_end_date);	
@@ -562,6 +586,10 @@
 				});
 				
 			}
+		}).done(function(){
+			$.post('<?=MODULE_URL?>ajax/update_useful_life', "datefrom="+current_date , function(response2) {
+				
+			});
 		});
 	});
 

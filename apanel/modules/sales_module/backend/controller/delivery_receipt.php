@@ -232,7 +232,8 @@ class controller extends wc_controller {
 					->setSummaryAlign(array('J','R','R'));		
 		}
 
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->notes);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->notes);
+		$notes = htmlentities($documentinfo->notes);
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
@@ -386,6 +387,7 @@ class controller extends wc_controller {
 		unset($data['voucherno']);
 		$data['deliverydate']		= $this->date->dateDbFormat($data['deliverydate']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
+		$data['print']				= '0';
 		$voucherno					= $this->input->post('voucherno_ref');
 		$data2						= $this->getItemDetails();
 		$data2						= $this->cleanData($data2);

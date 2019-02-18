@@ -155,7 +155,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('header_purchase')
 										->setClass('total_purchase')
-										->setValue(((empty($amount)) ? '0.00' : $amount))
+										->setValue(((empty($amount)) ? '0.00' : number_format($amount,2)))
 										->addHidden()
 										->draw($show_input);
 							?>
@@ -170,7 +170,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('header_purchase_tax')
 										->setClass('total_purchase_tax')
-										->setValue(((empty($taxamount)) ? '0.00' : $taxamount))
+										->setValue(((empty($taxamount)) ? '0.00' : number_format($taxamount,2)))
 										->addHidden()
 										->draw($show_input);
 							?>
@@ -185,7 +185,7 @@
 										->setSplit('', 'col-md-12')
 										->setName('header_amount')
 										->setClass('total_amount')
-										->setValue(((empty($amount)) ? '0.00' : $amount + $taxamount))
+										->setValue(((empty($amount)) ? '0.00' : number_format($amount + $taxamount,2)))
 										->addHidden()
 										->draw($show_input);
 							?>
@@ -556,6 +556,7 @@ function addVoucherDetails(details, index) {
 						->setName('detail_taxrate[]')
 						->setClass('taxrate')
 						->setValue('` + parseFloat(details.taxrate) + `')
+						->setAttribute(array('hidden'))
 						->draw($show_input);
 				?>
 			</td>

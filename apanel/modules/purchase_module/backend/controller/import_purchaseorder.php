@@ -588,7 +588,8 @@ class controller extends wc_controller
 		$detail_height = 37;
 
 		$total_amount = 0;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$amount = $documentinfo->amount;
 		$wtaxamount = $documentinfo->wtax;
 		$vat = $documentinfo->vat;
@@ -603,7 +604,12 @@ class controller extends wc_controller
 		$converted_packaging = $documentinfo->converted_packaging;
 		$convertedamount = $documentinfo->convertedamount;
 		$exchangecurrency = $documentinfo->exchangecurrency;
+		$line_count = 0;
 		foreach ($documentcontent as $key => $row) {
+			if($line_count == 26){
+				$print->AddPage();
+				$line_count = 0;
+			}
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
@@ -627,6 +633,7 @@ class controller extends wc_controller
 				));
 				$total_amount = 0;
 			}
+			$line_count++;
 		}
 		$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
 			array($notes, '', 'Freight', number_format($freight, 2)),

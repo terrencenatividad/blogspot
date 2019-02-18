@@ -122,7 +122,8 @@ class controller extends wc_controller {
 			'BILL #'	=> $voucherno,
 			'TERMS'		=> $vendordetails->terms
 		);
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$print = new billing_print_model();
 		$print->setDocumentType('Billing')
 				->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))

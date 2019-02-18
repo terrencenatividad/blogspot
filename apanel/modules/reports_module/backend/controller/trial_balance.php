@@ -142,6 +142,8 @@ class controller extends wc_controller {
 			$result = $this->eradicate_temporary_jv();
 		}else if($task == "check_existing_yrendjv") {
 			$result = $this->check_existing_yrendjv();
+		}else if($task == "check_depreciation_run") {
+			$result = $this->check_depreciation_run();
 		}
 
 		echo json_encode($result); 
@@ -527,6 +529,39 @@ class controller extends wc_controller {
 
 		$dataArray 	= 	array("result"=>$result);
 		return $dataArray;
+	}
+
+	public function check_depreciation_run() {
+		$transaction_date  	=	$this->input->post('datefrom');
+		$last_day_this_month  =	date("Y-m-t", strtotime($transaction_date));
+		$first_day_this_month = date('m-01-Y', strtotime($transaction_date));
+
+		$result = $this->trial_balance->check_depreciation_run($first_day_this_month, $last_day_this_month);
+		
+		$has_depreciation 	=	0;
+		if( !empty($result) ){
+			$has_depreciation 	=	1;
+		}
+		return array(
+			'has_depreciation' => $has_depreciation
+		);
+	}
+
+	public function update_useful_life() {
+		$transaction_date  	  =	$this->input->post('datefrom');
+		$last_day_this_month  =	date("Y-m-t", strtotime($transaction_date));
+		$first_day_this_month = date('m-01-Y', strtotime($transaction_date));
+
+		$result = $this->trial_balance->retrieve_useful_life($first_day_this_month, $last_day_this_month);
+
+		foreach($result as $key=>$row) {
+			$asset_id 		=	isset($row->asset_id) 	? $row->asset_id 	: "";
+			$useful_life 	=	isset($row->useful_life)? $row->useful_life : 0;
+
+			$update_data['useful_life'] = $useful_life - 1;
+
+			$result 	=	$this->trial_balance->update_asset($asset_id, $update_data);
+		}
 	}
 }
 ?>

@@ -95,7 +95,7 @@ class purchase_return_model extends wc_model {
 				if ($serialized_flag != '0' && $item_quantity > 0) {
 					$result = $this->db->setTable('purchasereturn_details')
 									->setValues(array('serialnumbers'=>"$sn", 'enginenumbers'=>"$en", 'chassisnumbers'=>"$cn"))
-									->setWhere("itemcode = '$itemcode' AND voucherno = '$voucherno'")
+									->setWhere("itemcode = '$itemcode' AND linenum = '$linenum' AND voucherno = '$voucherno'")
 									->runUpdate();
 				}
 			}	
@@ -562,7 +562,7 @@ class purchase_return_model extends wc_model {
 		}
 	}
 
-	function updateSerialFromDb($values) {
+	public function updateSerialFromDb($values) {
 		$voucherno = $values['voucherno'];
 		$linenum = $values['linenum'];
 		$itemcode = $values['itemcode'];
@@ -586,7 +586,7 @@ class purchase_return_model extends wc_model {
 		}
 	}
 
-	function updateEngineFromDb($values) {
+	public function updateEngineFromDb($values) {
 		$voucherno = $values['voucherno'];
 		$linenum = $values['linenum'];
 		$itemcode = $values['itemcode'];
@@ -610,7 +610,7 @@ class purchase_return_model extends wc_model {
 		}
 	}
 
-	function updateChassisFromDb($values) {
+	public function updateChassisFromDb($values) {
 		$voucherno = $values['voucherno'];
 		$linenum = $values['linenum'];
 		$itemcode = $values['itemcode'];
@@ -634,11 +634,22 @@ class purchase_return_model extends wc_model {
 		}
 	}
 
-	function resetSerialsStat($voucherno) {
+	public function resetSerialsStat($voucherno) {
 		$result = $this->db->setTable('items_serialized')
 							->setValues(array('stat'=>'Available'))
 							->setWhere("voucherno = '$voucherno'")
 							->runUpdate();
+	}
+
+	public function getPRSerials($itemcode, $voucherno, $linenum) {
+		$result = $this->db->setTable('purchasereturn_details prtnd')
+							->setFields('source_no, serialnumbers, enginenumbers, chassisnumbers')
+							->innerJoin('purchasereturn prtn ON prtn.voucherno = prtnd.voucherno')
+							->setWhere("itemcode = '$itemcode' AND linenum = '$linenum' AND source_no = '$voucherno'")
+							->runSelect()
+							->getRow();
+							
+		return $result;
 	}
 
 }

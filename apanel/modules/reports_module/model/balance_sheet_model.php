@@ -206,27 +206,37 @@ class balance_sheet_model extends wc_model {
 		// return array($current_earnings, $previous_earnings);
 
 		$current	=  $this->db->setTable('chartaccount c')
-							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate >= '$start' AND transactiondate <= '$end'")
-							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
-							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, c.accountclasscode, 'current' earnings")
-							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' AND bt.source != 'yrend_closing')")
-							// ->setGroupBy('c.id')
-							->setOrderBy("c.id")
+							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate <= '$end'")
+							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode AND c2.accounttype = "P"')
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, SUM(COALESCE(credit, 0)) credit, (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) balance, IF( (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) < 0, 'credit','debit')  type, 'Current' accountclasscode, 'current' earnings")
+							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' OR bt.source = 'yrend_closing') ")
+							->setGroupBy('c.id')
+							->setOrderBy("c.accountname")
 							->runSelect()
 							->getResult();
 
+							// echo "CLOSING <br>";
 							// echo $this->db->getQuery();
 							// echo "<br><br>";
-		$previous	=  $this->db->setTable('chartaccount c')
-							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP')  AND transactiondate < '$end' ")
-							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
-							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, 'previous' earnings")
-							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' OR bt.source = 'yrend_closing')")
-							->setGroupBy('c.id')
-							->setOrderBy("c.id")
-							->runSelect()
-							->getResult();
 
+		// $previous	=  $this->db->setTable('chartaccount c')
+		// 					->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND (transactiondate >= '$start' AND transactiondate <= '$end')")
+		// 					->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode AND c2.accounttype = "P"')
+		// 					->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, SUM(COALESCE(credit, 0)) credit, (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) balance, IF( (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) < 0, 'credit','debit')  type,'Current' accountclasscode, 'current' earnings")
+		// 					->setWhere("c.fspresentation = 'BS' AND bt.source = 'closing' ")
+		// 					->setGroupBy('c.id')
+		// 					->setOrderBy("c.accountname")
+		// 					->runSelect()
+		// 					->getResult();
+
+
+							// echo "YR END <br>";
+							// echo $this->db->getQuery();
+							// echo "<br><br>";
+							
+
+		$previous	=  array();
+		
 		// if( $start == '2018-1-01' && $end =='2018-12-31') {
 		// 	echo $this->db->getQuery();
 		// 	echo "<br><br>";
@@ -244,7 +254,7 @@ class balance_sheet_model extends wc_model {
 		
 		$earnings = array_merge($current, $previous);
 
-		// var_dump($earnings);
+		// print_r($earnings);
 
 		return $earnings;
 	}
@@ -312,9 +322,6 @@ class balance_sheet_model extends wc_model {
 				} else if (in_array($accountclasscode, $liability2_array)) {
 					$accounttype	= 'Liabilities';
 					$accountclass	= 'Non - Current Liabilities';
-				} else if (in_array($accountclasscode, $earning_array)) {
-					$accounttype	= 'Equity';
-					$accountclass	= '';
 				} else if (in_array($accountclasscode, $equity_array)) {
 					$accounttype	= 'Equity';
 					$accountclass	= '';
@@ -322,12 +329,11 @@ class balance_sheet_model extends wc_model {
 					$total = 0;
 				}
 
-				if (($total !== 0 && ! empty($accounttype)) || ($total !== 0 && in_array($accountclasscode, $equity_array))) {
+				if (($total !== 0 && !empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
 					$y[$accounttype][$accountclass][$accountname] = $col;
 				}
 			}
 		}
-		
 		return $y;
 	}
 
