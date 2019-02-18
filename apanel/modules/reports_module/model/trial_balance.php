@@ -379,21 +379,14 @@ class trial_balance extends wc_model {
 		return $result;
 	}	
 
-	public function check_depreciation_run($date) {
-		// $datestring 		= date('Y-m-d', strtotime($date)).' last day of last month';
-		// $date_last_month 	= date_create($datestring);
-		// $date_last_month	= $date_last_month->format('Y-m-d'); 
-		// echo $date_last_month;
-
-
-		$curr_close_date 	=	$this->date->dateDBFormat($date);
-		echo $curr_close_date;
-		$result 	= $this->db->setTable("journalvoucher")
-							   ->setFields(array('voucherno'))
-							   ->setWhere("transactiondate = '$curr_close_date' AND source='depreciation'")
-								
-							   ->runSelect(false)
-							   ->getResult();
+	public function check_depreciation_run($datefrom, $dateto) {
+		// $curr_close_date 	=	$this->date->dateDBFormat($date);
+	
+		$result 			= 	$this->db->setTable("journalvoucher")
+										 ->setFields(array('voucherno'))
+										 ->setWhere("(transactiondate >= '$datefrom' AND transactiondate <= '$dateto') AND source='depreciation'")
+										 ->runSelect(false)
+										 ->getResult();
 
 		return $result;
 	}
@@ -1258,4 +1251,23 @@ class trial_balance extends wc_model {
 	
 	}
 
+	public function retrieve_useful_life($datefrom, $dateto) {
+		$result 	=	$this->db->setTable("depreciation_schedule ds")
+								->leftJoin("asset_master am ON am.asset_number = ds.asset_id AND am.companycode = ds.companycode")
+								->setFields("ds.asset_id, am.useful_life")
+								->setWhere("ds.depreciation_date >= '$datefrom' AND ds.depreciation_date <= '$dateto' ")
+								->runSelect()
+								->getResult();
+		return $result;
+	
+	}
+
+	public function update_asset($asset_id, $data) {
+		$result 	=	$this->db->setTable("asset_master")
+								->setValues($data)
+								->setWhere("asset_number = '$asset_id'")
+								->setLimit(1)
+								->runUpdate();
+		return $result;
+	}
 }	
