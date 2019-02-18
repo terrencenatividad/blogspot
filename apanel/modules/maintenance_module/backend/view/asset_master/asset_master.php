@@ -221,6 +221,15 @@
 													->setAttribute(array("maxlength" => "3"))
 													->setValidation('required')
 													->draw($show_input);
+
+											echo $ui->formField('hidden')
+													->setSplit('col-md-3', 'col-md-8')
+													->setName('orig_useful_life')
+													->setId('orig_useful_life')
+													->setClass('asd')
+													->setValue($orig_useful_life)
+													->setAttribute(array("maxlength" => "3"))
+													->draw($show_input);
 										?>
 									</div>
 									<div class="col-md-6">
@@ -660,6 +669,10 @@ $('#asset_number').on('input', function(){
 
 $('#cancelprice').on('click', function(){
 	$('#itemcode').val('').trigger('change');
+});
+
+$('#useful_life').on('change', function(){
+	$('#orig_useful_life').val($(this).val());
 });
 
 $('body').on('blur blur_validate keyup keydown', '[data-validation~="alpha_num_special"]', function(e) {
