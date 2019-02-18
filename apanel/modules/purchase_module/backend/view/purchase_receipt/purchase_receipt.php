@@ -1865,7 +1865,7 @@
 			});
 		});
 
-		$('#months').on('hidden.bs.modal', function () {
+		$('#months').on('hide.bs.modal', function () {
 			if ($('#addmonths').val() == "" || $('#addmonths').val() == 0){
 				$('#select2-assetid-container').text("None").data("title0","None");
 			}
