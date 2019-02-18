@@ -110,128 +110,83 @@ class controller extends wc_controller {
 
 		$pagination->table = $table;
 		$pagination->tabledetails	= $tabledetails;
+		$pagination->csv 			= $this->get_csv($custfilter, $data['datefilter'], $sortfilter);
 		return $pagination;
 	}
 
-	public function get_csv() {
-		$data 		= $this->input->get(array('customer','datefilter','sort'));
-		$datefilter 	= 	explode('-', urldecode($data['datefilter']));
+	public function get_csv($custfilter, $date, $sortfilter) {
+		$datefilter 	= 	explode('-', $date);
 		$dates			= 	array();
 		foreach ($datefilter as $date) {
 			$dates[] = $this->date->dateDbFormat($date);
 		}	
-		
-        $custfilter = urldecode($data['customer']);
-		$sortfilter = urldecode($data['sort']);
+        $custfilter = urldecode($custfilter);
+		$sortfilter = urldecode($sortfilter);
 
 		$details 	= $this->report->getSalesReliefDetails($custfilter, $sortfilter, $dates[0], $dates[1]);
 		$company 	= $this->report->getCompany($this->companycode);
+	
+		$header 	=	array('TAXABLE MONTH','TIN','CUSTOMER','GROSS SALES','EXEMPT SALES','ZERO RATED SALES','TAXABLE SALES','OUTPUT TAX','GROSS TAXABLE SALES');
 		
-		$filename = 'Sales Relief';
+		$totalamount=	0;
 
-		$excel = new PHPExcel();
-		$excel->getProperties()
-				->setCreator('Cid')
-				->setLastModifiedBy('Cid')
-				->setTitle($filename)
-				->setSubject('Sales Relief')
-				->setDescription('Sales Relief')
-				->setKeywords('Sales Relief')
-				->setCategory('Sales Relief');
+		$table = '';
+		$table .= '"SALES RELIEF REPORT"';
+		$table .= "\n\n";
+		$table .= '"SUMMARY LIST OF SALES"';
+		$table .= "\n\n";
+		$table .= '"SALES TRANSACTION"';
+		$table .= "\n";
+		$table .= '"RECONCILIATION OF LISTING FOR ENFORCEMENT"';
+		$table .= "\n";
+		$table .= '"FOR '.strtoupper($this->date->dateFormat($dates[0])) . ' to ' . strtoupper($this->date->dateFormat($dates[1])).'"';
+		$table .= "\n\n";
+		$table .= '"TIN : ","'.$company->tin.'"';
+		$table .= "\n";
+		$table .= '"OWNER\'S NAME : ","'.strtoupper($company->companyname).'"';
+		$table .= "\n";
+		$table .= '"OWNER\'S TRADE NAME : ","'.strtoupper($company->companyname).'"';
+		$table .= "\n";
+		$table .= '"OWNER\'S ADDRESS : ","'.strtoupper($company->address).'"';
+		$table .= "\n\n";
 
-		$excel->getActiveSheet()->setTitle('Sales Relief');
-		$excel->setActiveSheetIndex(0);
-		$sheet = $excel->getActiveSheet();
+		$totalgross 	= 0;
+		$totalexempt	= 0;
+		$zerorated  	= 0;
+		$taxablesale	= 0;
+		$outputtax 		= 0;
+		$grtaxable  	= 0;
 
-		// $sheet->getCell('A1')->setValue('SALES RELIEF '.$dates[0].' - '.$dates[1]);
-		$sheet->getCell('A1')->setValue('SUMMARY LIST OF SALES');
+		$table .= '"' . implode('","', $header) . '"';
+		$table .= "\n";
+		foreach ($details as $key => $row) {
+			$transactiondate = isset($row->transactiondate)	? strtoupper($this->date->dateFormat($row->transactiondate)) : "";
+			$tinno 			 = isset($row->tinno) ? $row->tinno : "";
+			$partnername 	 = isset($row->partnername) ? strtoupper($row->partnername) : "";
+			$netamount 		 = isset($row->netamount) ? $row->netamount : 0;
+			$vat_exempt 	 = isset($row->vat_exempt) ? $row->vat_exempt : 0;
+			$vat_zerorated   = isset($row->vat_zerorated) ? $row->vat_zerorated : 0;
+			$vat_sales 		 = isset($row->vat_sales) ? $row->vat_sales : 0;
+			$taxamount 		 = isset($row->taxamount) ? $row->taxamount : 0;
+			$amount 		 = isset($row->amount) ? $row->amount : 0;
 
-		$sheet->getCell('A3')->setValue('SALES TRANSACTION');
-		$sheet->getCell('A4')->setValue('RECONCILIATION OF LISTING FOR ENFORCEMENT');
-		$sheet->getCell('A5')->setValue('FOR '.strtoupper($this->date->dateFormat($dates[0])). ' to '.strtoupper($this->date->dateFormat($dates[1])));
+			$table 	.= '"'.$transactiondate.'","'.$tinno.'","'.$partnername.'","'.number_format($netamount,2).'","'.number_format($vat_exempt,2).'","'.number_format($vat_zerorated,2).'","'.number_format($vat_sales,2).'","'.number_format($taxamount,2).'","'.number_format($amount,2).'"';
+			$table  .= "\n";
 
-		$sheet->getCell('A7')->setValue('TIN: '.$company->tin);
-		$sheet->getCell('A8')->setValue("OWNER'S NAME: ".strtoupper($company->companyname));
-		$sheet->getCell('A9')->setValue("OWNER'S TRADE NAME: ".strtoupper($company->companyname));
-		$sheet->getCell('A10')->setValue("OWNER'S ADDRESS: ".strtoupper($company->address));
-
-		// HEADER STARTS HERE
-		$sheet->getCell('A12')->setValue('TAXABLE MONTH');
-		$sheet->getCell('B12')->setValue('TIN');
-		$sheet->getCell('C12')->setValue('CUSTOMER');
-		$sheet->getCell('D12')->setValue('GROSS SALES');
-		$sheet->getCell('E12')->setValue('EXEMPT SALES');
-		$sheet->getCell('F12')->setValue('ZERO RATED SALES');
-		$sheet->getCell('G12')->setValue('TAXABLE SALES');
-		$sheet->getCell('H12')->setValue('OUTPUT TAX');
-		$sheet->getCell('I12')->setValue('GROSS TAXABLE SALES');
-
-		$totalgross = 0;
-		$totalexempt= 0;
-		$zerorated  = 0;
-		$taxablesale= 0;
-		$outputtax 	= 0;
-		$grtaxable  = 0;
-		$cell_row   = 13;
-		if ($details) {
-			foreach ($details as $row) {
-				$sheet->getCell('A'.$cell_row)->setValue($row->transactiondate);
-				$sheet->getCell('B'.$cell_row)->setValue($row->tinno);
-				$sheet->getCell('C'.$cell_row)->setValue(strtoupper($row->partnername));
-				$sheet->getCell('D'.$cell_row)->setValue($row->netamount);
-				$sheet->getCell('E'.$cell_row)->setValue($row->vat_exempt);
-				$sheet->getCell('F'.$cell_row)->setValue($row->vat_zerorated);
-				$sheet->getCell('G'.$cell_row)->setValue($row->vat_sales);
-				$sheet->getCell('H'.$cell_row)->setValue($row->taxamount);
-				$sheet->getCell('I'.$cell_row)->setValue($row->amount);
-
-				$cell_row++;
-
-				// COMPUTING TOTAL
-				$totalgross += $row->netamount;
-				$totalexempt+= $row->vat_exempt;
-				$zerorated  += $row->vat_zerorated;
-				$taxablesale+= $row->vat_sales;
-				$outputtax 	+= $row->taxamount;
-				$grtaxable  += $row->amount;
-			}
+			// COMPUTING TOTAL
+			$totalgross += $row->netamount;
+			$totalexempt+= $row->vat_exempt;
+			$zerorated  += $row->vat_zerorated;
+			$taxablesale+= $row->vat_sales;
+			$outputtax 	+= $row->taxamount;
+			$grtaxable  += $row->amount;
 		}
-
-		$fortotal_row 	= $cell_row + 1;
-		$forend_report 	= $cell_row + 3;
-		$fortotal_amount= $cell_row + 1;
-
-		$sheet->getCell('A'.$fortotal_row)->setValue('GRAND TOTAL:');
-		$sheet->getCell('A'.$forend_report)->setValue('END OF REPORT');
 		
-		// SETTING FOOTER TOTAL
-		$sheet->getCell('D'.$fortotal_amount)->setValue($totalgross);
-		$sheet->getCell('E'.$fortotal_amount)->setValue($totalexempt);
-		$sheet->getCell('F'.$fortotal_amount)->setValue($zerorated);
-		$sheet->getCell('G'.$fortotal_amount)->setValue($taxablesale);
-		$sheet->getCell('H'.$fortotal_amount)->setValue($outputtax);
-		$sheet->getCell('I'.$fortotal_amount)->setValue($grtaxable);
+		$table 	.= '"GRAND TOTAL : ","","","'.number_format($totalgross,2).'","'.number_format($totalexempt,2).'","'.number_format($zerorated,2).'","'.number_format($taxablesale,2).'","'.number_format($outputtax,2).'","'.number_format($grtaxable,2).'"';
+		$table  .= "\n\n";
+		$table  .= '"","","","","END OF REPORT","","","",""';
 
-		$sheet->getStyle('D13:I38')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-
-		foreach ($excel->getAllSheets() as $sheet) {
-			for ($col = 0; $col <= PHPExcel_Cell::columnIndexFromString($sheet->getHighestDataColumn()); $col++) {
-				$sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
-			}
-		}
-
-		$filename.= '.xlsx';
-
-		header('Content-type: application/vnd.ms-excel');
-		header("Content-Disposition: attachment; filename=\"$filename\"");
-		header("Pragma: no-cache");
-		header("Expires: 0");
-
-		flush();
-
-		$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
-
-		$writer->save('php://output');
+		return $table;
 	}
 
 	public function get_dat() {

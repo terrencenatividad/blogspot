@@ -94,7 +94,7 @@
         }
 
         public function getAmountTotal($vendor, $sort, $start, $end) {
-			$fields 	= 	array('rpt.transactiondate, rpt.period, rpt.fiscalyear, p.partnername, p.tinno, SUM(rpt.netamount) netamount, 0 vat_exempt, 0 vat_zerorated, SUM(rpt.amount) vat_sales, SUM(in_query.service) service, SUM(in_query.goods) goods, SUM(in_query.capital) capital, SUM(rpt.wtaxamount) wtaxamount, SUM(rpt.netamount) grosstaxable');
+			$fields 	= 	array('rpt.transactiondate, rpt.period, rpt.fiscalyear, p.partnername, p.tinno, SUM(rpt.netamount) netamount, 0 vat_exempt, 0 vat_zerorated, SUM(rpt.amount) vat_sales, SUM(in_query.service) service, SUM(in_query.goods) goods, SUM(in_query.capital) capital, SUM(rpt.total_tax) totaltax, SUM(rpt.netamount) grosstaxable');
 
 			$having_cond 	=	"";
 			$group_by 		=	"";

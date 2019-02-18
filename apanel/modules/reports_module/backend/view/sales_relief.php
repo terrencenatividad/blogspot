@@ -46,7 +46,7 @@
 			</div>
 			<div class = "row">
 				<div style = "float:right; margin-right:15px">
-					<a href="" id="downloadcsv" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> CSV</a>
+					<a href="" id="downloadcsv" class="btn btn-primary" download="Sales Relief.csv"><span class="glyphicon glyphicon-export"></span> CSV</a>
 					<a href="" id="downloadDat" class="btn btn-primary"><span class="glyphicon glyphicon-export"></span> DAT</a>
 				</div>
 			</div>
@@ -151,6 +151,7 @@
 		if (ajax_call != '') {
 			ajax_call.abort();
 		}
+		console.log(ajax);
 		ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 			$('#tableList tbody').html(data.table);
 			if (data.result_count == 0) {
@@ -162,6 +163,7 @@
 				ajax.page = data.page_limit;
 				getList();
 			}
+			$("#downloadcsv").attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));;
 		});
 	}
 	// getList();
@@ -171,12 +173,12 @@
 		getList();
 	}).trigger('change');
 	
-	$('#downloadcsv').click(function(){
-		var datepicker 	= $('#daterangefilter').val();
-		var sort 		= ajax.sort
-		var customer 	= $('#customer').val();
-		window.open('<?php echo MODULE_URL ?>get_csv?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&customer=' + encodeURIComponent(customer));
-	});
+	// $('#downloadcsv').click(function(){
+	// 	var datepicker 	= $('#daterangefilter').val();
+	// 	var sort 		= ajax.sort
+	// 	var customer 	= $('#customer').val();
+		// window.open('<?php echo MODULE_URL ?>get_csv?datefilter=' + encodeURIComponent(datepicker) + '&sort=' + encodeURIComponent(sort) + '&customer=' + encodeURIComponent(customer));
+	// });
 	$('#downloadDat').click(function(){
 		var datepicker = $('#daterangefilter').val();
 		var sort 		= ajax.sort
