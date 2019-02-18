@@ -175,14 +175,15 @@ class depreciation_run extends wc_model {
 		return $result;
 	}
 
-	public function deleteSched(){
+	public function deleteSched($month,$year){
 		$this->db->setTable('depreciation_schedule')
-		->setWhere("companycode IS NOT NULL")
+		->setWhere("companycode IS NOT NULL AND (MONTH(depreciation_date) = '$month' AND YEAR(depreciation_date) = '$year')")
 		->runDelete();
 	}
 	
-	public function saveAssetMasterSchedule($assetnumber, $itemcode, $final,$depreciation,$depreciation_amount, $gl_asset, $gl_accdep, $gl_depexp,$year,$month) {	
+	public function saveAssetMasterSchedule($assetnumber, $itemcode, $final,$depreciation,$depreciation_amount, $gl_asset, $gl_accdep, $gl_depexp,$year,$month,$useful_life) {	
 		$date = $this->date->dateDbFormat();
+		$ul   = $useful_life - 1;
 		$result =  $this->db->setTable('depreciation_schedule')
 							->setValues(array('asset_id' => $assetnumber,'itemcode' => $itemcode,'depreciation_date' => $final, 'depreciation_amount' => $depreciation_amount, 'accumulated_dep' => $depreciation, 'gl_asset' => $gl_asset, 'gl_accdep' => $gl_accdep, 'gl_depexpense' => $gl_depexp))
 							->runInsert();
@@ -190,7 +191,7 @@ class depreciation_run extends wc_model {
 			$seq					= new seqcontrol();
 			$jvvoucherno			= $seq->getValue('JV');
 			$this->db->setTable('journalvoucher')
-							->setValues(array('voucherno' => $jvvoucherno, 'transactiondate' => $date, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1'))
+							->setValues(array('voucherno' => $jvvoucherno, 'transactiondate' => $date, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
 							->runInsert();
 
 			$this->db->setTable('journaldetails')
@@ -200,6 +201,11 @@ class depreciation_run extends wc_model {
 			$this->db->setTable('journaldetails')
 							->setValues(array('voucherno' => $jvvoucherno, 'detailparticulars' => '', 'linenum' => '2','transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_accdep, 'credit' => $depreciation_amount, 'convertedcredit' => $depreciation_amount , 'debit' => '0', 'converteddebit' => '0','currencycode' => 'PHP', 'exchangerate' => '1'))
 							->runInsert();
+
+			// $this->db->setTable('asset_master')
+			// 				->setValues(array('useful_life' => $ul))
+			// 				->setWhere("asset_number = '$assetnumber'")
+			// 				->runUpdate();
 		}
 		return $result;
 	}
@@ -243,15 +249,36 @@ class depreciation_run extends wc_model {
 	public function checkDepreciation() {
 		$date = $this->date->dateDbFormat();
 
-		$result = $this->db->setTable("depreciation_schedule")
-						->setFields('depreciation_date')
-						->setWhere("MONTH(depreciation_date) = MONTH('$date') AND YEAR(depreciation_date) = YEAR('$date')")
+		$result = $this->db->setTable("journalvoucher")
+						->setFields('transactiondate')
+						->setWhere("source = 'closing'")
+						->setOrderBy('transactiondate desc')
 						->runSelect()
 						->getRow(); 
 						
 		return $result;
 	}
 
+	public function getAssetClass() {
+		$result = $this->db->setTable('asset_class')
+							->setFields("id ind, assetclass val, stat stat")
+							->setWhere(1)
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+
+	public function getAssetDepartment() {
+		$result = $this->db->setTable('cost_center')
+							->setFields("id ind, name val, stat stat")
+							->setWhere(1)
+							->runSelect()
+							->getResult();
+
+		return $result;
+	}
+	
 	private function generateSearch($search, $array) {
 		$temp = array();
 		foreach ($array as $arr) {

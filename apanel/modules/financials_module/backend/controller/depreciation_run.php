@@ -25,7 +25,7 @@ class controller extends wc_controller {
 
 	public function listing() {
 		$this->view->title	= $this->ui->ListLabel('');
-		$data['ui']			= $this->ui;
+		$data['ui']					= $this->ui;
 		$this->view->load('depreciation_run/depreciation_run', $data);
 	}
 	
@@ -39,6 +39,11 @@ class controller extends wc_controller {
 
 	private function ajax_list() {
 		$checkdep		= $this->depreciation_run->checkDepreciation();
+		if($checkdep->transactiondate > $this->date->dateDbFormat()){
+			$checkdep = 'true';
+		}else{
+			$checkdep = 'false';
+		}
 		
 		$sort = $this->input->post('sort');
 		$pagination		= $this->depreciation_run->getAssetMasterList($this->fields,$sort);
@@ -156,11 +161,12 @@ class controller extends wc_controller {
 		if (empty($pagination)) {
 			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		// $this->depreciation_run->deleteSched();
 		
 		$date = $this->date->dateDbFormat();
 		$year = $this->year;
 		$month = $this->month;
+
+		$this->depreciation_run->deleteSched($month,$year);
 
 		foreach ($pagination as $row) {
 			$accumulated	= $this->depreciation_run->getAccumulated($row->asset_number);
@@ -177,7 +183,7 @@ class controller extends wc_controller {
 			$depreciation_amount 	= ($row->balance_value - $row->salvage_value) / $row->useful_life;
 			$final = date("Y-m-d", strtotime("+$x month", $time));
 			$depreciation = $accumulated_amount + $depreciation_amount;
-			$sched = $this->depreciation_run->saveAssetMasterSchedule($row->asset_number,$row->itemcode,$final,$depreciation,$depreciation_amount, $row->gl_asset, $row->gl_accdep, $row->gl_depexp,$year,$month);
+			$sched = $this->depreciation_run->saveAssetMasterSchedule($row->asset_number,$row->itemcode,$final,$depreciation,$depreciation_amount, $row->gl_asset, $row->gl_accdep, $row->gl_depexp,$year,$month,$row->useful_life);
 			
 		}
 
