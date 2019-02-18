@@ -125,15 +125,13 @@ class controller extends wc_controller {
 
 		$details 	= $this->report->getSalesReliefDetails($custfilter, $sortfilter, $dates[0], $dates[1]);
 		$company 	= $this->report->getCompany($this->companycode);
-		
-		$filename = 'Sales Relief';
-
+	
 		$header 	=	array('TAXABLE MONTH','TIN','CUSTOMER','GROSS SALES','EXEMPT SALES','ZERO RATED SALES','TAXABLE SALES','OUTPUT TAX','GROSS TAXABLE SALES');
 		
 		$totalamount=	0;
 
 		$table = '';
-		$table .= '"SALES RELIEF REPORt"';
+		$table .= '"SALES RELIEF REPORT"';
 		$table .= "\n\n";
 		$table .= '"SUMMARY LIST OF SALES"';
 		$table .= "\n\n";
@@ -158,6 +156,9 @@ class controller extends wc_controller {
 		$taxablesale	= 0;
 		$outputtax 		= 0;
 		$grtaxable  	= 0;
+
+		$table .= '"' . implode('","', $header) . '"';
+		$table .= "\n";
 		foreach ($details as $key => $row) {
 			$transactiondate = isset($row->transactiondate)	? strtoupper($this->date->dateFormat($row->transactiondate)) : "";
 			$tinno 			 = isset($row->tinno) ? $row->tinno : "";
