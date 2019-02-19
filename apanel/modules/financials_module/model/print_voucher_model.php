@@ -172,7 +172,7 @@ class print_voucher_model extends fpdf {
 
 		if ( ! empty($this->vendor)) {
 			$this->SetFont('Arial', 'B', 9);
-			$this->Cell(20, $rowheight, 'Vendor ', 0, 0, 'L');
+			$this->Cell(20, $rowheight, 'Supplier ', 0, 0, 'L');
 			$this->SetFont('Arial', '', 9);
 			$this->Cell(180, $rowheight, $this->vendor, 'B', 0, 'L');
 			$this->Ln();

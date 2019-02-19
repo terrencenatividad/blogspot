@@ -550,7 +550,7 @@ class controller extends wc_controller
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
 			->addEdit($status && $restrict && !$pr && $status_paid && !$import_checker)
-			->addPrint(!$import_checker)
+			->addPrint()
 			->addOtherTask(
 				'Print 2307',
 				'print',
