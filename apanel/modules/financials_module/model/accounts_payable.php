@@ -594,14 +594,21 @@ class accounts_payable extends wc_model
 			"main.referenceno as referenceno",
 			"main.lockkey as importchecker",
 			"main.stat as stat",
-			"IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
-			IF(main.balance != main.amount AND main.balance != 0 AND main.stat!='cancelled','partial',
-			IF(main.balance = 0 AND main.amountpaid = main.amount AND main.stat!='cancelled', 'paid',
-			IF(main.stat!='cancelled','unpaid','cancelled')
-			)
-			)
-		) payment_status"
+			"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
+			IF(main.balance=0 AND main.stat='cancelled','cancelled',
+			IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
+			IF(main.balance!=payment.amount AND main.balance!=0 AND main.balance > 0 AND main.stat!='cancelled','partial',
+			IF(main.amountpaid=payment.amount AND main.balance=0 AND main.stat!='cancelled','paid','unpaid'))))) payment_status"
+			
 	);
+
+	// "IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
+	// 		IF(main.balance != main.amount AND main.balance != 0 AND main.stat!='cancelled','partial',
+	// 		IF(main.balance = 0 AND main.amountpaid = main.amount AND main.stat!='cancelled', 'paid',
+	// 		IF(main.stat!='cancelled','unpaid','cancelled')
+	// 		)
+	// 		)
+	// 	) payment_status"
 		$ap_table 	=	"accountspayable as main";
 		$ap_cond 	=	"main.stat IN ('posted','cancelled') $add_query";
 		$ap_join 	=	"partners p ON p.partnercode = main.vendor AND p.partnertype = 'supplier' AND p.companycode = main.companycode";
@@ -2140,7 +2147,7 @@ class accounts_payable extends wc_model
 	public function getAccountId($accountname) {
 		$result = $this->db->setTable('chartaccount')
 		->setFields("id")
-		->setWhere("accountname = '$accountname'")
+		->setWhere("segment5 = '$accountname'")
 		->runSelect()
 		->getResult();
 
