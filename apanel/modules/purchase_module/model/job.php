@@ -7,18 +7,24 @@
             $this->log = new log();
         }
 
-        public function getJobListing($data, $sort, $search, $filter)
+        public function getJobListing($data, $sort, $search, $filter, $daterange)
         {
-            $condition = '';
+            $condition = "stat != 'temporary'" ;
+            $daterangefilter    = isset($daterange) ? htmlentities($daterange) : ""; 
+            $datefilterArr      = explode(' - ',$daterangefilter);
+            $datefilterFrom     = (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+            $datefilterTo       = (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
             if ($search) {
-                $condition .= $this->generateSearch($search, array('job_no', 'notes', 'stat'));
+                $condition .= "AND " . $this->generateSearch($search, array('job_no', 'notes', 'stat'));
             }
+            $condition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
             //var_dump($search);
             $result = $this->db->setTable('job')
             ->setFields($data)
             ->setWhere($condition)
             ->setOrderBy($sort)
             ->runPagination();
+            
             return $result;
         }
 
