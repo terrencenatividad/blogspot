@@ -617,7 +617,8 @@ class controller extends wc_controller
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount 	= 0;
-		$notes = preg_replace('!\s+!', ' ', $customercode[0]->notes);
+		//$notes = preg_replace('!\s+!', ' ', $customercode[0]->notes);
+		$notes = htmlentities($customercode[0]->notes);
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();

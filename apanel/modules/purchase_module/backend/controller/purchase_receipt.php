@@ -311,6 +311,7 @@ class controller extends wc_controller {
 		$print->setDocumentType('Purchase Receipt')
 		->setFooterDetails(array('Approved By', 'Checked By', 'Received By'))
 		->setVendorDetails($vendordetails)
+		->setStatDetail($documentinfo->stat)
 		->setDocumentDetails($documentdetails)
 				// ->addTermsAndConditon()
 		->addReceived();
