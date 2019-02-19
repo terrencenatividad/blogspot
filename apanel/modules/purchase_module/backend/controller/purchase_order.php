@@ -552,9 +552,14 @@ class controller extends wc_controller
 		$this->po->updateData($print_data, "purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
 		$detail_height = 37;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$total_amount = 0;
+		$line_count = 0;
 		foreach ($documentcontent as $key => $row) {
+			if($line_count == 26){
+				$print->AddPage();
+				$line_count = 0;
+			}
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
@@ -574,6 +579,7 @@ class controller extends wc_controller
 				));
 				$total_amount = 0;
 			}
+			$line_count++;
 		}
 		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
 			array($notes, 'Total Purchase Tax', number_format($vat, 2)),

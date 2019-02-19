@@ -384,7 +384,8 @@ class controller extends wc_controller {
 		}
 
 		$detail_height = 37;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
 		$discount		= 0;

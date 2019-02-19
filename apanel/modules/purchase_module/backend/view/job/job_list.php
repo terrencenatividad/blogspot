@@ -22,7 +22,19 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-4 col-md-offset-8">
+					<div class="col-md-3">
+						<?php
+							echo $ui->formField('text')
+									->setName('daterangefilter')
+									->setId('daterangefilter')
+									->setAttribute(array('data-daterangefilter' => 'month'))
+									->setAddon('calendar')
+									->setValue("")
+									->setValidation('required')
+									->draw(true);
+						?>
+					</div>
+					<div class="col-md-4 col-md-offset-5">
 						<div class="row">
 							<div class="col-sm-8 col-xs-6 text-right">
 								<label for="" class="padded">Items: </label>
@@ -179,6 +191,13 @@
 		ajax.page = 1;
 		showList();
 	});
+
+	$('#daterangefilter').on('change', function() 
+		{
+			ajax.daterangefilter = $(this).val();
+			ajax.page 	= 1;
+			showList();
+		});
 
 	$('#export_id').prop('download', 'atccode.csv');
 

@@ -909,6 +909,7 @@ class controller extends wc_controller
 		$ap['assetid'] = str_replace("none","",$ap['assetid']);
 		$ap['terms'] = $post['vendor_terms'];
 		$ap['stat'] = 'posted';
+		$ap['print'] = '0';
 		if(empty($post['job'])) {
 			$ap['job_no'] = $post['jobs_tagged'];
 		} else {
