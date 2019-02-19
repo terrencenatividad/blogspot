@@ -1695,18 +1695,6 @@
 			}
 		});
 
-		$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly", { period : period, year : year }, function(data) {
-			var sum = data.sum_amount;
-			var taxamount = data.sum_taxamount;
-			if(sum == null || taxamount == null) {
-				$('#importation21G').val('0.00');
-				$('#importation21H').val('0.00');
-			} else {
-				$('#importation21G').val(sum);
-				$('#importation21H').val(sum);
-			}
-		});
-
 		$.post("<?=MODULE_URL?>ajax/getPurchaseServicesMonthly", { period : period, year : year }, function(data) {
 			var sum = data.sum_amount;
 			var taxamount = data.sum_taxamount;
@@ -1829,18 +1817,6 @@ $('#monthfilter').on('change', function() {
 		} else {
 			$('#dompurchase21E').val(sum);
 			$('#dompurchase21F').val(sum);
-		}
-	});
-
-	$.post("<?=MODULE_URL?>ajax/getPurchaseImportMonthly", { period : period, year : year }, function(data) {
-		var sum = data.sum_amount;
-		var taxamount = data.sum_taxamount;
-		if(sum == null || taxamount == null) {
-			$('#importation21G').val('0.00');
-			$('#importation21H').val('0.00');
-		} else {
-			$('#importation21G').val(sum);
-			$('#importation21H').val(sum);
 		}
 	});
 
