@@ -8,6 +8,7 @@ class purchase_print_model extends fpdf {
 	private $footer_height		= 0;
 	private $has_received		= false;
 	private $has_footer_details	= false;
+	private $vendor_details		= array();
 	private $document_details	= array();
 	private $footer_details		= array();
 	private $summary_width		= array();
@@ -18,11 +19,9 @@ class purchase_print_model extends fpdf {
 	private $header				= array();
 	private $row_align			= array();
 	private $header_fontsize  	= array();
-	private $vendor_details		= array();
-	private $requestor_details	= array();
 	public $next_page			= false;
 	private $summary_start 		= 0;
-	
+	private $requestor_details	= array();
 	public function __construct($orientation = 'P', $unit = 'mm', $size = 'Letter') {
 		parent::__construct($orientation, $unit, $size);
 		$this->db = new db();
@@ -32,11 +31,11 @@ class purchase_print_model extends fpdf {
 
 	public function header() {
 		$company = $this->db->setTable('company')
-		->setFields('companycode, companyimage, companyname, address, email, tin, phone, fax,mobile')
-		->setWhere("companycode = '" . COMPANYCODE . "'")
-		->setLimit(1)
-		->runSelect()
-		->getRow();
+							->setFields('companycode, companyimage, companyname, address, email, tin, phone, fax,mobile')
+							->setWhere("companycode = '" . COMPANYCODE . "'")
+							->setLimit(1)
+							->runSelect()
+							->getRow();
 
 		$this->SetFont('Arial', 'B', 12);
 		$this->Cell(140, 5, strtoupper($company->companyname), 0, 0, 'L');
@@ -49,7 +48,7 @@ class purchase_print_model extends fpdf {
 		$this->Ln();
 
 		$detail_start = 26;
-		$detail_width = 130;
+		$detail_width = 135;
 
 		$vendor		= (isset($this->vendor_details->vendor))	? $this->vendor_details->vendor		: '';
 		$address	= (isset($this->vendor_details->address))	? $this->vendor_details->address		: '';
@@ -75,38 +74,45 @@ class purchase_print_model extends fpdf {
 			$document_detail_offset = 0;
 			$rect_height = 25;
 		}
-
 		if (count($this->document_details) > 5) {
 			$rect_height += ((count($this->document_details) - 5) * $document_detail_height);
 		}
+		if (($this->stat == 'cancelled' || $this->stat == 'Cancelled') && $this->document_type == 'Sales Order') {
+			$this->SetFont('Arial', '', 10);
+			// $this->Cell(37, 5, 'This voucher has been', 0, 0, 'L');
+			$this->SetTextColor(255,0,0);
+			$this->SetFont('Arial', 'B', 10);
+			// $this->Cell(100, 5, 'CANCELLED', 0, 0, 'L');
+		}
+		$this->setTextColor(0,0,0);
 		$this->Rect($this->margin_side, $detail_start, $detail_width, $rect_height);
 		$this->SetY($detail_start + 1);
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(20, 4, (($this->requestor_details) ? 'REQUEST BY' : 'ORDER FROM'), 0, 0, 'L');
+		$this->Cell(29, 4, (($this->requestor_details) ? 'REQUEST BY' : 'ORDER FROM'), 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(33);
-		$this->MultiCell(97, 4, (($this->requestor_details) ? $requestor:  $vendor), 0, 'L');
+		$this->SetX(40);
+		$this->MultiCell(100, 4, (($this->requestor_details) ? $requestor:  $vendor), 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(20, 4, (($this->requestor_details) ? 'EMAIL' : 'ADDRESS'), 0, 0, 'L');
+		$this->Cell(29, 4, (($this->requestor_details) ? 'EMAIL' : 'ADDRESS'), 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(33);
-		$this->MultiCell(97, 4, (($this->requestor_details) ? $email:  $address), 0, 'L');
+		$this->SetX(40);
+		$this->MultiCell(100, 4, (($this->requestor_details) ? $email:  $address), 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(20, 4, 'CONTACT #', 0, 0, 'L');
+		$this->Cell(29, 4, 'CONTACT #', 0, 0, 'L');
 		$this->Cell(17, 4, ':', 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(33);
-		$this->MultiCell(97, 4, $contactno, 0, 'L');
+		$this->SetX(40);
+		$this->MultiCell(100, 4, $contactno, 0, 'L');
 		$this->SetFont('Arial', 'B', 8);
-		$this->Cell(20, 4, (($this->requestor_details) ? '' : 'TIN'), 0, 0, 'L');
+		$this->Cell(29, 4, (($this->requestor_details) ? '' : 'TIN'), 0, 0, 'L');
 		$this->Cell(17, 4, (($this->requestor_details) ? '' : ':'), 0, 0, 'L');
 		$this->SetFont('Arial', '', 8);
-		$this->SetX(33);
-		$this->MultiCell(97, 4, $tinno, 0, 'L');
+		$this->SetX(40);
+		$this->MultiCell(100, 4, $tinno, 0, 'L');
 
-		$content_width	= 40;
+		$content_width	= 34;
 		$gap			= 2;
 		$this->SetFillColor(230,230,230);
 
@@ -156,6 +162,7 @@ class purchase_print_model extends fpdf {
 				$this->Ln();
 			}
 		}
+
 		$this->SetY($header_end);
 		$this->Ln();
 	}
@@ -168,6 +175,7 @@ class purchase_print_model extends fpdf {
 				$this->Image(BASE_URL.'assets/images/reprint_bg.png',0,60,216,100);
 			}
 		}
+		
 		$this->SetY(279 - $this->margin_top - $this->footer_height + 1);
 		if ($this->termsandcondition) {
 			$this->SetFont('Arial', '', 8);
@@ -177,81 +185,80 @@ class purchase_print_model extends fpdf {
 		$content_width	= 0;
 		$label_width	= 0;
 		$footer_start = $this->GetY();
-		// if ($this->has_received) {
-		// 	if ($this->has_footer_details) {
-		// 		$content_width	= 75;
-		// 		$label_width	= 30;
-		// 		$this->SetFillColor(230,230,230);
-		// 		$this->SetX($this->margin_side);
-		// 		$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
-		// 		$this->Cell($content_width, 5, '', 'T', 0, 'L');
-		// 		$this->Ln();
-		// 		$this->SetX($this->margin_side);
-		// 		$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
-		// 		$this->Cell($content_width, 5, '', 'T', 0, 'L');
-		// 		$this->Ln();
-		// 		$this->SetX($this->margin_side);
-		// 		$this->Cell(30, 5, '', 'TLR', 0, 'L', true);
-		// 		$this->Cell($content_width, 5, '', 'T', 0, 'L');
-		// 		$this->Ln();
-		// 		$this->SetX($this->margin_side);
-		// 		$this->Cell(30, 5, '', 'TLRB', 0, 'L', true);
-		// 		$this->Cell($content_width, 5, '', 'TB', 0, 'L');
-		// 		if ($this->footer_details) {
-		// 			$this->SetY($footer_start);
-		// 			$this->SetX($this->margin_side);
-		// 			foreach ($this->footer_details as $footer_details) {
-		// 				$this->SetFont('Arial', 'B', 8);
-		// 				$this->Cell(30, 5, $footer_details, 0, 0, 'L');
-		// 				$this->Ln();
-		// 			}
-		// 		}
-		// 	}
+		if ($this->has_received) {
+			if ($this->has_footer_details) {
+				$content_width	= 69;
+				$label_width	= 36;
+				$this->SetFillColor(230,230,230);
+				$this->SetX($this->margin_side);
+				$this->Cell(36, 5, '', 'TLR', 0, 'L', true);
+				$this->Cell($content_width, 5, '', 'T', 0, 'L');
+				$this->Ln();
+				$this->SetX($this->margin_side);
+				$this->Cell(36, 5, '', 'TLR', 0, 'L', true);
+				$this->Cell($content_width, 5, '', 'T', 0, 'L');
+				$this->Ln();
+				$this->SetX($this->margin_side);
+				$this->Cell(36, 5, '', 'TLR', 0, 'L', true);
+				$this->Cell($content_width, 5, '', 'T', 0, 'L');
+				$this->Ln();
+				$this->SetX($this->margin_side);
+				$this->Cell(36, 5, '', 'TLRB', 0, 'L', true);
+				$this->Cell($content_width, 5, '', 'TB', 0, 'L');
+				if ($this->footer_details) {
+					$this->SetY($footer_start);
+					$this->SetX($this->margin_side);
+					foreach ($this->footer_details as $footer_details) {
+						$this->SetFont('Arial', 'B', 8);
+						$this->Cell(30, 5, $footer_details, 0, 0, 'L');
+						$this->Ln();
+					}
+				}
+			}
 
-		// 	$receipt_width = 216 - ($this->margin_side * 2) - $content_width - $label_width;
-		// 	$this->SetFont('Arial', 'B', 8);
-		// 	$this->Rect($this->margin_side + $content_width + $label_width, $footer_start, $receipt_width, 20);
-		// 	$this->SetY($footer_start);
-		// 	$this->SetX($this->margin_side + $content_width + $label_width);
-		// 	$this->Cell($receipt_width, 5, 'Received the above good/s in good condition', 0, 0, 'C');
-		// 	$this->Ln(15);
-		// 	$this->SetFont('Arial', '', 8);
-		// 	$this->SetX($this->margin_side + $content_width + $label_width);
-		// 	$this->Cell($receipt_width - round($receipt_width * 0.5), 5, 'Signature over Printed Name', 0, 0, 'C');
-		// 	$this->Cell(round($receipt_width * 0.5), 5, 'Date Received', 0, 0, 'C');
-		// } else if ($this->has_footer_details) {
+			$receipt_width = 216 - ($this->margin_side * 2) - $content_width - $label_width;
+			$this->SetFont('Arial', 'B', 8);
+			$this->Rect($this->margin_side + $content_width + $label_width, $footer_start, $receipt_width, 20);
+			$this->SetY($footer_start);
+			$this->SetX($this->margin_side + $content_width + $label_width);
+			$this->Cell($receipt_width, 5, 'Received the above good/s in good condition', 0, 0, 'C');
+			$this->Ln(15);
+			$this->SetFont('Arial', '', 8);
+			$this->SetX($this->margin_side + $content_width + $label_width);
+			$this->Cell($receipt_width - round($receipt_width * 0.5), 5, 'Signature over Printed Name', 0, 0, 'C');
+			$this->Cell(round($receipt_width * 0.5), 5, 'Date Received', 0, 0, 'C');
+		} else if ($this->has_footer_details) {
 			$content_width		= 69;
 			$label_width		= 30;
-			$footer_label_1	= isset($this->footer_details) ? $this->footer_details[0] : '';
-			$footer_label_2	= isset($this->footer_details) ? $this->footer_details[1] : '';
-			$footer_label_3	= isset($this->footer_details[2]) ? $this->footer_details[2] : '';
-			//$this->SetFillColor(230,230,230);
-			// $this->SetFont('Arial', 'B', 8);
-			// $this->SetX($this->margin_side);
-			// $this->Cell(30, 10, $footer_label_left, 'TLRB', 0, 'C', true);
-			// $this->Cell($content_width, 10, '', 'TLRB', 0, 'L');
-			// $this->SetX($this->margin_side + 101);
-			// $this->Cell(30, 10, $footer_label_right, 'TLRB', 0, 'C', true);
-			// $this->Cell($content_width, 10, '', 'TLRB', 0, 'L');
-			$this->Cell(67, 8, $footer_label_1, 'TLRB', 0, 'L');
-			$this->Cell(67, 8, $footer_label_2, 'TLRB', 0, 'L');
-			$this->Cell(66, 8, $footer_label_3, 'TLRB', 1, 'L');
-			$this->Cell(67, 8, '', 'LRB', 0, 'L');
-			$this->Cell(67, 8, '', 'LRB', 0, 'L');
-			$this->Cell(66, 8, '', 'LRB', 1, 'L');
-		// }
+			$footer_label_left	= isset($this->footer_details) ? $this->footer_details[0] : '';
+			$footer_label_right	= isset($this->footer_details) ? $this->footer_details[1] : '';
+			$this->SetFillColor(230,230,230);
+			$this->SetFont('Arial', 'B', 8);
+			$this->SetX($this->margin_side);
+			$this->Cell(30, 10, $footer_label_left, 'TLRB', 0, 'C', true);
+			$this->Cell($content_width, 10, '', 'TLRB', 0, 'L');
+			$this->SetX($this->margin_side + 101);
+			$this->Cell(30, 10, $footer_label_right, 'TLRB', 0, 'C', true);
+			$this->Cell($content_width, 10, '', 'TLRB', 0, 'L');
+		}
 	}
 
 	public function setRequestorDetails($requestor_details) {
 		$this->requestor_details = $requestor_details;
 		return $this;
 	}
-
+	
 	public function setVendorDetails($vendor_details) {
 		$this->vendor_details = $vendor_details;
 		return $this;
 	}
-	
+
+
+	public function setStatDetail($stat) {
+		$this->stat = $stat;
+		return $this;
+	}
+
 	public function setDocumentType($document_type) {
 		$this->document_type = $document_type;
 		return $this;
@@ -284,6 +291,11 @@ class purchase_print_model extends fpdf {
 		return $this;
 	}
 
+	public function setSummaryFontStyle($style) {
+		$this->summary_font_style = $style;
+		return $this;
+	}
+
 	public function setHeaderWidth($width) {
 		$this->header_width = $width;
 		return $this;
@@ -304,9 +316,23 @@ class purchase_print_model extends fpdf {
 		return $this;
 	}
 
+	// public function addRow($row) {	
+	// 	$y = $this->GetY();
+	// 	$x = $this->GetX();
+	// 	foreach($this->header as $key => $header) {
+	// 		$this->SetY($y);
+	// 		$this->SetX($x);	
+	// 		$width			= isset($this->header_width[$key]) ? $this->header_width[$key] : 0;
+	// 		$x 				+= $width;
+	// 		$align			= isset($this->row_align[$key]) ? $this->row_align[$key] : 'L';
+	// 		$array_values	= array_values((array) $row);
+	// 		$data			= isset($row->$header) ? $row->$header : $array_values[$key];
+	// 		$this->MultiCell($width, 5, $data, 1, $align);
+	// 	}
+	// 	$this->Ln();
+	// }
 	public function addRow($row) {
 		$h 	=	6;
-
 		foreach($this->header as $key => $header) {
 			$x = $this->GetX();
      		$y = $this->GetY();
@@ -314,9 +340,18 @@ class purchase_print_model extends fpdf {
 			$align			= isset($this->row_align[$key]) ? $this->row_align[$key] : 'L';
 			$array_values	= array_values((array) $row);
 			$data			= isset($row->$header) ? $row->$header : $array_values[$key];
-			$this->setFont('Arial','',9);
-			if($key == 2){
-				$this->setFont('Times','',9);
+			$array_values[10] = isset($array_values[10]) ? $array_values['10'] : 1;
+			if ($array_values[5] == '' || $array_values[10] == '') {
+				$this->setFont('Arial','B',9);
+				if($key == 2){
+					$this->setFont('Times','B',9);
+				}
+			}
+			else {
+				$this->setFont('Arial','',9);
+				if($key == 2){
+					$this->setFont('Times','',9);
+				}
 			}
 			$this->MultiCell($width, 6, $array_values[$key], 0, $align);
 			$y2 = $this->GetY();
@@ -361,10 +396,10 @@ class purchase_print_model extends fpdf {
 		$this->SetFont('Arial', '', 9);
 		$this->Ln();
 	}
-	
+
 	public function drawSummary($summary) {
-		$summary_height	= count($summary) * 6;
-		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 2;
+		$summary_height	= count($summary) * 5;
+		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 7;
 		// $this->Line(8, $summary_start, 29, $summary_start);
 		$this->summary_start 	=	$summary_start;
 		$alignment		= $this->summary_align;
