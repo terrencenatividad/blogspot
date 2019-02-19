@@ -122,7 +122,7 @@
                             ->setFields("ipo.voucherno, ipo.transactiondate")
                             ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
                             ->leftJoin("job_details jd ON jd.ipo_no=ipod.voucherno AND jd.linenum=ipod.linenum")
-                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - COALESCE(jd.qty, 0) > 0 $addcond ")
+                            ->setWhere("ipo.stat IN ('open') AND ipod.receiptqty - COALESCE(jd.qty, 0) > 0 $addcond ")
                             ->setOrderBy("ipo.transactiondate DESC, ipo.voucherno DESC")
                             ->runPagination();
             return $pagination;
