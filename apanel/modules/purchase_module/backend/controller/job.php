@@ -409,8 +409,8 @@
         }
         
         private function ajax_load_ipo_list() {
-            
-            $pagination = $this->job->getIPOPagination();
+            $search     = $this->input->post('search');
+            $pagination = $this->job->getIPOPagination($search);
             $table      = '';
 
             if (empty($pagination->result)) {

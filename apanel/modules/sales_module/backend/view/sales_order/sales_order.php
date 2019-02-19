@@ -893,12 +893,13 @@
 								<?php foreach ($delivered_items as $row): ?>
 								<?php 
 									if ($row->discounttype == 'perc') {
-										$row->discountamount = $row->amount * (($row->discountrate / $row->init_qty) * $row->issueqty) / 100;
+										//$row->discountamount = $row->amount * (($row->discountrate / $row->init_qty) * $row->issueqty) / 100;
+										$row->discountamount = $row->amount * $row->discountrate / 100;
 									}
 									else {
 										$row->discountamount = ($row->discountamount / $row->init_qty) * $row->issueqty;
 									}
-									$row->discountrate = ($row->discountrate / $row->init_qty) * $row->issueqty;
+									//$row->discountrate = ($row->discountrate / $row->init_qty) * $row->issueqty;
 									if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
 										$vatable_sales += $row->amount-$row->discountamount;
 									}
@@ -1175,12 +1176,13 @@
 								<?php foreach ($cancelled_items as $row): ?>
 								<?php 
 									if ($row->discounttype == 'perc') {
-										$row->discountamount = ($row->balance_qty * $row->unitprice) * (($row->discountrate / $row->init_qty) * $row->balance_qty) / 100;
+										//$row->discountamount = ($row->balance_qty * $row->unitprice) * (($row->discountrate / $row->init_qty) * $row->balance_qty) / 100;
+										$row->discountamount = ($row->balance_qty * $row->unitprice) * $row->discountrate / 100;
 									}
 									else {
 										$row->discountamount = ($row->discountamount / $row->init_qty) * $row->balance_qty;
 									}	
-									$row->discountrate = ($row->discountrate / $row->init_qty) * $row->balance_qty;
+									//$row->discountrate = ($row->discountrate / $row->init_qty) * $row->balance_qty;
 									$amount = ($row->balance_qty * $row->unitprice) - $row->discountamount;
 								?>
 									<tr class="clone" valign="middle">
