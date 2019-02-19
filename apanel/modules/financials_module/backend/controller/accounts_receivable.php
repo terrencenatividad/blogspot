@@ -694,8 +694,8 @@ class controller extends wc_controller
 									// 	'credit-card',
 									// 	$show_payment  && $restrict_ar
 									// )
-									->addDelete($show_delete && $restrict_ar)
-									->addCheckbox($show_delete  && $restrict_ar)
+									->addDelete($show_delete && $restrict_ar && $checker != "import")
+									->addCheckbox($show_delete  && $restrict_ar && $checker != "import")
 									->setValue($voucher)
 									->setLabels(array('delete' => 'Cancel'))
 									->draw();
@@ -1078,7 +1078,7 @@ class controller extends wc_controller
 
 	public function get_import(){
 		header('Content-type: application/csv');
-		$header = array('Document Set','Transaction Date','Due Date','Customer Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$header = array('Document Set','Transaction Date','Due Date','Customer Code','Invoice No.','Reference No.','Notes','Account Code','Description','Debit','Credit');
 		$return = "";
 		
 		$return .= '"' . implode('","',$header) . '"';
@@ -1107,7 +1107,7 @@ class controller extends wc_controller
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 		
-		$headerArr = array('Document Set','Transaction Date','Due Date','Customer Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$headerArr = array('Document Set','Transaction Date','Due Date','Customer Code','Invoice No.','Reference No.','Notes','Account Code','Description','Debit','Credit');
 		$warning 			=	array();
 		if( empty($errmsg) ) {
 			$x = array_map('str_getcsv', file($_FILES['file']['tmp_name']));
@@ -1174,17 +1174,17 @@ class controller extends wc_controller
 						$description 	=	isset($b[8]) 					?	htmlentities(trim($b[8]))	:	"";
 						$debit 			=	isset($b[9]) && !empty($b[9]) 	?	$b[9]	:	0;
 						$credit 		=	isset($b[10]) && !empty($b[10])	?	$b[10]	:	0;
-						//Check if account Name exists
-						$acct_exists 	=	$this->accounts_receivable->check_if_exists('id','chartaccount'," accountname = '$account' ");
+						//Check if account Code exists
+						$acct_exists 	=	$this->accounts_receivable->check_if_exists('id','chartaccount'," segment5 = '$account' ");
 						$acct_count 	=	$acct_exists[0]->count;
 						
 						if(!empty($account)){
 							if( $acct_count <= 0 ) {
-								$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
+								$errmsg[]	= "Account Code [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
 								$errmsg		= array_filter($errmsg);
 							}
 						}else{
-							$errmsg[]	= "Account Name on <strong>row $line</strong> should not be empty.<br/>";
+							$errmsg[]	= "Account Code on <strong>row $line</strong> should not be empty.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
 						if( $key == 0 ){

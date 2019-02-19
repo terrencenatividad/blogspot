@@ -65,7 +65,7 @@ class financial_model extends wc_model {
 
 		return $result;
 	}
-		
+
 	public function generateBillAR($voucherno) {
 		$this->voucherno			= $voucherno;
 		$this->header_table			= 'accountsreceivable';
@@ -217,16 +217,16 @@ class financial_model extends wc_model {
 		if ($check_exist) {
 			$values = array('stat' => 'cancelled');
 			$result = $this->db->setTable($this->header_table)
-								->setValues($values)
-								->setWhere("voucherno = '{$check_exist->voucherno}'")
-								->setLimit(1)
-								->runUpdate();
+			->setValues($values)
+			->setWhere("voucherno = '{$check_exist->voucherno}'")
+			->setLimit(1)
+			->runUpdate();
 
 			if ($result) {
 				$result = $this->db->setTable($this->detail_table)
-									->setValues($values)
-									->setWhere("voucherno = '{$check_exist->voucherno}'")
-									->runUpdate();
+				->setValues($values)
+				->setWhere("voucherno = '{$check_exist->voucherno}'")
+				->runUpdate();
 			}
 		}
 
@@ -235,11 +235,11 @@ class financial_model extends wc_model {
 
 	private function checkExist() {
 		$result = $this->db->setTable($this->header_table)
-							->setFields('voucherno')
-							->setWhere("sourceno = '{$this->voucherno}'")
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->setFields('voucherno')
+		->setWhere("sourceno = '{$this->voucherno}'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 
 		return $result;
 	}
@@ -281,8 +281,8 @@ class financial_model extends wc_model {
 		}
 
 		$this->db->setTable($this->header_table)
-					->setWhere("sourceno = '{$this->voucherno}'")
-					->setValues($data);
+		->setWhere("sourceno = '{$this->voucherno}'")
+		->setValues($data);
 		
 		if ($check_exist) {
 			$result = $this->db->runUpdate();
@@ -312,13 +312,13 @@ class financial_model extends wc_model {
 		
 		if ($check_exist) {
 			$result = $this->db->setTable($this->detail_table)
-								->setWhere("source = '{$this->voucherno}'")
-								->runDelete();
+			->setWhere("source = '{$this->voucherno}'")
+			->runDelete();
 		}
 
 		$result = $this->db->setTable($this->detail_table)
-							->setValuesFromPost($data)
-							->runInsert();
+		->setValuesFromPost($data)
+		->runInsert();
 
 		return $result;
 	}
@@ -338,12 +338,12 @@ class financial_model extends wc_model {
 		);
 		$fields = array_merge($fields, $this->add_field);
 		$result = $this->db->setTable($this->source_header_table . ' dr')
-							->leftJoin('fintaxcode f ON f.fstaxcode = dr.wtaxcode AND f.companycode = dr.companycode')
-							->setFields($fields)
-							->setWhere("voucherno = '{$this->voucherno}'")
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->leftJoin('fintaxcode f ON f.fstaxcode = dr.wtaxcode AND f.companycode = dr.companycode')
+		->setFields($fields)
+		->setWhere("voucherno = '{$this->voucherno}'")
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 
 		return $result;
 	}
@@ -355,6 +355,7 @@ class financial_model extends wc_model {
 			'IF(i.expense_account > 0, i.expense_account, ic.expense_account) expense_account',
 			'IF(i.payable_account > 0, i.payable_account, ic.payable_account) payable_account',
 			'drd.amount',
+			'drd.budgetcode',
 			'drd.taxamount',
 			'drd.taxcode',
 			'wtaxamount',
@@ -367,17 +368,17 @@ class financial_model extends wc_model {
 			'f4.purchaseAccount discountAccount'
 		);
 		$result = $this->db->setTable($this->source_detail_table . ' drd')
-							->innerJoin($this->source_header_table . ' dr ON dr.voucherno = drd.voucherno AND dr.companycode = drd.companycode')
-							->innerJoin('items i ON i.itemcode = drd.itemcode AND i.companycode = drd.companycode')
-							->innerJoin('itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode')
-							->leftJoin('fintaxcode f ON f.fstaxcode = drd.taxcode AND f.companycode = drd.companycode')
-							->leftJoin('fintaxcode f2 ON f2.fstaxcode = drd.taxcode AND f2.companycode = drd.companycode')
-							->leftJoin('fintaxcode f3 ON f3.fstaxcode = dr.wtaxcode AND f3.companycode = drd.companycode')
-							->leftJoin("fintaxcode f4 ON f4.companycode = drd.companycode AND f4.fstaxcode = 'DC'")
-							->setFields($fields)
-							->setWhere("drd.voucherno = '{$this->voucherno}'")
-							->runSelect()
-							->getResult();
+		->innerJoin($this->source_header_table . ' dr ON dr.voucherno = drd.voucherno AND dr.companycode = drd.companycode')
+		->innerJoin('items i ON i.itemcode = drd.itemcode AND i.companycode = drd.companycode')
+		->innerJoin('itemclass ic ON ic.id = i.classid AND ic.companycode = i.companycode')
+		->leftJoin('fintaxcode f ON f.fstaxcode = drd.taxcode AND f.companycode = drd.companycode')
+		->leftJoin('fintaxcode f2 ON f2.fstaxcode = drd.taxcode AND f2.companycode = drd.companycode')
+		->leftJoin('fintaxcode f3 ON f3.fstaxcode = dr.wtaxcode AND f3.companycode = drd.companycode')
+		->leftJoin("fintaxcode f4 ON f4.companycode = drd.companycode AND f4.fstaxcode = 'DC'")
+		->setFields($fields)
+		->setWhere("drd.voucherno = '{$this->voucherno}'")
+		->runSelect()
+		->getResult();
 
 		$total_amount = 0;
 		foreach ($result as $row) {
@@ -385,6 +386,7 @@ class financial_model extends wc_model {
 		}
 
 		$data		= array();
+		$budgetcode = '';
 		$dc_add		= true;
 		if ($result && $total_amount > 0) {
 			foreach ($result as $row) {
@@ -397,6 +399,11 @@ class financial_model extends wc_model {
 				if ($row->discountamount && $dc_add) {
 					$this->addAccount($data, 'discount', $row->discountAccount, $row->discountamount);
 					$dc_add = false;
+					if(!empty($row->budgetcode)) {
+						$budgetcode = $row->budgetcode;
+					} else {
+						$budgetcode = '';
+					}
 				}
 				if ($row->{$this->taxaccount} && $row->taxamount) {
 					$this->addAccount($data, 'taxaccount', $row->{$this->taxaccount}, $row->taxamount);
@@ -413,6 +420,11 @@ class financial_model extends wc_model {
 		foreach ($data as $type => $row) {
 			foreach ($row as $key => $value) {
 				$data2['accountcode'][]		= $key;
+				if($type == 'secondaryaccount') {
+					$data2['budgetcode'][]		= $budgetcode;
+				} else {
+					$data2['budgetcode'][] = '';
+				}
 				$data2['debit'][]			= $this->getDebit($type, $value);
 				$data2['credit'][]			= $this->getCredit($type, $value);
 				$data2['converteddebit'][]	= $this->getDebit($type, $value);
@@ -448,5 +460,4 @@ class financial_model extends wc_model {
 			}
 		}
 	}
-
 }

@@ -31,120 +31,120 @@
 							<div class="row">
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Balance per Bank')
-											->setSplit('col-md-8 force-left', 'col-md-4 text-right')
-											->setId('balance_bank')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
+									echo $ui->formField('text')
+									->setLabel('Balance per Bank')
+									->setSplit('col-md-8 force-left', 'col-md-4 text-right')
+									->setId('balance_bank')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
 									?>
 								</div>
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Balance per Book')
-											->setSplit('col-md-8 force-left', 'col-md-4 text-right')
-											->setId('balance_book')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
-									?>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Add: Deposit in Transit')
-											->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
-											->setId('transit')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
-									?>
-								</div>
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Add: Unrecorded Deposit')
-											->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
-											->setId('unrecorded_deposit')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
+									echo $ui->formField('text')
+									->setLabel('Balance per Book')
+									->setSplit('col-md-8 force-left', 'col-md-4 text-right')
+									->setId('balance_book')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
 									?>
 								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Total')
-											->setSplit('col-md-8 force-left', 'col-md-4 text-right')
-											->setId('total_bank')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
+									echo $ui->formField('text')
+									->setLabel('Add: Deposit in Transit')
+									->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
+									->setId('transit')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
 									?>
 								</div>
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Total')
-											->setSplit('col-md-8 force-left', 'col-md-4 text-right')
-											->setId('total_book')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
-									?>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Less: Outstanding Cheques')
-											->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
-											->setId('outstanding_check')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
-									?>
-								</div>
-								<div class="col-md-6">
-									<?php
-										echo $ui->formField('text')
-											->setLabel('Less: Unrecorded Withdrawal')
-											->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
-											->setId('unrecorded_withdrawal')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
+									echo $ui->formField('text')
+									->setLabel('Add: Unrecorded Deposit')
+									->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
+									->setId('unrecorded_deposit')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
 									?>
 								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Adjusted Bank Balance')
-											->setSplit('col-md-8 force-left', 'col-md-4 text-right')
-											->setId('adjusted_bank')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
+									echo $ui->formField('text')
+									->setLabel('Total')
+									->setSplit('col-md-8 force-left', 'col-md-4 text-right')
+									->setId('total_bank')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
 									?>
 								</div>
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Adjusted Book Balance')
-											->setSplit('col-md-8 force-left', 'col-md-4 text-right')
-											->setId('adjusted_book')
-											->setValue('0.00')
-											->addHidden()
-											->draw(false);
+									echo $ui->formField('text')
+									->setLabel('Total')
+									->setSplit('col-md-8 force-left', 'col-md-4 text-right')
+									->setId('total_book')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
+									?>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('Less: Outstanding Cheques')
+									->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
+									->setId('outstanding_check')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
+									?>
+								</div>
+								<div class="col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('Less: Unrecorded Withdrawal')
+									->setSplit('col-md-7 col-md-offset-1 force-left', 'col-md-4 text-right')
+									->setId('unrecorded_withdrawal')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
+									?>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('Adjusted Bank Balance')
+									->setSplit('col-md-8 force-left', 'col-md-4 text-right')
+									->setId('adjusted_bank')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
+									?>
+								</div>
+								<div class="col-md-6">
+									<?php
+									echo $ui->formField('text')
+									->setLabel('Adjusted Book Balance')
+									->setSplit('col-md-8 force-left', 'col-md-4 text-right')
+									->setId('adjusted_book')
+									->setValue('0.00')
+									->addHidden()
+									->draw(false);
 									?>
 								</div>
 							</div>
@@ -167,14 +167,14 @@
 				<div id="bank_list" class="tab-pane active table-responsive">
 					<table id="bankTable" class="table table-hover table-sidepad">
 						<?php
-							echo $ui->loadElement('table')
-									->setHeaderClass('info')
-									->addHeader('Check Date', array('class' => 'col-md-4'))
-									->addHeader('Account Nature', array('class' => 'col-md-4'))
-									->addHeader('Check Number', array('class' => 'col-md-2'))
-									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
-									->addHeader('', array('style' => 'width: 15px'))
-									->draw();
+						echo $ui->loadElement('table')
+						->setHeaderClass('info')
+						->addHeader('Check Date', array('class' => 'col-md-4'))
+						->addHeader('Account Nature', array('class' => 'col-md-4'))
+						->addHeader('Check Number', array('class' => 'col-md-2'))
+						->addHeader('Amount', array('class' => 'col-md-2 text-right'))
+						->addHeader('', array('style' => 'width: 15px'))
+						->draw();
 						?>
 						<tbody>
 
@@ -184,15 +184,15 @@
 				<div id="system_list" class="tab-pane table-responsive">
 					<table id="systemTable" class="table table-hover table-sidepad">
 						<?php
-							echo $ui->loadElement('table')
-									->setHeaderClass('info')
-									->addHeader('Document Date', array('class' => 'col-md-3'))
-									->addHeader('Voucher Number', array('class' => 'col-md-3'))
-									->addHeader('Account Nature', array('class' => 'col-md-3'))
-									->addHeader('Check Number', array('class' => 'col-md-2'))
-									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
-									->addHeader('', array('style' => 'width: 15px'))
-									->draw();
+						echo $ui->loadElement('table')
+						->setHeaderClass('info')
+						->addHeader('Document Date', array('class' => 'col-md-3'))
+						->addHeader('Voucher Number', array('class' => 'col-md-3'))
+						->addHeader('Account Nature', array('class' => 'col-md-3'))
+						->addHeader('Check Number', array('class' => 'col-md-2'))
+						->addHeader('Amount', array('class' => 'col-md-2 text-right'))
+						->addHeader('', array('style' => 'width: 15px'))
+						->draw();
 						?>
 						<tbody>
 
@@ -208,17 +208,17 @@
 							</tr>
 						</thead>
 						<?php
-							echo $ui->loadElement('table')
-									->setHeaderClass('info')
-									->addHeader('Transaction Date', array('class' => 'col-md-2 bg-teal-active'))
-									->addHeader('Check Number', array('class' => 'col-md-2 bg-teal-active'))
-									->addHeader('Amount', array('class' => 'col-md-2 bg-teal-active text-right'))
-									->addHeader('', array('class' => 'bg-teal-active'))
-									->addHeader('', array('class' => 'bg-gray-active'))
-									->addHeader('Transaction Date', array('class' => 'col-md-2 bg-gray-active'))
-									->addHeader('Check Number', array('class' => 'col-md-2 bg-gray-active'))
-									->addHeader('Amount', array('class' => 'col-md-2 bg-gray-active text-right'))
-									->draw();
+						echo $ui->loadElement('table')
+						->setHeaderClass('info')
+						->addHeader('Transaction Date', array('class' => 'col-md-2 bg-teal-active'))
+						->addHeader('Check Number', array('class' => 'col-md-2 bg-teal-active'))
+						->addHeader('Amount', array('class' => 'col-md-2 bg-teal-active text-right'))
+						->addHeader('', array('class' => 'bg-teal-active'))
+						->addHeader('', array('class' => 'bg-gray-active'))
+						->addHeader('Transaction Date', array('class' => 'col-md-2 bg-gray-active'))
+						->addHeader('Check Number', array('class' => 'col-md-2 bg-gray-active'))
+						->addHeader('Amount', array('class' => 'col-md-2 bg-gray-active text-right'))
+						->draw();
 						?>
 						<tbody>
 
@@ -242,17 +242,17 @@
 						</tr>
 					</thead>
 					<?php
-						echo $ui->loadElement('table')
-								->setHeaderClass('info')
-								->addHeader('Transaction Date', array('class' => 'col-md-2 bg-teal-active'))
-								->addHeader('Check Number', array('class' => 'col-md-2 bg-teal-active'))
-								->addHeader('Amount', array('class' => 'col-md-2 bg-teal-active text-right'))
-								->addHeader('', array('class' => 'bg-teal-active'))
-								->addHeader('', array('class' => 'bg-gray-active'))
-								->addHeader('Transaction Date', array('class' => 'col-md-2 bg-gray-active'))
-								->addHeader('Check Number', array('class' => 'col-md-2 bg-gray-active'))
-								->addHeader('Amount', array('class' => 'col-md-2 bg-gray-active text-right'))
-								->draw();
+					echo $ui->loadElement('table')
+					->setHeaderClass('info')
+					->addHeader('Transaction Date', array('class' => 'col-md-2 bg-teal-active'))
+					->addHeader('Check Number', array('class' => 'col-md-2 bg-teal-active'))
+					->addHeader('Amount', array('class' => 'col-md-2 bg-teal-active text-right'))
+					->addHeader('', array('class' => 'bg-teal-active'))
+					->addHeader('', array('class' => 'bg-gray-active'))
+					->addHeader('Transaction Date', array('class' => 'col-md-2 bg-gray-active'))
+					->addHeader('Check Number', array('class' => 'col-md-2 bg-gray-active'))
+					->addHeader('Amount', array('class' => 'col-md-2 bg-gray-active text-right'))
+					->draw();
 					?>
 					<tbody>
 
@@ -272,14 +272,14 @@
 				<div class="modal-body table-reponsive no-padding">
 					<table id="matchingTable" class="table table-hover table-sidepad mb-none">
 						<?php
-							echo $ui->loadElement('table')
-									->setHeaderClass('info')
-									->addHeader('Document Date', array('class' => 'col-md-3'))
-									->addHeader('Voucher Number', array('class' => 'col-md-4'))
-									->addHeader('Check Number', array('class' => 'col-md-3'))
-									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
-									->addHeader('', array('style' => 'width: 15px'))
-									->draw();
+						echo $ui->loadElement('table')
+						->setHeaderClass('info')
+						->addHeader('Document Date', array('class' => 'col-md-3'))
+						->addHeader('Voucher Number', array('class' => 'col-md-4'))
+						->addHeader('Check Number', array('class' => 'col-md-3'))
+						->addHeader('Amount', array('class' => 'col-md-2 text-right'))
+						->addHeader('', array('style' => 'width: 15px'))
+						->draw();
 						?>
 						<tbody>
 
@@ -302,14 +302,14 @@
 				<div class="modal-body table-reponsive no-padding">
 					<table id="matchingTable" class="table table-hover table-sidepad mb-none">
 						<?php
-							echo $ui->loadElement('table')
-									->setHeaderClass('info')
-									->addHeader('Document Date', array('class' => 'col-md-3'))
-									->addHeader('Voucher Number', array('class' => 'col-md-4'))
-									->addHeader('Check Number', array('class' => 'col-md-3'))
-									->addHeader('Amount', array('class' => 'col-md-2 text-right'))
-									->addHeader('', array('style' => 'width: 15px'))
-									->draw();
+						echo $ui->loadElement('table')
+						->setHeaderClass('info')
+						->addHeader('Document Date', array('class' => 'col-md-3'))
+						->addHeader('Voucher Number', array('class' => 'col-md-4'))
+						->addHeader('Check Number', array('class' => 'col-md-3'))
+						->addHeader('Amount', array('class' => 'col-md-2 text-right'))
+						->addHeader('', array('style' => 'width: 15px'))
+						->draw();
 						?>
 						<tbody>
 
@@ -332,19 +332,35 @@
 				<div class="modal-body table-reponsive no-padding">
 					<table id="taggedTable" class="table table-hover table-sidepad mb-none">
 						<?php
-							echo $ui->loadElement('table')
-									->setHeaderClass('info')
-									->addHeader('Transaction Date', array('class' => 'col-md-4'))
-									->addHeader('Check Number', array('class' => 'col-md-3'))
-									->addHeader('Voucherno', array('class' => 'col-md-2'))
-									->addHeader('Amount', array('class' => 'col-md-3 text-right'))
-									->addHeader('', array('style' => 'width: 15px'))
-									->draw();
+						echo $ui->loadElement('table')
+						->setHeaderClass('info')
+						->addHeader('Transaction Date', array('class' => 'col-md-4'))
+						->addHeader('Check Number', array('class' => 'col-md-3'))
+						->addHeader('Voucherno', array('class' => 'col-md-2'))
+						->addHeader('Amount', array('class' => 'col-md-3 text-right'))
+						->addHeader('', array('style' => 'width: 15px'))
+						->draw();
 						?>
 						<tbody>
 
 						</tbody>
 					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="successful_modal" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-ok"></span> Success!</h4>
+				</div>
+				<div class="modal-body">
+					<p>Bank Recon Finalized Successfully.</p>
+				</div>
+				<div class="modal-footer">
+					<!--	<button type="button" class="btn btn-success" data-dismiss="modal">Ok</button> -->
 				</div>
 			</div>
 		</div>
@@ -511,7 +527,10 @@
 		function finalizeBankRecon() {
 			$.post('<?php echo MODULE_URL ?>ajax/ajax_set_finalized', { recon_id: '<?php echo $recon_id ?>' }, function(data) {
 				if (data.success) {
-					window.location = '<?php echo MODULE_URL ?>';
+					$('#successful_modal').modal('show');
+					setTimeout(function() {
+						window.location = '<?php echo MODULE_URL ?>';
+					},1000);
 				}
 			});
 		}
