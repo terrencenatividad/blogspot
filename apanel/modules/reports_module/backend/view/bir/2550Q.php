@@ -1868,6 +1868,7 @@
 			}
 		});
 ready();
+readypurchase();
 });
 
 function ready() {
@@ -1876,6 +1877,13 @@ function ready() {
 		var total_19b = Math.round($('#vat_privateB').val()) + Math.round($('#vat_govB').val());
 		$('#totalsales19A').val(addComma(total_19a));
 		$('#totalsales19B').val(addComma(total_19b));
+	});
+}
+
+function readypurchase() {
+	$(document).ajaxComplete(function() {
+		var totalpurchases21P = Math.round($('#cgnotexceed21A').val()) + Math.round($('#cgexceed21C').val()) + Math.round($('#dompurchase21E').val()) + Math.round($('#importation21G').val()) + Math.round($('#dompurchaseserv21I').val()) + Math.round($('#servicerenderedK').val()) + Math.round($('#purchasenotqualified21M').val()) + Math.round($('#others21N').val());
+		$('#totalpurchases21P').val(addComma(totalpurchases21P));
 	});
 }
 
@@ -2013,6 +2021,7 @@ $('#monthfilter').on('change', function() {
 		}
 	});
 	ready();
+	readypurchase();
 });
 
 $('#yearfilter').on('change', function() {
@@ -2147,6 +2156,7 @@ $('#yearfilter').on('change', function() {
 		}
 	});
 	ready();
+	readypurchase();
 });
 
 $('.tableList').on('ifToggled', '.quarter', function() {
@@ -2284,21 +2294,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 		});
 	}
 	ready();
+	readypurchase();
 });
-
-function sumSales() {
-	var privateA = Math.round($('#vat_privateA').val());
-	var privateB = Math.round($('#vat_privateB').val());
-	var govA = $('#vat_govA').val();
-	console.log(govA);
-	var govB = Math.round($('#vat_govB').val());
-	var exempt = Math.round($('#vat_exempt').val());
-	var zero = Math.round($('#vat_zero').val());
-	var sumA = privateA + govA + exempt + zero;
-	var sumB =  privateB + govB;
-	// $('#totalsales19A').val(sumA.toFixed(2));
-	// $('#totalsales19B').val(sumB.toFixed(2));
-}
 
 function allowableInputTax20F() {
 	var allowableInputTax20A = Math.round($('#vat_privateA').val());
