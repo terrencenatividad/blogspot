@@ -839,7 +839,7 @@ class payment_voucher_model extends wc_model
 			$post_header['source']			= $source;
 			$post_header['paymenttype']		= $paymenttype;	
 			$post_header['referenceno']		= $referenceno;
-			$post_header['stat']			= $status;
+			$post_header['stat']			= 'posted';
 			$post_header['postedby']		= USERNAME;
 			$post_header['postingdate']		= $datetime;
 
@@ -1126,6 +1126,7 @@ class payment_voucher_model extends wc_model
 			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
 				$amount 					= $pickedValue['amt'];
+				$balance 					= $pickedValue['bal'];
 				$discount 					= $pickedValue['dis'];
 				
 				$applied_sum				= 0;
@@ -1158,7 +1159,7 @@ class payment_voucher_model extends wc_model
 				
 				$balance_info['amountpaid']	= $applied_sum;
 
-				$balance_info['balance']	= $invoice_amount - $applied_sum;
+				$balance_info['balance']	= $balance - $amount;
 				
 				$insertResult = $this->db->setTable($applicableHeaderTable)
 				->setValues($balance_info)

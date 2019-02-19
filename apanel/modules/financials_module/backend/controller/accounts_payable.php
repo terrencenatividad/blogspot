@@ -536,6 +536,17 @@ class controller extends wc_controller
 					$bir_link = true;
 				}
 			}
+
+			if($row->balance == $amount && $row->stat == 'posted') {
+				$stat = 'unpaid';
+			} else if($row->balance != $amount && $row->balance != 0 && $row->stat == 'posted') {
+				$stat = 'partial';
+			} else if($row->balance == 0 && $row->amountpaid == $amount && $row->stat == 'posted'){
+				$stat = 'paid';
+			} else if($row->balance != 0 && $row->stat == 'cancelled'){
+				$stat = 'cancelled';
+			}
+
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
 			->addEdit($status && $restrict && !$pr && $status_paid && !$import_checker)
@@ -560,7 +571,7 @@ class controller extends wc_controller
 			$table	.= '<td>&nbsp;'.$referenceno.'</td>';
 			$table	.= '<td>&nbsp;'.number_format($amount,2).'</td>';
 			$table	.= '<td>&nbsp;'.number_format($balance,2).'</td>';
-			$table	.= '<td>'. $this->colorStat($payment_status). '</td>';
+			$table	.= '<td>'. $this->colorStat($stat). '</td>';
 			$table	.= '</tr>';
 		}
 
