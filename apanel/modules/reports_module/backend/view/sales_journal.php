@@ -44,11 +44,11 @@
 									->setHeaderClass('info')
 									->addHeader('Date',array('class'=>'col-md-2'),'sort','si.transactiondate')
 									->addHeader("Customer's TIN",array('class'=>'col-md-2'),'sort','pt.tinno')
-									->addHeader("Customer's Name",array('class'=>'col-md-2'),'sort','pt.customer')
+									->addHeader("Customer's Name",array('class'=>'col-md-2'),'sort','pt.partnername')
 									->addHeader('Description',array('class'=>'col-md-2'),'sort','si.remarks')
 									->addHeader('Reference No.',array('class'=>'col-md-1'),'sort','si.voucherno')
 									->addHeader('Amount',array('class'=>'col-md-1'),'sort','si.taxamount + si.amount')
-									->addHeader('Discount Amount',array('class'=>'col-md-1'),'sort','si.discount')
+									->addHeader('Discount Amount',array('class'=>'col-md-1'),'sort','si.discountamount')
 									->addHeader('VAT amount',array('class'=>'col-md-1'),'sort','si.taxamount')
 									->addHeader('Net Sales',array('class'=>'col-md-1'),'sort','si.amount')
 									->draw();
