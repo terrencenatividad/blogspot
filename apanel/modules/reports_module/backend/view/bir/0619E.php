@@ -593,7 +593,7 @@
 		ajax.month = $('#monthfilter').val();
 		ajax.year = $('#yearfilter').val();
 		ajax_call = $.post("<?=MODULE_URL?>ajax/getMonthYear/<?=$bir_form?>", ajax, function(data) {
-			$('#birForm #amountremittance').val(data);
+			$('#birForm #amountremittance').val(addCommas(data));
 			compute();
 		});
 	}

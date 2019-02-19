@@ -135,7 +135,7 @@
 				</div>
 				<div class="modal-footer text-center">
 					<a href type="button" class="btn btn-info btn-flat" download = "SalesInvoice.csv" id="disc_yes">Yes</a>
-					<button type="button" class="btn btn-default btn-flat" id="disc_no" >No</button>
+					<button type="button" class="btn btn-default btn-flat" id="disc_no" data-dismiss="modal">No</button>
 				</div>
 			</div>
 		</div>
@@ -194,12 +194,6 @@
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
-				// $('.export_to_csv').each(function(e){
-				// 	var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8,";
-				// 	var voucher = $(this).attr('data-id'); 
-				// 	$(this).prop('download', voucher+'.csv');
-				// 	$(this).prop('href', uriContent);
-				// });
 			});
 		}
 		getList();
@@ -250,16 +244,9 @@
 			$('#input_voucherno').val(voucher);
 			$('#export_modal').modal('show');
 
-			
-			// url = '<?=MODULE_URL?>export_csv/' + voucher;
-			// var win = window.open(url, '_blank');
-  			// win.focus();
 			ajax.voucher = voucher;
 			
 			$.post('<?=MODULE_URL?>ajax/export_csv', ajax, function(data) {
-				// var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8," + encodeURIComponent(data.csv);
-				// $(this).prop('href',uriContent);
-				// var win = window.open(uriContent);
 				var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8," + encodeURIComponent(data.csv);
 				console.log(uriContent);
 				$('#disc_yes').prop('download', voucher+'.csv');
@@ -270,17 +257,4 @@
 		$('body').on('click','#disc_yes',function(){
 			$('#export_modal').modal('hide');
 		});
-
-		// $('#disc_yes').on('click', function() {
-		// 	var voucher = $('#input_voucherno').val();
-		// 	ajax.voucher = voucher;
-
-		// 	$.post('<?=MODULE_URL?>ajax/export_csv', ajax, function(data) {
-		// 		// var uriContent = "data:text/csv;filename=testing.csv;charset=utf-8," + encodeURIComponent(data.csv);
-		// 		// $(this).prop('href',uriContent);
-		// 		// var win = window.open(uriContent);
-		// 		//$(this).attr('href', 'data:text/csv;filename=testing.csv;charset=utf-8,' + encodeURIComponent(data.csv));
-				
-		// 	});
-		// });
 	</script>

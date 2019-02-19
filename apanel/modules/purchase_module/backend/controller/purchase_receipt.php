@@ -570,7 +570,7 @@ class controller extends wc_controller {
 		// 		var_dump($getid->expense_account);
 		// 	}
 		// }
-		var_dump($data);
+		// var_dump($data);
 		unset($data2['budgetcode']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
