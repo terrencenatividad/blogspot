@@ -805,10 +805,12 @@ class controller extends wc_controller
 				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
 				$unitprice 			= isset($val->unitprice) ? $val->unitprice : 0;
-				$discount 			= ($val->discounttype == 'amt') ? ($val->discountamount/$val->init_qty) * $val->issueqty : ($val->discountrate/$val->init_qty) * $val->issueqty;
+				//$discount 			= ($val->discounttype == 'amt') ? ($val->discountamount/$val->init_qty) * $val->issueqty : ($val->discountrate/$val->init_qty) * $val->issueqty;
+				$discount 			= ($val->discounttype == 'amt') ? ($val->discountamount/$val->init_qty) * $val->issueqty : $val->discountrate;
 				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
 				$discountamount 	= isset($val->discountamount) ? ($val->discountamount/$val->init_qty) * $val->issueqty : 0;
-				$discountrate 		= isset($val->discountrate) ? ($val->discountrate/$val->init_qty) * $val->issueqty : 0;
+				//$discountrate 		= isset($val->discountrate) ? ($val->discountrate/$val->init_qty) * $val->issueqty : 0;
+				$discountrate 		= isset($val->discountrate) ? $val->discountrate : 0;
 				$taxcode 			= isset($val->taxcode) ? $val->taxcode : '';
 				$taxrate 			= isset($val->taxrate) ? $val->taxrate : 0;
 				$taxamount 			= isset($val->taxamount) ? $val->taxamount : 0;
