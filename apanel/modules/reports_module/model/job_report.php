@@ -111,7 +111,9 @@
                                     (SUM(bt.converted_debit) - SUM(bt.converted_credit)) AS amount,
                                     j.stat,
                                     SUM(bt.converted_debit),
-                                    SUM(bt.converted_credit)
+                                    SUM(bt.converted_credit),
+                                    bt.transtype,
+                                    bt.voucherno
                                     ');
 
             $result         = $this->db->setTable('balance_table bt')

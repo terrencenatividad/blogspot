@@ -510,13 +510,14 @@
             ajax_call.abort();
         }
         ajax_call = $.post('<?=MODULE_URL?>ajax/jobreport_listing', ajax, function (data) {
+            console.log(data);
             $('#tableList #list_container').html(data.table);
             $('#pagination').html(data.pagination);
-            $("#export_csv").attr('href', 'data:text/csv;filename=jobReport.csv;charset=utf-8,' +
-                encodeURIComponent(data.csv));
             fsum = 0;
             sum = 0;
             $('.total_job').html((data.amountview));
+            $("#export_csv").attr('href', 'data:text/csv;filename=jobReport.csv;charset=utf-8,' +
+                encodeURIComponent(data.csv));
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
                 showList();
