@@ -537,14 +537,23 @@ class controller extends wc_controller
 				}
 			}
 
-			if($row->balance == $amount && $row->stat == 'posted') {
-				$stat = 'unpaid';
-			} else if($row->balance != $amount && $row->balance != 0 && $row->stat == 'posted') {
-				$stat = 'partial';
-			} else if($row->balance == 0 && $row->amountpaid == $amount && $row->stat == 'posted'){
+			// if($row->balance == $amount && $row->stat == 'posted') {
+			// 	$stat = 'unpaid';
+			// } else if($row->balance != $amount && $row->balance != 0 && $row->stat == 'posted') {
+			// 	$stat = 'partial';
+			// } else if($row->balance == 0 && $row->amountpaid == $amount && $row->stat == 'posted'){
+			// 	$stat = 'paid';
+			// } else if($row->balance != 0 && $row->stat == 'cancelled'){
+			// 	$stat = 'cancelled';
+			// }
+			if($payment_status == "paid") {
 				$stat = 'paid';
-			} else if($row->balance != 0 && $row->stat == 'cancelled'){
+			} else if($payment_status == 'unpaid'){
+				$stat = 'unpaid';
+			} else if($payment_status == 'cancelled'){
 				$stat = 'cancelled';
+			} else if($payment_status == "partial"){
+				$stat = 'partial';
 			}
 
 			$dropdown = $this->ui->loadElement('check_task')
@@ -1553,7 +1562,7 @@ class controller extends wc_controller
 
 	public function get_import(){
 		header('Content-type: application/csv');
-		$header = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$header = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Code','Description','Debit','Credit');
 		$return = "";
 		
 		$return .= '"' . implode('","',$header) . '"';
@@ -1615,7 +1624,7 @@ class controller extends wc_controller
 			$errmsg[]= "Invalid file type, file must be .csv.<br/>";
 		}
 		
-		$headerArr = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Name','Description','Debit','Credit');
+		$headerArr = array('Document Set','Transaction Date','Due Date','Supplier Code','Invoice No.','Reference No.','Notes','Account Code','Description','Debit','Credit');
 
 		$warning 			=	array();
 		if( empty($errmsg) ) {
@@ -1689,16 +1698,16 @@ class controller extends wc_controller
 						$debit 			=	isset($b[9]) && !empty($b[9]) 	?	$b[9]	:	0;
 						$credit 		=	isset($b[10]) && !empty($b[10])	?	$b[10]	:	0;
 						//Check if account Name exist
-						$acct_exist 	=	$this->accounts_payable->check_if_exists('id','chartaccount'," accountname = '$account' ");
+						$acct_exist 	=	$this->accounts_payable->check_if_exists('id','chartaccount'," segment5 = '$account' ");
 						$acct_count 	=	$acct_exist[0]->count;
 
 						if(!empty($account)){
 							if( $acct_count <= 0 ) {
-								$errmsg[]	= "Account Name [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
+								$errmsg[]	= "Account Code [<strong>$account</strong>] on <strong>row $line</strong> does not exist.<br/>";
 								$errmsg		= array_filter($errmsg);
 							}
 						}else{
-							$errmsg[]	= "Account Name on <strong>row $line</strong> should not be empty.<br/>";
+							$errmsg[]	= "Account Code on <strong>row $line</strong> should not be empty.<br/>";
 							$errmsg		= array_filter($errmsg);
 						}
 						
