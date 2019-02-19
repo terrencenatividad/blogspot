@@ -1164,7 +1164,7 @@
 				$('#tableList tbody').find('.discount').removeAttr('readonly');
 			} 
 			else {
-				$('#tableList tbody').find('.discount').attr('readonly', '').val('0.00');
+				$('#tableList tbody').find('.discount').attr('readonly', '');
 			}
 			if (job == '') {
 				$('#tableList tbody').find('.unitprice').removeAttr('readonly');
