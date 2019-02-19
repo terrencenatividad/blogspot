@@ -311,6 +311,7 @@ class controller extends wc_controller {
 		$print->setDocumentType('Purchase Receipt')
 		->setFooterDetails(array('Approved By', 'Checked By', 'Received By'))
 		->setVendorDetails($vendordetails)
+		->setStatDetail($documentinfo->stat)
 		->setDocumentDetails($documentdetails)
 				// ->addTermsAndConditon()
 		->addReceived();
@@ -571,7 +572,7 @@ class controller extends wc_controller {
 		// 	}
 		// }
 		// var_dump($data);
-		unset($data2['budgetcode']);
+		// unset($data2['budgetcode']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
 		$data['fiscalyear']			= $this->date->getYear($data['transactiondate']);
