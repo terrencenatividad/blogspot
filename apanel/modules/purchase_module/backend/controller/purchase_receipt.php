@@ -571,8 +571,6 @@ class controller extends wc_controller {
 		// 		var_dump($getid->expense_account);
 		// 	}
 		// }
-		// var_dump($data);
-		// unset($data2['budgetcode']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);
 		$data['fiscalyear']			= $this->date->getYear($data['transactiondate']);
@@ -588,9 +586,13 @@ class controller extends wc_controller {
 		// retrieve  freight, insurance, packaging 
 		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
 		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;	
-			
+
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
+		}
+
+		if($result) {
+			$data['reverse'] = $this->purchase_model->reverseActualBudget($data['voucherno'], $data['transtype'], $data['source_no']);
 		}
 
 		if ($result && $this->inventory_model) {
