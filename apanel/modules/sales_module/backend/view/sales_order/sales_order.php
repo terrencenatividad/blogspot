@@ -978,7 +978,7 @@
 													echo $ui->formField('text')
 														->setSplit('', 'col-md-12')
 														->setClass("text-right discount")
-														->setValue($row->discountrate)
+														->setValue(number_format($row->discountrate, 2))
 														->setValidation('decimal')
 														->draw(false);
 												}
@@ -1248,7 +1248,7 @@
 													echo $ui->formField('text')
 														->setSplit('', 'col-md-12')
 														->setClass("text-right discount")
-														->setValue($row->discountrate)
+														->setValue(number_format($row->discountrate, 2))
 														->setValidation('decimal')
 														->draw(false);
 												}

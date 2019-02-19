@@ -4,6 +4,10 @@ class controller extends wc_controller {
 	public function __construct() {
 		parent::__construct();
 		$this->dashboard = new dashboard_model();
+		$this->report_model			= $this->checkoutModel('reports_module/report_model');
+		$this->report_model->generateBalanceTable();
+		$this->report_model->generateSalesReportsTable();
+		$this->report_model->generatePurchaseReportsTable();
 	}
 
 	public function index() {

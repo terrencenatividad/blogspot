@@ -75,7 +75,7 @@
 						)
 					)
 					->addHeader('Position',array('class'=>'col-md-3'),'sort','position')
-					->addHeader('Description', array('class'=>'col-md-4'),'sort','c.description')
+					->addHeader('Description', array('class'=>'col-md-4'),'sort','description')
 					->addHeader('Status', array('class'=>'col-md-3'),'sort','stat')					
 					->draw();
 					?>

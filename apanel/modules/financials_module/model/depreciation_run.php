@@ -169,6 +169,24 @@ class depreciation_run extends wc_model {
 						->leftJoin('chartaccount asd ON asd.id = a.gl_accdep')
 						->leftJoin('chartaccount dsa ON dsa.id = a.gl_depexpense')
 						->setWhere("a.stat = 'active' AND EXTRACT(YEAR_MONTH FROM depreciation_month) <= EXTRACT(YEAR_MONTH FROM '$date')")
+						->setOrderBy('asset_class')
+						->runSelect()
+						->getResult();
+						
+		return $result;
+	}
+
+	public function getAsset1234() {
+		$fields = array('SUM(((a.balance_value-a.salvage_value)/a.useful_life)) depreciation_amount','a.gl_asset', 'a.gl_accdep', 'a.gl_depexpense'
+		
+	);
+		$date = $this->date->dateDbFormat();
+	
+		$result = $this->db->setTable("asset_master a")
+						->setFields($fields)
+						->setWhere("a.stat = 'active' AND EXTRACT(YEAR_MONTH FROM depreciation_month) <= EXTRACT(YEAR_MONTH FROM '$date')")
+						->setGroupBy('asset_class')
+						->setOrderBy('asset_class')
 						->runSelect()
 						->getResult();
 						
@@ -182,32 +200,58 @@ class depreciation_run extends wc_model {
 	}
 	
 	public function saveAssetMasterSchedule($assetnumber, $itemcode, $final,$depreciation,$depreciation_amount, $gl_asset, $gl_accdep, $gl_depexp,$year,$month,$useful_life) {	
-		$date = $this->date->dateDbFormat();
 		$ul   = $useful_life - 1;
 		$result =  $this->db->setTable('depreciation_schedule')
 							->setValues(array('asset_id' => $assetnumber,'itemcode' => $itemcode,'depreciation_date' => $final, 'depreciation_amount' => $depreciation_amount, 'accumulated_dep' => $depreciation, 'gl_asset' => $gl_asset, 'gl_accdep' => $gl_accdep, 'gl_depexpense' => $gl_depexp))
 							->runInsert();
-		if($result){
+		return $result;
+	}
+
+	public function saveJV($year,$month,$depreciation_amount,$gl_asset,$gl_accdep,$gl_depexp){
+		$date = $this->date->dateDbFormat();
+		$date = date("Y-m-t", strtotime($date));
+		$refdate = $this->date->dateFormat($date);
+
+		$a = $this->db->setTable('journalvoucher')
+						->setFields('voucherno')
+						->setWhere("source = 'depreciation' AND transactiondate = '$date' AND sourceno = '$gl_accdep'")
+						->runSelect()
+						->getResult();
+						
+		if($a){
+			foreach($a as $row){
+				$this->db->setTable('journalvoucher')
+				->setValues(array('voucherno' => $row->voucherno, 'transactiondate' => $date, 'referenceno' => 'Depreciation for '.$refdate, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation','sourceno' => $gl_accdep))
+				->setWhere("voucherno = '$row->voucherno'")
+				->runUpdate();
+
+				$this->db->setTable('journaldetails')
+				->setValues(array('voucherno' => $row->voucherno, 'detailparticulars' => '', 'linenum' => '1', 'transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_depexp, 'debit' => $depreciation_amount, 'converteddebit' => $depreciation_amount, 'credit' => '0', 'convertedcredit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
+				->setWhere("voucherno = '$row->voucherno'")
+				->runUpdate();
+
+				$this->db->setTable('journaldetails')
+				->setValues(array('voucherno' => $row->voucherno, 'detailparticulars' => '', 'linenum' => '2','transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_accdep, 'credit' => $depreciation_amount, 'convertedcredit' => $depreciation_amount , 'debit' => '0', 'converteddebit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
+				->setWhere("voucherno = '$row->voucherno'")
+				->runUpdate();			
+			}
+			
+		}else{
 			$seq					= new seqcontrol();
 			$jvvoucherno			= $seq->getValue('JV');
 			$this->db->setTable('journalvoucher')
-							->setValues(array('voucherno' => $jvvoucherno, 'transactiondate' => $date, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
-							->runInsert();
-
+					->setValues(array('voucherno' => $jvvoucherno, 'transactiondate' => $date, 'referenceno' => 'Depreciation for '.$refdate, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation','sourceno' => $gl_accdep))
+					->runInsert();
+	
 			$this->db->setTable('journaldetails')
-							->setValues(array('voucherno' => $jvvoucherno, 'detailparticulars' => '', 'linenum' => '1', 'transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_depexp, 'debit' => $depreciation_amount, 'converteddebit' => $depreciation_amount, 'credit' => '0', 'convertedcredit' => '0','currencycode' => 'PHP', 'exchangerate' => '1'))
-							->runInsert();
-
+					->setValues(array('voucherno' => $jvvoucherno, 'detailparticulars' => '', 'linenum' => '1', 'transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_depexp, 'debit' => $depreciation_amount, 'converteddebit' => $depreciation_amount, 'credit' => '0', 'convertedcredit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
+					->runInsert();
+	
 			$this->db->setTable('journaldetails')
-							->setValues(array('voucherno' => $jvvoucherno, 'detailparticulars' => '', 'linenum' => '2','transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_accdep, 'credit' => $depreciation_amount, 'convertedcredit' => $depreciation_amount , 'debit' => '0', 'converteddebit' => '0','currencycode' => 'PHP', 'exchangerate' => '1'))
-							->runInsert();
-
-			// $this->db->setTable('asset_master')
-			// 				->setValues(array('useful_life' => $ul))
-			// 				->setWhere("asset_number = '$assetnumber'")
-			// 				->runUpdate();
+					->setValues(array('voucherno' => $jvvoucherno, 'detailparticulars' => '', 'linenum' => '2','transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_accdep, 'credit' => $depreciation_amount, 'convertedcredit' => $depreciation_amount , 'debit' => '0', 'converteddebit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
+					->runInsert();
 		}
-		return $result;
+		
 	}
 
 	public function getAssetList($fields, $search, $sort) {

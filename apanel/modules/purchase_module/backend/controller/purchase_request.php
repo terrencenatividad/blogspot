@@ -379,7 +379,8 @@ class controller extends wc_controller
 				->setSummaryWidth(array('120', '50', '30'));
 
 		$detail_height = 37;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {

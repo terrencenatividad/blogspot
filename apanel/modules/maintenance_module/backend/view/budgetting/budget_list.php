@@ -653,7 +653,8 @@
 								});
 
 								$('#btnApproveSupplement').on('click', function(e) {
-									$.post('<?=MODULE_URL?>ajax/ajax_update_approve_status_supplement', { budget_id : budget_id, approver : approver }, function(data) {
+									var prepared_by = $('#prepared_by').val();
+									$.post('<?=MODULE_URL?>ajax/ajax_update_approve_status_supplement', { budget_id : budget_id, approver : approver, prepared_by : prepared_by }, function(data) {
 										if(data) {
 											$('#modalApproveSupplement').modal('hide');
 											$('#modalSupplement').modal('show');
@@ -677,7 +678,8 @@
 								});
 
 								$('#btnRejectSupplement').on('click', function(e) { 
-									$.post('<?=MODULE_URL?>ajax/ajax_update_reject_status_supplement', { budget_id : budget_id, approver : approver }, function(data) {
+									var prepared_by = $('#prepared_by').val();
+									$.post('<?=MODULE_URL?>ajax/ajax_update_reject_status_supplement', { budget_id : budget_id, approver : approver, prepared_by : prepared_by }, function(data) {
 										if(data) {
 											$('#modalRejectSupplement').modal('hide');
 											$('#modalSupplement').modal('show');

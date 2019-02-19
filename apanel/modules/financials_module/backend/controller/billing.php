@@ -122,7 +122,8 @@ class controller extends wc_controller {
 			'BILL #'	=> $voucherno,
 			'TERMS'		=> $vendordetails->terms
 		);
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$print = new billing_print_model();
 		$print->setDocumentType('Billing')
 				->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
@@ -333,7 +334,8 @@ class controller extends wc_controller {
 	private function ajax_load_jo_list() {
 		$customer	= $this->input->post('customer');
 		$search		= $this->input->post('search');
-		$pagination	= $this->billing_model->getJOList($customer, $search);
+		$curr_jo	= $this->input->post('jo_no');
+		$pagination	= $this->billing_model->getJOList($customer, $search, $curr_jo);
 		$table		= '';
 		$counter = 0;
 		foreach ($pagination->result as $key => $row) {

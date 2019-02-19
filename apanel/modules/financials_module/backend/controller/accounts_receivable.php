@@ -488,7 +488,7 @@ class controller extends wc_controller
 		$apamount[0]->amount;
 
 		$docinfo_table  = "accountsreceivable as ar";
-		$docinfo_fields = array('ar.transactiondate AS documentdate','ar.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ar.amount AS apamount', "'' AS referenceno", "particulars AS remarks", "p.partnername AS customer");
+		$docinfo_fields = array('ar.transactiondate AS documentdate','ar.voucherno AS voucherno',"CONCAT( first_name, ' ', last_name )","IF('{$sub_select[0]->amount}' != \"\", '{$sub_select[0]->amount}', '{$apamount[0]->amount}') AS amount",'ar.amount AS apamount', " ar.referenceno AS referenceno", "particulars AS remarks", "p.partnername AS customer", "ar.stat as status");
 		$docinfo_join   = "partners as p ON p.partnercode = ar.customer AND p.companycode = ar.companycode";
 		$docinfo_cond 	= "ar.voucherno = '$voucherno'";
 
@@ -534,10 +534,11 @@ class controller extends wc_controller
 		$print = new print_voucher_model('P', 'mm', 'Letter');
 		$print->setDocumentType('Accounts Receivable')
 		->setDocumentInfo($documentinfo[0])
-		->setVendor($customer)
+		->setCustomer($customer)
 		->setPayments($paymentArray)
 		->setDocumentDetails($documentdetails)
 		->setCheque($chequeArray)
+		->setVoucherStatus($documentinfo[0]->status)
 		->drawPDF('ar_voucher_' . $voucherno);
 	}
 
@@ -687,6 +688,7 @@ class controller extends wc_controller
 				$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($show_edit && $checker != "import" && $restrict_ar)
+									->addPrint()
 									// ->addOtherTask(
 									// 	'Receive Payment',
 									// 	'credit-card',

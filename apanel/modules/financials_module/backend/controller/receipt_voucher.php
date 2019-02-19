@@ -251,7 +251,7 @@ class controller extends wc_controller
 				$ar_voucher 				= $this->receipt_voucher->getValue("rv_application", "arvoucherno", "voucherno = '$generatedvoucher'");
 				// $ar_voucher 				= isset($ar_voucher[0]->arvoucherno) 	?	$ar_voucher[0]->arvoucherno 	:	"";
 
-				foreach($ar_voucher as $key => $voucher){
+				foreach($ar_voucher as $key => $row){
 					$arvoucher 	=	isset($row->arvoucherno) ? $row->arvoucherno : "";
 
 					$invoice_amounts			= $this->receipt_voucher->getValue("accountsreceivable", array("amount as convertedamount"), " voucherno = '$arvoucher' AND stat IN('open','posted') ");
@@ -266,7 +266,7 @@ class controller extends wc_controller
 													), 
 													"  arvoucherno = '$arvoucher' AND stat IN('open','posted') "
 												);
-					
+
 					$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 					$applied_credits 			= (!empty($applied_amounts[0]->credits)) ? $applied_amounts[0]->credits : 0;
 					$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
@@ -277,8 +277,8 @@ class controller extends wc_controller
 					$balance_info['amountreceived']	= $applied_sum;
 					$balance_info['excessamount'] 	= ($applied_over >= 0) 	?	$applied_over 	:	0;
 					$balance_amt 					= $invoice_amount - $applied_sum;
-					$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;
-					
+					$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;	
+				
 					$updateTempRecord = $this->receipt_voucher->updateData("accountsreceivable", $balance_info, "voucherno = '$arvoucher'");
 						
 				}

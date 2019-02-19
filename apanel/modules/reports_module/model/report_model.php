@@ -309,20 +309,17 @@ class report_model extends wc_model {
 
 		$po  = $this->db->setTable('purchaseorder po')
 						->leftJoin('purchaseorder_details pod ON po.companycode = pod.companycode AND po.voucherno = pod.voucherno')
-						->leftJoin('items i ON i.itemcode = pod.itemcode')
-						->leftJoin('itemtype it ON it.id = i.typeid')
-						->leftJoin('asset_master am ON am.itemcode = i.itemcode')
+						->leftJoin('purchasereceipt pr ON pr.source_no = po.voucherno')
+						->leftJoin('asset_master am ON am.asset_number = pr.assetid')
 						->setFields($pofields)
-						->setWhere("po.stat IN('open','posted','cancelled') AND it.label = 'Fixed Asset' AND EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode)")
+						->setWhere("po.stat IN('open','posted','cancelled') AND assetid != ''")
 						->buildSelect();
 
 		$pr  = $this->db->setTable('purchasereceipt pr')
 						->leftJoin('purchasereceipt_details prd ON pr.companycode = prd.companycode AND pr.voucherno = prd.voucherno')
-						->leftJoin('items i ON i.itemcode = prd.itemcode')
-						->leftJoin('itemtype it ON it.id = i.typeid')
-						->leftJoin('asset_master am ON am.itemcode = i.itemcode')
+						->leftJoin('asset_master am ON am.asset_number = pr.assetid')
 						->setFields($prfields)
-						->setWhere("pr.stat IN('received','cancelled') AND it.label = 'Fixed Asset' AND EXISTS (SELECT *  FROM asset_master am WHERE am.itemcode = i.itemcode)")
+						->setWhere("pr.stat IN('received','cancelled') AND assetid != ''")
 						->buildSelect();
 
 		$ap  = $this->db->setTable('accountspayable ap')

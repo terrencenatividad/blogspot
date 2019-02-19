@@ -7,18 +7,24 @@
             $this->log = new log();
         }
 
-        public function getJobListing($data, $sort, $search, $filter)
+        public function getJobListing($data, $sort, $search, $filter, $daterange)
         {
-            $condition = '';
+            $condition = "stat != 'temporary'" ;
+            $daterangefilter    = isset($daterange) ? htmlentities($daterange) : ""; 
+            $datefilterArr      = explode(' - ',$daterangefilter);
+            $datefilterFrom     = (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+            $datefilterTo       = (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
             if ($search) {
-                $condition .= $this->generateSearch($search, array('job_no', 'notes', 'stat'));
+                $condition .= "AND " . $this->generateSearch($search, array('job_no', 'notes', 'stat'));
             }
+            $condition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
             //var_dump($search);
             $result = $this->db->setTable('job')
             ->setFields($data)
             ->setWhere($condition)
             ->setOrderBy($sort)
             ->runPagination();
+            
             return $result;
         }
 
@@ -108,12 +114,15 @@
         }
         
         public function getIPOPagination() {
-            $result = $this->db->setTable("import_purchaseorder")
-                            ->setFields("voucherno, transactiondate, convertedamount amount")
-                            ->setWhere("stat IN ('open', 'partial', 'posted')")
+            $pagination = $this->db->setTable("import_purchaseorder ipo")
+                            ->setFields("ipo.voucherno, ipo.transactiondate")
+                            ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
+                            ->leftJoin("job_details jd ON jd.linenum=ipod.linenum")
+                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - jd.qty > 0")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
-            return $result;
+            
+            return $pagination;
         }
 
         public function getItemPagination($ipo_number){
@@ -125,7 +134,7 @@
             return $result;
         }
 
-        public function getTaggedItemQty($ipo, $linenum, $job="", $task) {
+        public function getTaggedItemQty($ipo, $linenum, $job="", $task="") {
             if ($task == 'save') {
                 $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND j.stat='on-going'";
             }

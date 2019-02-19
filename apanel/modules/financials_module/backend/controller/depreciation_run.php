@@ -156,16 +156,19 @@ class controller extends wc_controller {
 
 	private function ajax_load_depreciation() {
 		$pagination	= $this->depreciation_run->getAsset123();
+		$date = $this->date->dateDbFormat();
+		$year = $this->year;
+		$month = $this->month;
+		
+		$paginations	= $this->depreciation_run->getAsset1234();
+		foreach($paginations as $row2){
+		$this->depreciation_run->saveJV($year,$month,$row2->depreciation_amount,$row2->gl_asset,$row2->gl_accdep,$row2->gl_depexpense);
+		}
 		
 		$table		= '';
 		if (empty($pagination)) {
 			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		
-		$date = $this->date->dateDbFormat();
-		$year = $this->year;
-		$month = $this->month;
-
 		$this->depreciation_run->deleteSched($month,$year);
 
 		foreach ($pagination as $row) {

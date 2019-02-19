@@ -517,29 +517,33 @@ class controller extends wc_controller
 	{
 		$companycode = $this->companycode;
 		
+		/** OUTLINE CHECKER **/
+			// $outline 		=	$this->po->getValue("wc_reference", array('value')," code = 'ipo_outline'");
+			// $outline_ 		=	$outline[0]->value;
+
 		/** HEADER INFO **/
 
-		$docinfo_table  = "import_purchaseorder as po";
-		$docinfo_fields = array('po.transactiondate AS documentdate', 'po.deliverydate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","po.referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount','po.print print');
-		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
-		$docinfo_cond 	= "po.voucherno = '$voucherno'";
+			$docinfo_table  = "import_purchaseorder as po";
+			$docinfo_fields = array('po.transactiondate AS documentdate', 'po.deliverydate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","po.referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.exchangecurrency','po.freight','po.converted_freight','po.insurance','po.converted_insurance','po.packaging','po.converted_packaging','po.convertedamount','po.print print,po.stat stat');
+			$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
+			$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
-		$documentinfo  	= $this->po->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
-		$documentinfo	= $documentinfo[0]; 
-		$vendor 	    = $documentinfo->vendor;
+			$documentinfo  	= $this->po->retrieveData($docinfo_table, $docinfo_fields, $docinfo_cond, $docinfo_join);
+			$documentinfo	= $documentinfo[0]; 
+			$vendor 	    = $documentinfo->vendor;
 
 		/** HEADER INFO - END**/
 
 		/** DETAILS INFO **/
 
-		$docdet_table   = "import_purchaseorder_details as dtl";
-		$docdet_fields  = array("dtl.itemcode, detailparticular as description", "onhandqty as onhandqty","unitprice as price", "dtl.receiptqty as quantity","dtl.receiptuom as uom","discount as discount","amount as amount", "convertedamount as convertedamount");
-		$docdet_cond    = "dtl.voucherno = '$voucherno'";
-		$docdet_join 	= "items i ON i.itemcode = dtl.itemcode AND i.companycode = dtl.companycode";
-		$docdet_groupby = "";
-		$docdet_orderby = "dtl.linenum";
-		
-		$documentcontent = $this->po->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_orderby, $docdet_groupby);
+			$docdet_table   = "import_purchaseorder_details as dtl";
+			$docdet_fields  = array("dtl.itemcode, detailparticular as description", "onhandqty as onhandqty","unitprice as price", "dtl.receiptqty as quantity","dtl.receiptuom as uom","discount as discount","amount as amount", "convertedamount as convertedamount");
+			$docdet_cond    = "dtl.voucherno = '$voucherno'";
+			$docdet_join 	= "items i ON i.itemcode = dtl.itemcode AND i.companycode = dtl.companycode";
+			$docdet_groupby = "";
+			$docdet_orderby = "dtl.linenum";
+			
+			$documentcontent = $this->po->retrieveData($docdet_table, $docdet_fields, $docdet_cond, $docdet_join, $docdet_orderby, $docdet_groupby);
 
 		/** DETAILS INFO --END**/
 		
@@ -560,35 +564,32 @@ class controller extends wc_controller
 			'Currency' => $documentinfo->exchangecurrency,
 			'Ref #' => $documentinfo->referenceno
 		);
-
 		$print = new import_purchase_print_model();
 		$print->setDocumentType('Import Purchase Order')
-		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
-		->setVendorDetails($vendordetails)
-		->setDocumentDetails($documentdetails)
-		->setDocumentInfo($documentinfo)
-		->addReceived();
+				->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
+				->setVendorDetails($vendordetails)
+				->setStatDetail($documentinfo->stat)
+				->setDocumentDetails($documentdetails)
+				->addReceived();
 
 		$print->setHeaderWidth(array(28, 40, 18, 26, 17, 17, 23, 31))
-		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-		->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
-		->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
-		->setSummaryAlign(array('J','R','R', 'R'))	
-		->setSummaryWidth(array('120', '19', '30', '31'));
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Onhand Qty', 'Price',  'Qty', 'UOM', 'Discount', 'Foreign Currency'))
+				->setRowAlign(array('L', 'L', 'R', 'R', 'R', 'R', 'R', 'R'))
+				->setSummaryWidth(array('120', '19', '30', '31'))
+				->setSummaryAlign(array('J','R','R', 'R'));
 
-		/**
-		 * Custom : Tag as printed
-		 * Also store user and timestamp
-		 */
+		
 		$print_data['print'] = 1;
 		$print_data['printby'] = USERNAME;
 		$print_data['printdate'] = date("Y-m-d H:i:s");
 		$this->po->updateData($print_data, "import_purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
-		$detail_height = 37;
+		$detail_height = 22;
 
 		$total_amount = 0;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$amount = $documentinfo->amount;
 		$wtaxamount = $documentinfo->wtax;
 		$vat = $documentinfo->vat;
@@ -603,6 +604,7 @@ class controller extends wc_controller
 		$converted_packaging = $documentinfo->converted_packaging;
 		$convertedamount = $documentinfo->convertedamount;
 		$exchangecurrency = $documentinfo->exchangecurrency;
+		$line_count = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
@@ -618,24 +620,18 @@ class controller extends wc_controller
 			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
 			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
-					array($notes, '', 'Freight', number_format($freight, 2)),
-					array('', '', 'Insurance', number_format($insurance, 2)),
-					array('', '', 'Packaging', number_format($packaging, 2)),
-					array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
-					array('','','','')
-				));
-				$total_amount = 0;
+				
 			}
 		}
-		$print->drawSummary(array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
-			array($notes, '', 'Freight', number_format($freight, 2)),
-			array('', '', 'Insurance', number_format($insurance, 2)),
-			array('', '', 'Packaging', number_format($packaging, 2)),
-			array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
-			array('','','','')
-		));
-
+		$summary = array(array('Notes:', '', 'Total Purchase', number_format($amount, 2)),
+				array($notes, '', 'Freight', number_format($freight, 2)),
+				array('', '', 'Insurance', number_format($insurance, 2)),
+				array('', '', 'Packaging', number_format($packaging, 2)),
+				array('', '','Total Amount Due', number_format(($amount+$freight+$insurance+$packaging), 2)),
+				array('','','','')
+				);
+				$print->drawSummary($summary);
+	
 		$print->drawPDF('Import Purchase Order - ' . $voucherno);
 	}
 

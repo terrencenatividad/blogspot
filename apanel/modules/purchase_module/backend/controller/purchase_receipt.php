@@ -384,7 +384,8 @@ class controller extends wc_controller {
 		}
 
 		$detail_height = 37;
-		$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->remarks);
+		$notes = htmlentities($documentinfo->remarks);
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
 		$discount		= 0;
@@ -569,6 +570,7 @@ class controller extends wc_controller {
 		// 		var_dump($getid->expense_account);
 		// 	}
 		// }
+		// var_dump($data);
 		unset($data2['budgetcode']);
 		$data['transactiondate']	= $this->date->dateDbFormat($data['transactiondate']);
 		$data['period']				= $this->date->getMonthNumber($data['transactiondate']);

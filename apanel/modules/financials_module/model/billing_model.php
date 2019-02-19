@@ -264,7 +264,7 @@ class billing_model extends wc_model {
 		return $result;
 	}
 
-	public function getJOList($customer, $search) {
+	public function getJOList($customer, $search, $curr_jo) {
 		$condition = '';
 		if ($search) {
 			$condition .= ' AND ' . $this->generateSearch($search, array('job_order_no', 'transactiondate', 'service_quotation'));
@@ -282,7 +282,7 @@ class billing_model extends wc_model {
 			$result		= $this->db->setTable('job_order jo')
 								->setFields('jo.job_order_no, jo.transactiondate, jo.service_quotation, sq.discounttype')
 								->leftJoin('servicequotation sq ON sq.voucherno = jo.service_quotation AND sq.companycode = jo.companycode')
-								->setWhere("jo.customer = '$customer' AND jo.stat = 'completed' AND job_order_no NOT IN ($jo)". $condition)
+								->setWhere("jo.customer = '$customer' AND jo.stat = 'completed' AND (job_order_no NOT IN ($jo) || job_order_no = '$curr_jo')". $condition)
 								->setOrderBy('job_order_no')
 								->runPagination();
 		}
