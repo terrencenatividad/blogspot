@@ -408,6 +408,7 @@ class controller extends wc_controller
 		private function ajax_update_approve_status_supplement() {
 			$id = $this->input->post('budget_id');
 			$approver = $this->input->post('approver');
+			$prepared_by = $this->input->post('prepared_by');
 			$get_approver = $this->budgetting->getApproverSupplement($id);
 			$session			= new session();
 			$get = $session->get('login');
@@ -415,7 +416,7 @@ class controller extends wc_controller
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'approved';
 			$result = false;
-			if($approver == $get['username']) {
+			if($approver == $prepared_by) {
 				$result = $this->budgetting->updateSupplementApprove($id, $fields);
 			}
 			return $result;
