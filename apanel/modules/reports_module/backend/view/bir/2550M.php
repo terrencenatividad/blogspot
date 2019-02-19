@@ -520,11 +520,6 @@
 										->setName('carriedover20A')
 										->setClass('text-right')
 										->setValue('0.00')
-										->setAttribute(
-											array(
-												'readOnly' => 'readOnly'
-											)
-										)
 										->draw(true);
 										?>
 									</td>
@@ -541,11 +536,6 @@
 										->setName('deferred20B')
 										->setClass('text-right')
 										->setValue('0.00')
-										->setAttribute(
-											array(
-												'readOnly' => 'readOnly'
-											)
-										)
 										->draw(true);
 										?>
 									</td>
@@ -562,11 +552,6 @@
 										->setName('transitionalinputtax20C')
 										->setClass('text-right')
 										->setValue('0.00')
-										->setAttribute(
-											array(
-												'readOnly' => 'readOnly'
-											)
-										)
 										->draw(true);
 										?>
 									</td>
@@ -583,11 +568,6 @@
 										->setName('presumptiveinputtax26D')
 										->setClass('text-right')
 										->setValue('0.00')
-										->setAttribute(
-											array(
-												'readOnly' => 'readOnly'
-											)
-										)
 										->draw(true);
 										?>
 									</td>
@@ -604,11 +584,6 @@
 										->setName('others20E')
 										->setClass('text-right')
 										->setValue('0.00')
-										->setAttribute(
-											array(
-												'readOnly' => 'readOnly'
-											)
-										)
 										->draw(true);
 										?>
 									</td>
@@ -625,11 +600,6 @@
 										->setName('totalsum20F')
 										->setClass('text-right')
 										->setValue('0.00')
-										->setAttribute(
-											array(
-												'readOnly' => 'readOnly'
-											)
-										)
 										->draw(true);
 										?>
 									</td>
@@ -1430,9 +1400,9 @@
 									<?php
 									echo $ui->formField('text')
 									->setSplit('', 'col-md-10')
-									->setId('agentname')
-									->setName('agentname')
-									->setValue($agentname)
+									->setId('signatory_name')
+									->setName('signatory_name')
+									->setValue($signatory_name)
 									->setMaxLength(50)
 									->draw(true);
 									?>
@@ -1485,7 +1455,7 @@
 									->setId('tin_signatory1')
 									->setName('tin_signatory1')
 									->setMaxLength(15)
-									->setValue($tin)
+									->setValue($signatory_tin)
 									->draw(true);
 									?>
 								</div>
@@ -1630,6 +1600,13 @@
 		});
 	}
 
+	function readypurchase() {
+		$(document).ajaxComplete(function() {
+			var totalpurchases21P = Math.round($('#cgnotexceed21A').val()) + Math.round($('#cgexceed21C').val()) + Math.round($('#dompurchase21E').val()) + Math.round($('#importation21G').val()) + Math.round($('#dompurchaseserv21I').val()) + Math.round($('#servicerenderedK').val()) + Math.round($('#purchasenotqualified21M').val()) + Math.round($('#others21N').val());
+			$('#totalpurchases21P').val(addComma(totalpurchases21P));
+		});
+	}
+
 	$('#yearfilter').on('change', function() {
 		var year = $(this).val();
 		var period = $('#monthfilter').val();
@@ -1764,6 +1741,7 @@
 			}
 		});
 		ready();
+		readypurchase();
 	});
 
 $('#monthfilter').on('change', function() {
@@ -1782,7 +1760,7 @@ $('#monthfilter').on('change', function() {
 			$('#vat_privateB').val('0.00');
 		} else {
 			$('#vat_privateA').val(sum);
-			$('#vat_privateB').val(addComma(taxamount));
+			$('#vat_privateB').val(taxamount);
 		}
 	});
 
@@ -1900,6 +1878,7 @@ $('#monthfilter').on('change', function() {
 		}
 	});
 	ready();
+		readypurchase();
 });
 
 function allowableInputTax20F() {
