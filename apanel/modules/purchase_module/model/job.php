@@ -114,12 +114,15 @@
         }
         
         public function getIPOPagination() {
-            $result = $this->db->setTable("import_purchaseorder")
-                            ->setFields("voucherno, transactiondate, convertedamount amount")
-                            ->setWhere("stat IN ('open', 'partial', 'posted')")
+            $pagination = $this->db->setTable("import_purchaseorder ipo")
+                            ->setFields("ipo.voucherno, ipo.transactiondate")
+                            ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
+                            ->leftJoin("job_details jd ON jd.linenum=ipod.linenum")
+                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - jd.qty > 0")
                             ->setOrderBy("voucherno ASC")
                             ->runPagination();
-            return $result;
+            
+            return $pagination;
         }
 
         public function getItemPagination($ipo_number){
@@ -131,7 +134,7 @@
             return $result;
         }
 
-        public function getTaggedItemQty($ipo, $linenum, $job="", $task) {
+        public function getTaggedItemQty($ipo, $linenum, $job="", $task="") {
             if ($task == 'save') {
                 $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND j.stat='on-going'";
             }

@@ -90,6 +90,7 @@
 											->setValue($job_orderno)
 											->draw($show_input);
 									?>
+									<input type="hidden" value="<?php echo $job_orderno ?>" id="jo_no" name="jo_no">
 								</div>
 								<div class="col-md-6">
 									<?php
@@ -897,6 +898,8 @@
 			if (ajax_call != '') {
 					ajax_call.abort();
 			}
+			var jo_no = $('#jo_no').val();
+			ajax.jo_no = jo_no;
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_load_jo_list', ajax, function(data) {
 				$('#jo_tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);

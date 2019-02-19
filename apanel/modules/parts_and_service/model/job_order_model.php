@@ -33,7 +33,7 @@ class job_order_model extends wc_model
 		$data	= (array) $this->getJRById($header_fields,$voucherno);
 
 		$average_query = $this->db->setTable('price_average p1')
-									->setFields('p1.*')
+									->setFields('p1.linenum,p1.itemcode,p1.companycode,ROUND(p1.price_average,2) price_average')
 									->leftJoin('price_average p2 ON p1.itemcode = p2.itemcode AND p1.linenum < p2.linenum')
 									->setWhere('p2.linenum IS NULL')
 									->buildSelect();
