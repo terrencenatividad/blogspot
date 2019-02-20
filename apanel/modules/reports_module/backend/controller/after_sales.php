@@ -73,31 +73,31 @@ class controller extends wc_controller {
 					foreach ($pagination->result as $key => $row) 
 					{		
 						$stat = '';
-					   if($row->stat == 'posted' || $row->stat == 'Paid'){
+					   if($row->si_stat == 'posted' || $row->si_stat == 'Paid'){
 						   $stat  = 'COMPLETED';
-					   }elseif($row->stat == 'completed'){
+					   }elseif($row->jo_stat == 'completed'){
 						$stat  = 'FOR INVOICING';						
-				       }elseif($row->stat == 'released'){
+				       }elseif($row->jr_stat == 'released'){
 						$stat  = 'PARTS ISSUED';						
-					   }elseif($row->stat == 'Approved'){
+					   }elseif($row->sq_stat == 'Approved'){
 						$stat  = 'FOR JO';						
-				   	   }elseif($row->stat == 'Partial'){
+				   	   }elseif($row->sq_stat == 'Partial'){
 						$stat  = 'PARTIAL SERVICE QUOTATION';						
-				       }
-						  
-
-						$tablerow	.= '<tr">';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.date('M d, Y', strtotime($row->transactiondate)).'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->service_quotation.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->job_order_no.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si_goods.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si_service.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->partnername.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->uom.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->serialno.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$stat.'</td>';
-						$tablerow	.= '</tr>';
-						
+					   }
+					   $serials = explode(",", $row->serialnumbers);
+					   foreach ($serials as $val) {
+							$tablerow	.= '<tr">';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.date('M d, Y', strtotime($row->transactiondate)).'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->service_quotation.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->job_order_no.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si_goods.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si_service.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->partnername.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->uom.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$val.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$stat.'</td>';
+							$tablerow	.= '</tr>';
+					   }
 					}	
 				}
 		
@@ -133,18 +133,19 @@ class controller extends wc_controller {
 			
 			foreach ($filtered as $key => $row){
 				$stat = '';
-				if($row->stat == 'posted' || $row->stat == 'Paid'){
+				if($row->si_stat == 'posted' || $row->si_stat == 'Paid'){
 					$stat  = 'COMPLETED';
-				}elseif($row->stat == 'completed'){
+				}elseif($row->jo_stat == 'completed'){
 				$stat  = 'FOR INVOICING';						
-				}elseif($row->stat == 'released'){
+				}elseif($row->jr_stat == 'released'){
 				$stat  = 'PARTS ISSUED';						
-				}elseif($row->stat == 'Approved'){
+				}elseif($row->sq_stat == 'Approved'){
 				$stat  = 'FOR JO';						
-				}elseif($row->stat == 'Partial'){
+				}elseif($row->sq_stat == 'Partial'){
 				$stat  = 'PARTIAL SERVICE QUOTATION';						
 				}
-				
+				$serials = explode(",", $row->serialnumbers);
+				foreach ($serials as $val) {
 				$csv .= '"'	.	date('M d, Y', strtotime($row->transactiondate))		.	'",';
 				$csv .= '"'	. 	$row->service_quotation 								. 	'",';
 				$csv .= '"'	. 	$row->job_order_no		 								. 	'",';
@@ -152,9 +153,10 @@ class controller extends wc_controller {
 				$csv .= '"' .	$row->si_service 	 									. 	'",';
 				$csv .= '"'	. 	$row->partnername 										. 	'",';
 				$csv .= '"'	. 	$row->uom 												. 	'",';
-				$csv .= '"'	. 	$row->serialno 											. 	'",';
+				$csv .= '"'	. 	$val 											. 	'",';
 				$csv .= '"' . 	$stat 													. 	'"';
 				$csv .= "\n";
+				}
 
 			}
 
