@@ -1220,14 +1220,14 @@
 										<p class="form-control-static"><label>Total Amount Due</label></p>
 									</td>
 									<td colspan="1" class="text-right">
-										<p class="form-control-static"><label><?php 
-										$totallings = $received_total_vatable + $received_total_tax - $received_withholding;
-										echo number_format($totallings+$freight+$insurance+$packaging, 2) ?></label></p>
+										<p class="form-control-static"><?php 
+										// $totallings = $received_total_vatable + $received_total_tax - $received_withholding;
+										echo number_format($received_total_vatable+$freight+$insurance+$packaging, 2) ?></p>
 									</td>
 									<td colspan="1" class="text-right">
-										<p class="form-control-static"><label><?php 
-										$totallings = $received_total_vatable + $received_total_tax - $received_withholding;
-										echo number_format(($totallings+$freight+$insurance+$packaging)*$exchange_rate, 2) ?></label></p>
+										<p class="form-control-static"><?php 
+										// $totallings = $received_total_vatable + $received_total_tax - $received_withholding;
+										echo number_format(($received_total_vatable+$freight+$insurance+$packaging)*$exchange_rate, 2) ?></p>
 									</td>
 								</tr>
 							</tfoot>
