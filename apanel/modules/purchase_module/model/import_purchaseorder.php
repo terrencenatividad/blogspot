@@ -28,7 +28,7 @@ class import_purchaseorder extends wc_model
 	public function getBudgetCodes()
 	{
 		$result = $this->db->setTable('budget')
-		->setFields("budget_code ind, budget_code val")
+		->setFields("budget_code ind, CONCAT(budget_code, ' - ', budgetdesc) as val")
 		->setWhere("status = 'approved'")
 		->runSelect()
 		->getResult();
