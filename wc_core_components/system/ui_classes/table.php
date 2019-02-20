@@ -40,7 +40,7 @@ class table {
 	private function getSort($thead) {
 		$sort = '';
 		$data_sort = ($thead->type == 'sort') ? ' data-sort="' . $thead->sort . '" data-field="' . $thead->field . '"' : '';
-		$data_span = ($thead->type == 'sort') ? '&nbsp; <span></span>' : '';
+		$data_span = ($thead->type == 'sort') ? '<span></span>' : '';
 		$sort .= '<a' . $data_sort . '>' . $thead->value . $data_span . '</a>';
 		return $sort;
 	}
