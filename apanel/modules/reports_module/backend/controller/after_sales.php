@@ -71,19 +71,21 @@ class controller extends wc_controller {
 				if(!empty($pagination->result))
 				{
 					foreach ($pagination->result as $key => $row) 
-					{		
+					{	
+							
 						$stat = '';
-					   if($row->si_stat == 'posted' || $row->si_stat == 'Paid'){
-						   $stat  = 'COMPLETED';
-					   }elseif($row->jo_stat == 'completed'){
-						$stat  = 'FOR INVOICING';						
-				       }elseif($row->jr_stat == 'released'){
-						$stat  = 'PARTS ISSUED';						
-					   }elseif($row->sq_stat == 'Approved'){
-						$stat  = 'FOR JO';						
-				   	   }elseif($row->sq_stat == 'Partial'){
-						$stat  = 'PARTIAL SERVICE QUOTATION';						
-					   }
+						if($row->jo_stat == 'partial' && $row->jr_stat == 'released'){
+							$stat  = 'PARTS ISSUED';						
+						}elseif($row->jo_stat == 'completed' && $row->jr_stat == 'released' && $row->si_stat == NULL && $row->balance == NULL){
+							$stat  = 'FOR INVOICING';						
+				       	}elseif($row->jo_stat == 'completed' && $row->jr_stat == 'released' && ($row->si_stat == 'posted' || $row->si_stat == 'Paid' || ($row->balance == 0) || $row->balance != NULL)){
+							$stat  = 'COMPLETED';
+						}
+					// 	elseif($row->sq_stat == 'Approved'){
+					// 	$stat  = 'FOR JO';						
+				   	//    }elseif($row->sq_stat == 'Partial'){
+					// 	$stat  = 'PARTIAL SERVICE QUOTATION';						
+					//    }
 					   $serials = explode(",", $row->serialnumbers);
 					   foreach ($serials as $val) {
 							$tablerow	.= '<tr">';
@@ -94,7 +96,12 @@ class controller extends wc_controller {
 							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si_service.'</td>';
 							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->partnername.'</td>';
 							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->uom.'</td>';
-							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$val.'</td>';
+							if($val != ''){
+							$serial		= $this->after_sales->getSerialNumber($val);
+								$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$serial->serialno.'</td>';
+							}else{
+								$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;</td>';
+							}
 							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$stat.'</td>';
 							$tablerow	.= '</tr>';
 					   }
@@ -133,16 +140,13 @@ class controller extends wc_controller {
 			
 			foreach ($filtered as $key => $row){
 				$stat = '';
-				if($row->si_stat == 'posted' || $row->si_stat == 'Paid'){
+				$stat = '';
+				if($row->jo_stat == 'partial' && $row->jr_stat == 'released'){
+					$stat  = 'PARTS ISSUED';						
+				}elseif($row->jo_stat == 'completed' && $row->jr_stat == 'released' && $row->si_stat == NULL && $row->balance == NULL){
+					$stat  = 'FOR INVOICING';						
+				}elseif($row->jo_stat == 'completed' && $row->jr_stat == 'released' && ($row->si_stat == 'posted' || $row->si_stat == 'Paid' || ($row->balance == 0) || $row->balance != NULL)){
 					$stat  = 'COMPLETED';
-				}elseif($row->jo_stat == 'completed'){
-				$stat  = 'FOR INVOICING';						
-				}elseif($row->jr_stat == 'released'){
-				$stat  = 'PARTS ISSUED';						
-				}elseif($row->sq_stat == 'Approved'){
-				$stat  = 'FOR JO';						
-				}elseif($row->sq_stat == 'Partial'){
-				$stat  = 'PARTIAL SERVICE QUOTATION';						
 				}
 				$serials = explode(",", $row->serialnumbers);
 				foreach ($serials as $val) {
@@ -153,7 +157,12 @@ class controller extends wc_controller {
 				$csv .= '"' .	$row->si_service 	 									. 	'",';
 				$csv .= '"'	. 	$row->partnername 										. 	'",';
 				$csv .= '"'	. 	$row->uom 												. 	'",';
-				$csv .= '"'	. 	$val 											. 	'",';
+				if($val != ''){
+					$serial		= $this->after_sales->getSerialNumber($val);
+						$csv .= '"'	. 	$serial->serialno 								. 	'",';
+					}else{
+						$csv .= '"'	. 	'' 												. 	'",';
+					}
 				$csv .= '"' . 	$stat 													. 	'"';
 				$csv .= "\n";
 				}
