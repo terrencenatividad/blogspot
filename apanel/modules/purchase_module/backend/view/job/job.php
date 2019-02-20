@@ -40,15 +40,14 @@
                 
                 <div class="row">
                     <div class="col-md-6">
-                        <?php
-                            
+                        <?php 
                             echo $ui->formField('text')
                                 ->setLabel('Job No:')
                                 ->setSplit('col-md-4', 'col-md-8')
                                 ->setName('job_no')
                                 ->setId('job_no')
-                                ->setAttribute(array("disabled" => "disabled"))
-                                ->setPlaceholder("- AUTO GENERATED -")
+                                ->setMaxLength(20)
+                                ->setValidation('required')
                                 ->setValue($job_no)
                                 ->draw($show_input);
                         ?>
@@ -235,15 +234,18 @@
                     'uom'               :[],
                     'detailparticular'  :[]
                     };
-    var task            = "<?=$task?>";
-    var job_no          = "<?=$job_no?>";
+    var task        = "<?=$task?>";
+    var job_no      = "<?=$job_no?>";
+    var jobvoucher = <?=$jobvoucher;?>;
 
     function getList() {
         ajax.limit = 5;
         $('#ipo_tableList tbody').html(`<tr><td colspan="5" class="text-center">Loading Items</td></tr>`);
         $('#ipo_pagination').html('');
         $('#ipo_list_modal').modal('show');
-        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_list', ajax, function(data) {
+        var obj = {ajax,jobno:job_no};
+        console.log(obj);
+        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_list', {ajax,jobno:job_no}, function(data) {
             $('#ipo_tableList tbody').html(data.table);
             $('#ipo_pagination').html(data.pagination);
             if (ajax.page > data.page_limit && data.page_limit > 0) {
@@ -343,7 +345,16 @@
     }
         
     $(document).ready(function (){
-
+        console.log(jobvoucher);
+        $('#job_no').on('change', function(){
+            var job = $('#job_no').val();
+            var inarray = (jobvoucher.indexOf(job) > -1);
+            if (inarray){
+                $('#job_no').closest('.form-group').addClass('has-error');
+            } else {
+                $('#job_no').closest('.form-group').removeClass('has-error');
+            }
+        });
         $("#ipo_amount").text(selected.ipo_no.length);
 
         $("#ipo_tableList tbody").on("ifChecked", "input:checkbox", function(){
@@ -477,12 +488,30 @@
             no_error        = true;
             error_message   = "";
             
+            $('#job_no').trigger('blur_validate');
 
-            if ($("#item_tableList tbody input:checked").length<1) {
+                // if ($('#job_no').val() == '') {
+                //     no_error        = false;
+                //     error_message   = "Empty Job Number.";
+                // }
+
+                $.each($('.form-group'), function(){
+                    if ($(this).hasClass('has-error') && $('#job_no').val() == ''){
+                        no_error        = false;
+                        error_message   = "Please fill out all fields.";
+                    }
+                    else if ($(this).hasClass('has-error') && $('#job_no').val() != '') {
+                        no_error        = false;
+                        error_message   = "Duplicate Job Number. Job Number must be unique.";
+                    }
+                });
+
+            if ($("#item_tableList tbody input:checked").length<1 && no_error) {
                 no_error        = false;
                 error_message   = 'No selected items. Please select items to proceed.';
             }
             else{
+
                 $.each($("#item_tableList tbody tr"),function(index, value){
                     if ($(this).find("input:checkbox").is(":checked")) {
                         if($(this).find("input.quantity").val()=="" || $(this).find("input.quantity").val()<1){
@@ -495,6 +524,7 @@
                         }
                     }
                 });
+
             }
             
             if (no_error) {
@@ -518,8 +548,6 @@
             }
             else
                 $('#warning_modal').modal('show').find('#warning_message').html(error_message);
-            console.log(submit_data);
-            console.log($("#jobForm").serialize());
             
         });
     });
