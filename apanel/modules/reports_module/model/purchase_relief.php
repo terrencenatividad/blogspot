@@ -51,7 +51,7 @@
                                          ->setFields(array('dtl.voucherno, dtl.itemcode, SUM(dtl.amount) amt, dtl.companycode, dtl.linenum'))
                                          ->leftJoin("items as itm ON itm.itemcode = dtl.itemcode AND itm.companycode = dtl.companycode")
                                          ->leftJoin("itemclass as ic ON ic.id = itm.classid AND ic.companycode = itm.companycode")
-                                         ->setWhere("dtl.stat IN ('Received','Posted') AND (itm.expenseType = 'vat_domestic_goods' OR ic.expenseType = 'vat_domestic_goods')")
+                                         ->setWhere("dtl.stat IN ('Received','Posted') AND ((itm.expenseType = 'vat_exceed' OR itm.expenseType = 'vat_not_exceed') OR (ic.expenseType = 'vat_exceed' OR ic.expenseType = 'vat_not_exceed'))")
                                          ->setGroupBy('dtl.voucherno')
                                          ->buildSelect();
 
@@ -59,22 +59,25 @@
                                          ->setFields(array('dtl.voucherno, dtl.itemcode, SUM(dtl.amount) amt, dtl.companycode, dtl.linenum'))
                                          ->leftJoin("items as itm ON itm.itemcode = dtl.itemcode AND itm.companycode = dtl.companycode")
                                          ->leftJoin("itemclass as ic ON ic.id = itm.classid AND ic.companycode = itm.companycode")
-                                         ->setWhere("dtl.stat IN ('Received','Posted') AND ((itm.expenseType = 'vat_exceed' OR itm.expenseType = 'vat_not_exceed') OR (ic.expenseType = 'vat_exceed' OR ic.expenseType = 'vat_not_exceed'))")
+                                         ->setWhere("dtl.stat IN ('Received','Posted') AND (itm.expenseType = 'vat_domestic_goods' OR ic.expenseType = 'vat_domestic_goods')")
                                          ->setGroupBy('dtl.voucherno')
                                          ->buildSelect();
 
             $inner_query    =   $this->db->setTable("purchasereceipt_details dtl")
                                          ->setFields(array('dtl.companycode, dtl.voucherno, dtl.linenum, IFNULL(service.amt,0) service, IFNULL(goods.amt,0) goods, IFNULL(capital.amt, 0) capital'))
-                                         ->leftJoin('('.$service_query.') service ON service.itemcode = dtl.itemcode AND service.companycode = dtl.companycode AND service.linenum = dtl.linenum')
-                                         ->leftJoin('('.$goods_query.') goods ON goods.itemcode = dtl.itemcode AND goods.companycode = dtl.companycode AND goods.linenum = dtl.linenum')
-                                         ->leftJoin('('.$capital_query.') capital ON capital.itemcode = dtl.itemcode AND capital.companycode = dtl.companycode AND capital.linenum = dtl.linenum')
+                                         ->leftJoin('('.$service_query.') service ON service.voucherno = dtl.voucherno AND service.companycode = dtl.companycode')
+                                         ->leftJoin('('.$goods_query.') goods ON goods.voucherno = dtl.voucherno AND goods.companycode = dtl.companycode')
+                                         ->leftJoin('('.$capital_query.') capital ON capital.voucherno = dtl.voucherno AND capital.companycode = dtl.companycode')
                                          ->setGroupBy('dtl.voucherno')
                                          ->buildSelect();
+
+                                        //  echo $this->db->getQUery();
                                          
             $query = $this->db->setTable("purchasereceipt rpt")
                               ->setFields('rpt.transactiondate, rpt.voucherno, rpt.period, rpt.fiscalyear, p.partnername, p.address1 address, p.tinno, rpt.netamount, "0" vat_exempt, "0" vat_zerorated, rpt.amount vat_sales, 
-                                            COALESCE(in_query.service,0) service, COALESCE(in_query.goods,0) goods, COALESCE(in_query.capital, 0) capital, rpt.total_tax totaltax, rpt.netamount as grosstaxable')
+                                            COALESCE(in_query.service,0) service, COALESCE(in_query.goods,0) goods, COALESCE(in_query.capital, 0) capital, rpt.total_tax totaltax, rpt.netamount as grosstaxable, ap.voucherno apv')
                               ->leftJoin('partners p ON p.partnercode = rpt.vendor AND p.companycode = rpt.companycode AND p.partnertype = "supplier"')
+                              ->leftJoin("accountspayable ap ON ap.sourceno = rpt.voucherno AND ap.companycode = rpt.companycode")
                               ->leftJoin("($inner_query) in_query ON in_query.voucherno = rpt.voucherno AND in_query.companycode = rpt.companycode")
                               ->setWhere("rpt.stat NOT IN ('cancelled','temporary')".$condition)
                               ->setGroupBy('rpt.voucherno')
