@@ -177,8 +177,7 @@ class depreciation_run extends wc_model {
 	}
 
 	public function getAsset1234() {
-		$fields = array('SUM(((a.balance_value-a.salvage_value)/a.useful_life)) depreciation_amount','a.gl_asset', 'a.gl_accdep', 'a.gl_depexpense'
-		
+		$fields = array('SUM(ROUND(((a.balance_value-a.salvage_value)/a.useful_life),2)) depreciation_amount','a.gl_asset', 'a.gl_accdep', 'a.gl_depexpense'
 	);
 		$date = $this->date->dateDbFormat();
 	
@@ -224,15 +223,15 @@ class depreciation_run extends wc_model {
 				->setValues(array('voucherno' => $row->voucherno, 'transactiondate' => $date, 'referenceno' => 'Depreciation for '.$refdate, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation','sourceno' => $gl_accdep))
 				->setWhere("voucherno = '$row->voucherno'")
 				->runUpdate();
-
+				
 				$this->db->setTable('journaldetails')
-				->setValues(array('voucherno' => $row->voucherno, 'detailparticulars' => '', 'linenum' => '1', 'transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_depexp, 'debit' => $depreciation_amount, 'converteddebit' => $depreciation_amount, 'credit' => '0', 'convertedcredit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
-				->setWhere("voucherno = '$row->voucherno'")
+				->setValues(array('voucherno' => $row->voucherno, 'detailparticulars' => '', 'linenum' => '1', 'transtype' => 'JV','stat' => 'posted', 'debit' => $depreciation_amount, 'converteddebit' => $depreciation_amount, 'credit' => '0', 'convertedcredit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
+				->setWhere("voucherno = '$row->voucherno' AND accountcode = '$gl_accdep'")
 				->runUpdate();
 
 				$this->db->setTable('journaldetails')
-				->setValues(array('voucherno' => $row->voucherno, 'detailparticulars' => '', 'linenum' => '2','transtype' => 'JV','stat' => 'posted', 'accountcode' => $gl_accdep, 'credit' => $depreciation_amount, 'convertedcredit' => $depreciation_amount , 'debit' => '0', 'converteddebit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
-				->setWhere("voucherno = '$row->voucherno'")
+				->setValues(array('voucherno' => $row->voucherno, 'detailparticulars' => '', 'linenum' => '2','transtype' => 'JV','stat' => 'posted', 'credit' => $depreciation_amount, 'convertedcredit' => $depreciation_amount , 'debit' => '0', 'converteddebit' => '0','currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation'))
+				->setWhere("voucherno = '$row->voucherno' AND accountcode = '$gl_depexp'")
 				->runUpdate();			
 			}
 			
@@ -291,8 +290,6 @@ class depreciation_run extends wc_model {
 
 
 	public function checkDepreciation() {
-		$date = $this->date->dateDbFormat();
-
 		$result = $this->db->setTable("journalvoucher")
 						->setFields('transactiondate')
 						->setWhere("source = 'closing'")
