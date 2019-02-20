@@ -937,7 +937,7 @@ class import_purchaseorder extends wc_model
 		$result	= $this->db->setTable('import_purchaseorder a')
 		->innerJoin('import_purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 		->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
-		->setFields('b.itemcode, detailparticular, b.warehouse, (b.receiptqty - pr.received_qty) balance_qty, taxcode, taxrate, b.receiptuom, unitprice')
+		->setFields('b.itemcode, detailparticular, b.warehouse, (b.receiptqty - pr.received_qty) balance_qty, taxcode, taxrate, b.receiptuom, unitprice, budgetcode, onhandqty, discount, receiptqty, b.amount')
 		->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
 		->setHaving('balance_qty > 0')
 		->runSelect()
@@ -957,7 +957,7 @@ class import_purchaseorder extends wc_model
 		$result	= $this->db->setTable('import_purchaseorder a')
 		->innerJoin('import_purchaseorder_details b ON a.companycode = b.companycode AND a.voucherno = b.voucherno')
 		->leftJoin("($pr_inner) pr ON pr.source_no = a.voucherno AND pr.companycode = a.companycode AND pr.linenum = b.linenum")
-		->setFields('b.itemcode, detailparticular, b.warehouse, pr.received_qty, taxcode, taxrate, b.receiptuom, unitprice, a.wtaxrate')
+		->setFields('b.itemcode, detailparticular, b.warehouse, pr.received_qty, taxcode, taxrate, b.receiptuom, unitprice, a.wtaxrate, budgetcode, onhandqty, discount, receiptqty, b.amount')
 		->setWhere("a.stat IN('open', 'partial', 'posted') AND a.voucherno = '$voucherno'")
 		->runSelect()
 		->getResult();

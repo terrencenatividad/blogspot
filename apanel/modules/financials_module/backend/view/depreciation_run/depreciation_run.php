@@ -43,15 +43,15 @@
 								->addHeader('Date', array('class' => 'col-md-1'), 'sort', 'depreciation_month', 'asc')
 								->addHeader('Budget Center', array('class' => 'col-md-1'), 'sort', 'name', 'asc')
 								->addHeader('Asset Number', array('class' => 'col-md-1'), 'sort', 'asset_number')
-								->addHeader('Serial Number/Engine Number', array('class' => 'col-md-1'), 'sort', 'serial_number', 'asc')
+								->addHeader('Serial <br/>Number/Engine <br/>Number', array('class' => 'col-md-1'), 'sort', 'serial_number', 'asc')
 								->addHeader('Asset Class', array('class' => 'col-md-1'), 'sort', 'assetclass', 'asc')
 								->addHeader('Description', array('class' => 'col-md-1'), 'sort', 'description', 'asc')
-								->addHeader('Capitalized Cost', array('class' => 'col-md-1'), 'sort', 'capitalized_cost', 'asc')
-								->addHeader('Depreciation Amount', array('class' => 'col-md-1'), 'sort', 'depreciation_amount', 'asc')
-								->addHeader('Accumulated Depreciation Amount', array('class' => 'col-md-1'), 'sort', 'accumulated_dep', 'asc')
-								->addHeader('GL Account(Asset)', array('class' => 'col-md-1'), 'sort', 'asset', 'asc')
-								->addHeader('GL Account(Acc Dep)', array('class' => 'col-md-1'), 'sort', 'accdep', 'asc')
-								->addHeader('GL Account(Dep Exp)', array('class' => 'col-md-1'), 'sort', 'depexp', 'asc')
+								->addHeader('Capitalized <br/> Cost', array('class' => 'col-md-1'), 'sort', 'capitalized_cost', 'asc')
+								->addHeader('Depreciation <br/>Amount', array('class' => 'col-md-1'), 'sort', 'depreciation_amount', 'asc')
+								->addHeader('Accumulated <br/> Depreciation <br/> Amount', array('class' => 'col-md-1'), 'sort', 'accumulated_dep', 'asc')
+								->addHeader('GL Account<br/>(Asset)', array('class' => 'col-md-1'), 'sort', 'asset', 'asc')
+								->addHeader('GL Account<br/>(Acc Dep)', array('class' => 'col-md-1'), 'sort', 'accdep', 'asc')
+								->addHeader('GL Account<br/>(Dep Exp)', array('class' => 'col-md-1'), 'sort', 'depexp', 'asc')
 								->draw();
 					?>
 					<tbody>

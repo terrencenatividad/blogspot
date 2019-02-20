@@ -696,6 +696,8 @@ class controller extends wc_controller
 		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 		
 		$table .= "\n\n";
+		$table .= '"'.$documentinfo->remarks.'"';
+		$table .= "\n\n";
 		$table .= '"","","","Total Sales (Vat Inclusive)","'.number_format($vatable_sales, 2).'",';
 		$table .= "\n";
 		$table .= '"","","","Less: VAT","",';
@@ -704,7 +706,7 @@ class controller extends wc_controller
 		$table .= "\n";
 		$table .= '"VAT-Exempt Sales","'.number_format($vat_exempt, 2).'","", "Amount Due","",';
 		$table .= "\n";
-		$table .= '"Zero Rated Sales","'.number_format($vat_zerorated, 2).'","","Add: VAT","",';
+		$table .= '"Zero Rated Sales","'.number_format($vat_zerorated, 2).'","","Add: VAT","'.number_format($tax, 2).'",';
 		$table .= "\n";
 		$table .= '"VAT Amount","'.number_format($tax, 2).'","","TOTAL AMOUNT DUE","'.number_format($total_amount, 2).'",';
 		$table .= "\n";
