@@ -1037,7 +1037,7 @@
 										</td>
 										<td class="text-center">
 											<?php
-											$received_total = round(($row->unitprice * $row->received_qty) / (1 + $row->taxrate), 2);
+											$received_total = round(($row->unitprice * $row->received_qty) * (1 + $row->taxrate), 2);
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
@@ -1181,7 +1181,7 @@
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
-											->setValue(number_format($row->unitprice * $row->balance_qty, 2))
+											->setValue(number_format(($row->unitprice * $row->balance_qty) * (1 + $row->taxrate), 2))
 											->draw(false);
 											?>
 										</td>

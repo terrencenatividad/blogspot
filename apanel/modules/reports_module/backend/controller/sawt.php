@@ -130,9 +130,9 @@ class controller extends wc_controller {
 
 		$table .= '"' . implode('","', $header) . '"';
 		$table .= "\n";
-		$table .= '"(1)", "(2)", "(3)", "(4)", "(5)", "", "(6)", "(7)", "(8)"';
+		$table .= '"(1)","(2)","(3)","(4)","(5)","","(6)","(7)","(8)"';
 		$table .= "\n";
-		$table .= '"------------------------------", "------------------------------", "------------------------------", "------------------------------", "------------------------------", "------------------------------", "------------------------------", "------------------------------", "------------------------------"';
+		$table .= '"------------------------------","------------------------------","------------------------------","------------------------------","------------------------------","------------------------------","------------------------------","------------------------------","------------------------------"';
 		$table .= "\n";
 		$count = 1;
 		if ($pagination) {
@@ -140,11 +140,11 @@ class controller extends wc_controller {
 				$businesstype = $row->businesstype;
 				$contact_person = $row->last_name. ' ' .$row->first_name;
 
-				if ($businesstype != 'Individual') {
-					$table .= '"'.$count.'", "'.$row->tinno.'", "", "'.strtoupper($contact_person).'", "'.$row->atc_code.'", "'.strtoupper($row->paymenttype).'", "'.number_format($row->taxbase_amount,2).'", "'.number_format($row->tax_rate,2).'", "'.number_format($row->credit,2).'"';
+				if ($businesstype == 'Individual') {
+					$table .= '"'.$count.'","'.$row->tinno.'","","'.strtoupper($contact_person).'","'.$row->atc_code.'","'.strtoupper($row->paymenttype).'","'.number_format($row->taxbase_amount,2).'","'.number_format($row->tax_rate,2).'","'.number_format($row->credit,2).'"';
 				}
 				else {
-					$table .= '"'.$count.'", "'.$row->tinno.'", "'.strtoupper($row->partnername).'", "", "'.$row->atc_code.'", "'.strtoupper($row->paymenttype).'", "'.number_format($row->taxbase_amount,2).'", "'.number_format($row->tax_rate,2).'", "'.number_format($row->credit,2).'"';
+					$table .= '"'.$count.'","'.$row->tinno.'","'.strtoupper($row->partnername).'","","'.$row->atc_code.'","'.strtoupper($row->paymenttype).'","'.number_format($row->taxbase_amount,2).'","'.number_format($row->tax_rate,2).'","'.number_format($row->credit,2).'"';
 				}
 				
 				$table  .= "\n";
@@ -157,7 +157,7 @@ class controller extends wc_controller {
 			$table .= '"NO CREDITABLE WITHHOLDING TAX"';
 		}
 		
-		$table 	.= '"GRAND TOTAL : ","","","", "", "", "", "","'.number_format($totalwtaxamount,2).'"';
+		$table 	.= '"GRAND TOTAL : ","","","","","","","","'.number_format($totalwtaxamount,2).'"';
 		$table  .= "\n\n";
 		$table  .= '"END OF REPORT"';
 
