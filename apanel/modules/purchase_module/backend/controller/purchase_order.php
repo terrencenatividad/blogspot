@@ -441,7 +441,7 @@ class controller extends wc_controller
 				$data['received_items'] = $this->po->getReceivedItems($data["voucherno"]);
 			}
 		}
-
+		
 		$this->view->load('purchase_order/purchase_order', $data);
 	}
 

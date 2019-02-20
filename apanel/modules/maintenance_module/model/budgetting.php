@@ -152,7 +152,7 @@ class budgetting extends wc_model
 	public function getBudgetCenter()
 	{
 		$result = $this->db->setTable('cost_center')
-		->setFields('costcenter_code ind, costcenter_code val')
+		->setFields('costcenter_code ind, CONCAT(costcenter_code, " - ", name) val')
 		->runSelect()
 		->getResult();
 
