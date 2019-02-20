@@ -13,6 +13,16 @@ class after_sales extends wc_model {
 		return $result;
 	}
 
+	public function getSerialNumber($serial) 
+	{
+		$result = $this->db->setTable('items_serialized i')
+							->setFields("serialno")
+							->setWhere("id = '$serial'")
+							->runSelect()
+							->getRow();
+		return $result;
+	}
+
 	public function getJOList($data)
 	{
 		$daterangefilter 	= isset($data['daterangefilter']) ? htmlentities($data['daterangefilter']) : ""; 
@@ -30,15 +40,17 @@ class after_sales extends wc_model {
 		$addCondition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND a.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
 		$result = $this->db->setTable('job_release a')
-						->setFields("a.transactiondate, service_quotation, a.job_order_no, d.voucherno si_goods, e.voucherno si_service, a.unit uom , a.serialnumbers,partnername,a.stat jr_stat, b.stat jo_stat, c.stat sq_stat, d.stat si_stat, e.stat b_stat")
+						->setFields("a.transactiondate, service_quotation, a.job_order_no, d.voucherno si_goods, e.voucherno si_service, a.unit uom , a.serialnumbers,partnername,a.stat jr_stat, b.stat jo_stat, c.stat sq_stat, d.stat si_stat, f.balance")
 						->leftJoin("job_order b ON a.job_order_no = b.job_order_no")
 						->leftJoin("servicequotation c ON c.voucherno = b.service_quotation")
 						->leftJoin("salesinvoice d ON d.sourceno = a.job_order_no")
 						->leftJoin("billing e ON e.job_orderno = a.job_order_no")
+						->leftJoin("accountsreceivable f ON f.invoiceno = e.voucherno")
 						->leftJoin('partners p ON p.partnercode = b.customer')
-						->setWhere('a.stat = "released" AND b.stat != "cancelled"' .$addCondition)
+						->setWhere("a.stat = 'released' AND b.stat IN ('partial','completed') AND (d.stat IS NULL OR d.stat NOT IN('cancelled','temporary'))" .$addCondition)
 						->setOrderBy('a.transactiondate DESC')
 						->runPagination();
+						// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -60,13 +72,14 @@ class after_sales extends wc_model {
 		$addCondition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND a.transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
 		$result = $this->db->setTable('job_release a')
-						->setFields("a.transactiondate, service_quotation, a.job_order_no, d.voucherno si_goods, e.voucherno si_service, a.unit uom , a.serialnumbers,partnername,a.stat jr_stat, b.stat jo_stat, c.stat sq_stat, d.stat si_stat, e.stat b_stat")
+						->setFields("a.transactiondate, service_quotation, a.job_order_no, d.voucherno si_goods, e.voucherno si_service, a.unit uom , a.serialnumbers,partnername,a.stat jr_stat, b.stat jo_stat, c.stat sq_stat, d.stat si_stat, f.balance")
 						->leftJoin("job_order b ON a.job_order_no = b.job_order_no")
 						->leftJoin("servicequotation c ON c.voucherno = b.service_quotation")
 						->leftJoin("salesinvoice d ON d.sourceno = a.job_order_no")
 						->leftJoin("billing e ON e.job_orderno = a.job_order_no")
+						->leftJoin("accountsreceivable f ON f.invoiceno = e.voucherno")
 						->leftJoin('partners p ON p.partnercode = b.customer')
-						->setWhere('a.stat = "released" AND b.stat != "cancelled"' .$addCondition)
+						->setWhere("a.stat = 'released' AND b.stat != 'cancelled' AND (d.stat IS NULL OR d.stat NOT IN('cancelled','temporary'))" .$addCondition)
 						->setOrderBy('a.transactiondate DESC')
 						->runSelect()
 						->getResult();
