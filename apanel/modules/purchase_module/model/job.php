@@ -28,6 +28,24 @@
             return $result;
         }
 
+        public function getJobVouchers($job=''){
+            $result = $this->db->setTable('job')
+                                ->setFields('job_no')
+                                ->setWhere("job_no!='$job'")
+                                ->runSelect()
+                                ->getResult();
+            return $result;
+        }
+
+        public function checkUsedJob($job){
+            $result = $this->db->setTable('accountspayable, journalvoucher')
+                                ->setFields('job_no')
+                                ->setWhere("stat='posted' AND job_no='$job'")
+                                ->runSelect()
+                                ->getResult();
+            return $result;
+        }
+
         private function generateSearch($search, $array) {
             $temp = array();
             foreach ($array as $arr) {
@@ -104,6 +122,10 @@
                                         ->setValues($data)
 										->setWhere($condition)
 										->runUpdate();
+                    $result         = $this->db->setTable('job_details')
+                                        ->setValues($data)
+                                        ->setWhere($condition)
+                                        ->runUpdate();
 										// echo $this->db->getQuery();
 
 					$error 			= $this->db->getError();	
@@ -113,18 +135,22 @@
 			return $errmsg;
         }
         
-        public function getIPOPagination($search='') {
+        public function getIPOPagination($search='', $job) {
             $addcond = '';
             if ($search != '') {
                 $addcond = "AND ipo.voucherno LIKE '%$search%'";
             }
             $pagination = $this->db->setTable("import_purchaseorder ipo")
-                            ->setFields("DISTINCT(ipo.voucherno), ipo.transactiondate")
+                            ->setFields("ipo.voucherno, ipo.transactiondate")
                             ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
-                            ->leftJoin("job_details jd ON jd.ipo_no=ipod.voucherno AND jd.linenum=ipod.linenum")
-                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - COALESCE(jd.qty, 0) > 0 $addcond ")
+                            
+                            ->leftJoin("job_details jd ON jd.ipo_no=ipod.voucherno AND jd.linenum=ipod.linenum AND jd.stat!='cancelled'")
+                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - COALESCE((SELECT SUM(qty) FROM job_details WHERE ipo_no=ipod.voucherno AND stat!='cancelled'),0) > 0 $addcond ")
+                            ->setGroupBy("ipo.voucherno")
                             ->setOrderBy("ipo.transactiondate DESC, ipo.voucherno DESC")
                             ->runPagination();
+                            // $query = $this->db->getQuery();
+                            // var_dump($query);
             return $pagination;
         }
 
