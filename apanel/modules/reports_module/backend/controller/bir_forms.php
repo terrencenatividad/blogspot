@@ -162,6 +162,7 @@ class controller extends wc_controller {
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
 		$data['address']		= $address;
 		$data['zipcode']		= $postalcode;
+		$contact 				= str_replace("+632","",$contact);
 		$data['contact']		= $contact;
 		$data['mobile']			= $mobile;
 		$data['email']			= $email;
