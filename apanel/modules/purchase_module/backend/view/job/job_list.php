@@ -100,7 +100,7 @@
 	// Sorting Script
 	tableSort('#tableList', function(value) {
 	if (value == '') {
-		ajax.sort = 'job_no desc';
+		ajax.sort = 'transactiondate desc';
 	}
 	else{
 		ajax.sort = value;
