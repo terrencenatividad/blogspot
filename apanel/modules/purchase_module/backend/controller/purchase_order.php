@@ -480,7 +480,7 @@ class controller extends wc_controller
 		/** HEADER INFO **/
 
 		$docinfo_table  = "purchaseorder as po";
-		$docinfo_fields = array('po.deliverydate as deliverydate, po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.print print');
+		$docinfo_fields = array('po.deliverydate as deliverydate, po.transactiondate AS documentdate','po.voucherno AS voucherno',"p.partnername AS company","CONCAT( p.first_name, ' ', p.last_name ) AS vendor","referenceno AS referenceno",'po.amount AS amount','po.remarks as remarks','po.discounttype as disctype','po.discountamount as discount', 'po.netamount as net','po.amount as amount','po.taxamount as vat', 'po.wtaxamount as wtax','po.wtaxcode as wtaxcode','po.wtaxrate as wtaxrate','po.print print, po.stat stat');
 		$docinfo_join   = "partners as p ON p.partnercode = po.vendor AND p.partnertype = 'supplier' AND p.companycode = po.companycode";
 		$docinfo_cond 	= "po.voucherno = '$voucherno'";
 
@@ -528,19 +528,19 @@ class controller extends wc_controller
 		$netamount = $documentinfo->net;
 
 		$print = new purchase_print_model();
-		$print->setDocumentType('Purchase Order')
+		$print->setDocumentType('Import Purchase Order')
 		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 		->setVendorDetails($vendordetails)
+		->setStatDetail($documentinfo->stat)
 		->setDocumentDetails($documentdetails)
-		->setDocumentInfo($documentinfo)
 		->addReceived();
 
 		$print->setHeaderWidth(array(40, 60, 20, 20, 30, 30))
-		->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
-		->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Amount'))
-		->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
-		->setSummaryAlign(array('J','R','R', 'R'))	
-		->setSummaryWidth(array('120', '50', '30'));
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price', 'Amount'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'R', 'R'))
+				->setSummaryWidth(array('120', '19', '30', '31'))
+				->setSummaryAlign(array('J','R','R', 'R'));
 
 		/**
 		 * Custom : Tag as printed
@@ -556,10 +556,6 @@ class controller extends wc_controller
 		$total_amount = 0;
 		$line_count = 0;
 		foreach ($documentcontent as $key => $row) {
-			if($line_count == 26){
-				$print->AddPage();
-				$line_count = 0;
-			}
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
@@ -570,23 +566,14 @@ class controller extends wc_controller
 			$row->amount		= number_format($row->amount, 2);
 			$row->description 	= html_entity_decode(stripslashes($row->description));
 			$print->addRow($row);
-			if (($key + 1) % $detail_height == 0) {
-				$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
-					array($notes, 'Total Purchase Tax', number_format($vat, 2)),
-					array('', 'Withholding Tax', number_format($wtaxamount, 2)),
-					array('', 'Total Amount Due', number_format($netamount, 2)),
-					array('', '', '')
-				));
-				$total_amount = 0;
-			}
-			$line_count++;
 		}
-		$print->drawSummary(array(array('Notes:', 'Total Purchase', number_format($amount, 2)),
-			array($notes, 'Total Purchase Tax', number_format($vat, 2)),
-			array('', 'Withholding Tax', number_format($wtaxamount, 2)),
-			array('', 'Total Amount Due', number_format($netamount, 2)),
-			array('', '', '')
-		));
+		$summary = array(array('Notes:', '','Total Purchase', number_format($amount, 2)),
+				array($notes, '', 'Total Purchase Tax', number_format($vat, 2)),
+				array('', '', 'Withholding Tax', number_format($wtaxamount, 2)),
+				array('', '', 'Total Amount Due', number_format($netamount, 2)),
+				array('', '', '', ''));
+				$print->drawSummary($summary);
+		
 		$print->drawPDF('Purchase Order - ' . $voucherno);
 	}
 

@@ -7,6 +7,7 @@
             $this->job   	        = new job();
             $this->session			= new session();
             $this->log 			    = new log();
+            $this->seq              = new seqcontrol();
             
             $this->view->header_active = 'purchase/job/';
 
@@ -101,7 +102,7 @@
 
             $data['ajax_post']  = '';
 
-            $data['job_no']     = $this->job->autoGenerate("JOB",'job');  
+            $data['job_no']     = '';  
             $data['transactiondate'] = $this->date->dateFormat();
             $data['notes']      = "";
 
@@ -150,8 +151,8 @@
         }
 
         private function save(){
-            $job_voucher    = $this->job->autoGenerate("JOBIPO","job_ipo");
-            $job_notarray   = $this->input->post("txtjob");
+            $job_voucher    = $this->seq->getValue("JOBIPO");
+            $job_notarray   = $this->seq->getValue("JOB");
             $notes          = $this->input->post("remarks");
             $date           = $this->input->post("transaction_date");
             $date           = $this->date->dateDbFormat($date);
@@ -168,7 +169,7 @@
 
             $jobcost = 0;
             for ($i=0 ; $i<count($itemcode) ; $i++) {
-                $job_static[$i]            = $this->input->post("txtjob");
+                $job_static[$i]     = $job_notarray;
                 $job_increment[$i]  = $job_voucher++;
                 
                 $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i],$linenum[$i]);
@@ -223,7 +224,7 @@
         }
 
         private function update(){
-            $job_voucher    = $this->job->autoGenerate("JOBIPO","job_ipo");
+            $job_voucher    = $this->seq->getValue("JOBIPO");
             $job_notarray   = $this->input->post("txtjob");
             $notes          = $this->input->post("remarks");
             $date           = $this->input->post("transaction_date");
@@ -326,10 +327,10 @@
 		}
 
 		private function ajax_list() {
-          $data  = $this->input->post(array('search', 'sort', 'filter'));
+          $data  = $this->input->post(array('search', 'sort', 'filter', 'daterangefilter'));
           extract($data);
           //var_dump($data);
-          $pagination = $this->job->getJobListing($this->fields, $sort, $search, $filter);
+          $pagination = $this->job->getJobListing($this->fields, $sort, $search, $filter, $daterangefilter);
           $table = '';
           if (empty($pagination->result)) {
             $table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
@@ -408,8 +409,8 @@
         }
         
         private function ajax_load_ipo_list() {
-            
-            $pagination = $this->job->getIPOPagination();
+            $search     = $this->input->post('search');
+            $pagination = $this->job->getIPOPagination($search);
             $table      = '';
 
             if (empty($pagination->result)) {

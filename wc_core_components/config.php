@@ -18,4 +18,4 @@ session_cache_expire(480);
 define('WC_HOSTNAME', 'localhost');
 define('WC_USERNAME', 'root');
 define('WC_PASSWORD', '123456');
-define('WC_DATABASE', 'tri-globe');
+define('WC_DATABASE', 'webcore5e');

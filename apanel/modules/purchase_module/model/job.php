@@ -7,18 +7,24 @@
             $this->log = new log();
         }
 
-        public function getJobListing($data, $sort, $search, $filter)
+        public function getJobListing($data, $sort, $search, $filter, $daterange)
         {
-            $condition = '';
+            $condition = "stat != 'temporary'" ;
+            $daterangefilter    = isset($daterange) ? htmlentities($daterange) : ""; 
+            $datefilterArr      = explode(' - ',$daterangefilter);
+            $datefilterFrom     = (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
+            $datefilterTo       = (!empty($datefilterArr[1])) ? date("Y-m-d",strtotime($datefilterArr[1])) : "";
             if ($search) {
-                $condition .= $this->generateSearch($search, array('job_no', 'notes', 'stat'));
+                $condition .= "AND " . $this->generateSearch($search, array('job_no', 'notes', 'stat'));
             }
+            $condition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
             //var_dump($search);
             $result = $this->db->setTable('job')
             ->setFields($data)
             ->setWhere($condition)
             ->setOrderBy($sort)
             ->runPagination();
+            
             return $result;
         }
 
@@ -107,25 +113,31 @@
 			return $errmsg;
         }
         
-        public function getIPOPagination() {
-            $result = $this->db->setTable("import_purchaseorder")
-                            ->setFields("voucherno, transactiondate, convertedamount amount")
-                            ->setWhere("stat IN ('open', 'partial', 'posted')")
-                            ->setOrderBy("voucherno ASC")
+        public function getIPOPagination($search='') {
+            $addcond = '';
+            if ($search != '') {
+                $addcond = "AND ipo.voucherno LIKE '%$search%'";
+            }
+            $pagination = $this->db->setTable("import_purchaseorder ipo")
+                            ->setFields("DISTINCT(ipo.voucherno), ipo.transactiondate")
+                            ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
+                            ->leftJoin("job_details jd ON jd.ipo_no=ipod.voucherno AND jd.linenum=ipod.linenum")
+                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - COALESCE(jd.qty, 0) > 0 $addcond ")
+                            ->setOrderBy("ipo.transactiondate DESC, ipo.voucherno DESC")
                             ->runPagination();
-            return $result;
+            return $pagination;
         }
 
         public function getItemPagination($ipo_number){
             $result = $this->db->setTable("import_purchaseorder_details")
                             ->setFields("voucherno, itemcode, linenum, detailparticular, receiptqty, receiptuom")
                             ->setWhere("voucherno='".$ipo_number."'")
-                            ->setOrderBy("voucherno ASC, linenum ASC")
+                            ->setOrderBy("voucherno DESC, linenum ASC")
                             ->runPagination();
             return $result;
         }
 
-        public function getTaggedItemQty($ipo, $linenum, $job="", $task) {
+        public function getTaggedItemQty($ipo, $linenum, $job="", $task="") {
             if ($task == 'save') {
                 $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND j.stat='on-going'";
             }

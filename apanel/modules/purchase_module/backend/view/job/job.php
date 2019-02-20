@@ -48,7 +48,7 @@
                                 ->setName('job_no')
                                 ->setId('job_no')
                                 ->setAttribute(array("disabled" => "disabled"))
-                                ->setPlaceholder("- auto generate -")
+                                ->setPlaceholder("- AUTO GENERATED -")
                                 ->setValue($job_no)
                                 ->draw($show_input);
                         ?>
@@ -157,14 +157,18 @@
                 <div class="row">
                     <div class="col-md-12 text-center">
                         <?php
-                        if($show_input){
+                        if($task == 'save'){
                             echo $ui->drawSubmitDropdown($show_input); 
+                        } else if ($task == 'update') {
+                            echo $ui->drawSubmit($show_input); 
                         }
                         ?>
+                        <?php if ($task == 'view' && $stat != 'cancelled') : ?>
+                        <a href="<?=MODULE_URL?>edit/<?=$job_no;?>" class="btn btn-primary btn-flat" id="btnEdit">Edit</a>
+                        <? endif;?>
                         &nbsp;&nbsp;&nbsp;
-                        <div class="btn-group">
-                            <a href="<?=MODULE_URL?>" class="btn btn-default btn-flat" id="btnCancel">Cancel</a>
-                        </div>
+                        
+                        <a href="<?=MODULE_URL?>" class="btn btn-default btn-flat" id="btnCancel">Cancel</a>
                     </div>
                 </div>
             </form>
@@ -448,10 +452,9 @@
 
         // IPO table search event
         $("#ipo_table_search").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $("#ipo_tableList tbody tr").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
+            ajax.search = $(this).val();
+            ajax.page = 1;
+            getList();
         });
 
         $("#item_tableList").on("change", ".quantity", function(){

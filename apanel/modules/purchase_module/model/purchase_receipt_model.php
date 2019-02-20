@@ -23,9 +23,50 @@ class purchase_receipt_model extends wc_model {
 		return $result;
 	}
 
+	public function reverseActualBudget($voucherno, $transtype, $source_no) {
+		$get_info = $this->db->setTable('purchasereceipt_details as pd')
+		->leftJoin('purchasereceipt as pr ON pr.voucherno = pd.voucherno')
+		->leftJoin('items AS i ON pd.itemcode = i.itemcode')
+		->leftJoin('itemclass AS ic ON i.classid = ic.id')
+		->setFields("IF(i.expense_account = 0, ic.expense_account, i.expense_account) as account, pd.budgetcode, pd.itemcode")
+		->setWhere("pd.voucherno = '$voucherno' AND pr.source_no = '$source_no' AND pd.budgetcode != ''")
+		->runSelect()
+		->getRow();
+		$arr = array();
+		if($get_info) {
+			$budgetcode = $get_info->budgetcode;
+			$accountcode = $get_info->account;
+			$itemcode = $get_info->itemcode;
+
+			$get_amount = $this->db->setTable('purchasereceipt_details as pd')
+			->leftJoin('purchasereceipt as pr ON pr.voucherno = pd.voucherno')
+			->setFields("SUM(pd.amount) as amount")
+			->setWhere("pd.voucherno = '$voucherno' AND pr.source_no = '$source_no' AND pd.budgetcode = '$budgetcode' AND pd.itemcode = '$itemcode'")
+			->runSelect()
+			->getRow();
+
+			$arr['voucherno'] = $source_no;
+			$arr['budget_code'] = $budgetcode;
+			$arr['accountcode'] = $accountcode;
+			$arr['allocated'] = '0.00';
+			$arr['actual'] = $get_amount->amount;
+
+			$delete = $this->db->setTable('actual_budget')
+			->setWhere("voucherno = '$source_no' AND budget_code = '$budgetcode' AND accountcode = '$accountcode'")
+			->runDelete(false);
+
+			$result = $this->db->setTable('actual_budget')
+			->setValues($arr)
+			->runInsert(false);
+		} else {
+			$result = false;
+		}
+
+		return $result;
+	}
+
 	public function updatePurchaseReceipt($data, $data2, $voucherno) {
 		$this->getAmounts($data, $data2);
-		unset($data2['budgetcode']);
 		$result = $this->db->setTable('purchasereceipt')
 		->setValues($data)
 		->setWhere("voucherno = '$voucherno'")
@@ -629,7 +670,7 @@ class purchase_receipt_model extends wc_model {
 	public function getDocumentInfo($voucherno) {
 		$result = $this->db->setTable('purchasereceipt pr')
 		->innerJoin('partners p ON p.partnercode = pr.vendor AND p.companycode = pr.companycode AND p.partnertype = "supplier"')
-		->setFields("pr.transactiondate documentdate, pr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) vendor, source_no referenceno, pr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, discountrate, netamount net, total_tax vat, wtaxrate, invoiceno")
+		->setFields("pr.transactiondate documentdate, pr.voucherno voucherno, p.partnername company, CONCAT(p.first_name, ' ', p.last_name) vendor, source_no referenceno, pr.remarks remarks, partnercode, wtaxamount wtax, amount, discounttype disctype, discountamount discount, discountrate, netamount net, total_tax vat, wtaxrate, invoiceno, pr.stat")
 		->setWhere("voucherno = '$voucherno'")
 		->runSelect()
 		->getRow();
@@ -889,11 +930,11 @@ class purchase_receipt_model extends wc_model {
 		$fields = array('converteddebit');
 
 		$result = $this->db->setTable('ap_details apd')
-							->setFields($fields)
-							->innerJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
-							->setWhere("ap.referenceno = '$referenceno'")
-							->runSelect()
-							->getRow();
+		->setFields($fields)
+		->innerJoin('accountspayable ap ON ap.voucherno = apd.voucherno')
+		->setWhere("ap.referenceno = '$referenceno'")
+		->runSelect()
+		->getRow();
 
 		return $result;
 

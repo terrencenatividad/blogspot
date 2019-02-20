@@ -588,18 +588,27 @@ class accounts_payable extends wc_model
 			"main.companycode as companycode", 
 			"main.transactiondate as transactiondate",
 			"main.amount as amount",
+			"main.amountpaid as amountpaid",
 			"main.balance as balance", 
 			"p.partnername AS vendor",
 			"main.referenceno as referenceno",
 			"main.lockkey as importchecker",
 			"main.stat as stat",
-			"IF(
-			(main.convertedamount - payment.amount)>0 AND main.stat!='cancelled','partial',
-			IF((main.convertedamount - payment.amount)=0 AND main.stat!='cancelled','paid',
-			IF(main.stat!='cancelled','unpaid','cancelled')
-			)
-		) payment_status"
+			"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
+			IF(main.balance=0 AND main.stat='cancelled','cancelled',
+			IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
+			IF(main.balance!=payment.amount AND main.balance!=0 AND main.balance > 0 AND main.stat!='cancelled','partial',
+			IF(main.amountpaid=payment.amount AND main.balance=0 AND main.stat!='cancelled','paid','unpaid'))))) payment_status"
+			
 	);
+
+	// "IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
+	// 		IF(main.balance != main.amount AND main.balance != 0 AND main.stat!='cancelled','partial',
+	// 		IF(main.balance = 0 AND main.amountpaid = main.amount AND main.stat!='cancelled', 'paid',
+	// 		IF(main.stat!='cancelled','unpaid','cancelled')
+	// 		)
+	// 		)
+	// 	) payment_status"
 		$ap_table 	=	"accountspayable as main";
 		$ap_cond 	=	"main.stat IN ('posted','cancelled') $add_query";
 		$ap_join 	=	"partners p ON p.partnercode = main.vendor AND p.partnertype = 'supplier' AND p.companycode = main.companycode";
@@ -2138,7 +2147,7 @@ class accounts_payable extends wc_model
 	public function getAccountId($accountname) {
 		$result = $this->db->setTable('chartaccount')
 		->setFields("id")
-		->setWhere("accountname = '$accountname'")
+		->setWhere("segment5 = '$accountname'")
 		->runSelect()
 		->getResult();
 
@@ -2334,10 +2343,10 @@ class accounts_payable extends wc_model
 	
 	public function getLatestAPRecord() {
 		$getRow = $this->db->setTable('accountspayable')
-							->setFields('voucherno')
-							->setOrderBy('accountspayable.entereddate DESC')
-							->runSelect()
-							->getRow();
+		->setFields('voucherno')
+		->setOrderBy('accountspayable.entereddate DESC')
+		->runSelect()
+		->getRow();
 
 		$result = $getRow->voucherno;
 
@@ -2346,10 +2355,10 @@ class accounts_payable extends wc_model
 
 	public function getNextId($table,$field,$subcon = "") {
 		$result = $this->db->setTable($table)
-			->setFields('MAX('.$field.') as current')
-			->setWhere(" $field != '' " . $subcon)
-			->runSelect()
-			->getRow();
+		->setFields('MAX('.$field.') as current')
+		->setWhere(" $field != '' " . $subcon)
+		->runSelect()
+		->getRow();
 
 		if ($result) {
 			$return = $result->current += 1;
@@ -2361,10 +2370,10 @@ class accounts_payable extends wc_model
 
 	public function getCurrentId($table,$voucherno) {
 		$result = $this->db->setTable($table)
-			->setFields('attachment_id')
-			->setWhere("reference='$voucherno'")
-			->runSelect()
-			->getRow();
+		->setFields('attachment_id')
+		->setWhere("reference='$voucherno'")
+		->runSelect()
+		->getRow();
 
 		if ($result) {
 			$return = $result->attachment_id;
@@ -2379,10 +2388,10 @@ class accounts_payable extends wc_model
 		$filename = $data['attachment_name'];
 		
 		$getFiles = $this->db->setTable('accountspayable_attachments')
-							->setFields("COUNT('attachment_id') count")
-							->setWhere("reference = '$reference'")
-							->runSelect()
-							->getRow();
+		->setFields("COUNT('attachment_id') count")
+		->setWhere("reference = '$reference'")
+		->runSelect()
+		->getRow();
 							// echo $this->db->getQuery();
 
 		if ($getFiles) {
@@ -2390,8 +2399,8 @@ class accounts_payable extends wc_model
 		}
 
 		$result = $this->db->setTable('accountspayable_attachments')
-							->setValues($data)
-							->runInsert();
+		->setValues($data)
+		->runInsert();
 		
 		if ($result) {
 			$this->log->saveActivity("Approve [$reference] with attachment");		
@@ -2401,31 +2410,31 @@ class accounts_payable extends wc_model
 
 	public function deleteAttachment($reference, $filename) {
 		$result = $this->db->setTable('accountspayable_attachments')
-							->setFields('attachment_name')
-							->setWhere("reference='$reference'")
-							->setOrderBy('entereddate DESC')
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->setFields('attachment_name')
+		->setWhere("reference='$reference'")
+		->setOrderBy('entereddate DESC')
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 		if ($result) {
 			unlink('files/'.$result->attachment_name);
 		}
 		
 		$result = $this->db->setTable('accountspayable_attachments')
-							->setWhere("reference='$reference' AND attachment_name != '$filename'")
-							->runDelete();
+		->setWhere("reference='$reference' AND attachment_name != '$filename'")
+		->runDelete();
 
 		return $result;
 	}
 
 	public function deleteExistingFile($filename){
 		$result = $this->db->setTable('accountspayable_attachments')
-							->setFields('attachment_name')
-							->setWhere("attachment_name='$filename'")
-							->setOrderBy('entereddate DESC')
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->setFields('attachment_name')
+		->setWhere("attachment_name='$filename'")
+		->setOrderBy('entereddate DESC')
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 
 		if ($result) {
 			unlink('files/'.$result->attachment_name);
@@ -2437,9 +2446,9 @@ class accounts_payable extends wc_model
 	public function replaceAttachment($data) {
 		$reference = $data['reference'];
 		$result = $this->db->setTable('accountspayable_attachments')
-							->setValues($data)
-							->setWhere("reference='$reference'")
-							->runUpdate();
+		->setValues($data)
+		->setWhere("reference='$reference'")
+		->runUpdate();
 		if ($result) {
 			$this->log->saveActivity("Update attachment with [$reference]");		
 		}
@@ -2449,12 +2458,12 @@ class accounts_payable extends wc_model
 	public function getAttachmentFile($voucherno) {
 		
 		$result = $this->db->setTable('accountspayable_attachments')
-							->setFields(array('attachment_name','attachment_url', 'attachment_type'))
-							->setWhere("reference = '$voucherno'")
-							->setOrderBy('attachment_id DESC')
-							->setLimit(1)
-							->runSelect()
-							->getRow();
+		->setFields(array('attachment_name','attachment_url', 'attachment_type'))
+		->setWhere("reference = '$voucherno'")
+		->setOrderBy('attachment_id DESC')
+		->setLimit(1)
+		->runSelect()
+		->getRow();
 							// echo $this->db->getQuery();
 		
 		return $result;

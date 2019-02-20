@@ -47,7 +47,6 @@
             $amountview = 0;
             if( !empty($pagination->result) ) :
                 foreach ($pagination->result as $key => $row) {
-
                     if($row->stat == 'on-going')
                     {
                         $jstatus = '<span class="label label-warning">'.strtoupper($row->stat).'</span>';
@@ -77,6 +76,7 @@
                     $table .= '<td class = "finalsum text-right" > <a href="javascript:void(0);" class = "amount" data-id="'.$row->id.'" data-job="'.$row->job_no.'" >' . $valuee . '</a> </td>';
                     $table .= '<td class = "text-right">' . $jstatus . '</td>';
                     $table .= '</tr>';
+//var_dump($row->amount);
                 }
             else:
                 $table .= "<tr>
@@ -120,10 +120,11 @@
     
                     $totalamount += $row->amount;
                     $valuee = 0;
+                    $jobAllocation = $this->job_report->getVoucherRatio($row->transtype,$row->voucherno,$row->job_no);
                     if($row->amount > 0) {
-                        $valuee = number_format($row->amount,2);
+                        $valuee = number_format(($row->amount * $jobAllocation),2);
                     }else {
-                        $valuee = "(" .number_format((abs($row->amount)),2) . ")";
+                        $valuee = "(" .number_format((abs(($row->amount * $jobAllocation))),2) . ")";
                     }
                     $jstatus = '';
                     if($row->stat == 'on-going')

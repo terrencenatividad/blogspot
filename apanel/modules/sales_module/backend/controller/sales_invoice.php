@@ -660,15 +660,15 @@ class controller extends wc_controller
 		$table .= "\n";
 		$table .= '"Email: '.$company->email.' Telephone: '.$company->mobile.'"';
 		$table .= "\n\n";
-		$table .= '"Sold To", "'.$customerdetails->customer.'"';
+		$table .= '"Sold To","'.$customerdetails->customer.'"';
 		$table .= "\n";
-		$table .= '"Address", "'.$customerdetails->address.'"';
+		$table .= '"Address","'.$customerdetails->address.'"';
 		$table .= "\n";
-		$table .= '"Shipping Address", "'.$documentinfo->s_address.'"';
+		$table .= '"Shipping Address","'.$documentinfo->s_address.'"';
 		$table .= "\n";
-		$table .= '"Contact #", "'.$customerdetails->contactno.'"';
+		$table .= '"Contact #","'.$customerdetails->contactno.'"';
 		$table .= "\n";
-		$table .= '"TIN", "'.$customerdetails->tinno.'"';
+		$table .= '"TIN","'.$customerdetails->tinno.'"';
 		$table .= "\n";
 		$table .= "\n\n";
 
@@ -698,24 +698,24 @@ class controller extends wc_controller
 			$tax			+= $row->taxamount;
 			$total_amount	+= 0;
 
-			$table .= '"'.$row->itemcode.'", "'.$row->description.'", "'.number_format($row->quantity, 0).'", "'.$row->uom.'", "'.number_format($row->price, 2).'", "'.$row->itemdiscount.'", "'.number_format($row->taxamount, 2).'", "'.number_format($row->amount, 2).'"';
+			$table .= '"'.$row->itemcode.'","'.$row->description.'","'.number_format($row->quantity, 0).'","'.$row->uom.'","'.number_format($row->price, 2).'","'.$row->itemdiscount.'","'.number_format($row->taxamount, 2).'","'.number_format($row->amount, 2).'"';
 			$table .= "\n";
 		}
 		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 		$table .= "\n\n";
-		$table .= '"", "", "", "", "", "", "Vatable Sales", "'.number_format($vatable_sales, 2).'",';
+		$table .= '"","","","","","","Vatable Sales","'.number_format($vatable_sales, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "VAT-Exempt Sales", "'.number_format($vat_exempt, 2).'",';
+		$table .= '"","","","","","","VAT-Exempt Sales","'.number_format($vat_exempt, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "VAT Zero Rated Sales", "'.number_format($vat_zerorated, 2).'",';
+		$table .= '"","","","","","", "VAT Zero Rated Sales","'.number_format($vat_zerorated, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Total Sales", "'.number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2).'",';
+		$table .= '"","","","","","", "Total Sales","'.number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Tax", "'.number_format($tax, 2).'",';
+		$table .= '"","","","","","","Tax","'.number_format($tax, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Total Amount", "'.number_format($total_amount, 2).'",';
+		$table .= '"","","","","","","Total Amount","'.number_format($total_amount, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Discount", "'.number_format($discount, 2).'",';
+		$table .= '"","","","","","","Discount","'.number_format($discount, 2).'",';
 		$table .= "\n";
 
 		return array('csv' => $table);
@@ -805,10 +805,12 @@ class controller extends wc_controller
 				$detailparticular 	= htmlspecialchars($val->detailparticular);
 				$quantity 			= $val->issueqty;
 				$unitprice 			= isset($val->unitprice) ? $val->unitprice : 0;
-				$discount 			= ($val->discounttype == 'amt') ? ($val->discountamount/$val->init_qty) * $val->issueqty : ($val->discountrate/$val->init_qty) * $val->issueqty;
+				//$discount 			= ($val->discounttype == 'amt') ? ($val->discountamount/$val->init_qty) * $val->issueqty : ($val->discountrate/$val->init_qty) * $val->issueqty;
+				$discount 			= ($val->discounttype == 'amt') ? ($val->discountamount/$val->init_qty) * $val->issueqty : $val->discountrate;
 				$percentage 		= ($val->discounttype == 'perc') ? "%" : "";
 				$discountamount 	= isset($val->discountamount) ? ($val->discountamount/$val->init_qty) * $val->issueqty : 0;
-				$discountrate 		= isset($val->discountrate) ? ($val->discountrate/$val->init_qty) * $val->issueqty : 0;
+				//$discountrate 		= isset($val->discountrate) ? ($val->discountrate/$val->init_qty) * $val->issueqty : 0;
+				$discountrate 		= isset($val->discountrate) ? $val->discountrate : 0;
 				$taxcode 			= isset($val->taxcode) ? $val->taxcode : '';
 				$taxrate 			= isset($val->taxrate) ? $val->taxrate : 0;
 				$taxamount 			= isset($val->taxamount) ? $val->taxamount : 0;
