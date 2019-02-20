@@ -174,6 +174,7 @@
 				xkey: 'month',
 				ykeys: ['expense', 'revenue'],
 				labels: ['Cost of Sales', 'Revenue'],
+				barColors : ['orange','blue'],
 				hideHover: true,
 				xLabelFormat: function (x){
 					var month = shortMonth[new Date(x.label).getMonth()];
@@ -193,6 +194,7 @@
 						xkey: 'month',
 						ykeys: ['expense', 'revenue'],
 						labels: ['Cost of Sales', 'Revenue'],
+						barColors : ['orange','blue'],
 						hideHover: true,
 						xLabelFormat: function (x){
 							var month = shortMonth[new Date(x.label).getMonth()];

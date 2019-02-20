@@ -17,7 +17,7 @@
 					<div class="col-md-3">
 						<?php
 							echo $ui->formField('dropdown')
-								->setPlaceholder('Select Vendor')
+								->setPlaceholder('Select Supplier')
 								->setName('vendor')
 								->setId('vendor')
 								->setList($vendor_list)
@@ -47,9 +47,9 @@
 									->addHeader("Supplier's Name",array('class'=>'col-md-2'),'sort','pt.partnername')
 									->addHeader('Description',array('class'=>'col-md-2'),'sort','pr.remarks')
 									->addHeader('Reference No.',array('class'=>'col-md-1'),'sort','pr.voucherno')
-									->addHeader('Amount',array('class'=>'col-md-1'),'sort','pr.taxamount + pr.amount')
+									->addHeader('Amount',array('class'=>'col-md-1'),'sort','pr.total_tax + pr.amount')
 									->addHeader('Discount',array('class'=>'col-md-1'),'sort','pr.discountamount')
-									->addHeader('VAT amount',array('class'=>'col-md-1'),'sort','pr.taxamount')
+									->addHeader('VAT amount',array('class'=>'col-md-1'),'sort','pr.total_tax')
 									->addHeader('Net Purchases',array('class'=>'col-md-1'),'sort','pr.amount')
 									->draw();
 						?>
