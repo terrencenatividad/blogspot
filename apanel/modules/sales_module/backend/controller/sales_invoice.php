@@ -651,24 +651,16 @@ class controller extends wc_controller
 		$customerdetails = $this->invoice->retrieveData("partners",$custField," partnertype = 'customer' AND partnercode = '".$customercode[0]->customer."'");
 		$customerdetails = $customerdetails[0];
 
-		$header 	=	array('Itemcode', 'Description', 'Qty', 'UOM', 'Price', 'Discount', 'Tax', 'Amount');
+		$header 	=	array('QTY', 'UNIT', 'ARTICLES', 'UNIT PRICE', 'AMOUNT');
 
 		$table = '';
-		$table .= '"'.strtoupper($company->companyname).'"';
-		$table .= "\n";
-		$table .= '"'.$company->address.'"';
-		$table .= "\n";
-		$table .= '"Email: '.$company->email.' Telephone: '.$company->mobile.'"';
+		$table .= '"'.strtoupper('Sales Invoice').'"';
 		$table .= "\n\n";
-		$table .= '"Sold To", "'.$customerdetails->customer.'"';
+		$table .= '"Sold To","'.$customerdetails->customer.'","","Date","'.$this->date->dateFormat($documentinfo->documentdate).'"';
 		$table .= "\n";
-		$table .= '"Address", "'.$customerdetails->address.'"';
+		$table .= '"TIN","'.$customerdetails->tinno.'","","Terms","'.$customerdetails->terms.'"';
 		$table .= "\n";
-		$table .= '"Shipping Address", "'.$documentinfo->s_address.'"';
-		$table .= "\n";
-		$table .= '"Contact #", "'.$customerdetails->contactno.'"';
-		$table .= "\n";
-		$table .= '"TIN", "'.$customerdetails->tinno.'"';
+		$table .= '"Address","'.$customerdetails->address.'","","Business Style",""';
 		$table .= "\n";
 		$table .= "\n\n";
 
@@ -698,24 +690,23 @@ class controller extends wc_controller
 			$tax			+= $row->taxamount;
 			$total_amount	+= 0;
 
-			$table .= '"'.$row->itemcode.'", "'.$row->description.'", "'.number_format($row->quantity, 0).'", "'.$row->uom.'", "'.number_format($row->price, 2).'", "'.$row->itemdiscount.'", "'.number_format($row->taxamount, 2).'", "'.number_format($row->amount, 2).'"';
+			$table .= '"'.number_format($row->quantity, 0).'","'.$row->uom.'","'.$row->itemcode.' - '.$row->description.'","'.number_format($row->price, 2).'","'.number_format($row->amount, 2).'"';
 			$table .= "\n";
 		}
 		$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
+		
 		$table .= "\n\n";
-		$table .= '"", "", "", "", "", "", "Vatable Sales", "'.number_format($vatable_sales, 2).'",';
+		$table .= '"","","","Total Sales (Vat Inclusive)","'.number_format($vatable_sales, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "VAT-Exempt Sales", "'.number_format($vat_exempt, 2).'",';
+		$table .= '"","","","Less: VAT","",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "VAT Zero Rated Sales", "'.number_format($vat_zerorated, 2).'",';
+		$table .= '"Vatable Sales","'.number_format($vatable_sales, 2).'","", "Amount: Net of VAT","'.number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2).'",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Total Sales", "'.number_format($vatable_sales + $vat_exempt + $vat_zerorated, 2).'",';
+		$table .= '"VAT-Exempt Sales","'.number_format($vat_exempt, 2).'","", "Amount Due","",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Tax", "'.number_format($tax, 2).'",';
+		$table .= '"Zero Rated Sales","'.number_format($vat_zerorated, 2).'","","Add: VAT","",';
 		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Total Amount", "'.number_format($total_amount, 2).'",';
-		$table .= "\n";
-		$table .= '"", "", "", "", "", "", "Discount", "'.number_format($discount, 2).'",';
+		$table .= '"VAT Amount","'.number_format($tax, 2).'","","TOTAL AMOUNT DUE","'.number_format($total_amount, 2).'",';
 		$table .= "\n";
 
 		return array('csv' => $table);

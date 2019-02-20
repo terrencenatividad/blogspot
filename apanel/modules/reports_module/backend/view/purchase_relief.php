@@ -71,16 +71,16 @@
 				<?php
 					echo $ui->loadElement('table')
 							->setHeaderClass('info')
-							->addHeader('Taxable Month', array('class' => 'col-md-1'), 'sort', 'rpt.transactiondate', ' asc')
-							->addHeader('TIN', array('class' => 'col-md-2'), 'sort', 'p.tinno', ' asc')
-							->addHeader('Vendor', array('class' => 'col-md-2'), 'sort', 'p.partnername', ' asc')
-							->addHeader('Gross Amount', array('class' => 'col-md-1'),'sort','rpt.netamount',' asc')
-							->addHeader('Taxable Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_sales',' sc')
-							->addHeader('Purchase of Services', array('class' => 'col-md-1'),'sort','rpt.service',' asc')
-							->addHeader('Purchase of Capital <br>Goods', array('class' => 'col-md-1'),'sort','rpt.goods',' asc')
-							->addHeader('Purchase of Goods Other <br>than Capital Goods', array('class' => 'col-md-1'),'sort','rpt.capital',' asc')
-							->addHeader('Input Tax', array('class' => 'col-md-1'),'sort','rpt.wtaxamount',' asc')
-							->addHeader('Gross Taxable Purchase', array('class' => 'col-md-1'),'sort','rpt.amount',' asc')
+							->addHeader('Taxable Month', array('class' => 'col-md-1'), 'sort', 'rpt.transactiondate')
+							->addHeader('TIN', array('class' => 'col-md-2'), 'sort', 'p.tinno')
+							->addHeader('Vendor', array('class' => 'col-md-2'), 'sort', 'p.partnername')
+							->addHeader('Gross Amount', array('class' => 'col-md-1'),'sort','rpt.netamount')
+							->addHeader('Taxable Purchase', array('class' => 'col-md-1'),'sort','rpt.vat_sales')
+							->addHeader('Purchase of Services', array('class' => 'col-md-1'),'sort','rpt.service')
+							->addHeader('Purchase of Capital <br>Goods', array('class' => 'col-md-1'),'sort','rpt.goods')
+							->addHeader('Purchase of Goods Other <br>than Capital Goods', array('class' => 'col-md-1'),'sort','rpt.capital')
+							->addHeader('Input Tax', array('class' => 'col-md-1'),'sort','rpt.wtaxamount')
+							->addHeader('Gross Taxable Purchase', array('class' => 'col-md-1'),'sort','rpt.amount')
 							->draw();
 				?>
 				<tbody></tbody>

@@ -76,7 +76,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->tinno . '</td>';
 			$table .= '<td>' . $row->partnername . '</td>';
-			$table .= '<td class="text-right"><a href="'.BASE_URL.'purchase/purchase_receipt/view/'.$row->voucherno.'">' . number_format($row->netamount,2) . '</a></td>';
+			$table .= '<td class="text-right"><a href="'.BASE_URL.'financials/accounts_payable/view/'.$row->apv.'">' . number_format($row->netamount,2) . '</a></td>';
 			// $table .= '<td class="text-right">' . number_format($row->vat_exempt,2) . '</td>';
 			// $table .= '<td class="text-right">' . number_format($row->vat_zerorated,2) . '</td>';
 			$table .= '<td class="text-right">' . number_format($row->vat_sales,2) . '</td>';
