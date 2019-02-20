@@ -43,7 +43,7 @@
                                          ->setFields(array('dtl.voucherno, dtl.itemcode, SUM(dtl.amount) amt, dtl.companycode, dtl.linenum'))
                                          ->leftJoin("items as itm ON itm.itemcode = dtl.itemcode AND itm.companycode = dtl.companycode")
                                          ->leftJoin("itemclass as ic ON ic.id = itm.classid AND ic.companycode = itm.companycode")
-                                         ->setWhere("dtl.stat IN ('Received','Posted') AND (itm.expenseType = 'vat_domestic_services' OR ic.expenseType = 'vat_domestic_services')")
+                                         ->setWhere("dtl.stat IN ('Received','Posted') AND IFNULL(itm.expenseType, ic.expenseType) = 'vat_domestic_services'" ) //(itm.expenseType = 'vat_domestic_services' OR ic.expenseType = 'vat_domestic_services')
                                          ->setGroupBy('dtl.voucherno')
                                          ->buildSelect();
 
@@ -51,7 +51,7 @@
                                          ->setFields(array('dtl.voucherno, dtl.itemcode, SUM(dtl.amount) amt, dtl.companycode, dtl.linenum'))
                                          ->leftJoin("items as itm ON itm.itemcode = dtl.itemcode AND itm.companycode = dtl.companycode")
                                          ->leftJoin("itemclass as ic ON ic.id = itm.classid AND ic.companycode = itm.companycode")
-                                         ->setWhere("dtl.stat IN ('Received','Posted') AND ((itm.expenseType = 'vat_exceed' OR itm.expenseType = 'vat_not_exceed') OR (ic.expenseType = 'vat_exceed' OR ic.expenseType = 'vat_not_exceed'))")
+                                         ->setWhere("dtl.stat IN ('Received','Posted') AND (IFNULL(itm.expenseType, ic.expenseType) = 'vat_exceed' OR IFNULL(itm.expenseType, ic.expenseType) = 'vat_not_exceed')")
                                          ->setGroupBy('dtl.voucherno')
                                          ->buildSelect();
 
@@ -59,7 +59,7 @@
                                          ->setFields(array('dtl.voucherno, dtl.itemcode, SUM(dtl.amount) amt, dtl.companycode, dtl.linenum'))
                                          ->leftJoin("items as itm ON itm.itemcode = dtl.itemcode AND itm.companycode = dtl.companycode")
                                          ->leftJoin("itemclass as ic ON ic.id = itm.classid AND ic.companycode = itm.companycode")
-                                         ->setWhere("dtl.stat IN ('Received','Posted') AND (itm.expenseType = 'vat_domestic_goods' OR ic.expenseType = 'vat_domestic_goods')")
+                                         ->setWhere("dtl.stat IN ('Received','Posted') AND IFNULL(itm.expenseType, ic.expenseType) = 'vat_domestic_goods'")
                                          ->setGroupBy('dtl.voucherno')
                                          ->buildSelect();
 
@@ -71,8 +71,6 @@
                                          ->setGroupBy('dtl.voucherno')
                                          ->buildSelect();
 
-                                        //  echo $this->db->getQUery();
-                                         
             $query = $this->db->setTable("purchasereceipt rpt")
                               ->setFields('rpt.transactiondate, rpt.voucherno, rpt.period, rpt.fiscalyear, p.partnername, p.address1 address, p.tinno, rpt.netamount, "0" vat_exempt, "0" vat_zerorated, rpt.amount vat_sales, 
                                             COALESCE(in_query.service,0) service, COALESCE(in_query.goods,0) goods, COALESCE(in_query.capital, 0) capital, rpt.total_tax totaltax, rpt.netamount as grosstaxable, ap.voucherno apv')

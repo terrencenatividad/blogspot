@@ -35,6 +35,7 @@ class controller extends wc_controller {
 		$ajax['aging']					= $this->dashboard->getAging();
 		$ajax['sales_purchases']		= $this->dashboard->getSalesAndPurchases();
 		$ajax['sales']					= $this->dashboard->getSales();
+		$ajax['purchase']				= $this->dashboard->getPurchase();
 		
 		return $ajax;
 	}
