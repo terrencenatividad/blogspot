@@ -415,9 +415,10 @@ class controller extends wc_controller
 			$arr = array('status');
 			$fields = $this->input->post($arr);
 			$fields['status'] = 'approved';
-			$result = false;
 			if($approver == $prepared_by) {
 				$result = $this->budgetting->updateSupplementApprove($id, $fields);
+			} else {
+				$result = false;
 			}
 			return $result;
 		}
@@ -434,6 +435,8 @@ class controller extends wc_controller
 			$result = false;
 			if($approver == $get['username']) {
 				$result = $this->budgetting->updateSupplementApprove($id, $fields);
+			} else {
+				$result = false;
 			}
 			return $result;
 		}
