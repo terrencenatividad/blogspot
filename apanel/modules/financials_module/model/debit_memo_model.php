@@ -199,7 +199,7 @@ class debit_memo_model extends wc_model {
 			$condition .= " AND transactiondate >= '{$datefilter[0]}' AND transactiondate <= '{$datefilter[1]}'";
  		}
 		$result = $this->db->setTable("journalvoucher jv")
-						->setFields("pt.partnername, transactiondate,partner ,voucherno, referenceno, FORMAT(amount, 2) amount, jv.stat as stat ")
+						->setFields("pt.partnername, transactiondate,partner ,voucherno, referenceno, FORMAT(convertedamount, 2) amount, jv.stat as stat ")
 						->leftJoin("partners pt ON pt.partnercode = jv.partner")
 						->setWhere($condition)
 						->setOrderBy($sort)

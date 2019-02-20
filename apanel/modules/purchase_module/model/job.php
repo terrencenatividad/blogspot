@@ -113,15 +113,18 @@
 			return $errmsg;
         }
         
-        public function getIPOPagination() {
+        public function getIPOPagination($search='') {
+            $addcond = '';
+            if ($search != '') {
+                $addcond = "AND ipo.voucherno LIKE '%$search%'";
+            }
             $pagination = $this->db->setTable("import_purchaseorder ipo")
-                            ->setFields("ipo.voucherno, ipo.transactiondate")
+                            ->setFields("DISTINCT(ipo.voucherno), ipo.transactiondate")
                             ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
-                            ->leftJoin("job_details jd ON jd.linenum=ipod.linenum")
-                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - jd.qty > 0")
-                            ->setOrderBy("voucherno ASC")
+                            ->leftJoin("job_details jd ON jd.ipo_no=ipod.voucherno AND jd.linenum=ipod.linenum")
+                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - COALESCE(jd.qty, 0) > 0 $addcond ")
+                            ->setOrderBy("ipo.transactiondate DESC, ipo.voucherno DESC")
                             ->runPagination();
-            
             return $pagination;
         }
 
@@ -129,7 +132,7 @@
             $result = $this->db->setTable("import_purchaseorder_details")
                             ->setFields("voucherno, itemcode, linenum, detailparticular, receiptqty, receiptuom")
                             ->setWhere("voucherno='".$ipo_number."'")
-                            ->setOrderBy("voucherno ASC, linenum ASC")
+                            ->setOrderBy("voucherno DESC, linenum ASC")
                             ->runPagination();
             return $result;
         }

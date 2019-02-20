@@ -452,10 +452,9 @@
 
         // IPO table search event
         $("#ipo_table_search").on("keyup", function() {
-            var value = $(this).val().toLowerCase();
-            $("#ipo_tableList tbody tr").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
+            ajax.search = $(this).val();
+            ajax.page = 1;
+            getList();
         });
 
         $("#item_tableList").on("change", ".quantity", function(){

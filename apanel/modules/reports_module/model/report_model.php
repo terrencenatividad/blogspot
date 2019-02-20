@@ -105,7 +105,8 @@ class report_model extends wc_model {
 								'sid.warehouse',
 								'si.customer',
 								'sect.partnername',
-								'sid.discountedamount + sid.taxamount' );
+								'sid.discountedamount + sid.taxamount',
+								'sid.discountedamount' );
 
 		$columns 	=	array(	'companycode',
 								'transactiondate',
@@ -126,7 +127,8 @@ class report_model extends wc_model {
 								'warehouse',
 								'customercode',
 								'customer',
-								'amount' );
+								'amount',
+								'netamount' );
 
 		$si = $this->db->setTable('salesinvoice si')
 						->leftJoin('salesinvoice_details sid ON si.companycode = sid.companycode AND si.voucherno = sid.voucherno')
@@ -171,7 +173,8 @@ class report_model extends wc_model {
 								'prd.warehouse',
 								'sect.partnername',
 								'pr.vendor',
-								'prd.amount + prd.taxamount - prd.discountamount - prd.withholdingamount ' );
+								'prd.amount + prd.taxamount - prd.discountamount - prd.withholdingamount ',
+								'prd.amount' );
 
 		$columns 	=	array(	'companycode',
 								'transactiondate',
@@ -192,7 +195,8 @@ class report_model extends wc_model {
 								'warehouse',
 								'supplier',
 								'suppliercode',
-								'amount' );
+								'amount',
+								'netamount' );
 
 		$pr = $this->db->setTable('purchasereceipt pr')
 						->leftJoin('purchasereceipt_details prd ON pr.companycode = prd.companycode AND pr.voucherno = prd.voucherno')
