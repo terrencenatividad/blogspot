@@ -112,13 +112,13 @@
 									->addHeader('Asset Number',array('class'=>'col-md-2'),'sort','asset_number')
 									
 									->addHeader("Capitalized Cost",array('class'=>'col-md-2 text-center'),'sort','capitalized_cost')
-									->addHeader('Commissioning Date',array('class'=>'col-md-1'),'sort','commissioning_date')
-									->addHeader('No. of Months Useful Life',array('class'=>'col-md-1'),'sort','useful_life')
-									->addHeader("Depreciation Amount / Month ",array('class'=>'col-md-1'),'sort','depreciation_amount')
-									->addHeader("Depreciation Month Start ",array('class'=>'col-md-1'),'sort','depreciation_month')
+									->addHeader('Commissioning<br> Date',array('class'=>'col-md-1'),'sort','commissioning_date')
+									->addHeader('No. of Months<br> Useful Life',array('class'=>'col-md-1'),'sort','useful_life')
+									->addHeader("Depreciation Amount /<br>Month ",array('class'=>'col-md-1'),'sort','depreciation_amount')
+									->addHeader("Depreciation<br>Month<br>Start ",array('class'=>'col-md-1'),'sort','depreciation_month')
 									->addHeader('Retirement Date',array('class'=>'col-md-1'),'sort','retirement_date')
 									->addHeader('Status',array('class'=>'col-md-2 text-center'),'sort','status')
-									->addHeader('Accumulated Depreciation',array('class'=>'col-md-2 text-center'),'sort','balance_value')
+									->addHeader('Accumulated<br>Depreciation',array('class'=>'col-md-2 text-center'),'sort','balance_value')
 									->addHeader('Book Value',array('class'=>'col-md-2 text-center'),'sort','salvage_value')
 									->draw();
 						?>
