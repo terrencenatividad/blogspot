@@ -44,7 +44,7 @@
 							->addHeader('Customer',array('class'=>'col-md-1'),'sort','partnername')
 							->addHeader('Unit',array('class'=>'col-md-1'),'sort','uom')
 							->addHeader('Serial No.',array('class'=>'col-md-1'),'sort','serialno')
-							->addHeader('Status',array('class'=>'col-md-1'),'sort','main.stat')
+							->addHeader('Status',array('class'=>'col-md-1'),'sort','balance')
 							->draw();
 				?>
 			</thead>

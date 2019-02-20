@@ -94,7 +94,7 @@
 				<div class="box box-solid bg-blue-gradient">
 					<div class="box-header">
 						<i class="fa fa-th"></i>
-						<h3 class="box-title">Sales Graph <?php echo $year ?></h3>
+						<h3 class="box-title">Gross Sales Graph <?php echo $year ?></h3>
 					</div>
 					<div class="box-body border-radius-none no-padding">
 						<div class="chart" id="sales_summary" style="height: 250px;"></div>
@@ -108,7 +108,7 @@
 						<h3 class="box-title">Purchases Graph <?php echo $year ?></h3>
 					</div>
 					<div class="box-body border-radius-none no-padding">
-						<div class="chart" id="purchases" style="height: 250px;"></div>
+						<div class="chart" id="purchase_summary" style="height: 250px;"></div>
 					</div>
 				</div>
 			</div>
@@ -148,6 +148,7 @@
 		var aging = '';
 		var sales_purchases = '';
 		var sales = '';
+		var purchase = '';
 		var shortMonth	= ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 		var fullMonth	= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -156,6 +157,7 @@
 			aging = data.aging;
 			sales_purchases = data.sales_purchases;
 			sales = data.sales;
+			purchase = data.purchase;
 			showChart();
 		});
 
@@ -172,6 +174,7 @@
 				xkey: 'month',
 				ykeys: ['expense', 'revenue'],
 				labels: ['Cost of Sales', 'Revenue'],
+				barColors : ['orange','blue'],
 				hideHover: true,
 				xLabelFormat: function (x){
 					var month = shortMonth[new Date(x.label).getMonth()];
@@ -191,6 +194,7 @@
 						xkey: 'month',
 						ykeys: ['expense', 'revenue'],
 						labels: ['Cost of Sales', 'Revenue'],
+						barColors : ['orange','blue'],
 						hideHover: true,
 						xLabelFormat: function (x){
 							var month = shortMonth[new Date(x.label).getMonth()];
@@ -277,13 +281,13 @@
 			});
 			new Morris.Line({
 				gridTextSize: 8,
-				element: 'purchases',
-				data: sales_purchases.purchases,
+				element: 'purchase_summary',
+				data: purchase.purchase,
 				xkey: 'month',
-				ykeys: ['value'],
-				labels: ['Value'],
+				ykeys: ['equipment','parts'],
+				labels: ['Equipment','Parts'],
 				gridTextColor: '#efefef',
-				lineColors: ['#efefef'],
+				lineColors: ['#f4415b','#efefef'],
 				gridLineColor: ['#efefef'],
 				hideHover: true,
 				xLabelFormat: function (x){
