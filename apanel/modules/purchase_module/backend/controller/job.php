@@ -63,6 +63,7 @@
             $data['stat']               = $retrievedjob[0]->stat;
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
+            $data['jobvoucher']         = json_encode(array());
 
             $ipo_item                   = array();
             $item                       = array();
@@ -98,8 +99,12 @@
             $data['ui']         = $this->ui;
             $data['task']       = 'save';
             $data['show_input'] = true;
-            
-
+            $data['jobvoucher'] = '';
+            $jobvoucher         = $this->job->getJobVouchers();
+            foreach ($jobvoucher as $key => $row) {
+                $data['jobvoucher'][] = $row->job_no;
+            }
+            $data['jobvoucher'] = json_encode($data['jobvoucher']);
             $data['ajax_post']  = '';
 
             $data['job_no']     = '';  
@@ -123,9 +128,14 @@
             $data["job_no"]             = $job;
             $retrievedjob               = $this->job->getJob($job);
             $job_date                   = $this->date->dateFormat($retrievedjob[0]->transactiondate);
-
             $data['transactiondate']    = $job_date;
             $data['notes']              = $retrievedjob[0]->notes;
+
+            $jobvoucher         = $this->job->getJobVouchers($job);
+            foreach ($jobvoucher as $key => $row) {
+                $data['jobvoucher'][] = $row->job_no;
+            }
+            $data['jobvoucher'] = json_encode($data['jobvoucher']);
 
             $result                     = (array) $this->job->retrieveExistingJob($job);
             $data['result']             = $result;
@@ -151,8 +161,7 @@
         }
 
         private function save(){
-            $job_voucher    = $this->seq->getValue("JOBIPO");
-            $job_notarray   = $this->seq->getValue("JOB");
+            $job_notarray   = $this->input->post("job_no");
             $notes          = $this->input->post("remarks");
             $date           = $this->input->post("transaction_date");
             $date           = $this->date->dateDbFormat($date);
@@ -170,8 +179,8 @@
             $jobcost = 0;
             for ($i=0 ; $i<count($itemcode) ; $i++) {
                 $job_static[$i]     = $job_notarray;
-                $job_increment[$i]  = $job_voucher++;
-                
+                $job_increment[$i]  = $this->seq->getValue("JOBIPO");
+                $stat_arr[]         = $status;
                 $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i],$linenum[$i]);
                 $jobcost            += $itemcost[$i] * $qty[$i];
             }
@@ -196,7 +205,8 @@
                 'chassisno'     =>'',
                 'qty'           =>$qty,
                 'uom'           =>$uom,
-                'description'   =>$desc
+                'description'   =>$desc,
+                'stat'          =>$stat_arr
             );
             
             $result1 = $this->job->saveFromPost("job_details", $values);
@@ -224,7 +234,6 @@
         }
 
         private function update(){
-            $job_voucher    = $this->seq->getValue("JOBIPO");
             $job_notarray   = $this->input->post("txtjob");
             $notes          = $this->input->post("remarks");
             $date           = $this->input->post("transaction_date");
@@ -242,10 +251,10 @@
 
             $jobcost = 0;
             for ($i=0 ; $i<count($itemcode) ; $i++) {
-                $job_static[$i]            = $this->input->post("txtjob");
-                $job_increment[$i]  = $job_voucher++;
-                
-                $itemcost[$i]           = $this->job->getItemCost($ipo[$i],$itemcode[$i],$linenum[$i]);
+                $job_static[$i]     = $this->input->post("txtjob");
+                $job_increment[$i]  = $this->seq->getValue("JOBIPO");
+                $stat_arr[]         = $status;
+                $itemcost[$i]       = $this->job->getItemCost($ipo[$i],$itemcode[$i],$linenum[$i]);
                 $jobcost            += $itemcost[$i] * $qty[$i];
             }
             // var_dump($jobcost);
@@ -274,7 +283,8 @@
                 'chassisno'     =>'',
                 'qty'           =>$qty,
                 'uom'           =>$uom,
-                'description'   =>$desc
+                'description'   =>$desc,
+                'stat'          =>$stat_arr
             );
             if ($delete_result===true) {
                 $result1 = $this->job->saveFromPost("job_details", $values);
@@ -409,10 +419,11 @@
         }
         
         private function ajax_load_ipo_list() {
-            $search     = $this->input->post('search');
-            $pagination = $this->job->getIPOPagination($search);
+            $ajax     = $this->input->post('ajax');
+            $search     = (isset($ajax['search'])) ? $ajax['search'] : '';
+            $job        = $this->input->post('jobno');
+            $pagination = $this->job->getIPOPagination($search, $job);
             $table      = '';
-
             if (empty($pagination->result)) {
                 $table = '<tr><td colspan="5" class="text-center"><b>No Records Found</b></td></tr>';
             }
