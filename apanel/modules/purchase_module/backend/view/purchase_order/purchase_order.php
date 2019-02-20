@@ -806,15 +806,15 @@
 										</td>
 										<td class="text-center">
 											<?php
-											$received_total = round(($row->unitprice * $row->received_qty) / (1 + $row->taxrate), 2);
+											$received_total = round(($row->unitprice * $row->received_qty) * (1 + $row->taxrate), 2);
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
 											->setValue(number_format($received_total, 2))
 											->draw(false);
 
-											$received_total_vatable += $received_total;
-											$received_total_tax += ($row->unitprice * $row->received_qty) - $received_total;
+											$received_total_vatable += $row->unitprice * $row->received_qty;
+											$received_total_tax += $received_total - ($row->unitprice * $row->received_qty);
 											$received_wtaxrate = $row->wtaxrate;
 											?>
 										</td>
@@ -950,7 +950,7 @@
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
-											->setValue(number_format($row->unitprice * $row->balance_qty, 2))
+											->setValue(number_format(($row->unitprice * $row->balance_qty) * (1 + $row->taxrate), 2))
 											->draw(false);
 											?>
 										</td>
