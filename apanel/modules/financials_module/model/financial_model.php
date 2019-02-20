@@ -349,24 +349,44 @@ class financial_model extends wc_model {
 	}
 
 	private function getDetailSource() {
-		$fields = array(
-			'IF(i.receivable_account > 0, i.receivable_account, ic.receivable_account) receivable_account',
-			'IF(i.revenue_account > 0, i.revenue_account, ic.revenue_account) revenue_account',
-			'IF(i.expense_account > 0, i.expense_account, ic.expense_account) expense_account',
-			'IF(i.payable_account > 0, i.payable_account, ic.payable_account) payable_account',
-			'drd.amount',
-			'drd.budgetcode',
-			'drd.taxamount',
-			'drd.taxcode',
-			'wtaxamount',
-			'wtaxrate',
-			'dr.discountamount',
-			'IF(f.purchaseAccount > 0, f.purchaseAccount, f2.purchaseAccount) purchaseAccount',
-			'IF(f.salesAccount > 0, f.salesAccount, f2.salesAccount) salesAccount',
-			'f3.purchaseAccount purchaseAccount2',
-			'f3.salesAccount salesAccount2',
-			'f4.purchaseAccount discountAccount'
-		);
+		if($this->source_detail_table == 'purchasereceipt_details') {
+			$fields = array(
+				'IF(i.receivable_account > 0, i.receivable_account, ic.receivable_account) receivable_account',
+				'IF(i.revenue_account > 0, i.revenue_account, ic.revenue_account) revenue_account',
+				'IF(i.expense_account > 0, i.expense_account, ic.expense_account) expense_account',
+				'IF(i.payable_account > 0, i.payable_account, ic.payable_account) payable_account',
+				'drd.amount',
+				"drd.budgetcode",
+				'drd.taxamount',
+				'drd.taxcode',
+				'wtaxamount',
+				'wtaxrate',
+				'dr.discountamount',
+				'IF(f.purchaseAccount > 0, f.purchaseAccount, f2.purchaseAccount) purchaseAccount',
+				'IF(f.salesAccount > 0, f.salesAccount, f2.salesAccount) salesAccount',
+				'f3.purchaseAccount purchaseAccount2',
+				'f3.salesAccount salesAccount2',
+				'f4.purchaseAccount discountAccount'
+			);
+		} else {
+			$fields = array(
+				'IF(i.receivable_account > 0, i.receivable_account, ic.receivable_account) receivable_account',
+				'IF(i.revenue_account > 0, i.revenue_account, ic.revenue_account) revenue_account',
+				'IF(i.expense_account > 0, i.expense_account, ic.expense_account) expense_account',
+				'IF(i.payable_account > 0, i.payable_account, ic.payable_account) payable_account',
+				'drd.amount',
+				'drd.taxamount',
+				'drd.taxcode',
+				'wtaxamount',
+				'wtaxrate',
+				'dr.discountamount',
+				'IF(f.purchaseAccount > 0, f.purchaseAccount, f2.purchaseAccount) purchaseAccount',
+				'IF(f.salesAccount > 0, f.salesAccount, f2.salesAccount) salesAccount',
+				'f3.purchaseAccount purchaseAccount2',
+				'f3.salesAccount salesAccount2',
+				'f4.purchaseAccount discountAccount'
+			);
+		}
 		$result = $this->db->setTable($this->source_detail_table . ' drd')
 		->innerJoin($this->source_header_table . ' dr ON dr.voucherno = drd.voucherno AND dr.companycode = drd.companycode')
 		->innerJoin('items i ON i.itemcode = drd.itemcode AND i.companycode = drd.companycode')
@@ -420,9 +440,9 @@ class financial_model extends wc_model {
 		foreach ($data as $type => $row) {
 			foreach ($row as $key => $value) {
 				$data2['accountcode'][]		= $key;
-				if($type == 'secondaryaccount') {
+				if($type == 'secondaryaccount' && $this->source_detail_table == 'purchasereceipt_details') {
 					$data2['budgetcode'][]		= $budgetcode;
-				} else {
+				} else if($type != 'secondaryaccount' && $this->source_detail_table == 'purchasereceipt_details'){
 					$data2['budgetcode'][] = '';
 				}
 				$data2['debit'][]			= $this->getDebit($type, $value);
