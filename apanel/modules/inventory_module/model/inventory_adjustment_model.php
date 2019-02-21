@@ -619,9 +619,9 @@ class inventory_adjustment_model extends wc_model {
 				$header['convertedamount'] 	=	$amount;
 				// $header['referenceno'] 		=	$voucherno;
 				$header['referenceno'] 		=	"Beginning Balance";
+				$header['source'] 			=	'beginning';
 				$header['sitecode'] 		= 	'';
 				$header['remarks'] 			= 	'-';
-				$header['source'] 			=	'beginning';
 
 				$result 		=	$this->deleteBeginningJV("journalvoucher");
 				if($result){
