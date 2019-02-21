@@ -540,7 +540,7 @@
 		function addVoucherDetails(details, index) {
 			var details = details || {itemcode: '', detailparticular: '', receiptqty: ''};
 			var other_details = JSON.parse(JSON.stringify(details));
-			// console.log(details.item_ident_flag);
+			
 			delete other_details.itemcode;
 			delete other_details.detailparticular;
 			delete other_details.receiptqty;
@@ -1559,6 +1559,7 @@
 				var total_tax = 0;
 				$('#tableList tbody tr').each(function() {
 					var amount =	0;	
+					var po_qty = removeComma($(this).find('.po_qty').val()); 
 					var price = removeComma($(this).find('.unitprice').val());
 					var quantity = removeComma($(this).find('.receiptqty').val()) || 1;
 					var exchangerate = removeComma($(this).find('.exchangerate').val());
@@ -1574,15 +1575,16 @@
 					var discountamount = removeComma($(this).find('.discountamount').val()) || '0';
 					var discount = 0;
 					if(discountamount > 0){
-						discount = (discounttype == 'amt') ? discountamount * exchangerate : (((price * quantity) * (discountamount / 100)) * exchangerate);
-						//console.log((price * quantity));
+						// discount = (discounttype == 'amt') ? discountamount * exchangerate : (((price * quantity) * (discountamount / 100)) * exchangerate);
+						discount = (discounttype == 'amt') ? discountamount / po_qty : price * (discountamount/100);
 					}
+					// console.log(discount);
 					
 					// var amount = (((price * quantity) * exchangerate) + (((((price * quantity) * exchangerate) / total_purchase) * (charges))));
 					// var taxamount = (taxrate > 0) ? removeComma(addComma((((price * quantity) * exchangerate) * parseFloat(taxrate)))) : 0;
-					var amount = ((((price * quantity) * exchangerate) - discount) + ((((((price * quantity) * exchangerate) - discount) / total_purchase) * (charges))));
+					var amount = ((((price - discount) * quantity) * exchangerate) + ((((((price - discount) * quantity) * exchangerate) / total_purchase) * charges )));
 					var taxamount = (taxrate > 0) ? removeComma(addComma(((((price * quantity) * exchangerate) - discount) * parseFloat(taxrate)))) : 0;
-					
+					// console.log(amount);
 					total_amount += amount;
 					total_tax += taxamount;
 
@@ -1604,6 +1606,7 @@
 				var withholding_tax = total_amount * wtaxrate;
 
 				var total_amount_due = total_amount + total_tax - discount_amount - withholding_tax;
+				
 				$('#tableList tfoot .total_amount').val(total_amount).closest('.form-group').find('.form-control-static').html(addComma(total_amount));
 				$('#tableList tfoot .total_tax').val(total_tax).closest('.form-group').find('.form-control-static').html(addComma(total_tax));
 				$('#tableList tfoot .wtaxrate').val(wtaxrate);
