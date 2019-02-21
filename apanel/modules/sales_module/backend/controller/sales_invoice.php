@@ -893,7 +893,7 @@ class controller extends wc_controller
 										->setSplit('', 'col-md-12')
 										->setName('discount['.$row.']')
 										->setId('discount['.$row.']')
-										->setClass("text-right price")
+										->setClass("text-right discount")
 										->setAttribute(
 											array(
 												"maxlength" => "20",
@@ -902,8 +902,8 @@ class controller extends wc_controller
 										)
 										->setValue(number_format($discount,2)." ".$percentage)
 										->draw(true);
-				$result 	.= '<input id = "h_discountrate['.$row.']" name = "h_discountrate['.$row.']" maxlength = "20" class = "col-md-12" type = "hidden" value = "'.$discountrate.'">';
-				$result 	.= '<input id = "h_discount['.$row.']" name = "h_discount['.$row.']" maxlength = "20" class = "col-md-12" type = "hidden" value = "'.$discountamount.'">';
+				$result 	.= '<input id = "h_discountrate['.$row.']" name = "h_discountrate['.$row.']" maxlength = "20" class = "col-md-12 discountrate" type = "hidden" value = "'.$discountrate.'">';
+				$result 	.= '<input id = "h_discount['.$row.']" name = "h_discount['.$row.']" maxlength = "20" class = "col-md-12 discountamount" type = "hidden" value = "'.$discountamount.'">';
 				$result     .= '</td>';
 
 				$result 	.= '<td>';
