@@ -736,7 +736,7 @@ class inventory_adjustment_model extends wc_model {
 
 		$ret_seq_cnt 	=	$this->db->setTable("wc_sequence_control")
 								  ->setFields("COUNT(*) count")
-								  ->setWhere("current > start AND prefix NOT IN ('BAL','JV') ")
+								  ->setWhere("current > start AND prefix NOT IN ('BAL','JV','BUD','JOB','JOBIPO') ")
 								  ->runSelect()
 								  ->getRow();
 								  // > 
