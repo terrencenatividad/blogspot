@@ -419,9 +419,9 @@ class financial_model extends wc_model {
 				if ($row->discountamount && $dc_add) {
 					$this->addAccount($data, 'discount', $row->discountAccount, $row->discountamount);
 					$dc_add = false;
-					if(!empty($row->budgetcode)) {
+					if(!empty($row->budgetcode) && $this->source_detail_table == 'purchasereceipt_details') {
 						$budgetcode = $row->budgetcode;
-					} else {
+					} else if ($this->source_detail_table == 'purchasereceipt_details') {
 						$budgetcode = '';
 					}
 				}
