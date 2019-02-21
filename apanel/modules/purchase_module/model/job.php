@@ -145,7 +145,7 @@
                             ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
                             
                             ->leftJoin("job_details jd ON jd.ipo_no=ipod.voucherno AND jd.linenum=ipod.linenum AND jd.stat!='cancelled'")
-                            ->setWhere("ipo.stat IN ('open', 'partial') AND ipod.receiptqty - COALESCE((SELECT SUM(qty) FROM job_details WHERE ipo_no=ipod.voucherno AND stat!='cancelled'),0) > 0 $addcond ")
+                            ->setWhere("ipo.stat IN ('open', 'partial', 'posted') AND ipod.receiptqty - COALESCE((SELECT SUM(qty) FROM job_details WHERE ipo_no=ipod.voucherno AND stat!='cancelled'),0) > 0 $addcond ")
                             ->setGroupBy("ipo.voucherno")
                             ->setOrderBy("ipo.transactiondate DESC, ipo.voucherno DESC")
                             ->runPagination();
