@@ -6,9 +6,9 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$prevyear 	= date("Y",strtotime($date." -1 year"));
 		
-		$fetch_debit  = $this->getValue("balance_table",array("SUM(debit) as debit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
+		$fetch_debit  = $this->getValue("balance_table",array("SUM(converted_debit) as debit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$debit        = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table",array("SUM(credit) as credit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
+		$fetch_credit = $this->getValue("balance_table",array("SUM(converted_credit) as credit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$credit 	  = $fetch_credit[0]->credit;
 
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
@@ -19,9 +19,9 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$currentyear= date("Y",strtotime($fromdate));
 
-		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
+		$fetch_debit  = $this->getValue("balance_table","SUM(converted_debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$debit		  = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
+		$fetch_credit = $this->getValue("balance_table","SUM(converted_credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$credit       = $fetch_credit[0]->credit;
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
 	}
@@ -30,9 +30,9 @@ class trial_balance extends wc_model {
 		$debit 		= 0;
 		$credit 	= 0;
 
-		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
+		$fetch_debit  = $this->getValue("balance_table","SUM(converted_debit) as debit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
 		$debit        = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
+		$fetch_credit = $this->getValue("balance_table","SUM(converted_credit) as credit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
 		$credit       = $fetch_credit[0]->credit; 
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
 	}
@@ -154,7 +154,7 @@ class trial_balance extends wc_model {
 		$fields 	=	 array('bal.accountcode as accountcode, ca.segment5 as segment5, 
 							   ca.accountname, bal.transactiondate, bal.period, bal.fiscalyear, 
 							   bal.voucherno, p.partnername as partner , bal.transtype, 
-							   SUM(bal.debit) as debit, SUM(bal.credit) as credit, bal.source');
+							   SUM(bal.converted_debit) as debit, SUM(bal.converted_credit) as credit, bal.source');
 		
 		$fetch_result 	=	$this->db->setTable("balance_table bal")
 						->leftJoin("chartaccount ca ON ca.id = bal.accountcode")
@@ -380,17 +380,29 @@ class trial_balance extends wc_model {
 	}	
 
 	public function check_depreciation_run($datefrom, $dateto) {
-		// $curr_close_date 	=	$this->date->dateDBFormat($date);
 	
 		$result 			= 	$this->db->setTable("journalvoucher")
 										 ->setFields(array('voucherno'))
 										 ->setWhere("(transactiondate >= '$datefrom' AND transactiondate <= '$dateto') AND source='depreciation'")
 										 ->runSelect(false)
 										 ->getResult();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
+	public function get_depreciation_start() {
+		// Get all Period and Year of Depreciation Months of each Asset 
+		$asset_ret 			= 	$this->db->setTable('asset_master am')
+										 ->leftJoin("journalvoucher jv ON jv.period = MONTH(am.depreciation_month) AND jv.fiscalyear =  YEAR(am.depreciation_month) AND jv.source = 'depreciation' AND jv.stat NOT IN ('cancelled','temporary')")
+										 ->setFields("am.id, am.depreciation_month, MONTH(am.depreciation_month) period, YEAR(am.depreciation_month) year, jv.voucherno")
+										 ->setWhere('jv.voucherno IS NULL')
+										 ->setGroupBy("MONTH(am.depreciation_month), YEAR(am.depreciation_month)")
+										 ->setOrderBy("YEAR(am.depreciation_month) ASC, MONTH(am.depreciation_month) ASC")
+										 ->runSelect()
+										 ->getResult();
+		return $asset_ret;
+	}
+	
 	public function check_latest_closedmonth($year=""){
 		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
 		$result 	= $this->db->setTable("journalvoucher")
