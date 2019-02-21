@@ -39,11 +39,16 @@ class controller extends wc_controller {
 
 	private function ajax_list() {
 		$checkdep		= $this->depreciation_run->checkDepreciation();
-		if($checkdep->transactiondate > $this->date->dateDbFormat()){
-			$checkdep = 'true';
+		if($checkdep === true){
+			if($checkdep->transactiondate > $this->date->dateDbFormat()){
+				$checkdep = 'true';
+			}else{
+				$checkdep = 'false';
+			}
 		}else{
 			$checkdep = 'false';
 		}
+		
 		
 		$sort = $this->input->post('sort');
 		$pagination		= $this->depreciation_run->getAssetMasterList($this->fields,$sort);

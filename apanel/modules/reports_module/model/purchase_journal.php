@@ -17,13 +17,13 @@ class purchase_journal extends wc_model {
 		}
 
 		$fields = array('
-			pr.vendor code, pr.transactiondate transactiondate, pr.remarks remarks, pr.voucherno ref_no, pr.discountamount discount, pr.taxamount taxamount, pr.netamount netamount, pt.partnername vendor, pt.tinno tinno, pr.amount amount'
+			pr.vendor code, pr.transactiondate transactiondate, pr.remarks remarks, pr.voucherno ref_no, pr.discountamount discount, pr.total_tax taxamount, pr.netamount netamount, pt.partnername vendor, pt.tinno tinno, pr.amount amount'
 		);
 
-		$result = $this->db->setTable('purchaseorder pr')
+		$result = $this->db->setTable('purchasereceipt pr')
 						->setFields($fields)
 						->leftJoin('partners pt ON pr.vendor = pt.partnercode')
-						->setWhere(" pr.taxamount > 0 AND pr.stat NOT IN ('temporary','cancelled') " .$condition)
+						->setWhere(" pr.total_tax > 0 AND pr.stat NOT IN ('temporary','cancelled') " .$condition)
 						->setOrderBy($orderby)
 						->runPagination();
 		return $result;
@@ -45,13 +45,13 @@ class purchase_journal extends wc_model {
 		}
 
 		$fields = array('
-			pr.vendor code, pr.transactiondate transactiondate, pr.remarks remarks, pr.voucherno ref_no, pr.discountamount discount, pr.taxamount taxamount, pr.netamount netamount, pt.partnername vendor, pt.tinno tinno, pr.amount amount'
+			pr.vendor code, pr.transactiondate transactiondate, pr.remarks remarks, pr.voucherno ref_no, pr.discountamount discount, pr.total_tax taxamount, pr.netamount netamount, pt.partnername vendor, pt.tinno tinno, pr.amount amount'
 		);
 
-		$result = $this->db->setTable('purchaseorder pr')
+		$result = $this->db->setTable('purchasereceipt pr')
 						->setFields($fields)
 						->leftJoin('partners pt ON pr.vendor = pt.partnercode')
-						->setWhere(" pr.taxamount > 0 AND pr.stat NOT IN ('temporary','cancelled')" .$condition)
+						->setWhere(" pr.total_tax > 0 AND pr.stat NOT IN ('temporary','cancelled')" .$condition)
 						->setOrderBy($orderby)
 						->runSelect()
 						->getResult();

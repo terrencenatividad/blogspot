@@ -441,7 +441,7 @@ class controller extends wc_controller
 				$data['received_items'] = $this->po->getReceivedItems($data["voucherno"]);
 			}
 		}
-
+		
 		$this->view->load('purchase_order/purchase_order', $data);
 	}
 
@@ -528,7 +528,7 @@ class controller extends wc_controller
 		$netamount = $documentinfo->net;
 
 		$print = new purchase_print_model();
-		$print->setDocumentType('Import Purchase Order')
+		$print->setDocumentType('Purchase Order')
 		->setFooterDetails(array('Prepared By', 'Recommending Approval', 'Approved By'))
 		->setVendorDetails($vendordetails)
 		->setStatDetail($documentinfo->stat)
@@ -551,7 +551,7 @@ class controller extends wc_controller
 		$print_data['printdate'] = date("Y-m-d H:i:s");
 		$this->po->updateData($print_data, "purchaseorder", " voucherno = '$voucherno' AND print = '0' ");
 
-		$detail_height = 37;
+		$detail_height = 28;
 		$notes = htmlentities($documentinfo->remarks);
 		$total_amount = 0;
 		$line_count = 0;

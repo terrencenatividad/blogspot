@@ -116,7 +116,7 @@ class dashboard_model extends wc_model {
 		$current2 	=	$this->db->setTable("({$this->current_month_query}) m")
 								->leftJoin("($coa_cost) n ON 1 = 1")
 								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
-								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->setFields("IFNULL(SUM(pr.debit)-SUM(pr.credit), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
 								->runSelect()
@@ -135,7 +135,7 @@ class dashboard_model extends wc_model {
 		$previous2 	=	$this->db->setTable("({$this->previous_month_query}) m")
 								->leftJoin("($coa_cost) n ON 1 = 1")
 								->leftJoin("balance_table pr ON MONTH(pr.transactiondate) = m.month AND YEAR(pr.transactiondate) = m.year AND pr.accountcode = n.id ")
-								->setFields("IFNULL(SUM(pr.credit)-SUM(pr.debit), 0) expense, CONCAT(m.year, '-', m.month) month")
+								->setFields("IFNULL(SUM(pr.debit)-SUM(pr.credit), 0) expense, CONCAT(m.year, '-', m.month) month")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
 								->runSelect()
@@ -288,27 +288,27 @@ class dashboard_model extends wc_model {
 	}
 
 	public function getSales() {
-		$equipment_class 	= 'EQUIPMENT';
-		$parts_class 		= 'SPARE PARTS';
-		$service_class 		= 'SERVICES';
+		$equipment_account 	= '40101';
+		$parts_account 		= '40111';
+		$service_account 	= '40121';
 
 		$sales_equipment		= $this->db->setTable("({$this->current_month_query}) m")
-								->setFields("CONCAT(m.year, '-', m.month) month, IFNULL(SUM(bal.amount), 0) equipment, '0' parts, '0' service")
-								->leftJoin("balance_table_sales bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND bal.itemclass = '$equipment_class' ")
+								->setFields("CONCAT(m.year, '-', m.month) month, IFNULL(SUM(bal.credit) - SUM(bal.debit), 0) equipment, '0' parts, '0' service")
+								->leftJoin("balance_table bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND (select coa.segment5 from chartaccount coa where coa.id = bal.accountcode and coa.companycode = m.companycode) = '$equipment_account' ")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 		$sales_parts			= $this->db->setTable("({$this->current_month_query}) m")
-								->setFields("CONCAT(m.year, '-', m.month) month, '0' equipment, IFNULL(SUM(bal.amount), 0) parts, '0' service")
-								->leftJoin("balance_table_sales bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND bal.itemclass = '$parts_class' ")
+								->setFields("CONCAT(m.year, '-', m.month) month, '0' equipment, IFNULL(SUM(bal.credit) - SUM(bal.debit), 0) parts, '0' service")
+								->leftJoin("balance_table bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND (select coa.segment5 from chartaccount coa where coa.id = bal.accountcode and coa.companycode = m.companycode) = '$parts_account'")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
 								->runSelect()
 								->getResult();
 		$sales_service			= $this->db->setTable("({$this->current_month_query}) m")
-								->setFields("CONCAT(m.year, '-', m.month) month, '0' equipment, '0' parts, IFNULL(SUM(si.netamount), 0) service")
-								->leftJoin("billing si ON MONTH(si.transactiondate) = m.month AND si.companycode = m.companycode AND YEAR(si.transactiondate) = m.year AND si.stat NOT IN ('temporary', 'cancelled')")
+								->setFields("CONCAT(m.year, '-', m.month) month, '0' equipment, '0' parts, IFNULL(SUM(bal.credit) - SUM(bal.debit), 0) service")
+								->leftJoin("balance_table bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND (select coa.segment5 from chartaccount coa where coa.id = bal.accountcode and coa.companycode = m.companycode) = '$service_account'")
 								->setGroupBy('m.month')
 								->setOrderBy('m.year, m.month')
 								->runSelect()
@@ -330,9 +330,43 @@ class dashboard_model extends wc_model {
 			$sales[$key]['parts'] 		+= $value->parts;
 			$sales[$key]['service'] 	+= $value->service;
 		}			
-		$aging = array(
+		$result = array(
 			'sales'		=> $sales
 		);
-		return $aging;
+		return $result;
+	}
+
+	public function getPurchase() {
+		$equipment_class 	= 'EQUIPMENT';
+		$parts_class 		= 'SPARE PARTS';
+
+		$sales_equipment		= $this->db->setTable("({$this->current_month_query}) m")
+								->setFields("CONCAT(m.year, '-', m.month) month, IFNULL(SUM(bal.netamount), 0) equipment, '0' parts")
+								->leftJoin("balance_table_purchase bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND bal.itemclass = '$equipment_class' ")
+								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
+								->runSelect()
+								->getResult();
+		$sales_parts			= $this->db->setTable("({$this->current_month_query}) m")
+								->setFields("CONCAT(m.year, '-', m.month) month, '0' equipment, IFNULL(SUM(bal.netamount), 0) parts")
+								->leftJoin("balance_table_purchase bal ON MONTH(bal.transactiondate) = m.month AND bal.companycode = m.companycode AND YEAR(bal.transactiondate) = m.year AND bal.itemclass = '$parts_class' ")
+								->setGroupBy('m.month')
+								->setOrderBy('m.year, m.month')
+								->runSelect()
+								->getResult();
+		$purchase 	= array();
+		foreach ($sales_equipment as $key => $value) {
+			$purchase[$key]['month'] 		= $value->month;
+			$purchase[$key]['equipment'] 	= $value->equipment;
+			$purchase[$key]['parts'] 		= $value->parts;
+		}
+		foreach ($sales_parts as $key => $value) {
+			$purchase[$key]['equipment'] 	+= $value->equipment;
+			$purchase[$key]['parts'] 		+= $value->parts;
+		}		
+		$result = array(
+			'purchase'		=> $purchase
+		);
+		return $result;
 	}
 }

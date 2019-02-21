@@ -723,12 +723,13 @@
 						<table class="table table-hover table-condensed table-sidepad" id="itemsTable2">
 							<thead>
 								<tr class="info">
+									<th class="col-md-2 text-center">Budget Code</th>
 									<th class="col-md-2 text-center">Item Name</th>
-									<th class="col-md-3 text-center">Description</th>
-									<th class="col-md-2 text-center">Warehouse</th>
+									<th class="col-md-2 text-center">Description</th>
+									<th class="col-md-1 text-center">Warehouse</th>
 									<th class="col-md-1 text-center">Qty</th>
 									<th class="col-md-1 text-center">UOM</th>
-									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Tax</th>
 									<th class="col-md-1 text-center">Price</th>
 									<th class="col-md-2 text-center">Amount</th>
 									<th class="taxt-center"></th>
@@ -741,6 +742,19 @@
 								?>
 								<?php foreach ($received_items as $row): ?>
 									<tr>
+										<td class = "remove-margin">
+											<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('', 'col-md-12')
+											// ->setName("budgetcode[".$row."]")
+											// ->setId("budgetcode[".$row."]")
+											->setList($budget_list)
+											->setClass('budgetcode')
+											->setValue($row->budgetcode)
+											->draw(false);
+											?>
+										</td>
 										<td>
 											<?php
 											echo $ui->formField('dropdown')
@@ -781,7 +795,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
-											->setValue($uom)
+											->setValue($row->receiptuom)
 											->draw(false);
 											?>
 										</td>
@@ -791,7 +805,7 @@
 											->setSplit('', 'col-md-12')
 											->setClass("taxcode")
 											->setList($tax_codes)
-											->setValue($taxcode)
+											->setValue($row->taxcode)
 											->draw(false);
 											?>
 										</td>
@@ -806,15 +820,15 @@
 										</td>
 										<td class="text-center">
 											<?php
-											$received_total = round(($row->unitprice * $row->received_qty) / (1 + $row->taxrate), 2);
+											$received_total = round(($row->unitprice * $row->received_qty) * (1 + $row->taxrate), 2);
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
 											->setValue(number_format($received_total, 2))
 											->draw(false);
 
-											$received_total_vatable += $received_total;
-											$received_total_tax += ($row->unitprice * $row->received_qty) - $received_total;
+											$received_total_vatable += $row->unitprice * $row->received_qty;
+											$received_total_tax += $received_total - ($row->unitprice * $row->received_qty);
 											$received_wtaxrate = $row->wtaxrate;
 											?>
 										</td>
@@ -824,7 +838,7 @@
 							</tbody>
 							<tfoot class="summary">
 								<tr>
-									<td colspan="4"></td>
+									<td colspan="5"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Total Purchase</label></p>
 									</td>
@@ -833,7 +847,7 @@
 									</td>
 								</tr>
 								<tr>
-									<td colspan="4"></td>
+									<td colspan="5"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Total Purchases Tax</label></p>
 									</td>
@@ -842,7 +856,7 @@
 									</td>
 								</tr>
 								<tr>
-									<td colspan="4"></td>
+									<td colspan="5"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Withholding Tax</label></p>
 									</td>
@@ -851,7 +865,7 @@
 									</td>
 								</tr>
 								<tr>
-									<td colspan="4"></td>
+									<td colspan="5"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Total Amount Due</label></p>
 									</td>
@@ -868,12 +882,13 @@
 						<table class="table table-hover table-condensed table-sidepad" id="itemsTable3">
 							<thead>
 								<tr class="info">
+									<th class="col-md-2 text-center">Budget Code</th>
 									<th class="col-md-2 text-center">Item Name</th>
-									<th class="col-md-3 text-center">Description</th>
-									<th class="col-md-2 text-center">Warehouse</th>
+									<th class="col-md-2 text-center">Description</th>
+									<th class="col-md-1 text-center">Warehouse</th>
 									<th class="col-md-1 text-center">Qty</th>
 									<th class="col-md-1 text-center">UOM</th>
-									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Tax</th>
 									<th class="col-md-1 text-center">Price</th>
 									<th class="col-md-2 text-center">Amount</th>
 									<th class="taxt-center"></th>
@@ -882,6 +897,19 @@
 							<tbody>
 								<?php foreach ($cancelled_items as $row): ?>
 									<tr>
+										<td class = "remove-margin">
+											<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('', 'col-md-12')
+											// ->setName("budgetcode[".$row."]")
+											// ->setId("budgetcode[".$row."]")
+											->setList($budget_list)
+											->setClass('budgetcode')
+											->setValue($row->budgetcode)
+											->draw(false);
+											?>
+										</td>
 										<td>
 											<?php
 											echo $ui->formField('dropdown')
@@ -922,7 +950,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
-											->setValue($uom)
+											->setValue($row->receiptuom)
 											->draw(false);
 											?>
 										</td>
@@ -932,7 +960,7 @@
 											->setSplit('', 'col-md-12')
 											->setClass("taxcode")
 											->setList($tax_codes)
-											->setValue($taxcode)
+											->setValue($row->taxcode)
 											->draw(false);
 											?>
 										</td>
@@ -950,7 +978,7 @@
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
-											->setValue(number_format($row->unitprice * $row->balance_qty, 2))
+											->setValue(number_format(($row->unitprice * $row->balance_qty) * (1 + $row->taxrate), 2))
 											->draw(false);
 											?>
 										</td>
