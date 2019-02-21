@@ -262,7 +262,7 @@ class controller extends wc_controller {
 
 		$data['year'] 			= $this->getDate('year');
 		$data['month']			= $this->getDate('month');
-
+		
 		$company_info 			= $this->bir->getCompanyInfo(
 			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
 		);
@@ -931,9 +931,12 @@ class controller extends wc_controller {
 	private function getMonthYear() {
 		$year = $this->input->post('year');
 		$month = $this->input->post('month');
-		
+
+		$duedate = date('Y-m', strtotime('next month', strtotime($year.'-'.$month))) . '-10';
+		$duedate = $this->date->dateFormat($duedate);
+	
 		$result 	= $this->bir->getTotalRemittance($month, $year);
-		return $result;
+		return array('result' => $result, 'duedate' => $duedate);
 	}
 }
 ?>
