@@ -382,11 +382,9 @@ class controller extends wc_controller
 				$print->drawHeader();
 			}
 
-			$total_quantity	+= $row->Quantity;
-			$row->Quantity	= number_format($row->Quantity, 2);
 			
 			if($row->serialno != "" || $row->engineno != "" || $row->chassisno != ""){
-				$qty = number_format(1, 2);
+				$qty = 1;
 				$sn = ($row->serialno == '')? 'N/A':$row->serialno;
 				$en = ($row->engineno == '')? 'N/A':$row->engineno;
 				$cn = ($row->chassisno == '')? 'N/A':$row->chassisno;
@@ -398,7 +396,9 @@ class controller extends wc_controller
 				$cn = 'N/A';
 			}
 
-			$row->Quantity = $qty;
+			$total_quantity	+= $qty;
+
+			$row->Quantity = number_format($row->Quantity, 2);
 			$row->serialno = $sn;
 			$row->engineno = $en;
 			$row->chassisno = $cn;
