@@ -59,7 +59,7 @@
 								'class' => 'col-md-1 text-center'
 							)
 						)
-						->addHeader('Budget Code', array('class' => 'col-md-1 text-center'),'sort', 'budget_code')
+						->addHeader('Budget Code', array('class' => 'col-md-1 text-center'),'sort', 'budget_code', 'asc')
 						->addHeader('Budget Description', array('class' => 'col-md-2 text-center'),'sort', 'budgetdesc')
 						->addHeader('Budget Type', array('class'=> 'col-md-1 text-center'),'sort', 'budget_type')
 						->addHeader('Budget Check', array('class'=> 'col-md-1 text-center'),'sort', 'budget_check')
@@ -850,6 +850,16 @@
 						} 
 					});
 				});
+			}
+		});
+
+		tableSort('#tableList', function(value, x) 
+		{
+			ajax.sort = value;
+			ajax.page = 1;
+			if (x) 
+			{
+				showList();
 			}
 		});
 
