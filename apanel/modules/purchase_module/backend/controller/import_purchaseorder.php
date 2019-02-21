@@ -481,7 +481,7 @@ class controller extends wc_controller
 				$data['received_items'] = $this->po->getReceivedItems($data["voucherno"]);
 			}
 		}
-
+		
 		$this->view->load('import_purchaseorder/import_purchaseorder', $data);
 	}
 

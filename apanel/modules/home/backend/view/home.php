@@ -172,9 +172,9 @@
 				element: 'current_year',
 				data: revenue_expense.current,
 				xkey: 'month',
-				ykeys: ['expense', 'revenue'],
-				labels: ['Cost of Sales', 'Revenue'],
-				barColors : ['orange','blue'],
+				ykeys: ['revenue', 'expense'],
+				labels: ['Revenue', 'Cost of Sales'],
+				barColors : ['#0071b3','#f8ac4b'],
 				hideHover: true,
 				xLabelFormat: function (x){
 					var month = shortMonth[new Date(x.label).getMonth()];
@@ -192,9 +192,9 @@
 						element: 'previous_year',
 						data: revenue_expense.previous,
 						xkey: 'month',
-						ykeys: ['expense', 'revenue'],
-						labels: ['Cost of Sales', 'Revenue'],
-						barColors : ['orange','blue'],
+						ykeys: ['revenue', 'expense'],
+						labels: ['Revenue', 'Cost of Sales'],
+						barColors : ['#0071b3','#f8ac4b'],
 						hideHover: true,
 						xLabelFormat: function (x){
 							var month = shortMonth[new Date(x.label).getMonth()];

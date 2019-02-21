@@ -558,7 +558,7 @@
 			$.post('<?php echo MODULE_URL ?>ajax/ajax_get_formatching', { recdet_id: recdet_id }, function(data) {
 				$('#bank_match_modal #matchingTable tbody').html(data.table);
 				$('#bank_match_modal').modal('show');
-				if (data.transaction_type == 'Current') {
+				if (data.transaction_type == 'Current' || data.transaction_type == 'Previous') {
 					$('#bank_match_modal #tag_button').html(button);
 				}
 			});

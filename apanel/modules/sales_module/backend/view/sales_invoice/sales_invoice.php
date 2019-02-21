@@ -1970,6 +1970,7 @@ $(document).ready(function(){
 		$.post('<?=BASE_URL?>sales/sales_invoice/ajax/get_value', "taxcode=" + code + "&event=getTaxRate", function(data) 
 		{
 			document.getElementById('taxrate' + row).value = data.taxrate;
+			document.getElementById('h_taxcode' + row).value = code;
 
 			computeAmount();
 		});
@@ -2196,5 +2197,10 @@ $(document).ready(function(){
 		
 	// -- For Deletion of Item Per Row -- End
 });
+
+// $('#itemsTable tbody').on('blur', '.discount', function() {
+// 	var discount = $(this).val();
+// 	$(this).find('tr').closest('.discountamount').val(discount);
+// });
 
 </script>

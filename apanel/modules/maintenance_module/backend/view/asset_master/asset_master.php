@@ -223,7 +223,7 @@
 													->draw($show_input);
 
 											echo $ui->formField('hidden')
-													->setSplit('col-md-3', 'col-md-8')
+													->setSplit('col-md-3', 'col-md-8 hidden')
 													->setName('orig_useful_life')
 													->setId('orig_useful_life')
 													->setClass('asd')

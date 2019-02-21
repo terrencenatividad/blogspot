@@ -707,8 +707,8 @@
 								</tr>
 
 								<tr id="total_purchase">
-									<td colspan = '8'></td>
-									<td class="text-right">
+									<td colspan = '7'></td>
+									<td class="text-right" colspan = "2">
 										<label class="control-label">Total Purchase</label>
 									</td>
 									<td class="text-right" colspan = "1" style="border-top:1px solid #DDDDDD;">
@@ -918,8 +918,8 @@
 								</tr>
 
 								<tr id="total_amount_due">
-									<td colspan = '8'></td>
-									<td class="text-right">
+									<td colspan = '7'></td>
+									<td class="text-right" colspan = '2'>
 										<label class="control-label">Total Amount Due</label>
 									</td>
 									<td class="text-right" colspan = "1" style="border-top:1px solid #DDDDDD;">
@@ -954,14 +954,17 @@
 						<table class="table table-hover table-condensed table-sidepad" id="itemsTable2">
 							<thead>
 								<tr class="info">
-									<th class="col-md-2 text-center">Item Name</th>
-									<th class="col-md-3 text-center">Description</th>
-									<th class="col-md-2 text-center">Warehouse</th>
+									<th class="col-md-1 text-center">Budget Code</th>
+									<th class="col-md-1 text-center">Item Name</th>
+									<th class="col-md-2 text-center">Description</th>
+									<th class="col-md-1 text-center">Warehouse</th>
+									<th class="col-md-1 text-center">On Hand Qty</th>
+									<th class="col-md-1 text-center">Price</th>
 									<th class="col-md-1 text-center">Qty</th>
 									<th class="col-md-1 text-center">UOM</th>
-									<th class="col-md-2 text-center">Tax</th>
-									<th class="col-md-1 text-center">Price</th>
-									<th class="col-md-2 text-center">Amount</th>
+									<th class="col-md-1 text-center">Discount</th>
+									<th class="col-md-1 text-center">Foreign Currency Amount</th>
+									<th class="col-md-2 text-center">Base Currency Amount</th>
 									<th class="taxt-center"></th>
 								</tr>
 							</thead>
@@ -972,6 +975,19 @@
 								?>
 								<?php foreach ($received_items as $row): ?>
 									<tr>
+										<td class = "remove-margin">
+										<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('', 'col-md-12')
+											// ->setName("budgetcode[".$row."]")
+											// ->setId("budgetcode[".$row."]")
+											->setList($budget_list)
+											->setClass('budgetcode')
+											->setValue($row->budgetcode)
+											->draw(false);
+											?>
+										</td>
 										<td>
 											<?php
 											echo $ui->formField('dropdown')
@@ -996,6 +1012,24 @@
 											->setSplit('	', 'col-md-12')
 											->setList($warehouses)
 											->setValue($row->warehouse)
+											->draw(false);
+											?>
+										</td>
+										<td class = "remove-margin text-right">
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setClass('onhandqty text-right')
+											->setValue($row->onhandqty)
+											->draw($show_input);
+											?>
+										</td>
+										<td class="text-right">
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setClass('unitprice text-right')
+											->setValue(number_format($row->unitprice, 2))
 											->draw(false);
 											?>
 										</td>
@@ -1012,39 +1046,39 @@
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
-											->setValue($uom)
+											->setValue($row->receiptuom)
 											->draw(false);
 											?>
 										</td>
-										<td>
-											<?php
-											echo $ui->formField('dropdown')
-											->setSplit('', 'col-md-12')
-											->setClass("taxcode")
-											->setList($tax_codes)
-											->setValue($taxcode)
-											->draw(false);
-											?>
-										</td>
-										<td class="text-center">
+										<td class="text-right">
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
-											->setClass("price")
-											->setValue(number_format($row->unitprice, 2))
+											->setClass('discount text-right')
+											->setValue(number_format($row->discount, 2))
 											->draw(false);
 											?>
 										</td>
 										<td class="text-center">
 											<?php
-											$received_total = round(($row->unitprice * $row->received_qty) * (1 + $row->taxrate), 2);
+											$received_total_base = round(($row->amount / $row->receiptqty * $row->received_qty) * (1 + $row->taxrate), 2);
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setClass("price")
+											->setValue(number_format($received_total_base, 2))
+											->draw(false);
+											?>
+										</td>
+										<td class="text-center">
+											<?php
+											$received_total = $received_total_base * $exchange_rate;//round(($row->unitprice * $row->received_qty) * (1 + $row->taxrate), 2);
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
 											->setValue(number_format($received_total, 2))
 											->draw(false);
 
-											$received_total_vatable += $received_total;
+											$received_total_vatable += $received_total_base;
 											$received_total_tax += ($row->unitprice * $row->received_qty) - $received_total;
 											$received_wtaxrate = $row->wtaxrate;
 											?>
@@ -1055,16 +1089,115 @@
 							</tbody>
 							<tfoot class="summary">
 								<tr>
-									<td colspan="4"></td>
+									<td colspan="7"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Total Purchase</label></p>
 									</td>
-									<td colspan="2" class="text-right">
+									<td colspan="1" class="text-right">
 										<p class="form-control-static"><?php echo number_format($received_total_vatable, 2) ?></p>
+									</td>
+									<td colspan="1" class="text-right">
+										<p class="form-control-static"><?php echo number_format($received_total_vatable * $exchange_rate, 2) ?></p>
 									</td>
 								</tr>
 								<tr>
-									<td colspan="4"></td>
+									<td colspan = '8'></td>
+									<td class="text-right">
+										<label class="control-label">Freight</label>
+									</td>
+									<td class="text-right" colspan = "1">
+										<?php
+										echo $ui->formField('text')
+										->setSplit('', 'col-lg-12')
+										->setName('freight')
+										->setId('freight')
+										->setClass("freight text-right")
+										->setPlaceholder('0.00')
+										->setAttribute(array("maxlength" => "20"))
+										->setValue(number_format($freight,2))
+										->setValidation('decimal')
+										->draw($show_input);
+										?>
+									</td>
+									<td class="text-right" colspan = "1">
+										<?php
+										echo $ui->formField('text')
+										->setName('b_freight')
+										->setId('b_freight')
+										->setClass("input_label text-right")
+										->setAttribute(array("maxlength" => "40", 'readonly',"style" => "margin-left:4px;margin-right: 14px;"))
+										->setValue(number_format($converted_freight,2))
+										->draw($show_input);
+										?>
+									</td>
+								</tr>
+
+								<tr>
+									<td colspan = '8'></td>
+									<td class="text-right">
+										<label class="control-label">Insurance</label>
+									</td>
+									<td class="text-right" colspan = "1">
+										<?php
+										echo $ui->formField('text')
+										->setSplit('', 'col-lg-12')
+										->setName('insurance')
+										->setId('insurance')
+										->setClass("insurance text-right")
+										->setPlaceholder('0.00')
+										->setAttribute(array("maxlength" => "20"))
+										->setValue(number_format($insurance,2))
+										->setValidation('decimal')
+										->draw($show_input);
+										?>
+									</td>
+									<td class="text-right" colspan = "1">
+										<?php
+										echo $ui->formField('text')
+										->setName('b_insurance')
+										->setId('b_insurance')
+										->setClass("input_label text-right")
+										->setAttribute(array("maxlength" => "40", 'readonly',"style" => "margin-left:4px;margin-right: 14px;"))
+										->setValue(number_format($converted_insurance,2))
+										->draw($show_input);
+										?>
+									</td>
+								</tr>
+
+								<tr>
+									<td colspan = '8'></td>
+									<td class="text-right">
+										<label class="control-label">Packaging</label>
+									</td>
+									<td class="text-right" colspan = "1">
+										<?php
+										echo $ui->formField('text')
+										->setSplit('', 'col-lg-12')
+										->setName('packaging')
+										->setId('packaging')
+										->setClass("packaging text-right")
+										->setPlaceholder('0.00')
+										->setAttribute(array("maxlength" => "20"))
+										->setValue(number_format($packaging,2))
+										->setValidation('decimal')
+										->draw($show_input);
+										?>
+									</td>
+									<td class="text-right" colspan = "1">
+										<?php
+										echo $ui->formField('text')
+										->setName('b_packaging')
+										->setId('b_packaging')
+										->setClass("input_label text-right")
+										->setAttribute(array("maxlength" => "40", 'readonly',"style" => "margin-left:4px;margin-right: 14px;"))
+										->setValue(number_format($converted_packaging,2))
+										->draw($show_input);
+										?>
+									</td>
+								</tr>
+
+								<tr class="hidden">
+									<td colspan="7"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Total Purchases Tax</label></p>
 									</td>
@@ -1072,8 +1205,8 @@
 										<p class="form-control-static"><?php echo number_format($received_total_tax, 2) ?></p>
 									</td>
 								</tr>
-								<tr>
-									<td colspan="4"></td>
+								<tr class="hidden">
+									<td colspan="7"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Withholding Tax</label></p>
 									</td>
@@ -1082,14 +1215,19 @@
 									</td>
 								</tr>
 								<tr>
-									<td colspan="4"></td>
+									<td colspan="7"></td>
 									<td colspan="2" class="text-right">
 										<p class="form-control-static"><label>Total Amount Due</label></p>
 									</td>
-									<td colspan="2" class="text-right">
-										<p class="form-control-static"><label><?php 
-										$totallings = $received_total_vatable + $received_total_tax - $received_withholding;
-										echo number_format($totallings, 2) ?></label></p>
+									<td colspan="1" class="text-right">
+										<p class="form-control-static"><?php 
+										// $totallings = $received_total_vatable + $received_total_tax - $received_withholding;
+										echo number_format($received_total_vatable+$freight+$insurance+$packaging, 2) ?></p>
+									</td>
+									<td colspan="1" class="text-right">
+										<p class="form-control-static"><?php 
+										// $totallings = $received_total_vatable + $received_total_tax - $received_withholding;
+										echo number_format(($received_total_vatable+$freight+$insurance+$packaging)*$exchange_rate, 2) ?></p>
 									</td>
 								</tr>
 							</tfoot>
@@ -1099,20 +1237,36 @@
 						<table class="table table-hover table-condensed table-sidepad" id="itemsTable3">
 							<thead>
 								<tr class="info">
-									<th class="col-md-2 text-center">Item Name</th>
-									<th class="col-md-3 text-center">Description</th>
-									<th class="col-md-2 text-center">Warehouse</th>
-									<th class="col-md-1 text-center">Quantity</th>
-									<th class="col-md-1 text-center">UOM</th>
-									<th class="col-md-2 text-center">Tax</th>
+									<th class="col-md-1 text-center">Budget Code</th>
+									<th class="col-md-1 text-center">Item Name</th>
+									<th class="col-md-2 text-center">Description</th>
+									<th class="col-md-1 text-center">Warehouse</th>
+									<th class="col-md-1 text-center">On Hand Qty</th>
 									<th class="col-md-1 text-center">Price</th>
-									<th class="col-md-2 text-center">Amount</th>
+									<th class="col-md-1 text-center">Qty</th>
+									<th class="col-md-1 text-center">UOM</th>
+									<th class="col-md-1 text-center">Discount</th>
+									<th class="col-md-1 text-center">Foreign Currency Amount</th>
+									<th class="col-md-2 text-center">Base Currency Amount</th>
 									<th class="taxt-center"></th>
 								</tr>
 							</thead>
 							<tbody>
 								<?php foreach ($cancelled_items as $row): ?>
 									<tr>
+										<td class = "remove-margin">
+										<?php
+											echo $ui->formField('dropdown')
+											->setPlaceholder('Select One')
+											->setSplit('', 'col-md-12')
+											// ->setName("budgetcode[".$row."]")
+											// ->setId("budgetcode[".$row."]")
+											->setList($budget_list)
+											->setClass('budgetcode')
+											->setValue($row->budgetcode)
+											->draw(false);
+											?>
+										</td>
 										<td>
 											<?php
 											echo $ui->formField('dropdown')
@@ -1140,6 +1294,24 @@
 											->draw(false);
 											?>
 										</td>
+										<td class = "remove-margin text-right">
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setClass('onhandqty text-right')
+											->setValue($row->onhandqty)
+											->draw($show_input);
+											?>
+										</td>
+										<td class="text-right">
+											<?php
+											echo $ui->formField('text')
+											->setSplit('', 'col-md-12')
+											->setClass("unitprice text-right")
+											->setValue(number_format($row->unitprice, 2))
+											->draw(false);
+											?>
+										</td>
 										<td class="text-right">
 											<?php
 											echo $ui->formField('text')
@@ -1153,35 +1325,36 @@
 											<?php
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
-											->setValue($uom)
+											->setValue($row->receiptuom)
 											->draw(false);
 											?>
 										</td>
-										<td>
+										<td class="text-right">
 											<?php
-											echo $ui->formField('dropdown')
+											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
-											->setClass("taxcode")
-											->setList($tax_codes)
-											->setValue($taxcode)
+											->setClass('discount text-right')
+											->setValue(number_format($row->discount, 2))
 											->draw(false);
 											?>
 										</td>
 										<td class="text-center">
 											<?php
+											$balance_total_base = ($row->amount / $row->receiptqty * $row->balance_qty) * (1 + $row->taxrate);
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("price")
-											->setValue(number_format($row->unitprice, 2))
+											->setValue(number_format($balance_total_base, 2))
 											->draw(false);
 											?>
 										</td>
 										<td class="text-center">
 											<?php
+											$balance_total = $balance_total_base * $exchange_rate;
 											echo $ui->formField('text')
 											->setSplit('', 'col-md-12')
 											->setClass("amount")
-											->setValue(number_format(($row->unitprice * $row->balance_qty) * (1 + $row->taxrate), 2))
+											->setValue(number_format($balance_total, 2))
 											->draw(false);
 											?>
 										</td>

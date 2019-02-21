@@ -162,6 +162,7 @@ class controller extends wc_controller {
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
 		$data['address']		= $address;
 		$data['zipcode']		= $postalcode;
+		$contact 				= str_replace("+632","",$contact);
 		$data['contact']		= $contact;
 		$data['mobile']			= $mobile;
 		$data['email']			= $email;
@@ -180,7 +181,7 @@ class controller extends wc_controller {
 		$data['quarter']		= $this->getDate('quarter');
 
 		$company_info 			= $this->bir->getCompanyInfo(
-			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email', 'signatory_name', 'signatory_tin')
 		);
 		$businessline			= $company_info->businessline;
 		$data['tin']			= $company_info->tin;
@@ -197,6 +198,8 @@ class controller extends wc_controller {
 		$data['agentname']		= $agentname;
 		$firstaddress			= substr($address, 0, 40);
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
+		$data['signatory_name']		= $company_info->signatory_name;
+		$data['signatory_tin']		= $company_info->signatory_tin;
 		$data['firstaddress']	= $firstaddress;
 		$data['secondaddress']	= $secondaddress;
 		$data['zipcode']		= $postalcode;
@@ -233,8 +236,8 @@ class controller extends wc_controller {
 		$email					= $company_info->email;
 		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
 		$data['agentname']		= $agentname;
-		$data['signatory_name']		= $company_info->signatory_name;
-		$data['signatory_tin']		= $company_info->signatory_tin;
+		$data['signatory_name']	= $company_info->signatory_name;
+		$data['signatory_tin']	= $company_info->signatory_tin;
 		$firstaddress			= substr($address, 0, 40);
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
 		$data['firstaddress']	= $firstaddress;
@@ -259,7 +262,7 @@ class controller extends wc_controller {
 
 		$data['year'] 			= $this->getDate('year');
 		$data['month']			= $this->getDate('month');
-
+		
 		$company_info 			= $this->bir->getCompanyInfo(
 			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
 		);
@@ -928,9 +931,12 @@ class controller extends wc_controller {
 	private function getMonthYear() {
 		$year = $this->input->post('year');
 		$month = $this->input->post('month');
-		
+
+		$duedate = date('Y-m', strtotime('next month', strtotime($year.'-'.$month))) . '-10';
+		$duedate = $this->date->dateFormat($duedate);
+	
 		$result 	= $this->bir->getTotalRemittance($month, $year);
-		return $result;
+		return array('result' => $result, 'duedate' => $duedate);
 	}
 }
 ?>
