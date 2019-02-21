@@ -420,7 +420,7 @@ class controller extends wc_controller
 			} else {
 				$result = false;
 			}
-			return $result;
+			return array('success' => $result);
 		}
 
 		private function ajax_update_reject_status_supplement() {
@@ -438,7 +438,7 @@ class controller extends wc_controller
 			} else {
 				$result = false;
 			}
-			return $result;
+			return array('success' => $result);
 		}
 
 		private function get_export() {
