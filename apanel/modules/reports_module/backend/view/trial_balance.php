@@ -470,13 +470,19 @@
 		ajax4.datefrom 			=	current_date;
 		$.post('<?=MODULE_URL?>ajax/check_depreciation_run', ajax4 , function(response) {
 			var has_depreciation = response.has_depreciation;
-			var current_month = (response.Month != 0) ? response.Month - 1 : 0;
-			var current_year = response.Year;
+			var current_month 	 = (response.Month != 0) ? response.Month - 1 : 0;
+			var current_year 	 = response.Year;
+			var checked 		 = response.checked;
 
 			if(has_depreciation == 0) {
-				$('#alert_modal .modal-body').html("<p>Please make sure to run depreciation for the "+month_name(current_month)+", "+current_year+".</p>");
-				$('#alert_modal').modal('show');
-				$('#btnSaveDetails').prop('disabled',true);
+				if( checked ) {
+					$('#alert_modal .modal-body').html("<p>Please make sure to run depreciation for the "+month_name(current_month)+", "+current_year+".</p>");
+					$('#alert_modal').modal('show');
+					$('#btnSaveDetails').prop('disabled',true);
+				} else {
+					$("#jvModal").modal('show');
+					$('#btnSaveDetails').prop('disabled',false);
+				}
 			} else {
 				$("#jvModal").modal('show');
 				$('#btnSaveDetails').prop('disabled',false);
