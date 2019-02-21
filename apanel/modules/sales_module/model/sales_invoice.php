@@ -858,7 +858,7 @@ class sales_invoice extends wc_model
 			
 			if($trigger == 'yes' && $auto_ar)
 			{
-				$header_fields 		= " transactiondate, period, fiscalyear, duedate, customer, remarks, amount, discounttype, discountamount, netamount, referenceno, sourceno ";
+				$header_fields 		= " transactiondate, period, fiscalyear, duedate, customer, remarks, amount, discounttype, discountamount, netamount, referenceno, sourceno, srctranstype";
 				$condition 			= " voucherno = '$invoice' ";
 				$retrieved_data['header'] 	= 	$this->db->setTable('salesinvoice')
 														->setFields($header_fields)
@@ -907,10 +907,15 @@ class sales_invoice extends wc_model
 				$financial_header['source']				= 'SI';
 				$financial_header['sourceno']			= $invoice;
 				$sourceno 								= $retrieved_data['header']->sourceno;
-
+				$srctranstype							= $retrieved_data['header']->srctranstype;
 				/**
-				 * Get DR Amount
+				 * Get DR/JO Amount
 				 */
+				if ($srctranstype == 'jo') {
+					$jono	= $this->getValue("job_release", array("job_release_no"), " job_order_no = '$sourceno'");
+
+					$sourceno = $jono[0]->job_release_no;
+				}
 				if($sourceno){
 					$inventory_clearing	= $this->getValue("journalvoucher", array("amount"), " referenceno = '$sourceno' AND stat NOT IN('cancelled', 'temporary') ");
 					$inventory_amount 	 = (!empty($inventory_clearing)) ? $inventory_clearing[0]->amount : 0;
@@ -1210,6 +1215,53 @@ class sales_invoice extends wc_model
 										  ->runSelect(false)
 										  ->getRow();
 		return $result;
+	}
+
+	public function reverseEntries($voucherno) {
+		$count = $this->db->setTable('ar_details')
+				->setFields('*')
+				->setWhere("voucherno = '$voucherno'")
+				->runSelect()
+				->getResult();
+				
+		$result 	=	0;
+
+		if(!empty($count))
+		{
+			$ctr = count($count) + 1;
+			for($i = 0; $i < count($count); $i++)
+			{
+				$insert_info['voucherno']			= $count[$i]->voucherno;
+				$insert_info['transtype']			= $count[$i]->transtype;
+				$insert_info['linenum']				= $ctr;
+				$insert_info['slcode']				= $count[$i]->slcode;
+				$insert_info['bankrecon_id']		= $count[$i]->bankrecon_id;
+				$insert_info['checkstat']			= $count[$i]->checkstat;
+				$insert_info['costcentercode']		= $count[$i]->costcentercode;
+				$insert_info['accountcode']			= $count[$i]->accountcode;
+				$insert_info['debit']				= $count[$i]->credit;
+				$insert_info['credit']				= $count[$i]->debit;
+				$insert_info['source']				= $count[$i]->source;
+				$insert_info['sourcecode']			= $count[$i]->sourcecode;
+				$insert_info['currencycode']		= $count[$i]->currencycode;
+				$insert_info['exchangerate']		= $count[$i]->exchangerate;
+				$insert_info['converteddebit']		= $count[$i]->convertedcredit;
+				$insert_info['convertedcredit']		= $count[$i]->converteddebit;
+				$insert_info['taxcode']				= $count[$i]->taxcode;
+				$insert_info['taxacctflg']			= $count[$i]->taxacctflg;
+				$insert_info['taxline']				= $count[$i]->taxline;
+				$insert_info['vatflg']				= $count[$i]->vatflg;
+				$insert_info['detailparticulars']	= $count[$i]->detailparticulars;
+				$insert_info['stat']				= $count[$i]->stat;
+
+				$result = $this->db->setTable('ar_details')
+									->setValues($insert_info)
+									->runInsert();
+				$ctr++;
+			}
+		}
+		return $result;
+			
 	}
 }
 ?>
