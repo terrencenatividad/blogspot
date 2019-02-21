@@ -535,13 +535,16 @@ class controller extends wc_controller {
 		// $transaction_date  	=	$this->input->post('datefrom');
 
 		$result = $this->trial_balance->get_depreciation_start();
-		$year 	= isset($result[0]->fiscalyear) ? $result[0]->fiscalyear : "";
-		$month 	= isset($result[0]->period) 	? $result[0]->period 	 : "";
-		
-		$monthyear    		  = strtotime($month." ".$year);
-		$last_day_this_month  =	date("Y-m-t", strtotime($monthyear));
-		$first_day_this_month = date('Y-m-01', strtotime($monthyear));
+		$year 	= isset($result[0]->year) 				? $result[0]->year 				 : "";
+		$month 	= isset($result[0]->period) 			? $result[0]->period 			 : "";
+		$date 	= isset($result[0]->depreciation_month) ? $result[0]->depreciation_month : "";
 
+		// $monthyear    		  = strtotime($month." ".$year);
+		$last_day_this_month  =	date("Y-m-t", strtotime($date));
+		$first_day_this_month = date('Y-m-01', strtotime($date));
+
+		$actual_year 	=	date("Y", strtotime($date));
+		$actual_month 	=	date("m", strtotime($date));
 
 		if($result) {
 			$result = $this->trial_balance->check_depreciation_run($first_day_this_month, $last_day_this_month);
@@ -552,7 +555,9 @@ class controller extends wc_controller {
 			$has_depreciation 	=	1;
 		}
 		return array(
-			'has_depreciation' => $has_depreciation
+			'has_depreciation' => $has_depreciation, 
+			'Year' => $actual_year,
+			'Month' => (int)$actual_month
 		);
 	}
 

@@ -386,64 +386,25 @@ class trial_balance extends wc_model {
 										 ->setWhere("(transactiondate >= '$datefrom' AND transactiondate <= '$dateto') AND source='depreciation'")
 										 ->runSelect(false)
 										 ->getResult();
-		echo $this->db->getQuery();
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
 	public function get_depreciation_start() {
-		$asset_ret 			= 	$this->db->setTable('asset_master')
-										 ->setFields("id, depreciation_month, MONTH(depreciation_month) period, YEAR(depreciation_month) year")
-										 ->setGroupBy("period, year")
+		// Get all Period and Year of Depreciation Months of each Asset 
+		$asset_ret 			= 	$this->db->setTable('asset_master am')
+										 ->leftJoin("journalvoucher jv ON jv.period = MONTH(am.depreciation_month) AND jv.fiscalyear =  YEAR(am.depreciation_month) AND jv.source = 'depreciation' AND jv.stat NOT IN ('cancelled','temporary')")
+										 ->setFields("am.id, am.depreciation_month, MONTH(am.depreciation_month) period, YEAR(am.depreciation_month) year, jv.voucherno")
+										 ->setWhere('jv.voucherno IS NULL')
+										 ->setGroupBy("MONTH(am.depreciation_month), YEAR(am.depreciation_month)")
+										 ->setOrderBy("MONTH(am.depreciation_month) ASC, YEAR(am.depreciation_month) ASC")
 										 ->runSelect()
 										 ->getResult();
-	
-		if($asset_ret) {
-			foreach($asset_ret as $key => $result){
-				$year 	=	$result->year;
-				for($x=1;$x<=12;$x++){
-					$select[] 	=	"SELECT $year year, $x month";
-				}
-			}
-	
-			$select_query 	= implode(" UNION ",$select);
-				
-			// SELECT JV w/o closing
-			$result 	=	$this->db->setTable("($select_query) period")
-									->setFields("period.year")
-									->leftJoin("journalvoucher jv ON jv.period = period.month AND jv.fiscalyear = period.year AND jv.source = 'depreciation' AND jv.stat = 'posted' ")
-									->setWhere("jv.voucherno IS NULL ")
-									->setGroupBy("period.year, period.month")
-									->setOrderBy("period.year ASC, period.month ASC")
-									->setLimit(1)
-									->runSelect(false)
-									->getRow();
-			
-			if($result) {
-				$jvyear 	= $result->year;
-				$result 	= $this->check_latest_depreciatedmonth($jvyear);
 
-				// if(!$result) {
-				// 	$result[0]->fiscalyear = $asset                                                           
-				// }
-			}
-		}
-								
-		return $result;
+										//  echo $this->db->getQuery();
+		return $asset_ret;
 	}
-
-	public function check_latest_depreciatedmonth($year=""){
-		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
-		$result 	= $this->db->setTable("journalvoucher")
-							   ->setFields(array('fiscalyear, period'))
-							   ->setWhere("source='depreciation' AND stat NOT IN ('cancelled','temporary') $cond")
-							   ->setOrderBy('transactiondate DESC')
-							   ->setLimit(1)
-								->runSelect(false)
-								->getResult();
-		echo $this->db->getQuery();
-		return $result;
-	}	
-
+	
 	public function check_latest_closedmonth($year=""){
 		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
 		$result 	= $this->db->setTable("journalvoucher")
