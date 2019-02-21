@@ -93,7 +93,7 @@ class controller extends wc_controller {
 		$checker 					= isset($data['source']) && !empty($data['source']) ? $data['source'] : "";
 		$data['checker']			= $checker;
 		$status						= $data['stat'];
-		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $checker!="yrend_closing" && $status != 'cancelled') ? 1 : 0;
+		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing"  &&  $checker!="accrual_jv" && $checker!="reversed_ajv" && $checker!="jo_release" && $checker!="yrend_closing" && $checker!="depreciation" && $status != 'cancelled') ? 1 : 0;
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
