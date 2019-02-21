@@ -180,7 +180,7 @@ class controller extends wc_controller {
 		$data['quarter']		= $this->getDate('quarter');
 
 		$company_info 			= $this->bir->getCompanyInfo(
-			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email')
+			array('businessline','tin','rdo_code','lastname','firstname','middlename','companyname','address','postalcode','phone','email', 'signatory_name', 'signatory_tin')
 		);
 		$businessline			= $company_info->businessline;
 		$data['tin']			= $company_info->tin;
@@ -197,6 +197,8 @@ class controller extends wc_controller {
 		$data['agentname']		= $agentname;
 		$firstaddress			= substr($address, 0, 40);
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
+		$data['signatory_name']		= $company_info->signatory_name;
+		$data['signatory_tin']		= $company_info->signatory_tin;
 		$data['firstaddress']	= $firstaddress;
 		$data['secondaddress']	= $secondaddress;
 		$data['zipcode']		= $postalcode;
@@ -233,8 +235,8 @@ class controller extends wc_controller {
 		$email					= $company_info->email;
 		$agentname				= (strtolower($businessline) == 'individual') ? $lastname.', '.$firstname.', '.$middlename : $companyname;
 		$data['agentname']		= $agentname;
-		$data['signatory_name']		= $company_info->signatory_name;
-		$data['signatory_tin']		= $company_info->signatory_tin;
+		$data['signatory_name']	= $company_info->signatory_name;
+		$data['signatory_tin']	= $company_info->signatory_tin;
 		$firstaddress			= substr($address, 0, 40);
 		$secondaddress			= (strlen($address) > 40) ? substr($address, 40, 30) : "";
 		$data['firstaddress']	= $firstaddress;
