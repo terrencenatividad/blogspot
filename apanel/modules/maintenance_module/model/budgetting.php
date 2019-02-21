@@ -298,7 +298,7 @@ class budgetting extends wc_model
 			$temp['budget_check'] = $budget_check;
 			$temp['year'] = date('Y');
 			if($fields['status'] == 'approved') {
-				$result = $this->db->setTable('budget_report')
+				$save_report = $this->db->setTable('budget_report')
 				->setValues($temp)
 				->runInsert(false);
 			}
