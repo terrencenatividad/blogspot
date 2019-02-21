@@ -6,9 +6,9 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$prevyear 	= date("Y",strtotime($date." -1 year"));
 		
-		$fetch_debit  = $this->getValue("balance_table",array("SUM(debit) as debit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
+		$fetch_debit  = $this->getValue("balance_table",array("SUM(converted_debit) as debit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$debit        = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table",array("SUM(credit) as credit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
+		$fetch_credit = $this->getValue("balance_table",array("SUM(converted_credit) as credit")," accountcode = '$account' AND YEAR(transactiondate) = $prevyear ");
 		$credit 	  = $fetch_credit[0]->credit;
 
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
@@ -19,9 +19,9 @@ class trial_balance extends wc_model {
 		$credit 	= 0;
 		$currentyear= date("Y",strtotime($fromdate));
 
-		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
+		$fetch_debit  = $this->getValue("balance_table","SUM(converted_debit) as debit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$debit		  = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
+		$fetch_credit = $this->getValue("balance_table","SUM(converted_credit) as credit"," accountcode = '$account' AND YEAR(transactiondate) = $currentyear AND transactiondate < '$fromdate'");
 		$credit       = $fetch_credit[0]->credit;
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
 	}
@@ -30,9 +30,9 @@ class trial_balance extends wc_model {
 		$debit 		= 0;
 		$credit 	= 0;
 
-		$fetch_debit  = $this->getValue("balance_table","SUM(debit) as debit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
+		$fetch_debit  = $this->getValue("balance_table","SUM(converted_debit) as debit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
 		$debit        = $fetch_debit[0]->debit;
-		$fetch_credit = $this->getValue("balance_table","SUM(credit) as credit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
+		$fetch_credit = $this->getValue("balance_table","SUM(converted_credit) as credit"," accountcode = '$account' AND (transactiondate >= '$fromdate' AND transactiondate <= '$todate')");
 		$credit       = $fetch_credit[0]->credit; 
 		return ($debit > $credit) ? $debit - $credit : -($credit - $debit);
 	}
@@ -154,7 +154,7 @@ class trial_balance extends wc_model {
 		$fields 	=	 array('bal.accountcode as accountcode, ca.segment5 as segment5, 
 							   ca.accountname, bal.transactiondate, bal.period, bal.fiscalyear, 
 							   bal.voucherno, p.partnername as partner , bal.transtype, 
-							   SUM(bal.debit) as debit, SUM(bal.credit) as credit, bal.source');
+							   SUM(bal.converted_debit) as debit, SUM(bal.converted_credit) as credit, bal.source');
 		
 		$fetch_result 	=	$this->db->setTable("balance_table bal")
 						->leftJoin("chartaccount ca ON ca.id = bal.accountcode")
