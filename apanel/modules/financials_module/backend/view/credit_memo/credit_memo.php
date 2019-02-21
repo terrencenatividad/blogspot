@@ -232,7 +232,7 @@
 							<th>Description</th>
 							<th class="col-xs-2 text-right">Debit</th>
 							<th class="col-xs-2 text-right">Credit</th>
-							<th class="col-xs-2 text-right">Currency Amount</th>	
+							<th class="col-xs-2 text-right">Base Currency Amount</th>	
 							<th style="width: 50px;"></th>
 						</tr>
 					</thead>

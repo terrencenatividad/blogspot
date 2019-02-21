@@ -233,7 +233,7 @@
 							<th>Description</th>
 							<th class="col-xs-2 text-right">Debit</th>
 							<th class="col-xs-2 text-right">Credit</th>
-							<th class="col-xs-2 text-right">Currency Amount</th>	
+							<th class="col-xs-2 text-right">Base Currency Amount</th>	
 							<th style="width: 50px;"></th>
 						</tr>
 					</thead>
@@ -589,23 +589,41 @@ echo $ui->loadElement('modal')
 				}
 			});
 			<?php endif ?>
-			addTotal('#total_credit', details.credit);
-			addTotal('#total_debit', details.debit);
-			addTotal('#total_currency', details.currency);
 		}
 
 		function recomputeTotal() {
+			var total_credit 	= 0;
+			var total_debit 	= 0;
+			var total_currency 	= 0;
 			$('#total_debit').html('0.00');
 			$('#total_credit').html('0.00');
 			$('[name="debit[]"]').each(function () {
-				addTotal('#total_debit', $(this).val());
+				total_debit 	+= parseFloat(removeComma($(this).val()) || 0);
 			});
 			$('[name="credit[]"]').each(function () {
-				addTotal('#total_credit', $(this).val());
+				total_credit 	+= parseFloat(removeComma($(this).val()) || 0);
 			});
 			$('[name="currencyamount[]"]').each(function () {
-				addTotal('#total_currency', $(this).val());
+				var temp = $(this).val();
+				if (temp.indexOf('(') != -1) {
+					temp = temp.replace('(', '-').replace(')', '');
+				}
+				temp = parseFloat(removeComma(temp) || 0);
+				console.log(temp);
+				total_currency 	+= temp;
 			});
+
+console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency);
+			$('#total_debit').html(addComma(total_debit));
+			$('#total_credit').html(addComma(total_credit));
+
+			if (total_currency < 0) {
+				total_currency = addComma(total_currency);
+				total_currency = total_currency.replace('-','(')+')';
+			} else{
+				total_currency = addComma(total_currency);
+			}
+			$('#total_currency').html(total_currency);
 		}
 		var voucher_details = <?=$voucher_details?>;
 
@@ -636,6 +654,17 @@ echo $ui->loadElement('modal')
 			var old = parseFloat($(id).html().replace(/\,/g, '') || 0);
 			$(id).html((old + parseFloat(removeComma(amount) || 0)).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 		}
+
+		// function addTotalCurrency (id, amount) {
+		// 	var old = parseFloat($(id).html().replace(/\,/g, '') || 0);
+		// 	if (amount.indexOf('(') != -1) {
+		// 		amount = amount.replace('(', '-').replace(')','');
+		// 	}
+		// 	var value = parseFloat(removeComma(amount) || 0);
+		// 	var newval = old + value;
+		// 	$(id).html(newval);
+		// }
+
 		var proforma = [];
 
 		function revertProforma(code) {
@@ -679,7 +708,7 @@ echo $ui->loadElement('modal')
 		});
 		var debit_currency = 0;
 		var credit_currency = 0;
-		$('body').on('blur', '[name="debit[]"]', function () {
+		$('body').on('input blur', '[name="debit[]"]', function () {
 			var val = parseFloat($(this).val().replace(/\,/g, '') || 0);
 			var rate = removeComma($('#exchangerate').val());
 			if (val > 0) {
@@ -691,9 +720,8 @@ echo $ui->loadElement('modal')
 				//$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 			}
 			recomputeTotal();
-			sumCurrencyAmount();
 		});
-		$('body').on('blur', '[name="credit[]"]', function () {
+		$('body').on('input blur', '[name="credit[]"]', function () {
 			var val = parseFloat($(this).val().replace(/\,/g, '') || 0);
 			var rate = removeComma($('#exchangerate').val());
 			if (val > 0) {
@@ -701,11 +729,10 @@ echo $ui->loadElement('modal')
 			}
 			if ($(this).val() != '' && $(this).val() != '0.00') {
 				credit_currency = $(this).val() * rate;
-				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency)).attr('name', 'currencycredit');
+				$(this).closest('tr').find('.currencyamount').val('('+addComma(credit_currency)+')').attr('name', 'currencycredit');
 				//$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 			}
 			recomputeTotal();
-			sumCurrencyAmount();
 		});
 
 		function deleteVoucherDetails(id) {
@@ -713,6 +740,7 @@ echo $ui->loadElement('modal')
 			if ($('#tableList tbody tr').length <= 1) {
 				addVoucherDetails();
 			}
+			recomputeTotal();
 		}
 		$('body').on('click', '.delete_row', function () {
 			delete_row = $(this).closest('tr');
@@ -1128,7 +1156,7 @@ echo $ui->loadElement('modal')
 					// }
 					// //sumDebit();
 					//sumCredit();
-					sumCurrencyAmount();
+					recomputeTotal();
 				}
 			});
 		});
@@ -1144,40 +1172,7 @@ echo $ui->loadElement('modal')
 		// 	sumCurrencyAmount();
 		// });
 
-		function sumDebit() {
-			var total_debit = 0;
-			var debit = 0;
-			var curr_val = 0;
-			$('.debit').each(function() {
-				debit = removeComma($(this).val());
-				total_debit += +debit;
-				$('#total_debit').val(addComma(total_debit));
-			});
-		}
-
-		function sumCredit() {
-			var total_credit = 0;
-			var credit = 0;
-			var curr_val = 0;
-			$('.credit').each(function() {
-				credit = removeComma($(this).val());
-				total_credit += +credit;
-				$('#total_credit').val(addComma(total_credit));
-			});
-		}
-
-		function sumCurrencyAmount() {
-			var total_currency = 0;
-			var currency = 0;
-			$('.currencyamount').each(function() {
-				//console.log($(this).val());
-				currency = removeComma($(this).val());
-				total_currency += +currency;
-				$('#total_currency').val(addComma(total_currency));
-				$('#total_currency').html(addComma(total_currency));
-			});
-		}
-
+	
 		function getCurrencyAmountView() {
 			var rate = +removeComma($('#exchangerate').html());
 			$('[name="debit[]"]').each(function() {
@@ -1212,7 +1207,7 @@ echo $ui->loadElement('modal')
 				if ($(this).val() != '' && $(this).val() != '0.00') {
 					var credits = removeComma($(this).val());
 					var credit_currency = credits * rate;
-					$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
+					$(this).closest('tr').find('.currencyamount').val('('+addComma(credit_currency)+')');
 				}
 			});
 			SumCurrencyonEdit();
@@ -1221,21 +1216,27 @@ echo $ui->loadElement('modal')
 		function SumCurrencyonView() {
 			var total_currency = 0;
 			$('[name="currencyamount[]"]').each(function () {
-				var currency = +removeComma($(this).html());
+				var currency = $(this).html();
+				if (currency.indexOf('(') != -1) {
+					currency = currency.replace('(', '-').replace(')', '');
+				} 
+				currency = removeComma(currency);
 				total_currency += currency;
-				//console.log(total_currency);
 				$(this).closest('tr').find('.currency_symbol').html('<?=$currency ?>');
 
 			});
-			$('#total_currency').html(addComma(0));
+			$('#total_currency').html(addComma(total_currency));
 		}
 
 		function SumCurrencyonEdit() {
 			var total_currency = 0;
 			$('[name="currencyamount[]"]').each(function () {
-				var currency = +removeComma($(this).html());
+				var currency = $(this).html();
+				if (currency.indexOf('(') != -1) {
+					currency = currency.replace('(', '-').replace(')', '');
+				} 
+				currency = removeComma(currency);
 				total_currency += currency;
-				//console.log(total_currency);
 				$(this).closest('tr').find('.currency_symbol').html('<?=$currency ?>');
 
 			});
@@ -1256,7 +1257,7 @@ echo $ui->loadElement('modal')
 		<?php if($ajax_task == 'ajax_edit') : ?>
 			$(document).ready(function() {
 				getCurrencyAmountEdit();
-				sumCurrencyAmount();
+				recomputeTotal();
 				job = $('#jobs_tagged').val().split(',');	
 			});
 		<?php endif; ?>

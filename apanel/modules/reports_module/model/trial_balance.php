@@ -380,17 +380,31 @@ class trial_balance extends wc_model {
 	}	
 
 	public function check_depreciation_run($datefrom, $dateto) {
-		// $curr_close_date 	=	$this->date->dateDBFormat($date);
 	
 		$result 			= 	$this->db->setTable("journalvoucher")
 										 ->setFields(array('voucherno'))
 										 ->setWhere("(transactiondate >= '$datefrom' AND transactiondate <= '$dateto') AND source='depreciation'")
 										 ->runSelect(false)
 										 ->getResult();
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
+	public function get_depreciation_start() {
+		// Get all Period and Year of Depreciation Months of each Asset 
+		$asset_ret 			= 	$this->db->setTable('asset_master am')
+										 ->leftJoin("journalvoucher jv ON jv.period = MONTH(am.depreciation_month) AND jv.fiscalyear =  YEAR(am.depreciation_month) AND jv.source = 'depreciation' AND jv.stat NOT IN ('cancelled','temporary')")
+										 ->setFields("am.id, am.depreciation_month, MONTH(am.depreciation_month) period, YEAR(am.depreciation_month) year, jv.voucherno")
+										 ->setWhere('jv.voucherno IS NULL')
+										 ->setGroupBy("MONTH(am.depreciation_month), YEAR(am.depreciation_month)")
+										 ->setOrderBy("MONTH(am.depreciation_month) ASC, YEAR(am.depreciation_month) ASC")
+										 ->runSelect()
+										 ->getResult();
+
+										//  echo $this->db->getQuery();
+		return $asset_ret;
+	}
+	
 	public function check_latest_closedmonth($year=""){
 		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
 		$result 	= $this->db->setTable("journalvoucher")
