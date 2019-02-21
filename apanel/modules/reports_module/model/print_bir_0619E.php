@@ -52,6 +52,7 @@ class print_bir_0619E extends fpdf {
 		$documentInfo = $this->documentinfo;
 		if($documentInfo){
 			$monthfilter 	= $documentInfo['monthfilter'];
+			$monthfilter    = $monthfilter >= 1 && $monthfilter <= 9 ? '0'.$monthfilter : $monthfilter;
 			$monthfilter 	= implode('  ',str_split($monthfilter));
 			$yearfilter 	= $documentInfo['yearfilter'];
 			$yearfilter 	= implode('  ',str_split($yearfilter));

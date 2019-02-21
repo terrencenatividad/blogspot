@@ -1151,10 +1151,18 @@ class controller extends wc_controller
 			$updateDrRecord				= $this->invoice->updateData($dr_info,"deliveryreceipt_details",$dr_condition);
 
 			$ar_info 				 	= array();
+			$ar 				 		= array();
 			$ar_info['stat']			= 'cancelled';
+			$ar['stat']					= 'cancelled';
+			$ar['balance']				= 0;
 			$ar_condition				= " vsourceno IN ($invoices) AND stat = 'posted' ";
-			$updateArRecord				= $this->invoice->updateData($ar_info,"accountsreceivable"," sourceno IN ($invoices) AND stat = 'posted' ");
+			$updateArRecord				= $this->invoice->updateData($ar,"accountsreceivable"," sourceno IN ($invoices) AND stat = 'posted' ");
 			$updateArRecord				= $this->invoice->updateData($ar_info,"ar_details"," voucherno IN(select ar.voucherno from accountsreceivable ar where ar.sourceno IN($invoices)) AND stat = 'posted' ");
+			$get_ar 		= $this->invoice->getValue("accountsreceivable", array("voucherno"), " invoiceno IN ($invoices) ");
+	
+			foreach($get_ar as $row){
+				$this->invoice->reverseEntries($row->voucherno);
+			}
 
 		}else{
 			$code 	= 0; 
