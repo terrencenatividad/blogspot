@@ -521,26 +521,28 @@ echo $ui->loadElement('modal')
 		->draw($show_input);
 		?>
 		</td>
-		<td class="text-right debit_column">
+		<td class="text-right debit_column inputcolumn">
 		<?php
 		echo $ui->formField('text')
-		->setSplit('', 'col-md-12')
+		->setSplit('col-md-2', 'col-md-10')
+		->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 		->setName('debit[]')
 		->setClass('debit text-right')
-		->setValidation('required decimal')
+		->setValidation('decimal')
 		->setValue('` +
 				(parseFloat(details.debit) || 0).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") +
 				`')
 		->draw($show_input);
 		?>
 		</td>
-		<td class="text-right credit_column">
+		<td class="text-right credit_column inputcolumn">
 		<?php
 		echo $ui->formField('text')
-		->setSplit('', 'col-md-12')
+		->setSplit('col-md-2', 'col-md-10')
+		->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 		->setName('credit[]')
 		->setClass('credit text-right')
-		->setValidation('required decimal')
+		->setValidation('decimal')
 		->setValue('` +
 				(parseFloat(details.credit) || 0).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") +
 				`')
@@ -554,7 +556,6 @@ echo $ui->loadElement('modal')
 		->setSplit('col-md-2', 'col-md-10')
 		->setLabel('<span class="label label-default currency_symbol">PHP</span>')
 		->setName('currencyamount[]')
-		->setId('currencyamount')
 		->setAttribute(array("maxlength" => "20", 'readonly'))
 		->setClass("currencyamount text-right")
 		->setValidation('decimal')
@@ -603,17 +604,15 @@ echo $ui->loadElement('modal')
 			$('[name="credit[]"]').each(function () {
 				total_credit 	+= parseFloat(removeComma($(this).val()) || 0);
 			});
-			$('[name="currencyamount[]"]').each(function () {
+			$('[name="currencyamount[]"]').each(function (ind) {
 				var temp = $(this).val();
 				if (temp.indexOf('(') != -1) {
 					temp = temp.replace('(', '-').replace(')', '');
 				}
 				temp = parseFloat(removeComma(temp) || 0);
-				console.log(temp);
 				total_currency 	+= temp;
 			});
 
-console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency);
 			$('#total_debit').html(addComma(total_debit));
 			$('#total_credit').html(addComma(total_credit));
 
@@ -654,16 +653,6 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 			var old = parseFloat($(id).html().replace(/\,/g, '') || 0);
 			$(id).html((old + parseFloat(removeComma(amount) || 0)).toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
 		}
-
-		// function addTotalCurrency (id, amount) {
-		// 	var old = parseFloat($(id).html().replace(/\,/g, '') || 0);
-		// 	if (amount.indexOf('(') != -1) {
-		// 		amount = amount.replace('(', '-').replace(')','');
-		// 	}
-		// 	var value = parseFloat(removeComma(amount) || 0);
-		// 	var newval = old + value;
-		// 	$(id).html(newval);
-		// }
 
 		var proforma = [];
 
@@ -708,29 +697,31 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 		});
 		var debit_currency = 0;
 		var credit_currency = 0;
-		$('body').on('input blur', '[name="debit[]"]', function () {
-			var val = parseFloat($(this).val().replace(/\,/g, '') || 0);
+		$('body').on('input', '[name="debit[]"]', function () {
+			var val = parseFloat(removeComma($(this).val()) || 0);
 			var rate = removeComma($('#exchangerate').val());
+			debit_currency = val * rate;
 			if (val > 0) {
 				$(this).closest('tr').find('[name="credit[]"]').val('0.00');
 			}
-			if ($(this).val() != '' && $(this).val() != '0.00') {
-				debit_currency = $(this).val() * rate;
-				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency)).attr('name', 'currencydebit');
+			if (debit_currency >= 0) {
+				$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
 				//$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
 			}
 			recomputeTotal();
 		});
-		$('body').on('input blur', '[name="credit[]"]', function () {
-			var val = parseFloat($(this).val().replace(/\,/g, '') || 0);
+		$('body').on('input', '[name="credit[]"]', function () {
+			var val = parseFloat(removeComma($(this).val()) || 0);
 			var rate = removeComma($('#exchangerate').val());
+			credit_currency = val * rate;
 			if (val > 0) {
 				$(this).closest('tr').find('[name="debit[]"]').val('0.00').trigger('input');
 			}
-			if ($(this).val() != '' && $(this).val() != '0.00') {
-				credit_currency = $(this).val() * rate;
-				$(this).closest('tr').find('.currencyamount').val('('+addComma(credit_currency)+')').attr('name', 'currencycredit');
+			if (credit_currency > 0) {
+				$(this).closest('tr').find('.currencyamount').val('('+addComma(credit_currency)+')');
 				//$(this).closest('tr').find('.credit').attr('readonly', 'readonly');
+			} else {
+				$(this).closest('tr').find('.currencyamount').val(addComma(credit_currency));
 			}
 			recomputeTotal();
 		});
@@ -756,10 +747,10 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 			var submit_data = '&submit=' + $(this).attr('id');
 			var total_debit = parseFloat($('#total_debit').html().replace(/\,/g, '') || 0);
 			var total_credit = parseFloat($('#total_credit').html().replace(/\,/g, '') || 0);
-			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (total_debit == total_credit && (total_debit > 0 || total_credit > 0)) {
 				$('#error_msg').html('');
-				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+				if (form_element.find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
 						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
@@ -771,7 +762,7 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 							}
 						});
 				} else {
-					form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+					form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
 			} else if (total_debit <= 0 || total_credit <= 0) {
 				$('#error_msg').html('Total Debit and Total Credit must have a value');
@@ -786,10 +777,10 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 			var submit_data = '&submit=' + $(this).attr('id');
 			var total_debit = parseFloat($('#total_debit').html().replace(/\,/g, '') || 0);
 			var total_credit = parseFloat($('#total_credit').html().replace(/\,/g, '') || 0);
-			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (total_debit == total_credit && (total_debit > 0 || total_credit > 0)) {
 				$('#error_msg').html('');
-				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+				if (form_element.find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
 						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
@@ -801,7 +792,7 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 							}
 						});
 				} else {
-					form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+					form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
 			} else if (total_debit <= 0 || total_credit <= 0) {
 				$('#error_msg').html('Total Debit and Total Credit must have a value');
@@ -816,10 +807,10 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 			var submit_data = '&submit=' + $(this).attr('id');
 			var total_debit = parseFloat($('#total_debit').html().replace(/\,/g, '') || 0);
 			var total_credit = parseFloat($('#total_credit').html().replace(/\,/g, '') || 0);
-			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (total_debit == total_credit && (total_debit > 0 || total_credit > 0)) {
 				$('#error_msg').html('');
-				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+				if (form_element.find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
 						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
@@ -831,7 +822,7 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 							}
 						});
 				} else {
-					form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+					form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
 			} else if (total_debit <= 0 || total_credit <= 0) {
 				$('#error_msg').html('Total Debit and Total Credit must have a value');
@@ -846,10 +837,10 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 			var submit_data = '&submit=' + $(this).attr('id');
 			var total_debit = parseFloat($('#total_debit').html().replace(/\,/g, '') || 0);
 			var total_credit = parseFloat($('#total_credit').html().replace(/\,/g, '') || 0);
-			form_element.closest('form').find('.form-group').find('input, textarea, select').trigger('blur_validate');
+			form_element.find('.form-group').find('input, textarea, select').trigger('blur_validate');
 			if (total_debit == total_credit && (total_debit > 0 || total_credit > 0)) {
 				$('#error_msg').html('');
-				if (form_element.closest('form').find('.form-group.has-error').length == 0) {
+				if (form_element.find('.form-group.has-error').length == 0) {
 					$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.closest('form').serialize() + '<?=$ajax_post?>' +
 						'&finalized=finalized' + submit_data + '&job=' + job,
 						function (data) {
@@ -861,7 +852,7 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 							}
 						});
 				} else {
-					form_element.closest('form').find('.form-group.has-error').first().find('input, textarea, select').focus();
+					form_element.find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
 			} else if (total_debit <= 0 || total_credit <= 0) {
 				$('#error_msg').html('Total Debit and Total Credit must have a value');
@@ -1135,16 +1126,20 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 
 		$('#currencycode').on('change', function() {
 			var currencycode = $(this).val();
-			$('#tableList tbody tr td .form-group').find('.currency_symbol').html(currencycode);
+			$('#tableList tbody tr td.inputcolumn').find('.currency_symbol').html(currencycode);
 			$.post('<?=MODULE_URL?>ajax/ajax_get_currency_val', { currencycode : currencycode }, function(data) {
 				if(data) {
 					$('#exchangerate').val(data.exchangerate);	
 					$('.debit').each(function() {
-						if($(this).val() != '0.00') {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).val())));
-						} else {
-							$(this).closest('tr').find('.currencyamount').val(addComma(data.exchangerate * removeComma($(this).closest('tr').find('.credit').val())));
+						var row = $(this).closest('tr');
+						var credit = removeComma(row.find('.credit').val());
+						var debit = removeComma($(this).val());
+						if (credit > 0) {
+							row.find('.currencyamount').val('('+addComma(data.exchangerate * credit)+')');
 						}
+						else if(debit >= 0) {
+							row.find('.currencyamount').val(addComma(data.exchangerate * debit));
+						} 
 					});
 					// if($('.debit').val() != '0.00') {
 					// 	$('.currencyamount').val(addComma(data.exchangerate * removeComma($('.debit').val())));
@@ -1172,22 +1167,20 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 		// 	sumCurrencyAmount();
 		// });
 
-	
 		function getCurrencyAmountView() {
 			var rate = +removeComma($('#exchangerate').html());
 			$('[name="debit[]"]').each(function() {
 				if ($(this).html() != '' && $(this).html() != '0.00') {
 					var debits = removeComma($(this).html());
 					var debit_currency = debits * rate;
-					$(this).closest('tr').find('#currencyamount').html(addComma(debit_currency));
-					console.log(debits);
+					$(this).closest('tr').find('[name="currencyamount[]"]').html(addComma(debit_currency));
 				}
 			});
 			$('[name="credit[]"]').each(function() {
 				if ($(this).html() != '' && $(this).html() != '0.00') {
 					var credits = removeComma($(this).html());
 					var credit_currency = credits * rate;
-					$(this).closest('tr').find('#currencyamount').html('('+addComma(credit_currency)+')');
+					$(this).closest('tr').find('[name="currencyamount[]"]').html('('+addComma(credit_currency)+')');
 				}
 			});
 			SumCurrencyonView();
@@ -1197,7 +1190,6 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 			var rate = +removeComma($('#exchangerate').val());
 			$('[name="debit[]"]').each(function() {
 				if ($(this).val() != '' && $(this).val() != '0.00') {
-					console.log(rate);
 					var debits = removeComma($(this).val());
 					var debit_currency = debits * rate;
 					$(this).closest('tr').find('.currencyamount').val(addComma(debit_currency));
@@ -1215,32 +1207,30 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 		
 		function SumCurrencyonView() {
 			var total_currency = 0;
-			$('[name="currencyamount[]"]').each(function () {
-				var currency = $(this).html();
+			var currency = 0;
+			$('[name="currencyamount[]"]').each(function() {
+				currency = $(this).html();
 				if (currency.indexOf('(') != -1) {
 					currency = currency.replace('(', '-').replace(')', '');
-				} 
-				currency = removeComma(currency);
+				}
+				currency 	= removeComma(currency);
 				total_currency += currency;
-				$(this).closest('tr').find('.currency_symbol').html('<?=$currency ?>');
-
 			});
 			$('#total_currency').html(addComma(total_currency));
 		}
 
 		function SumCurrencyonEdit() {
 			var total_currency = 0;
-			$('[name="currencyamount[]"]').each(function () {
-				var currency = $(this).html();
+			var currency = 0;
+			$('.currencyamount').each(function() {
+				currency = $(this).val();
 				if (currency.indexOf('(') != -1) {
 					currency = currency.replace('(', '-').replace(')', '');
-				} 
-				currency = removeComma(currency);
+				}
+				currency 	= removeComma(currency);
 				total_currency += currency;
-				$(this).closest('tr').find('.currency_symbol').html('<?=$currency ?>');
-
 			});
-			$('#total_currency').html(addComma(total_currency));
+			$('#total_currency').val(addComma(total_currency));
 		}
 
 		String.prototype.toNum = function(){
@@ -1249,15 +1239,17 @@ console.log('debit'+total_debit+'credit'+total_credit+'currency'+total_currency)
 		
 		<?php if($ajax_task == 'ajax_view') : ?>
 			$(document).ready(function() {
+				var currencycode = '<?=$currency?>';
 				getCurrencyAmountView();
-				sumCurrencyAmount();
+				$('#tableList tbody tr td.inputcolumn').find('.currency_symbol').html(currencycode);
 			});
 		<?php endif; ?>
 
 		<?php if($ajax_task == 'ajax_edit') : ?>
 			$(document).ready(function() {
+				var currencycode = '<?=$currency?>';
 				getCurrencyAmountEdit();
-				recomputeTotal();
+				$('#tableList tbody tr td.inputcolumn').find('.currency_symbol').html(currencycode);
 				job = $('#jobs_tagged').val().split(',');	
 			});
 		<?php endif; ?>
