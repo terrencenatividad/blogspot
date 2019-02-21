@@ -380,16 +380,69 @@ class trial_balance extends wc_model {
 	}	
 
 	public function check_depreciation_run($datefrom, $dateto) {
-		// $curr_close_date 	=	$this->date->dateDBFormat($date);
 	
 		$result 			= 	$this->db->setTable("journalvoucher")
 										 ->setFields(array('voucherno'))
 										 ->setWhere("(transactiondate >= '$datefrom' AND transactiondate <= '$dateto') AND source='depreciation'")
 										 ->runSelect(false)
 										 ->getResult();
-
+		echo $this->db->getQuery();
 		return $result;
 	}
+
+	public function get_depreciation_start() {
+		$asset_ret 			= 	$this->db->setTable('asset_master')
+										 ->setFields("id, depreciation_month, MONTH(depreciation_month) period, YEAR(depreciation_month) year")
+										 ->setGroupBy("period, year")
+										 ->runSelect()
+										 ->getResult();
+	
+		if($asset_ret) {
+			foreach($asset_ret as $key => $result){
+				$year 	=	$result->year;
+				for($x=1;$x<=12;$x++){
+					$select[] 	=	"SELECT $year year, $x month";
+				}
+			}
+	
+			$select_query 	= implode(" UNION ",$select);
+				
+			// SELECT JV w/o closing
+			$result 	=	$this->db->setTable("($select_query) period")
+									->setFields("period.year")
+									->leftJoin("journalvoucher jv ON jv.period = period.month AND jv.fiscalyear = period.year AND jv.source = 'depreciation' AND jv.stat = 'posted' ")
+									->setWhere("jv.voucherno IS NULL ")
+									->setGroupBy("period.year, period.month")
+									->setOrderBy("period.year ASC, period.month ASC")
+									->setLimit(1)
+									->runSelect(false)
+									->getRow();
+			
+			if($result) {
+				$jvyear 	= $result->year;
+				$result 	= $this->check_latest_depreciatedmonth($jvyear);
+
+				// if(!$result) {
+				// 	$result[0]->fiscalyear = $asset                                                           
+				// }
+			}
+		}
+								
+		return $result;
+	}
+
+	public function check_latest_depreciatedmonth($year=""){
+		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('fiscalyear, period'))
+							   ->setWhere("source='depreciation' AND stat NOT IN ('cancelled','temporary') $cond")
+							   ->setOrderBy('transactiondate DESC')
+							   ->setLimit(1)
+								->runSelect(false)
+								->getResult();
+		echo $this->db->getQuery();
+		return $result;
+	}	
 
 	public function check_latest_closedmonth($year=""){
 		$cond		= ($year!="") ? " AND fiscalyear = '$year' " 	:	"";
