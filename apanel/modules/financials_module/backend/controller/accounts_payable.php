@@ -153,6 +153,7 @@ class controller extends wc_controller
 		$bal = $check_stat->balance;
 		$amount = $check_stat->amount;
 		$stat = '';
+		// maling stat chinecheck, fix data stat here. 
 		if($bal == $amount && $data['stat'] == 'posted') {
 			$stat = 'unpaid';
 		} else if($bal != $amount && $bal != 0 && $data['stat'] == 'posted') {
