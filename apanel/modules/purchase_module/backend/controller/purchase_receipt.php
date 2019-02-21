@@ -586,7 +586,7 @@ class controller extends wc_controller {
 		// retrieve  freight, insurance, packaging 
 		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
 		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;	
-
+		
 		if ($result && $this->financial_model) {
 			$this->financial_model->generateAP($data['voucherno']);
 		}
@@ -777,7 +777,9 @@ class controller extends wc_controller {
 				$data[$field] = $temp[$field];
 			}
 		}
+
 		return $data;
+		
 	}
 
 	private function ajax_upload_file()

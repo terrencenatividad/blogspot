@@ -621,11 +621,6 @@
 											->setName('carriedover20A')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -643,11 +638,6 @@
 											->setName('deferred20B')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -665,11 +655,6 @@
 											->setName('transitionalinputtax20C')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -687,11 +672,6 @@
 											->setName('presumptiveinputtax20D')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -709,11 +689,6 @@
 											->setName('others20E')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -870,11 +845,7 @@
 											->setName('importation21G')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
+											->setValue('0.00')
 											->draw(true);
 											?>
 										</td>
@@ -885,11 +856,7 @@
 											->setName('importation21H')
 											->setClass('text-right')
 											->setPlaceholder('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
+											->setValue('0.00')
 											->draw(true);
 											?>
 										</td>
@@ -1087,13 +1054,9 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('totalavailableinputtax23A')
+											->setId('totalavailableinputtax23A')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1108,13 +1071,9 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('totalavailableinputtax23B')
+											->setId('totalavailableinputtax23B')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1128,14 +1087,10 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('taxallocable23C')
 											->setName('taxallocable23C')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1150,6 +1105,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('vatrefund23D')
+											->setId('vatrefund23D')
 											->setClass('text-right')
 											->setValue('0.00')
 											->setAttribute(
@@ -1171,6 +1127,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('other23E')
+											->setId('other23E')
 											->setClass('text-right')
 											->setValue('0.00')
 											->setAttribute(
@@ -1192,6 +1149,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('total23F')
+											->setId('total23F')
 											->setClass('text-right')
 											->setValue('0.00')
 											->setAttribute(
@@ -1213,6 +1171,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('totalallowableinputtax24')
+											->setId('totalallowableinputtax24')
 											->setClass('text-right')
 											->setValue('0.00')
 											->setAttribute(
@@ -1234,6 +1193,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('netpayable25')
+											->setId('netpayable25')
 											->setClass('text-right')
 											->setValue('0.00')
 											->setAttribute(
@@ -1254,20 +1214,16 @@
 									<tr>
 										<td colspan= "1"></td>
 										<td colspan= "3">
-											<p><strong>26A</strong> Monthly  VAT Payments - previous two months</p>
+											<p><strong>26A</strong> Monthly VAT Payments - previous two months</p>
 										</td>
 										<td class = "text-right"><b>26A</b></td>
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('monthlyvat26A')
 											->setName('monthlyvat26A')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1281,14 +1237,10 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('creditablevat26B')
 											->setName('creditablevat26B')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1302,14 +1254,10 @@
 										<td>
 											<?php
 											echo $ui->formField('text')
+											->setId('sugarandflour26C')
 											->setName('sugarandflour26C')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1317,20 +1265,16 @@
 									<tr>
 										<td colspan= "1"></td>
 										<td colspan= "3">
-											<p><strong>26D</strong> Input Tax on Sale to Govt. closed to expense (Sch.4)</p>
+											<p><strong>26D</strong> VAT Withheld on Sales to Government (Sch.8)</p>
 										</td>
 										<td class = "text-right"><b>26D</b></td>
 										<td>
 											<?php
 											echo $ui->formField('text')
-											->setName('inputtaxsale26D')
+											->setName('vatwithheld26D')
+											->setId('vatwithheld26D')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1345,13 +1289,9 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('vatpaid26E')
+											->setId('vatpaid26E')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1366,13 +1306,9 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('advpaymentsmade26F')
+											->setId('advpaymentsmade26F')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1387,13 +1323,9 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('otherstaxcredits26G')
+											->setId('otherstaxcredits26G')
 											->setClass('text-right')
 											->setValue('0.00')
-											->setAttribute(
-												array(
-													'readOnly' => 'readOnly'
-												)
-											)
 											->draw(true);
 											?>
 										</td>
@@ -1408,6 +1340,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('totaltaxcredits26H')
+											->setId('totaltaxcredits26H')
 											->setClass('text-right')
 											->setValue('0.00')
 											->setAttribute(
@@ -1429,6 +1362,7 @@
 											<?php
 											echo $ui->formField('text')
 											->setName('taxstillpayable27')
+											->setId('taxstillpayable27')
 											->setClass('text-right')
 											->setValue('0.00')
 											->setAttribute(
@@ -1443,7 +1377,7 @@
 								</table>
 								<div class="penalties">
 									<div class="row">
-										<div class="col-md-3"><strong>29</strong> Add Penalties: </div>
+										<div class="col-md-3"><strong>28</strong> Add Penalties: </div>
 										<div class="col-md-2 text-center">Surcharge(28A)</div>
 										<div class="col-md-2 text-center">Interest(28B)</div>
 										<div class="col-md-2 text-center">Compromise(28C)</div>
@@ -1504,7 +1438,7 @@
 									</div>
 									<br>
 									<div class="row">
-										<div class="col-md-4"><strong>28</strong> Total Amount Payable/(Overpayment) (Sum of Item 27 & 28D)</div>
+										<div class="col-md-4"><strong>29</strong> Total Amount Payable/(Overpayment) (Sum of Item 27 & 28D)</div>
 										<div class="col-md-5"></div>
 										<div class="col-md-3">
 											<div class="col-md-2"><strong>29</strong></div>
@@ -1536,9 +1470,9 @@
 										<?php
 										echo $ui->formField('text')
 										->setSplit('', 'col-md-10')
-										->setId('agentname')
-										->setName('agentname')
-										->setValue($agentname)
+										->setId('signatory_name')
+										->setName('signatory_name')
+										->setValue($signatory_name)
 										->setMaxLength(50)
 										->draw(true);
 										?>
@@ -1591,7 +1525,7 @@
 										->setId('tin_signatory1')
 										->setName('tin_signatory1')
 										->setMaxLength(15)
-										->setValue($tin)
+										->setValue($signatory_tin)
 										->draw(true);
 										?>
 									</div>
@@ -1732,8 +1666,6 @@
 		$('#others21N').val('0.00');
 		$('#others21O').val('0.00');
 		makeZero();
-		allowableInputTax20F();
-		totalpurchases21P();
 		var period = 0;
 		var year = 0;
 		$('.tableList tbody tr td .quarter').each(function() {
@@ -1747,8 +1679,8 @@
 						$('#vat_privateA').val('0.00');
 						$('#vat_privateB').val('0.00');
 					} else {
-						$('#vat_privateA').val(sum);
-						$('#vat_privateB').val(taxamount);
+						$('#vat_privateA').val(addComma(sum));
+						$('#vat_privateB').val(addComma(taxamount));
 					}
 				});
 
@@ -1759,8 +1691,8 @@
 						$('#vat_govA').val('0.00');
 						$('#vat_govB').val('0.00');
 					} else {
-						$('#vat_govA').val(sum);
-						$('#vat_govB').val(taxamount);
+						$('#vat_govA').val(addComma(sum));
+						$('#vat_govB').val(addComma(taxamount));
 					}
 				});
 
@@ -1770,7 +1702,7 @@
 					if(sum == null || taxamount == null) {
 						$('#vat_zero').val('0.00');
 					} else {
-						$('#vat_zero').val(sum);
+						$('#vat_zero').val(addComma(sum));
 					}
 				});
 
@@ -1780,7 +1712,7 @@
 					if(sum == null || taxamount == null) {
 						$('#vat_exempt').val('0.00');
 					} else {
-						$('#vat_exempt').val(sum);
+						$('#vat_exempt').val(addComma(sum));
 					}
 				});
 
@@ -1791,8 +1723,8 @@
 						$('#cgnotexceed21A').val('0.00');
 						$('#cgnotexceed21B').val('0.00');
 					} else {
-						$('#cgnotexceed21A').val(sum);
-						$('#cgnotexceed21B').val(sum);
+						$('#cgnotexceed21A').val(addComma(sum));
+						$('#cgnotexceed21B').val(addComma(taxamount));
 					}
 				});
 
@@ -1803,8 +1735,8 @@
 						$('#cgexceed21C').val('0.00');
 						$('#cgexceed21D').val('0.00');
 					} else {
-						$('#cgexceed21C').val(sum);
-						$('#cgexceed21D').val(sum);
+						$('#cgexceed21C').val(addComma(sum));
+						$('#cgexceed21D').val(addComma(taxamount));
 					}
 				});
 
@@ -1815,8 +1747,8 @@
 						$('#dompurchase21E').val('0.00');
 						$('#dompurchase21F').val('0.00');
 					} else {
-						$('#dompurchase21E').val(sum);
-						$('#dompurchase21F').val(sum);
+						$('#dompurchase21E').val(addComma(sum));
+						$('#dompurchase21F').val(addComma(taxamount));
 					}
 				});
 
@@ -1827,8 +1759,8 @@
 						$('#dompurchaseserv21I').val('0.00');
 						$('#dompurchaseserv21J').val('0.00');
 					} else {
-						$('#dompurchaseserv21I').val(sum);
-						$('#dompurchaseserv21J').val(sum);
+						$('#dompurchaseserv21I').val(addComma(sum));
+						$('#dompurchaseserv21J').val(addComma(taxamount));
 					}
 				});
 
@@ -1839,8 +1771,8 @@
 						$('#servicerenderedK').val('0.00');
 						$('#servicerenderedL').val('0.00');
 					} else {
-						$('#servicerenderedK').val(sum);
-						$('#servicerenderedL').val(sum);
+						$('#servicerenderedK').val(addComma(sum));
+						$('#servicerenderedL').val(addComma(taxamount));
 					}
 				});
 
@@ -1850,39 +1782,180 @@
 					if(sum == null || taxamount == null) {
 						$('#purchasenotqualified21M').val('0.00');
 					} else {
-						$('#purchasenotqualified21M').val(sum);
+						$('#purchasenotqualified21M').val(addComma(sum));
 					}
 				});
 			}
 		});
 ready();
 readypurchase();
+importationG();
+importationH();
 });
+
+$('#carriedover20A').on('blur', function() {
+	computeInputTax();
+});
+
+$('#deferred20B').on('blur', function() {
+	computeInputTax();
+});
+
+$('#transitionalinputtax20C').on('blur', function() {
+	computeInputTax();
+});
+
+$('#presumptiveinputtax20D').on('blur', function() {
+	computeInputTax();
+});
+
+$('#others20E').on('blur', function() {
+	computeInputTax();
+});
+
+$('#importation21G').on('blur', function() {
+	importationG();
+});
+
+$('#importation21H').on('blur', function() {
+	importationH();
+});
+
+$('#monthlyvat26A').on('blur', function() {
+	computeTaxCredit();
+});
+
+$('#creditablevat26B').on('blur', function() {
+	computeTaxCredit();
+});
+
+$('#sugarandflour26C').on('blur', function() {
+	computeTaxCredit();
+});
+
+$('#vatwithheld26D').on('blur', function() {
+	computeTaxCredit();
+});
+
+$('#vatpaid26E').on('blur', function() {
+	computeTaxCredit();
+});
+
+$('#advpaymentsmade26F').on('blur', function() {
+	computeTaxCredit();
+});
+
+$('#otherstaxcredits26G').on('blur', function() {
+	computeTaxCredit();
+});
+
+$('#surcharge').on('blur', function() {
+	computePenalties();
+	computeTotalPayable();
+});
+
+$('#interest').on('blur', function() {
+	computePenalties();
+	computeTotalPayable();
+});
+
+$('#compromise').on('blur', function() {
+	computePenalties();
+	computeTotalPayable();
+});
+
+$('#totalavailableinputtax23A').on('blur', function() {
+	total23F();
+});
+
+$('#totalavailableinputtax23B').on('blur', function() {
+	total23F();
+});
+
+$('#taxallocable23C').on('blur', function() {
+	total23F();
+});
+
+$('#other23E').on('blur', function() {
+	total23F();
+});
+
+function total23F() {
+	var total23F = parseFloat($('#totalavailableinputtax23A').val().replace(/,/g, '')) + parseFloat($('#totalavailableinputtax23B').val().replace(/,/g, '')) + parseFloat($('#taxallocable23C').val().replace(/,/g, '')) + parseFloat($('#other23E').val().replace(/,/g, ''));
+	$('#total23F').val(addComma(total23F));
+}
+
+function computeTotalPayable() {
+	var total_payable = parseFloat($('#penalties').val().replace(/,/g, '')) + parseFloat($('#taxstillpayable27').val().replace(/,/g, ''));
+	$('#total_payable').val(addComma(total_payable));
+}
+
+function computePenalties() {
+	var penalties = parseFloat($('#surcharge').val().replace(/,/g, '')) + parseFloat($('#interest').val().replace(/,/g, '')) + parseFloat($('#compromise').val().replace(/,/g, ''));
+	$('#penalties').val(addComma(penalties));
+}
+
+function computeTaxCredit() {
+	var totaltaxcredits26H = parseFloat($('#monthlyvat26A').val().replace(/,/g, '')) + parseFloat($('#creditablevat26B').val().replace(/,/g, '')) + parseFloat($('#sugarandflour26C').val().replace(/,/g, '')) + parseFloat($('#vatwithheld26D').val().replace(/,/g, '')) + parseFloat($('#vatpaid26E').val().replace(/,/g, '')) + parseFloat($('#advpaymentsmade26F').val().replace(/,/g, '')) + parseFloat($('#otherstaxcredits26G').val().replace(/,/g, ''));
+	var totalallowableinputtax24 = $('#total22').val() - parseFloat($('#total23F').val().replace(/,/g, ''));
+	$('#totaltaxcredits26H').val(addComma(totaltaxcredits26H));
+	$('#totalallowableinputtax24').val(addComma(totalallowableinputtax24));
+	computeTotalStillPayable();
+}
+
+function computeTotalStillPayable() {
+	var taxstillpayable27 = parseFloat($('#netpayable25').val().replace(/,/g, '')) - parseFloat($('#totaltaxcredits26H').val().replace(/,/g, ''));
+	$('#taxstillpayable27').val(addComma(taxstillpayable27));
+	var total_payable = parseFloat($('#penalties').val().replace(/,/g, '')) + parseFloat($('#taxstillpayable27').val().replace(/,/g, ''));
+	$('#total_payable').val(addComma(total_payable));
+	console.log(parseFloat($('#penalties').val().replace(/,/g, '')));
+}
+
+function importationG() {
+	var totalpurchases21P = parseFloat($('#cgnotexceed21A').val().replace(/,/g, '')) + parseFloat($('#cgexceed21C').val().replace(/,/g, '')) + parseFloat($('#dompurchase21E').val().replace(/,/g, '')) + parseFloat($('#importation21G').val().replace(/,/g, '')) + parseFloat($('#dompurchaseserv21I').val().replace(/,/g, '')) + parseFloat($('#servicerenderedK').val().replace(/,/g, '')) + parseFloat($('#purchasenotqualified21M').val().replace(/,/g, '')) + parseFloat($('#others21N').val().replace(/,/g, ''));
+	$('#totalpurchases21P').val(addComma(totalpurchases21P));
+}
+
+function importationH() {
+	var total22 = parseFloat($('#cgnotexceed21B').val().replace(/,/g, '')) + parseFloat($('#cgexceed21D').val().replace(/,/g, '')) + parseFloat($('#dompurchase21F').val().replace(/,/g, '')) + parseFloat($('#importation21H').val().replace(/,/g, '')) + parseFloat($('#dompurchaseserv21J').val().replace(/,/g, '')) + parseFloat($('#servicerenderedL').val().replace(/,/g, '')) + parseFloat($('#others21O').val().replace(/,/g, ''));
+	$('#total22').val(addComma(total22));
+}
+
+function computeInputTax() {
+	var totalsum20F = parseFloat($('#carriedover20A').val().replace(/,/g, '')) + parseFloat($('#deferred20B').val().replace(/,/g, '')) + parseFloat($('#transitionalinputtax20C').val().replace(/,/g, '')) + parseFloat($('#presumptiveinputtax20D').val().replace(/,/g, '')) + parseFloat($('#others20E').val().replace(/,/g, ''));
+	$('#totalsum20F').val(addComma(totalsum20F));
+}
 
 function ready() {
 	$(document).ajaxComplete(function() {
-		var total_19a = Math.round($('#vat_privateA').val()) + Math.round($('#vat_govA').val()) + Math.round($('#vat_zero').val()) + Math.round($('#vat_exempt').val());
-		var total_19b = Math.round($('#vat_privateB').val()) + Math.round($('#vat_govB').val());
+		var total_19a = parseFloat($('#vat_privateA').val().replace(/,/g, '')) + parseFloat($('#vat_govA').val().replace(/,/g, '')) + parseFloat($('#vat_zero').val().replace(/,/g, '')) + parseFloat($('#vat_exempt').val().replace(/,/g, ''));
+		var total_19b = parseFloat($('#vat_privateB').val().replace(/,/g, '')) + parseFloat($('#vat_govB').val().replace(/,/g, ''));
+		var netpayable25 = total_19b - parseFloat($('#totalallowableinputtax24').val().replace(/,/g, ''));
+		var totalallowableinputtax24 = parseFloat($('#total22').val().replace(/,/g, '')) - parseFloat($('#total23F').val().replace(/,/g, ''));
+		var taxstillpayable27 = netpayable25 - $('#totaltaxcredits26H').val();
+		var total_payable = taxstillpayable27 + $('#penalties').val();
+		$('#totalallowableinputtax24').val(addComma(totalallowableinputtax24));
 		$('#totalsales19A').val(addComma(total_19a));
 		$('#totalsales19B').val(addComma(total_19b));
+		$('#netpayable25').val(addComma(netpayable25));
+		$('#taxstillpayable27').val(addComma(taxstillpayable27));
+		$('#total_payable').val(addComma(total_payable));
 	});
 }
 
 function readypurchase() {
 	$(document).ajaxComplete(function() {
-		var totalpurchases21P = Math.round($('#cgnotexceed21A').val()) + Math.round($('#cgexceed21C').val()) + Math.round($('#dompurchase21E').val()) + Math.round($('#importation21G').val()) + Math.round($('#dompurchaseserv21I').val()) + Math.round($('#servicerenderedK').val()) + Math.round($('#purchasenotqualified21M').val()) + Math.round($('#others21N').val());
+		var totalpurchases21P = parseFloat($('#cgnotexceed21A').val().replace(/,/g, '')) + parseFloat($('#cgexceed21C').val().replace(/,/g, '')) + parseFloat($('#dompurchase21E').val().replace(/,/g, '')) + parseFloat($('#importation21G').val().replace(/,/g, '')) + parseFloat($('#dompurchaseserv21I').val().replace(/,/g, '')) + parseFloat($('#servicerenderedK').val().replace(/,/g, '')) + parseFloat($('#purchasenotqualified21M').val().replace(/,/g, '')) + parseFloat($('#others21N').val().replace(/,/g, ''));
 		$('#totalpurchases21P').val(addComma(totalpurchases21P));
+		var total22 = parseFloat($('#cgnotexceed21B').val().replace(/,/g, '')) + parseFloat($('#cgexceed21D').val().replace(/,/g, '')) + parseFloat($('#dompurchase21F').val().replace(/,/g, '')) + parseFloat($('#importation21H').val().replace(/,/g, '')) + parseFloat($('#dompurchaseserv21J').val().replace(/,/g, '')) + parseFloat($('#servicerenderedL').val().replace(/,/g, '')) + parseFloat($('#others21O').val().replace(/,/g, ''));
+		$('#total22').val(addComma(total22));
 	});
 }
 
 $('#monthfilter').on('change', function() {
 	makeZero();
-	allowableInputTax20F();
-	totalpurchases21P();
 	var period = $(this).val();
 	var year = $('#yearfilter').val();
-	var total_19a_month = 0;
-	var total_19b_month = 0;
 	$.post("<?=MODULE_URL?>ajax/getPrivateMonthly", { period : period, year : year }, function(data) {
 		var sum = data.sum_amount;
 		var taxamount = data.sum_taxamount;
@@ -1890,8 +1963,8 @@ $('#monthfilter').on('change', function() {
 			$('#vat_privateA').val('0.00');
 			$('#vat_privateB').val('0.00');
 		} else {
-			$('#vat_privateA').val(sum);
-			$('#vat_privateB').val(taxamount);
+			$('#vat_privateA').val(addComma(sum));
+			$('#vat_privateB').val(addComma(taxamount));
 		}
 	});
 
@@ -1902,8 +1975,8 @@ $('#monthfilter').on('change', function() {
 			$('#vat_govA').val('0.00');
 			$('#vat_govB').val('0.00');
 		} else {
-			$('#vat_govA').val(sum);
-			$('#vat_govB').val(taxamount);
+			$('#vat_govA').val(addComma(sum));
+			$('#vat_govB').val(addComma(taxamount));
 		}
 	});
 
@@ -1913,7 +1986,7 @@ $('#monthfilter').on('change', function() {
 		if(sum == null || taxamount == null) {
 			$('#vat_zero').val('0.00');
 		} else {
-			$('#vat_zero').val(sum);
+			$('#vat_zero').val(addComma(sum));
 		}
 	});
 
@@ -1923,7 +1996,7 @@ $('#monthfilter').on('change', function() {
 		if(sum == null || taxamount == null) {
 			$('#vat_exempt').val('0.00');
 		} else {
-			$('#vat_exempt').val(sum);
+			$('#vat_exempt').val(addComma(sum));
 		}
 	});
 
@@ -1934,8 +2007,8 @@ $('#monthfilter').on('change', function() {
 			$('#cgnotexceed21A').val('0.00');
 			$('#cgnotexceed21B').val('0.00');
 		} else {
-			$('#cgnotexceed21A').val(sum);
-			$('#cgnotexceed21B').val(sum);
+			$('#cgnotexceed21A').val(addComma(sum));
+			$('#cgnotexceed21B').val(addComma(taxamount));
 		}
 	});
 
@@ -1946,8 +2019,8 @@ $('#monthfilter').on('change', function() {
 			$('#cgexceed21C').val('0.00');
 			$('#cgexceed21D').val('0.00');
 		} else {
-			$('#cgexceed21C').val(sum);
-			$('#cgexceed21D').val(sum);
+			$('#cgexceed21C').val(addComma(sum));
+			$('#cgexceed21D').val(addComma(taxamount));
 		}
 	});
 
@@ -1958,8 +2031,8 @@ $('#monthfilter').on('change', function() {
 			$('#dompurchase21E').val('0.00');
 			$('#dompurchase21F').val('0.00');
 		} else {
-			$('#dompurchase21E').val(sum);
-			$('#dompurchase21F').val(sum);
+			$('#dompurchase21E').val(addComma(sum));
+			$('#dompurchase21F').val(addComma(taxamount));
 		}
 	});
 
@@ -1971,8 +2044,8 @@ $('#monthfilter').on('change', function() {
 			$('#dompurchaseserv21I').val('0.00');
 			$('#dompurchaseserv21J').val('0.00');
 		} else {
-			$('#dompurchaseserv21I').val(sum);
-			$('#dompurchaseserv21J').val(sum);
+			$('#dompurchaseserv21I').val(addComma(sum));
+			$('#dompurchaseserv21J').val(addComma(taxamount));
 		}
 	});
 
@@ -1983,8 +2056,8 @@ $('#monthfilter').on('change', function() {
 			$('#servicerenderedK').val('0.00');
 			$('#servicerenderedL').val('0.00');
 		} else {
-			$('#servicerenderedK').val(sum);
-			$('#servicerenderedL').val(sum);
+			$('#servicerenderedK').val(addComma(sum));
+			$('#servicerenderedL').val(addComma(taxamount));
 		}
 	});
 
@@ -1994,17 +2067,17 @@ $('#monthfilter').on('change', function() {
 		if(sum == null || taxamount == null) {
 			$('#purchasenotqualified21M').val('0.00');
 		} else {
-			$('#purchasenotqualified21M').val(sum);
+			$('#purchasenotqualified21M').val(addComma(taxamount));
 		}
 	});
 	ready();
 	readypurchase();
+	importationG();
+	importationH();
 });
 
 $('#yearfilter').on('change', function() {
 	makeZero();
-	allowableInputTax20F();
-	totalpurchases21P();
 	var year = $(this).val();
 	var period = $('#monthfilter').val();
 	$.post("<?=MODULE_URL?>ajax/getPrivateMonthly", { period : period, year : year }, function(data) {
@@ -2014,8 +2087,8 @@ $('#yearfilter').on('change', function() {
 			$('#vat_privateA').val('0.00');
 			$('#vat_privateB').val('0.00');
 		} else {
-			$('#vat_privateA').val(sum);
-			$('#vat_privateB').val(taxamount);
+			$('#vat_privateA').val(addComma(sum));
+			$('#vat_privateB').val(addComma(taxamount));
 		}
 	});
 
@@ -2026,8 +2099,8 @@ $('#yearfilter').on('change', function() {
 			$('#vat_govA').val('0.00');
 			$('#vat_govB').val('0.00');
 		} else {
-			$('#vat_govA').val(sum);
-			$('#vat_govB').val(taxamount);
+			$('#vat_govA').val(addComma(sum));
+			$('#vat_govB').val(addComma(taxamount));
 		}
 	});
 
@@ -2037,7 +2110,7 @@ $('#yearfilter').on('change', function() {
 		if(sum == null || taxamount == null) {
 			$('#vat_zero').val('0.00');
 		} else {
-			$('#vat_zero').val(sum);
+			$('#vat_zero').val(addComma(sum));
 		}
 	});
 
@@ -2047,7 +2120,7 @@ $('#yearfilter').on('change', function() {
 		if(sum == null || taxamount == null) {
 			$('#vat_exempt').val('0.00');
 		} else {
-			$('#vat_exempt').val(sum);
+			$('#vat_exempt').val(addComma(sum));
 		}
 	});
 
@@ -2058,8 +2131,8 @@ $('#yearfilter').on('change', function() {
 			$('#cgnotexceed21A').val('0.00');
 			$('#cgnotexceed21B').val('0.00');
 		} else {
-			$('#cgnotexceed21A').val(sum);
-			$('#cgnotexceed21B').val(sum);
+			$('#cgnotexceed21A').val(addComma(sum));
+			$('#cgnotexceed21B').val(addComma(taxamount));
 		}
 	});
 
@@ -2070,8 +2143,8 @@ $('#yearfilter').on('change', function() {
 			$('#cgexceed21C').val('0.00');
 			$('#cgexceed21D').val('0.00');
 		} else {
-			$('#cgexceed21C').val(sum);
-			$('#cgexceed21D').val(sum);
+			$('#cgexceed21C').val(addComma(sum));
+			$('#cgexceed21D').val(addComma(taxamount));
 		}
 	});
 
@@ -2082,8 +2155,8 @@ $('#yearfilter').on('change', function() {
 			$('#dompurchase21E').val('0.00');
 			$('#dompurchase21F').val('0.00');
 		} else {
-			$('#dompurchase21E').val(sum);
-			$('#dompurchase21F').val(sum);
+			$('#dompurchase21E').val(addComma(sum));
+			$('#dompurchase21F').val(addComma(taxamount));
 		}
 	});
 
@@ -2095,8 +2168,8 @@ $('#yearfilter').on('change', function() {
 			$('#dompurchaseserv21I').val('0.00');
 			$('#dompurchaseserv21J').val('0.00');
 		} else {
-			$('#dompurchaseserv21I').val(sum);
-			$('#dompurchaseserv21J').val(sum);
+			$('#dompurchaseserv21I').val(addComma(sum));
+			$('#dompurchaseserv21J').val(addComma(taxamount));
 		}
 	});
 
@@ -2107,8 +2180,8 @@ $('#yearfilter').on('change', function() {
 			$('#servicerenderedK').val('0.00');
 			$('#servicerenderedL').val('0.00');
 		} else {
-			$('#servicerenderedK').val(sum);
-			$('#servicerenderedL').val(sum);
+			$('#servicerenderedK').val(addComma(sum));
+			$('#servicerenderedL').val(addComma(taxamount));
 		}
 	});
 
@@ -2118,18 +2191,18 @@ $('#yearfilter').on('change', function() {
 		if(sum == null || taxamount == null) {
 			$('#purchasenotqualified21M').val('0.00');
 		} else {
-			$('#purchasenotqualified21M').val(sum);
+			$('#purchasenotqualified21M').val(addComma(sum));
 		}
 	});
 	ready();
 	readypurchase();
+	importationG();
+	importationH();
 });
 
 $('.tableList').on('ifToggled', '.quarter', function() {
 	var period = 0;
 	makeZero();
-	allowableInputTax20F();
-	totalpurchases21P();
 	if($(this).is(':checked')) {
 		period = $(this).val();
 		var year = $('#yearfilter').val();
@@ -2140,8 +2213,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 				$('#vat_privateA').val('0.00');
 				$('#vat_privateB').val('0.00');
 			} else {
-				$('#vat_privateA').val(sum);
-				$('#vat_privateB').val(taxamount);
+				$('#vat_privateA').val(addComma(sum));
+				$('#vat_privateB').val(addComma(taxamount));
 			}
 		});
 
@@ -2152,8 +2225,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 				$('#vat_govA').val('0.00');
 				$('#vat_govB').val('0.00');
 			} else {
-				$('#vat_govA').val(sum);
-				$('#vat_govB').val(taxamount);
+				$('#vat_govA').val(addComma(sum));
+				$('#vat_govB').val(addComma(taxamount));
 			}
 		});
 
@@ -2163,7 +2236,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			if(sum == null || taxamount == null) {
 				$('#vat_zero').val('0.00');
 			} else {
-				$('#vat_zero').val(sum);
+				$('#vat_zero').val(addComma(sum));
 			}
 		});
 
@@ -2173,7 +2246,7 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			if(sum == null || taxamount == null) {
 				$('#vat_exempt').val('0.00');
 			} else {
-				$('#vat_exempt').val(sum);
+				$('#vat_exempt').val(addComma(sum));
 			}
 		});
 
@@ -2184,8 +2257,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 				$('#cgnotexceed21A').val('0.00');
 				$('#cgnotexceed21B').val('0.00');
 			} else {
-				$('#cgnotexceed21A').val(sum);
-				$('#cgnotexceed21B').val(sum);
+				$('#cgnotexceed21A').val(addComma(sum));
+				$('#cgnotexceed21B').val(addComma(sum));
 			}
 		});
 
@@ -2196,8 +2269,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 				$('#cgexceed21C').val('0.00');
 				$('#cgexceed21D').val('0.00');
 			} else {
-				$('#cgexceed21C').val(sum);
-				$('#cgexceed21D').val(sum);
+				$('#cgexceed21C').val(addComma(sum));
+				$('#cgexceed21D').val(addComma(sum));
 			}
 		});
 
@@ -2208,8 +2281,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 				$('#dompurchase21E').val('0.00');
 				$('#dompurchase21F').val('0.00');
 			} else {
-				$('#dompurchase21E').val(sum);
-				$('#dompurchase21F').val(sum);
+				$('#dompurchase21E').val(addComma(sum));
+				$('#dompurchase21F').val(addComma(sum));
 			}
 		});
 
@@ -2220,8 +2293,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 				$('#dompurchaseserv21I').val('0.00');
 				$('#dompurchaseserv21J').val('0.00');
 			} else {
-				$('#dompurchaseserv21I').val(sum);
-				$('#dompurchaseserv21J').val(sum);
+				$('#dompurchaseserv21I').val(addComma(sum));
+				$('#dompurchaseserv21J').val(addComma(sum));
 			}
 		});
 
@@ -2232,8 +2305,8 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 				$('#servicerenderedK').val('0.00');
 				$('#servicerenderedL').val('0.00');
 			} else {
-				$('#servicerenderedK').val(sum);
-				$('#servicerenderedL').val(sum);
+				$('#servicerenderedK').val(addComma(sum));
+				$('#servicerenderedL').val(addComma(sum));
 			}
 		});
 
@@ -2243,45 +2316,15 @@ $('.tableList').on('ifToggled', '.quarter', function() {
 			if(sum == null || taxamount == null) {
 				$('#purchasenotqualified21M').val('0.00');
 			} else {
-				$('#purchasenotqualified21M').val(sum);
+				$('#purchasenotqualified21M').val(addComma(sum));
 			}
 		});
 	}
 	ready();
 	readypurchase();
+	importationG();
+	importationH();
 });
-
-function allowableInputTax20F() {
-	var allowableInputTax20A = Math.round($('#vat_privateA').val());
-	var allowableInputTax20B = Math.round($('#vat_privateB').val());
-	var allowableInputTax20C = Math.round($('#vat_govA').val());
-	var allowableInputTax20D = Math.round($('#vat_govB').val());
-	var allowableInputTax20E = Math.round($('#vat_exempt').val());
-	var zero = Math.round($('#vat_zero').val());
-	var allowableInputTax20F = allowableInputTax20A + allowableInputTax20B + allowableInputTax20C + allowableInputTax20D + allowableInputTax20E;
-	$('#allowableInputTax20F').val(allowableInputTax20F.toFixed(2));
-}
-
-function totalpurchases21P() {
-	var cgnotexceed21A = Math.round($('#cgnotexceed21A').val());
-	var cgnotexceed21B = Math.round($('#cgnotexceed21B').val());
-	var cgexceed21C = Math.round($('#cgexceed21C').val());
-	var cgexceed21D = Math.round($('#cgexceed21D').val());
-	var dompurchase21E = Math.round($('#dompurchase21E').val());
-	var dompurchase21F = Math.round($('#dompurchase21F').val());
-	var importation21G = Math.round($('#importation21G').val());
-	var importation21H = Math.round($('#importation21H').val());
-	var dompurchaseserv21I = Math.round($('#dompurchaseserv21I').val());
-	var dompurchaseserv21J = Math.round($('#dompurchaseserv21J').val());
-	var servicerenderedK = Math.round($('#servicerenderedK').val());
-	var servicerenderedL = Math.round($('#servicerenderedL').val());
-	var purchasenotqualified21M = Math.round($('#purchasenotqualified21M').val());
-	var others21O = Math.round($('#others21O').val());
-	var totalpurchases21P = cgnotexceed21A + cgnotexceed21B + cgexceed21C + cgexceed21D + dompurchase21E + dompurchase21F + importation21G + importation21H + dompurchaseserv21I + dompurchaseserv21J + servicerenderedK + servicerenderedL + purchasenotqualified21M;
-	$('#totalpurchases21P').val(totalpurchases21P.toFixed(2));
-	var total22  = totalpurchases21P + cgnotexceed21B + cgexceed21D + dompurchase21F + importation21H + dompurchaseserv21J + servicerenderedL + others21O;
-	$('#total22').val(total22.toFixed(2));
-}
 
 function makeZero() {
 	$('.penalties .row').find('input[type=text]').val('0.00');

@@ -934,7 +934,7 @@ class controller extends wc_controller {
 
 		$duedate = date('Y-m', strtotime('next month', strtotime($year.'-'.$month))) . '-10';
 		$duedate = $this->date->dateFormat($duedate);
-	
+		
 		$result 	= $this->bir->getTotalRemittance($month, $year);
 		return array('result' => $result, 'duedate' => $duedate);
 	}
