@@ -1772,6 +1772,8 @@
 				$('#itemsTable tbody tr.clone #debit').last().removeAttr('readonly');
 				$('#itemsTable tbody tr.clone #credit').last().removeAttr('readonly');
 				$('#itemsTable tbody tr.clone #currencyamount').last().val('0.00');
+				$('#itemsTable tbody tr.clone #taxcode').last().val('');
+				$('#itemsTable tbody tr.clone #taxbase_amount').last().val('');
 				$('#itemsTable tbody tr.clone .edit-button').last().hide();
 				$('#itemsTable tbody tr.clone .checkbox-select').last().show();
 				$('#itemsTable tbody tr.clone .linenum').last().val(++data_id);

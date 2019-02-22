@@ -2010,6 +2010,28 @@ class controller extends wc_controller
 		return array('checker' => $checker, 'ret' => $ret);
 	}
 
+	private function ajax_check_cwt_edit() {
+		$accountcode = $this->input->post('accountcode');
+		$id = $this->input->post('id');
+		$linenum = $this->input->post('linenum');
+		$checker = '';
+		$taxbase = $this->accounts_payable->getTaxAmount($id, $linenum);
+		$accountclasscode = $this->accounts_payable->checkCWT($accountcode);
+		$acode = $accountclasscode->accountclasscode;
+		if($acode == 'OTHCL' || $acode == 'TAX' || $acode == 'CULIAB') {
+			$checker = 'true';
+		}
+		$tax_list  	= $this->accounts_payable->getATC($accountcode);
+		$ret = '';
+		foreach ($tax_list as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+
+		return array('checker' => $checker, 'ret' => $ret, 'taxbase' => $taxbase->taxbase_amount, 'taxcode' => $taxbase->taxcode);
+	}
+
 	private function ajax_get_taxrate() {
 		$taxaccount = $this->input->post('taxaccount');
 		$taxamount = $this->input->post('taxamount');
