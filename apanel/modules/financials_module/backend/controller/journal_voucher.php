@@ -93,7 +93,7 @@ class controller extends wc_controller {
 		$checker 					= isset($data['source']) && !empty($data['source']) ? $data['source'] : "";
 		$data['checker']			= $checker;
 		$status						= $data['stat'];
-		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing" && $checker!="yrend_closing" && $status != 'cancelled') ? 1 : 0;
+		$data['display_edit']		= ($checker!="import" && $checker!="beginning" && $checker!="closing"  &&  $checker!="accrual_jv" && $checker!="reversed_ajv" && $checker!="jo_release" && $checker!="yrend_closing" && $checker!="depreciation" && $status != 'cancelled') ? 1 : 0;
 		$transactiondate 			= $data['transactiondate'];
 		$data['transactiondate']	= $this->date->dateFormat($transactiondate);
 		$data['ui'] = $this->ui;
@@ -153,9 +153,9 @@ class controller extends wc_controller {
 
 			//Checker for Imported files or Closing
 			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
-			$uneditable_box 	= 	array("import","beginning","closing","yrend_closing","accrual_jv","reversed_ajv","jo_release");
-			// $display_edit_delete=  	in_array($checker, $uneditable_box) 	?	0	:	1;
-			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing" || $checker!="accrual_jv" || $checker!="reverse_ajv" || $checker!="jo_release") 	?	1	:	0;
+			$uneditable_box 	= 	array("import","beginning","closing","yrend_closing","accrual_jv","reversed_ajv","jo_release","depreciation");
+			$display_edit_delete=  	in_array($checker, $uneditable_box) 	?	0	:	1;
+			// $display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing" || $checker!="accrual_jv" || $checker!="reverse_ajv" || $checker!="jo_release") 	?	1	:	0;
 
 			//Transaction Dates equivalent to the closing date / period should be deleted first
 			$latest_closed_date = 	$this->restrict->getClosedDate();
@@ -175,12 +175,16 @@ class controller extends wc_controller {
 				$voucher_status = '<span class="label label-success">'.strtoupper($status).'</span>';
 			}
 			$table .= '<tr>';
+			// echo "1 ".$display_edit_delete."\n\n";
+			// echo "2 ".$restrict_jv."\n\n";
+			// echo "3 ".$checker."\n\n";
+
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv && ($checker!="reversed_ajv" && $checker!="accrual_jv" && $checker!="jo_release"))
-									->addDelete($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv" && $checker!="jo_release") && ($restrict_jv || $date_compare && $voucher_compare))
+									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv )
+									->addDelete($status != "cancelled" && $display_edit_delete  && ($restrict_jv || $date_compare && $voucher_compare))
 									->addPrint()
-									->addCheckbox($status != "cancelled" && $display_edit_delete && ($checker!="reversed_ajv" && $checker!="accrual_jv" && $checker!="jo_release") && ($restrict_jv || $date_compare && $voucher_compare))
+									->addCheckbox($status != "cancelled" && $display_edit_delete  && ($restrict_jv || $date_compare && $voucher_compare))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
