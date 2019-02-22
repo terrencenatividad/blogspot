@@ -305,19 +305,7 @@ class balance_sheet_model extends wc_model {
 				$parentaccount		= ($accounts->parentnature) ? $accounts->parentnature : $accounts->accountnature;
 				$accounttype		= '';
 				$accountclass		= '';
-				foreach ($data as $x) {
-					if (isset($x[$key])) {
-						$account	= $x[$key];
-						$tot = (strtolower($accounts->accountnature) == 'debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
-						if ($accounts->accountnature != $parentaccount) {
-							$tot = $tot * -1;
-						}
-						$total	+= $tot;
-						$col[]	= $tot;
-					} else {
-						$col[]	= 0;
-					}
-				}
+
 				if (in_array($accountclasscode, $asset1_array)) {
 					$accounttype	= 'Assets';
 					$accountclass	= 'Current Assets';
@@ -336,6 +324,29 @@ class balance_sheet_model extends wc_model {
 				} else {
 					$total = 0;
 				}
+
+				foreach ($data as $x) {
+					if (isset($x[$key])) {
+						$account	= $x[$key];
+						if($accounttype == 'Liabilities'){
+							$tot = (strtolower($accounts->accountnature) == 'debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
+							if ($accounts->accountnature != $parentaccount) {
+								$tot = $tot * -1;
+							}
+						}else{
+							$tot = ($account->debit > $account->credit) ? $account->debit - $account->credit : $account->credit - $account->debit;
+						}
+						// $tot = (strtolower($parentaccount) == 'debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
+						// if ($accounts->accountnature != $parentaccount) {
+						// 	$tot = $tot * -1;
+						// }
+						$total	+= $tot;
+						$col[]	= $tot;
+					} else {
+						$col[]	= 0;
+					}
+				}
+				
 
 				if (($total !== 0 && !empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
 					$y[$accounttype][$accountclass][$accountname] = $col;
