@@ -24,10 +24,10 @@ pipelines:
                 script: # Modify the commands below to build your repository.
                     #- apt-get update
                     #- apt-get -y install git-ftp
-                    - git ftp catchup --user $TRIGLOBE_FTP_USERNAME --passwd $TRIGLOBE_FTP_PASSWORD $TRIGLOBE_FTP_PATH
+                    - git ftp push --user $TRIGLOBE_FTP_USERNAME --passwd $TRIGLOBE_FTP_PASSWORD $TRIGLOBE_FTP_PATH
         deploy-to-cleamco:
             - step:
                 script: # Modify the commands below to build your repository.
                     #- apt-get update
                     #- apt-get -y install git-ftp
-                    - git ftp catchup --user $CLEAMCO_FTP_USERNAME --passwd $CLEAMCO_FTP_PASSWORD $CLEAMCO_FTP_PATH
+                    - git ftp push --user $CLEAMCO_FTP_USERNAME --passwd $CLEAMCO_FTP_PASSWORD $CLEAMCO_FTP_PATH
