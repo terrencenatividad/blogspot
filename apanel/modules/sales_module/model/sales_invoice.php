@@ -148,14 +148,14 @@ class sales_invoice extends wc_model
 			$jo	= "'" . implode("','", $ids) . "'";
 			if ($jo != '') {
 				$result		= $this->db->setTable('job_order jo')
-									->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes')
+									->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes, jo.service_quotation')
 									->setWhere($condition." AND job_order_no NOT IN ($jo)")
 									->setGroupBy('jo.job_order_no')
 									->runPagination();
 			}
 			else {
 				$result		= $this->db->setTable('job_order jo')
-								->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes')
+								->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes, jo.service_quotation')
 								->setWhere($condition)
 								->setGroupBy('jo.job_order_no')
 								->runPagination();
