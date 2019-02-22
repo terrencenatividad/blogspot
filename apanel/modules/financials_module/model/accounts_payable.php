@@ -2342,9 +2342,12 @@ class accounts_payable extends wc_model
 	}
 	
 	public function getLatestAPRecord() {
+		$username = USERNAME;
+
 		$getRow = $this->db->setTable('accountspayable')
 		->setFields('voucherno')
 		->setOrderBy('accountspayable.entereddate DESC')
+		->setWhere("enteredby = '$username'")
 		->runSelect()
 		->getRow();
 
