@@ -527,8 +527,9 @@ class inventory_adjustment_model extends wc_model {
 	public function deleteBeginningJV($table){
 		$result 	=	$this->db->setTable($table)
 				 		->setWhere("source = 'beginning'")
-				 		->runDelete();
+						 ->runDelete();
 		// echo $result;
+		// echo $this->db->getQuery();
 
 		return $result;
 	}
@@ -593,9 +594,15 @@ class inventory_adjustment_model extends wc_model {
 										->setWhere($condition)
 										->runSelect()
 										->getResult();
-		
-		if(!empty($headerData)){
 
+		if(!empty($detailData)){
+			$result 	=	$this->deleteBeginningJV("journaldetails");
+			if($result && !empty($headerData)) {
+				$result 		=	$this->deleteBeginningJV("journalvoucher");
+			}
+		}
+
+		if(!empty($headerData)){
 			foreach($headerData as $headerIndex => $headerValue)
 			{
 				$voucherno 					= 	$headerValue->voucherno;
@@ -612,28 +619,22 @@ class inventory_adjustment_model extends wc_model {
 				$header['transactiondate'] 	=	$transactiondate;
 				$header['fiscalyear'] 		=	$fiscalyear;
 				$header['period'] 			= 	$period;
-				// $header['documentdate'] 	=	$transactiondate;
 				$header['currencycode'] 	= 	"PHP";
 				$header['exchangerate'] 	=	1;
 				$header['amount'] 	 		=	$amount;
 				$header['convertedamount'] 	=	$amount;
-				// $header['referenceno'] 		=	$voucherno;
 				$header['referenceno'] 		=	"Beginning Balance";
 				$header['source'] 			=	'beginning';
-				$header['sitecode'] 		= 	'';
-				$header['remarks'] 			= 	'-';
-
-				$result 		=	$this->deleteBeginningJV("journalvoucher");
-				if($result){
+				$header['remarks'] 			= 	'Imported Beginning Balance';
+				
+				if($result && !empty($header)){
 					$result 	=	 $this->insertdata('journalvoucher',$header);
 				}
 			}
 		}
-
 		$header_total 	= 	0;
 
 		if(!empty($detailData) && $result){
-			//var_dump($detailData);
 			foreach($detailData as $detailIndex => $detailValue)
 			{
 				$voucherno 		= $detailValue->voucherno;
@@ -648,7 +649,7 @@ class inventory_adjustment_model extends wc_model {
 
 				$account 		= ( $itemaccount > 0 )	? $itemaccount 	: 	$classaccount;
 				$inventoryacct 	= ( $iteminvacct > 0 ) 	? $iteminvacct 	: 	$classinvacct;
-				
+		
 				/**GROUP BALANCE ACCOUNTS**/
 				if(!empty($account)){
 					$account_info[$account]['amount'][] 		= $amount;
@@ -713,14 +714,11 @@ class inventory_adjustment_model extends wc_model {
 					$linenum++;
 				}
 			}
-			
-			if(!empty($detailArray)){
-				$result 	=	$this->deleteBeginningJV("journaldetails");
-				if($result){
-					$result	 = $this->db->setTable("journaldetails")
-									->setValues($detailArray)
-									->runInsert();		
-				}
+
+			if($result && !empty($detailArray)){
+				$result	 = $this->db->setTable("journaldetails")
+								->setValues($detailArray)
+								->runInsert();		
 			}
 		}
 		return $result;
