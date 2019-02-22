@@ -119,8 +119,8 @@ class print_bir_2550Q extends fpdf {
 			$vat_govB		= isset($documentInfo['vat_govB']) ? urldecode($documentInfo['vat_govB']) : "0.00";
 			$vat_zero		= isset($documentInfo['vat_zero']) ? urldecode($documentInfo['vat_zero']) : "0.00";
 			$vat_exempt			= isset($documentInfo['vat_exempt']) ? urldecode($documentInfo['vat_exempt']) : "0.00";
-			$totalsalesA			= $vat_privateA + $vat_govA + $vat_zero + $vat_exempt;
-			$totalsalesB			= $vat_privateB + $vat_govB;
+			$totalsales19A			= isset($documentInfo['totalsales19A']) ? urldecode($documentInfo['totalsales19A']) : "0.00";
+			$totalsales19B			= isset($documentInfo['totalsales19B']) ? urldecode($documentInfo['totalsales19B']) : "0.00";
 			
 			$carriedover20A		= isset($documentInfo['carriedover20A']) ? urldecode($documentInfo['carriedover20A']) : "0.00";
 			$deferred20B		= isset($documentInfo['deferred20B']) ? urldecode($documentInfo['deferred20B']) : "0.00";
@@ -346,9 +346,9 @@ class print_bir_2550Q extends fpdf {
 		$this->Cell(5, 19, number_format(str_replace(',','',$vat_exempt),2), 0, 0, 'R');
 		$this->SetY(78.5);
 		$this->SetX(149);
-		$this->Cell(5, 19, number_format(str_replace(',','',$totalsalesA),2), 0, 0, 'R');
+		$this->Cell(5, 19, number_format(str_replace(',','',$totalsales19A),2), 0, 0, 'R');
 		$this->SetX(202);
-		$this->Cell(5, 19, number_format(str_replace(',','',$totalsalesB),2), 0, 0, 'R');
+		$this->Cell(5, 19, number_format(str_replace(',','',$totalsales19B),2), 0, 0, 'R');
 		$this->SetY(84.5);
 		$this->SetX(202);
 		$this->Cell(5, 19, number_format(str_replace(',','',$carriedover20A),2), 0, 0, 'R');
