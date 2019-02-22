@@ -18,4 +18,4 @@ pipelines:
                 script: # Modify the commands below to build your repository.
                     #- apt-get update
                     #- apt-get -y install git-ftp
-                    - git ftp catchup --user $SANDBOX_FTP_USERNAME --passwd $SANDBOX_FTP_PASSWORD $SANDBOX_FTP_PATH 
+                    - git ftp push --user $SANDBOX_FTP_USERNAME --passwd $SANDBOX_FTP_PASSWORD $SANDBOX_FTP_PATH 
