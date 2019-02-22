@@ -705,7 +705,6 @@ class purchase_order extends wc_model
 				}
 			}
 		}
-
 		if(empty($error) && empty($warning)) {
 			if($isDetailExist[0]->count == 0 && $task == 'create' )
 			{
@@ -727,6 +726,7 @@ class purchase_order extends wc_model
 				$this->db->setTable($detailInvTable)
 				->setValues($tempArr);
 				$insertResult = $this->db->runInsert();
+				echo $this->db->getQuery();
 			}
 		}
 
