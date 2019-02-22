@@ -2187,11 +2187,21 @@ class accounts_payable extends wc_model
 
 	public function getAPDetails($id) {
 		$result = $this->db->setTable('ap_details ad')
-		->setFields('ad.budgetcode as budgetcode, ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
+		->setFields('ad.taxcode, ad.budgetcode as budgetcode, ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
 		->leftJoin('chartaccount as ca ON ca.id = ad.accountcode')
 		->setWhere("voucherno = '$id'")
 		->runSelect()
 		->getResult();
+
+		return $result;
+	}
+
+	public function getTaxAmount($id, $linenum) {
+		$result = $this->db->setTable('ap_details ad')
+		->setFields('taxbase_amount, taxcode')
+		->setWhere("voucherno = '$id' AND linenum = '$linenum'")
+		->runSelect()
+		->getRow();
 
 		return $result;
 	}

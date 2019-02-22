@@ -406,24 +406,22 @@ class financial_model extends wc_model {
 		}
 
 		$data		= array();
-		$budgetcode = '';
+		$budgetcode = array();
 		$dc_add		= true;
 		if ($result && $total_amount > 0) {
-			foreach ($result as $row) {
+			foreach ($result as $key => $row) {
 				$primary_amount = $row->amount - (($row->amount / $total_amount) * $row->discountamount);
 				//$primary_amount = $row->amount;
 				if ($this->header_table != 'accountspayable') {
 					$this->addAccount($data, 'primaryaccount', $row->{$this->primaryaccount}, $primary_amount - ($row->amount * $row->wtaxrate) + $row->taxamount);
 				}
 				$this->addAccount($data, 'secondaryaccount', $row->{$this->secondaryaccount}, $row->amount);
+				if(!empty($row->budgetcode) && $this->source_detail_table == 'purchasereceipt_details') {
+					$budgetcode['budgetcode'][] = $row->budgetcode;
+				}
 				if ($row->discountamount && $dc_add) {
 					$this->addAccount($data, 'discount', $row->discountAccount, $row->discountamount);
 					$dc_add = false;
-					if(!empty($row->budgetcode) && $this->source_detail_table == 'purchasereceipt_details') {
-						$budgetcode = $row->budgetcode;
-					} else if ($this->source_detail_table == 'purchasereceipt_details') {
-						$budgetcode = '';
-					}
 				}
 				if ($row->{$this->taxaccount} && $row->taxamount) {
 					$this->addAccount($data, 'taxaccount', $row->{$this->taxaccount}, $row->taxamount);
@@ -437,18 +435,20 @@ class financial_model extends wc_model {
 			}
 		}
 		$data2 = array();
+		$zero = 0;
 		foreach ($data as $type => $row) {
 			foreach ($row as $key => $value) {
 				$data2['accountcode'][]		= $key;
 				if($type == 'secondaryaccount' && $this->source_detail_table == 'purchasereceipt_details') {
-					$data2['budgetcode'][]		= $budgetcode;
-				} else if($type != 'secondaryaccount' && $this->source_detail_table == 'purchasereceipt_details'){
+					$data2['budgetcode'][]		= $budgetcode['budgetcode'][$zero];
+				} else {
 					$data2['budgetcode'][] = '';
 				}
 				$data2['debit'][]			= $this->getDebit($type, $value);
 				$data2['credit'][]			= $this->getCredit($type, $value);
 				$data2['converteddebit'][]	= $this->getDebit($type, $value);
 				$data2['convertedcredit'][]	= $this->getCredit($type, $value);
+				$zero++;
 			}
 		}
 
