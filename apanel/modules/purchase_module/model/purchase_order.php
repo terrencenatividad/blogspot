@@ -712,6 +712,7 @@ class purchase_order extends wc_model
 				->setValues($tempArr);
 
 				$insertResult = $this->db->runInsert();
+				echo $this->db->getQuery();
 			}
 			else if( $isDetailExist[0]->count > 0 && ( $task == 'create' || $task == 'edit' ) )
 			{
