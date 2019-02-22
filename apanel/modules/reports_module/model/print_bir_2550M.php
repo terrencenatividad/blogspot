@@ -109,8 +109,9 @@ class print_bir_2550M extends fpdf {
 			$vat_govB		= isset($documentInfo['vat_govB']) ? urldecode($documentInfo['vat_govB']) : "0.00";
 			$vat_zero		= isset($documentInfo['vat_zero']) ? urldecode($documentInfo['vat_zero']) : "0.00";
 			$vat_exempt			= isset($documentInfo['vat_exempt']) ? urldecode($documentInfo['vat_exempt']) : "0.00";
-			$totalsales16A			= str_replace(',','',$vat_privateA) + str_replace(',','',$vat_govA) + str_replace(',','',$vat_zero) + str_replace(',','',$vat_exempt);
-			$totalsales16B			= str_replace(',','',$vat_privateB) + str_replace(',','',$vat_govB);
+			
+			$totalsales16A	= isset($documentInfo['totalsales16A']) ? urldecode($documentInfo['totalsales16A']) : "0.00";
+			$totalsales16B	= isset($documentInfo['totalsales16B']) ? urldecode($documentInfo['totalsales16B']) : "0.00";
 
 			$carriedover20A		= isset($documentInfo['carriedover20A']) ? urldecode($documentInfo['carriedover20A']) : "0.00";
 			$deferred20B		= isset($documentInfo['deferred20B']) ? urldecode($documentInfo['deferred20B']) : "0.00";
@@ -148,7 +149,6 @@ class print_bir_2550M extends fpdf {
 			$total20F				= isset($documentInfo['total20F']) ? urldecode($documentInfo['total20F']) : "0.00";
 			$totalallowableinputtax21				= isset($documentInfo['totalallowableinputtax21']) ? urldecode($documentInfo['totalallowableinputtax21']) : "0.00";
 
-			$totalallowableinputtax21 = str_replace(',','',$total19) - str_replace(',','',$total20F);
 			$netpayable22				= isset($documentInfo['netpayable22']) ? urldecode($documentInfo['netpayable22']) : "0.00";
 
 			$netpayable22 = str_replace(',','',$totalsales16B) - str_replace(',','',$totalallowableinputtax21);
@@ -162,15 +162,11 @@ class print_bir_2550M extends fpdf {
 			$totaltaxcredits23G			= isset($documentInfo['totaltaxcredits26H']) ? urldecode($documentInfo['totaltaxcredits26H']) : "0.00";
 			$taxstillpayable24				= isset($documentInfo['taxstillpayable24']) ? urldecode($documentInfo['taxstillpayable24']) : "0.00";
 
-			$taxstillpayable24 = str_replace(',','',$netpayable22) - str_replace(',','',$totaltaxcredits23G);
-
 			$surcharge			= isset($documentInfo['surcharge']) ? urldecode($documentInfo['surcharge']) : "0.00";
 			$interest			= isset($documentInfo['interest']) ? urldecode($documentInfo['interest']) : "0.00";
 			$compromise			= isset($documentInfo['compromise']) ? urldecode($documentInfo['compromise']) : "0.00";
 			$penalties			= isset($documentInfo['penalties']) ? urldecode($documentInfo['penalties']) : "0.00";
-			$penalties = str_replace(',','',$surcharge) + str_replace(',','',$interest) + str_replace(',','',$compromise);
 			$total_payable			= isset($documentInfo['total_payable']) ? urldecode($documentInfo['total_payable']) : "0.00";
-			$total_payable = $penalties + $taxstillpayable24;
 
 			$taxagent			= isset($documentInfo['taxagent']) ? urldecode($documentInfo['taxagent']) : "";
 			$signature			= isset($documentInfo['signature']) ? urldecode($documentInfo['signature']) : "";

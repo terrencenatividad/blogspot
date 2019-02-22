@@ -1620,7 +1620,7 @@
 	}
 
 	function computeTotalStillPayable() {
-		var taxstillpayable24 = parseFloat($('#netpayable22').val().replace(/,/g, '')) - parseFloat($('#sugarandflour23B').val().replace(/,/g, '')) + parseFloat($('#vatwithheld23C').val().replace(/,/g, '')) + parseFloat($('#vatpaid23D').val().replace(/,/g, '')) + parseFloat($('#advpaymentsmade23E').val().replace(/,/g, '')) + parseFloat($('#otherstaxcredits23F').val().replace(/,/g, ''));
+		var taxstillpayable24 = parseFloat($('#netpayable22').val().replace(/,/g, '')) - parseFloat($('#totaltaxcredits23G').val().replace(/,/g, ''));
 		$('#taxstillpayable24').val(addComma(taxstillpayable24));
 		computeTotalPayable();
 	}
@@ -1632,10 +1632,7 @@
 
 	function computeTaxCredit() {
 		var totaltaxcredits23G = parseFloat($('#creditablevat23A').val().replace(/,/g, '')) + parseFloat($('#sugarandflour23B').val().replace(/,/g, '')) + parseFloat($('#vatwithheld23C').val().replace(/,/g, '')) + parseFloat($('#vatpaid23D').val().replace(/,/g, '')) + parseFloat($('#advpaymentsmade23E').val().replace(/,/g, '')) + parseFloat($('#otherstaxcredits23F').val().replace(/,/g, ''));
-		var totalallowableinputtax21 = $('#netpayable22').val() - parseFloat($('#otherstaxcredits23F').val().replace(/,/g, ''));
-		var totalallowableinputtax21 = parseFloat($('#total19').val().replace(/,/g, '')) - total20F;
-		$('#total20F').val(addComma(total20F));
-		$('#totalallowableinputtax21').val(addComma(totalallowableinputtax21));
+		$('#totaltaxcredits23G').val(addComma(totaltaxcredits23G));
 		computeTotalStillPayable();
 	}
 
@@ -1659,7 +1656,9 @@
 
 	function importationH() {
 		var total19 = parseFloat($('#cgnotexceed21B').val().replace(/,/g, '')) + parseFloat($('#cgexceed21D').val().replace(/,/g, '')) + parseFloat($('#dompurchase21F').val().replace(/,/g, '')) + parseFloat($('#importation18H').val().replace(/,/g, '')) + parseFloat($('#dompurchaseserv21J').val().replace(/,/g, '')) + parseFloat($('#servicerenderedL').val().replace(/,/g, '')) + parseFloat($('#others21O').val().replace(/,/g, ''));
+		var totalallowableinputtax21 = total19 - parseFloat($('#total20F').val().replace(/,/g, ''));
 		$('#total19').val(addComma(total19));
+		$('#totalallowableinputtax21').val(addComma(totalallowableinputtax21));
 	}
 
 	function ready() {
