@@ -630,6 +630,7 @@ class purchase_order extends wc_model
 							->setFields('ic.expense_account as expense_account, CONCAT(ca.segment5, " - ", ca.accountname) as accountname')
 							->leftJoin('items as i ON i.classid = ic.id')
 							->leftJoin('chartaccount as ca ON ca.id = ic.expense_account')
+							->setWhere("i.itemcode = '$itemcode'")
 							->runSelect()
 							->getRow();
 
@@ -712,7 +713,6 @@ class purchase_order extends wc_model
 				->setValues($tempArr);
 
 				$insertResult = $this->db->runInsert();
-				echo $this->db->getQuery();
 			}
 			else if( $isDetailExist[0]->count > 0 && ( $task == 'create' || $task == 'edit' ) )
 			{
@@ -727,7 +727,6 @@ class purchase_order extends wc_model
 				$this->db->setTable($detailInvTable)
 				->setValues($tempArr);
 				$insertResult = $this->db->runInsert();
-				echo $this->db->getQuery();
 			}
 		}
 
