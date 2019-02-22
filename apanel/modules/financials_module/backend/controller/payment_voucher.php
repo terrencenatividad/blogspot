@@ -432,7 +432,7 @@ class controller extends wc_controller
 		$data['discount_code'] 		= $discount_code;
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
-		$data['booknumber'] = $data['rollArray'][$sid][0]['booknumber'];
+		$data['booknumber'] 		= isset($data['rollArray'][$sid][0]['booknumber']) ? $data['rollArray'][$sid][0]['booknumber'] : "";
 		$data["show_cheques"] 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		
 		$account_array	= array();

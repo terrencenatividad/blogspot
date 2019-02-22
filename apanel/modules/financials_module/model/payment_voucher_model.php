@@ -477,7 +477,7 @@ class payment_voucher_model extends wc_model
 			
 			$main_query		=	$query 	.	" UNION ALL "	.	$edit_query;
 
-			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.payment");
+			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.payment, c.exchangerate");
 
 			$result  		=	$this->db->setTable("($main_query) c")
 			->setFields($fields)

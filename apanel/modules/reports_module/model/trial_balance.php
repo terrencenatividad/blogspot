@@ -397,11 +397,9 @@ class trial_balance extends wc_model {
 										 ->setFields("am.id, am.depreciation_month, MONTH(am.depreciation_month) period, YEAR(am.depreciation_month) year, jv.voucherno")
 										 ->setWhere('jv.voucherno IS NULL')
 										 ->setGroupBy("MONTH(am.depreciation_month), YEAR(am.depreciation_month)")
-										 ->setOrderBy("MONTH(am.depreciation_month) ASC, YEAR(am.depreciation_month) ASC")
+										 ->setOrderBy("YEAR(am.depreciation_month) ASC, MONTH(am.depreciation_month) ASC")
 										 ->runSelect()
 										 ->getResult();
-
-										//  echo $this->db->getQuery();
 		return $asset_ret;
 	}
 	
