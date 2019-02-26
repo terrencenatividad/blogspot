@@ -83,7 +83,7 @@ class bir extends wc_model {
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
         ->setWhere("sd.taxcode IN('VATG','VATS') AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
@@ -216,7 +216,7 @@ class bir extends wc_model {
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
         ->setWhere("sd.taxcode IN('VATG','VATS') AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
@@ -357,7 +357,7 @@ class bir extends wc_model {
         return $this->db->setTable('salesinvoice_details as sd')
         ->leftJoin('salesinvoice as si ON sd.voucherno = si.voucherno')
         ->leftJoin('fintaxcode AS tax ON tax.fstaxcode = sd.taxcode')
-        ->setFields('SUM(si.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
+        ->setFields('SUM(sd.amount) as sum_amount , SUM(si.taxamount) as sum_taxamount')
         ->setWhere("sd.taxcode IN('VATG','VATS') AND si.period = '$period' AND si.stat NOT IN('cancelled','temporary') AND si.fiscalyear = '$fiscalyear' ")
         ->runSelect()
         ->getRow();
