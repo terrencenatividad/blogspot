@@ -627,7 +627,8 @@ class controller extends wc_controller
 				$balance     			= $row->balance; 
 				$amount	  	 			= $row->amount; 
 				$customer	 			= $row->customer; 
-				$referenceno 			= $row->referenceno; 
+				$referenceno 			= $row->referenceno;
+				$sourceno 				= $row->sourceno;
 				$checker 	 			= $row->importchecker; 
 				$import 				= ($checker=='import') 	?	"Yes" 	:	"No";
 				$stat					= $row->stat;
@@ -694,8 +695,8 @@ class controller extends wc_controller
 									// 	'credit-card',
 									// 	$show_payment  && $restrict_ar
 									// )
-									->addDelete($show_delete && $restrict_ar && $checker != "import")
-									->addCheckbox($show_delete  && $restrict_ar && $checker != "import")
+									->addDelete($show_delete && $restrict_ar && empty($sourceno))
+									->addCheckbox($show_delete  && $restrict_ar && empty($sourceno))
 									->setValue($voucher)
 									->setLabels(array('delete' => 'Cancel'))
 									->draw();

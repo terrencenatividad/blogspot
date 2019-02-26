@@ -441,7 +441,7 @@ class financial_model extends wc_model {
 				$data2['accountcode'][]		= $key;
 				if($type == 'secondaryaccount' && $this->source_detail_table == 'purchasereceipt_details') {
 					$data2['budgetcode'][]		= $budgetcode['budgetcode'][$zero];
-				} else {
+				} else if($type != 'secondaryaccount' && $this->source_detail_table == 'purchasereceipt_details') {
 					$data2['budgetcode'][] = '';
 				}
 				$data2['debit'][]			= $this->getDebit($type, $value);

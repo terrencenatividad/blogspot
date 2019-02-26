@@ -347,6 +347,8 @@ class controller extends wc_controller {
 			if( empty($errmsg)  && !empty($z) ){
 				$total_debit 	=	0;
 				$total_credit 	=	0;
+				$totalDebit 	=	0;
+				$totalCredit 	=	0;
 				$prev_no 		=	$prev_date 		=	$prev_ref 	=	$prev_notes 	=	$voucherno 		= "";
 				foreach ($z as $key => $b) {
 					if ( ! empty($b)) {	
@@ -358,9 +360,9 @@ class controller extends wc_controller {
 						$account 		=	isset($b[4]) 					?	htmlentities(trim($b[4]))	:	"";
 						$account 		= 	str_replace('&ndash;', '-', $account);
 						$description 	=	isset($b[5]) 					?	htmlentities(trim($b[5]))	:	"";
-						$debit 			=	isset($b[6]) && !empty($b[6]) 	?	$b[6]	:	0;
-						$credit 		=	isset($b[7]) && !empty($b[7])	?	$b[7]	:	0;
-
+						$debit 			=	isset($b[6]) && !empty($b[6]) 	?	str_replace(',','',$b[6])	:	0;
+						$credit 		=	isset($b[7]) && !empty($b[7])	?	str_replace(',','',$b[7])	:	0;
+						
 						//Check if account Name exists
 						$acct_exists 	=	$this->jv_model->check_if_exists('id','chartaccount'," accountname = '$account' ");
 						$acct_count 	=	$acct_exists[0]->count;	
@@ -456,10 +458,10 @@ class controller extends wc_controller {
 						if ( ! isset($z[$key + 1]) || ($jvno != $z[$key + 1][0] && $z[$key + 1][0] != '')) {
 							$totaldebit[] 	= $total_debit;
 							$totalcredit[]	= $total_credit;
-							if ($total_credit != $total_debit){
-								$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
-								$errmsg		= array_filter($errmsg);
-							}
+							// if ($total_credit != $total_debit){
+							// 	$errmsg[]	= "The Total Debit and Total Credit must be equal.<br/>";
+							// 	$errmsg		= array_filter($errmsg);
+							// }
 						}
 
 						if(empty($errmsg)){
@@ -484,6 +486,10 @@ class controller extends wc_controller {
 						
 						$line++;
 					}
+				}
+				if(round($total_credit,2)!=round($total_debit,2)){
+					$errmsg[]	= "The Total Debit [<strong>".number_format($total_debit,2)."</strong>] and Total Credit [<strong>".number_format($total_credit,2)."</strong>] must be equal.<br/>";
+					$errmsg		= array_filter($errmsg);
 				}
 
 				if( empty($errmsg) ) {

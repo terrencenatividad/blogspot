@@ -2391,7 +2391,7 @@ $(document).ready(function(){
 			var row 	=	id.replace(/[a-z]/g, '');
 			var code 	=	$(this).val();
 
-			$.post('<?=BASE_URL?>sales/sales_invoice/ajax/get_value', "taxcode=" + code + "&event=getTaxRate", function(data) 
+			$.post('<?=MODULE_URL?>ajax/get_value', "taxcode=" + code + "&event=getTaxRate", function(data) 
 			{
 				document.getElementById('taxrate' + row).value = data.taxrate;
 				computeAmount();
