@@ -520,7 +520,8 @@ class controller extends wc_controller
 			$balance     		= $row->balance; 
 			$amount	  	 		= $row->amount; 
 			$vendor		 		= $row->vendor; 
-			$referenceno 		= $row->referenceno; 
+			$referenceno 		= $row->referenceno;
+			$sourceno 			= $row->sourceno;
 			$checker 	 		= $row->importchecker;
 			$import 	 		= ($checker == 'import') 	?	"Yes" 	:	"No";
 			$import_checker = ($checker == 'import');
@@ -566,8 +567,8 @@ class controller extends wc_controller
 				'print',
 				$bir_link
 			)
-			->addDelete($status && $restrict && $status_paid && !$import_checker)
-			->addCheckbox($status && $restrict && $status_paid && !$import_checker)
+			->addDelete($status && $restrict && $status_paid && empty($sourceno))
+			->addCheckbox($status && $restrict && $status_paid && empty($sourceno))
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
