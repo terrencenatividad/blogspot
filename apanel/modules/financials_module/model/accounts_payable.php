@@ -594,12 +594,13 @@ class accounts_payable extends wc_model
 			"main.referenceno as referenceno",
 			"main.lockkey as importchecker",
 			"main.stat as stat",
-			"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance!=payment.amount AND main.balance!=0 AND main.balance > 0 AND main.stat!='cancelled','partial',
-			IF(main.amountpaid=payment.amount AND main.balance=0 AND main.stat!='cancelled','paid','unpaid'))))) payment_status"
-			
+			"IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
+			IF(main.balance != main.amount AND main.balance != 0 AND main.stat!='cancelled','partial',
+			IF(main.balance = 0 AND main.amountpaid = main.amount AND main.stat!='cancelled', 'paid',
+			IF(main.stat!='cancelled','unpaid','cancelled')
+			)
+			)
+		) payment_status"
 	);
 
 	// "IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
