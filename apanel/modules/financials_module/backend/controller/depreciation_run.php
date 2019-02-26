@@ -38,6 +38,17 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list() {
+		$first_dep = $this->depreciation_run->get_depreciation_start();
+		$first_dep = date("Y-m-t", strtotime($first_dep->depreciation_month));
+		$first_dep = $this->date->dateFormat($first_dep);
+		// if(!empty($first_dep)){
+		// 	$a = date("Y-m-t", strtotime($first_dep[0]->fiscalyear.'-'.$first_dep[0]->period));
+		// 	$a = $this->date->dateFormat($a);
+		// }else{
+		// 	$a = '';
+		// }
+		
+
 		$checkdep		= $this->depreciation_run->checkDepreciation();
 		if($checkdep === true){
 			if($checkdep->transactiondate > $this->date->dateDbFormat()){
@@ -76,6 +87,9 @@ class controller extends wc_controller {
 
 		$pagination->table 	= $table;
 		$pagination->check	= $checkdep;
+		// $pagination->closing= $a;
+		$pagination->first_dep= $first_dep;
+		
 		return $pagination;
 	}
 
@@ -160,21 +174,27 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_load_depreciation() {
-		$pagination	= $this->depreciation_run->getAsset123();
+		$dep_date = $this->input->post('date');
+		$asd = $this->depreciation_run->get_depreciation_start();
+		
+		$fiscalyear = date("Y", strtotime($dep_date));
+		$period		= date("m", strtotime($dep_date));
+
+		$pagination	= $this->depreciation_run->getAsset123($dep_date);
 		$date = $this->date->dateDbFormat();
 		$year = $this->year;
 		$month = $this->month;
 		
 		$paginations	= $this->depreciation_run->getAsset1234();
 		foreach($paginations as $row2){
-		$this->depreciation_run->saveJV($year,$month,$row2->depreciation_amount,$row2->gl_asset,$row2->gl_accdep,$row2->gl_depexpense);
+		$this->depreciation_run->saveJV($dep_date,$row2->depreciation_amount,$row2->gl_asset,$row2->gl_accdep,$row2->gl_depexpense);
 		}
 		
 		$table		= '';
 		if (empty($pagination)) {
 			$table = '<tr><td colspan="12" class="text-center"><b>No Records Found</b></td></tr>';
 		}
-		$this->depreciation_run->deleteSched($month,$year);
+		$this->depreciation_run->deleteSched($period,$fiscalyear);
 
 		foreach ($pagination as $row) {
 			$accumulated	= $this->depreciation_run->getAccumulated($row->asset_number);
@@ -182,14 +202,17 @@ class controller extends wc_controller {
 			$depreciation 			= 0;
 			$accumulated_amount = $accumulated->depamount;
 			$x = 0;
-			$a = date("Y-m", strtotime($row->depreciation_month));
+			$a = date("Y-m", strtotime($dep_date));
 			$b = date("Y-m", strtotime($date));
 			$date1=date_create($a);
 			$date2=date_create($b);
 			$diff=date_diff($date1,$date2);
 			$x = $diff->m;
 			$depreciation_amount 	= ($row->balance_value - $row->salvage_value) / $row->useful_life;
-			$final = date("Y-m-d", strtotime("+$x month", $time));
+			$d = date("d", strtotime($row->depreciation_month));
+			// var_dump($d);
+			$final = date("Y-m-d", strtotime($fiscalyear.'-'.$period.'-'.$d));
+			// $final = date("Y-m-d", strtotime("+$x month", $time));
 			$depreciation = $accumulated_amount + $depreciation_amount;
 			$sched = $this->depreciation_run->saveAssetMasterSchedule($row->asset_number,$row->itemcode,$final,$depreciation,$depreciation_amount, $row->gl_asset, $row->gl_accdep, $row->gl_depexp,$year,$month,$row->useful_life);
 			
@@ -229,5 +252,4 @@ class controller extends wc_controller {
 
 		return $dataArray = array("user_lists" => $lists);
 	}
-
 }
