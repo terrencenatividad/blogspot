@@ -746,7 +746,7 @@ class controller extends wc_controller
 
 			$cond 	  = " fstaxcode = '$taxcode' ";
 
-			$result = $this->invoice->getValue("fintaxcode", $data_var, $cond);
+			$result = $this->po->getValue("fintaxcode", $data_var, $cond);
 
 			$dataArray = array("taxrate" => $result[0]->taxrate);
 
