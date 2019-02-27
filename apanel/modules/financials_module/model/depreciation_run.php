@@ -1,7 +1,7 @@
 <?php
 class depreciation_run extends wc_model {
 
-	public function getAssetMasterList($fields,$sort) {
+	public function getAssetMasterList($fields,$sort,$dep_date) {
 		$fields = array(
 			'am.id',
 			'am.itemcode',
@@ -44,7 +44,7 @@ class depreciation_run extends wc_model {
 			$orderby = $sort;
 		}
 	
-		$date = $this->date->dateDbFormat();
+		$date = $this->date->dateDbFormat($dep_date);
 		
 		$condition = "MONTH(depreciation_date) = MONTH('$date') AND YEAR(depreciation_date) = YEAR('$date')";
 
@@ -338,9 +338,9 @@ class depreciation_run extends wc_model {
 								->getResult();
 		if(!$result){
 			$asset_ret 		= 	$this->db->setTable('asset_master am')
-										 ->leftJoin("journalvoucher jv ON jv.period = MONTH(am.depreciation_month) AND jv.fiscalyear =  YEAR(am.depreciation_month)")
-										 ->setFields("am.id, am.depreciation_month, MONTH(am.depreciation_month) period, YEAR(am.depreciation_month) year, jv.voucherno")
-										 ->setWhere('jv.voucherno IS NULL')
+										//  ->leftJoin("journalvoucher jv ON jv.period = MONTH(am.depreciation_month) AND jv.fiscalyear =  YEAR(am.depreciation_month)")
+										 ->setFields("am.id, am.depreciation_month, MONTH(am.depreciation_month) period, YEAR(am.depreciation_month) year")
+										 ->setWhere(1)
 										 ->setGroupBy("MONTH(am.depreciation_month), YEAR(am.depreciation_month)")
 										 ->setOrderBy("YEAR(am.depreciation_month) ASC, MONTH(am.depreciation_month) ASC")
 										 ->runSelect()

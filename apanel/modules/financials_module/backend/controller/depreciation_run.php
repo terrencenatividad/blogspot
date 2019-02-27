@@ -62,7 +62,7 @@ class controller extends wc_controller {
 		
 		
 		$sort = $this->input->post('sort');
-		$pagination		= $this->depreciation_run->getAssetMasterList($this->fields,$sort);
+		$pagination		= $this->depreciation_run->getAssetMasterList($this->fields,$sort,$first_dep);
 
 		$table		= '';
 		if (empty($pagination->result)) {
