@@ -148,14 +148,14 @@ class sales_invoice extends wc_model
 			$jo	= "'" . implode("','", $ids) . "'";
 			if ($jo != '') {
 				$result		= $this->db->setTable('job_order jo')
-									->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes')
+									->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes, jo.service_quotation')
 									->setWhere($condition." AND job_order_no NOT IN ($jo)")
 									->setGroupBy('jo.job_order_no')
 									->runPagination();
 			}
 			else {
 				$result		= $this->db->setTable('job_order jo')
-								->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes')
+								->setFields('jo.job_order_no voucherno, jo.transactiondate transactiondate, jo.notes, jo.service_quotation')
 								->setWhere($condition)
 								->setGroupBy('jo.job_order_no')
 								->runPagination();
@@ -858,7 +858,7 @@ class sales_invoice extends wc_model
 			
 			if($trigger == 'yes' && $auto_ar)
 			{
-				$header_fields 		= " transactiondate, period, fiscalyear, duedate, customer, remarks, amount, discounttype, discountamount, netamount, referenceno, sourceno ";
+				$header_fields 		= " transactiondate, period, fiscalyear, duedate, customer, remarks, amount, discounttype, discountamount, netamount, referenceno, sourceno, srctranstype";
 				$condition 			= " voucherno = '$invoice' ";
 				$retrieved_data['header'] 	= 	$this->db->setTable('salesinvoice')
 														->setFields($header_fields)
@@ -907,10 +907,15 @@ class sales_invoice extends wc_model
 				$financial_header['source']				= 'SI';
 				$financial_header['sourceno']			= $invoice;
 				$sourceno 								= $retrieved_data['header']->sourceno;
-
+				$srctranstype							= $retrieved_data['header']->srctranstype;
 				/**
-				 * Get DR Amount
+				 * Get DR/JO Amount
 				 */
+				if ($srctranstype == 'jo') {
+					$jono	= $this->getValue("job_release", array("job_release_no"), " job_order_no = '$sourceno'");
+
+					$sourceno = $jono[0]->job_release_no;
+				}
 				if($sourceno){
 					$inventory_clearing	= $this->getValue("journalvoucher", array("amount"), " referenceno = '$sourceno' AND stat NOT IN('cancelled', 'temporary') ");
 					$inventory_amount 	 = (!empty($inventory_clearing)) ? $inventory_clearing[0]->amount : 0;

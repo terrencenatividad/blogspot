@@ -477,7 +477,7 @@ class payment_voucher_model extends wc_model
 			
 			$main_query		=	$query 	.	" UNION ALL "	.	$edit_query;
 
-			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.payment");
+			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.payment, c.exchangerate");
 
 			$result  		=	$this->db->setTable("($main_query) c")
 			->setFields($fields)
@@ -1885,7 +1885,7 @@ class payment_voucher_model extends wc_model
 	public function update_checks($booknumber, $chequenumber) {
 		$getBank = $this->getbankinfo($booknumber);
 		$first = $getBank->firstchequeno;
-		$next = $getBank->nextchequeno + 1;
+		$next = $getBank->nextchequeno;
 		$last = $getBank->lastchequeno;
 		$data1['stat'] = ($next == $last) ? 'closed' : 'open';
 		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;

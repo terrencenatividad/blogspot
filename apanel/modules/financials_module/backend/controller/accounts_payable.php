@@ -153,6 +153,7 @@ class controller extends wc_controller
 		$bal = $check_stat->balance;
 		$amount = $check_stat->amount;
 		$stat = '';
+		// maling stat chinecheck, fix data stat here. 
 		if($bal == $amount && $data['stat'] == 'posted') {
 			$stat = 'unpaid';
 		} else if($bal != $amount && $bal != 0 && $data['stat'] == 'posted') {
@@ -519,7 +520,8 @@ class controller extends wc_controller
 			$balance     		= $row->balance; 
 			$amount	  	 		= $row->amount; 
 			$vendor		 		= $row->vendor; 
-			$referenceno 		= $row->referenceno; 
+			$referenceno 		= $row->referenceno;
+			$sourceno 			= $row->sourceno;
 			$checker 	 		= $row->importchecker;
 			$import 	 		= ($checker == 'import') 	?	"Yes" 	:	"No";
 			$import_checker = ($checker == 'import');
@@ -565,8 +567,8 @@ class controller extends wc_controller
 				'print',
 				$bir_link
 			)
-			->addDelete($status && $restrict && $status_paid && !$import_checker)
-			->addCheckbox($status && $restrict && $status_paid && !$import_checker)
+			->addDelete($status && $restrict && $status_paid && empty($sourceno))
+			->addCheckbox($status && $restrict && $status_paid && empty($sourceno))
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
@@ -2007,6 +2009,28 @@ class controller extends wc_controller
 		}
 
 		return array('checker' => $checker, 'ret' => $ret);
+	}
+
+	private function ajax_check_cwt_edit() {
+		$accountcode = $this->input->post('accountcode');
+		$id = $this->input->post('id');
+		$linenum = $this->input->post('linenum');
+		$checker = '';
+		$taxbase = $this->accounts_payable->getTaxAmount($id, $linenum);
+		$accountclasscode = $this->accounts_payable->checkCWT($accountcode);
+		$acode = $accountclasscode->accountclasscode;
+		if($acode == 'OTHCL' || $acode == 'TAX' || $acode == 'CULIAB') {
+			$checker = 'true';
+		}
+		$tax_list  	= $this->accounts_payable->getATC($accountcode);
+		$ret = '';
+		foreach ($tax_list as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+
+		return array('checker' => $checker, 'ret' => $ret, 'taxbase' => $taxbase->taxbase_amount, 'taxcode' => $taxbase->taxcode);
 	}
 
 	private function ajax_get_taxrate() {

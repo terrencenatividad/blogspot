@@ -746,7 +746,7 @@ class controller extends wc_controller
 
 			$cond 	  = " fstaxcode = '$taxcode' ";
 
-			$result = $this->invoice->getValue("fintaxcode", $data_var, $cond);
+			$result = $this->po->getValue("fintaxcode", $data_var, $cond);
 
 			$dataArray = array("taxrate" => $result[0]->taxrate);
 
@@ -826,19 +826,6 @@ class controller extends wc_controller
 			$codes = array();
 			for($i=1;$i<=count($data_post['budgetcode']);$i++) {
 				if(!empty($data_post['budgetcode'][$i])){
-					// if(!in_array($data_post['budgetcode'][$i],$codes) && !in_array($result['accountcode'],$codes)){
-					// 	$codes['budgetcode'] = $data_post['budgetcode'][$i];
-					// 	$codes['accountcode'] = $result['accountcode'];
-					// 	$codes['amount'] = str_replace(',','',$data_post['amount'][$i]);
-					// } else {
-					// 	$codes['budgetcode'] = $data_post['budgetcode'][$i];
-					// 	$codes['accountcode'] = $result['accountcode'];
-					// 	$codes['yes'] = 'yes';
-					// 	$codes['amount'] += str_replace(',','',$data_post['amount'][$i]);
-					// }
-					// if(in_array($data_post['yes'][$i],$codes) && in_array($result['accountcode'],$codes)) {
-					// 	var_dump($codes);
-					// }
 					$saveArr['voucherno'] 	= $data_post['h_voucher_no'];
 					$saveArr['accountcode'] = $result['accountcode'];
 					$saveArr['budget_code'] = $data_post['budgetcode'][$i];
