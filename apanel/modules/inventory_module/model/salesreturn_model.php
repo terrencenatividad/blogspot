@@ -520,7 +520,7 @@
 				}
 			}
 
-			return $kwan;
+			return $result;
 		}
 
 		public function getDRvoucher($sivoucher){

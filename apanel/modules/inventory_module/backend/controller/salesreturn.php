@@ -397,10 +397,10 @@ class controller extends wc_controller {
 				$color = 'success';
 				break;
 			case 'Scrapped':
-				$color = 'danger';
+				$color = 'warning';
 				break;
 			case 'Cancelled':
-				$color = 'warning';
+				$color = 'danger';
 				break;
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
@@ -754,7 +754,7 @@ class controller extends wc_controller {
 	private function ajax_delete() {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
-			//$result 			= $this->sr_model->deleteSalesReturn($delete_id);
+			$result 			= $this->sr_model->deleteSalesReturn($delete_id);
 			$result_serial 		= $this->sr_model->revertItemSerialized($delete_id);
 			$result_dr 			= $this->sr_model->revertDRchanges($delete_id);
 		}
