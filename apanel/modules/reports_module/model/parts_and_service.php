@@ -30,14 +30,14 @@ class parts_and_service extends wc_model {
 		$addCondition .= (!empty($daterangefilter) && !is_null($datefilterArr)) ? " AND transactiondate BETWEEN '$datefilterFrom' AND '$datefilterTo' " : "";
 
 		$si = $this->db->setTable('salesinvoice a')
-							->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, discountedamount parts, '' service ,a.customer,a.stat")
+							->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, discountedamount parts, '' service ,a.customer,a.stat,a.transtype")
 							->leftJoin("salesinvoice_details b ON b.voucherno = a.voucherno")
 							->leftJoin("job_order c ON c.job_order_no = a.sourceno")
 							->setWhere('b.stat = "posted" AND srctranstype = "jo"')
 							->buildSelect();
 
 		$billing = $this->db->setTable('billing a')
-							->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, '' parts, discountedamount service,a.customer,a.stat")
+							->setFields("a.transactiondate, service_quotation, po_number, b.voucherno si, '' parts, discountedamount service,a.customer,a.stat,'' transtype")
 							->leftJoin("billing_details b ON b.voucherno = a.voucherno")
 							->leftJoin("job_order c ON c.job_order_no = a.job_orderno")
 							->setWhere('a.stat != "Cancelled" AND a.job_orderno != ""')
@@ -46,7 +46,7 @@ class parts_and_service extends wc_model {
 		$query =  $si. ' UNION ALL ' . $billing;
 		
 		$result = 	$this->db->setTable("($query) main")
-							->setFields('transactiondate,service_quotation, po_number, si, parts, service, partnername, main.stat')
+							->setFields('transactiondate,service_quotation, po_number, si, parts, service, partnername, main.stat,transtype')
 							->leftJoin('partners p ON p.partnercode = main.customer')
 							->setWhere("main.stat != ''".$addCondition)	
 							->setOrderBy($sort)						
