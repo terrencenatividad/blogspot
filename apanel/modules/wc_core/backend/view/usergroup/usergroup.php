@@ -33,6 +33,22 @@
 							?>
 						</div>
 					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<label class="col-md-2 control-label">
+								Dashboard View
+							</label>
+							<?php
+								echo $ui->formField('checkbox')
+									->setName("dashboard")
+									->setId("dashboard")
+									->setSwitch()
+									->setDefault('1')
+									->setValue($dashboard)
+									->draw($show_input);
+							?>
+						</div>
+					</div>
 					<input type="hidden" name="status" value="<?php echo $status; ?>" >
 					<!-- <div class="row">
 						<div class="col-md-12">
@@ -45,6 +61,24 @@
 								// 	->setDefault('1')
 								// 	->setValue('')
 								// 	->draw($show_input); 
+							?>
+						</div>
+					</div> -->
+					<!-- <div class="row">
+						<h4 class="module_label col-md-2">
+							<strong>Dashboard</strong>
+						</h4>
+						<div class="col-md-8">
+							<?php
+								echo $ui->formField('checkbox')
+									->setLabel('View')
+									->setSplit('col-xs-6', 'col-xs-6 no-padding')
+									->setName("dashboard")
+									->setId("dashboard")
+									->setSwitch()
+									->setDefault('1')
+									->setValue($dashboard)
+									->draw($show_input);
 							?>
 						</div>
 					</div> -->

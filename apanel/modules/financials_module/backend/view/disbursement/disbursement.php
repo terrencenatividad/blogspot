@@ -350,7 +350,7 @@
 													<?php endif; ?>
 
 													<?php else :  ?>
-														<?php if($main_status != 'cancelled'){ ?>
+														<?php if($main_status == 'posted'){?>
 															<td class="text-center">
 																<button type="button" class="btn btn-info btn-flat print_check <?=$status?>"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
 															</td>	
@@ -467,6 +467,7 @@
 													?>
 												</td>
 												<?endif;?>
+												<td class="text-right"></td>
 											</tr>	
 										</tfoot>
 									</table>
