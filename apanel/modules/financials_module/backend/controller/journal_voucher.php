@@ -154,8 +154,8 @@ class controller extends wc_controller {
 			//Checker for Imported files or Closing
 			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
 			$uneditable_box 	= 	array("import","beginning","closing","yrend_closing","accrual_jv","reversed_ajv","jo_release","depreciation");
-			$display_edit_delete=  	in_array($checker, $uneditable_box) 	?	0	:	1;
-			// $display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing" || $checker!="accrual_jv" || $checker!="reverse_ajv" || $checker!="jo_release") 	?	1	:	0;
+			// $display_edit_delete=  	!in_array($checker, $uneditable_box) 	?	1	:	0;
+			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing" || $checker!="accrual_jv" || $checker!="reversed_ajv" || $checker!="jo_release" || $checker!="depreciation") 	?	1	:	0;
 
 			//Transaction Dates equivalent to the closing date / period should be deleted first
 			$latest_closed_date = 	$this->restrict->getClosedDate();
@@ -178,13 +178,15 @@ class controller extends wc_controller {
 			// echo "1 ".$display_edit_delete."\n\n";
 			// echo "2 ".$restrict_jv."\n\n";
 			// echo "3 ".$checker."\n\n";
-
+			// echo "4 ".$date_compare . "\n\n";
+			// echo "5 ".$voucher_compare . "\n\n";
+			// echo "($status != 'cancelled' && $display_edit_delete  && ($restrict_jv || ($date_compare && $voucher_compare))\n\n";
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv )
-									->addDelete($status != "cancelled" && $display_edit_delete  && ($restrict_jv || $date_compare && $voucher_compare))
+									->addDelete($status != "cancelled" && $display_edit_delete  && ($restrict_jv || ($date_compare && $voucher_compare)))
 									->addPrint()
-									->addCheckbox($status != "cancelled" && $display_edit_delete  && ($restrict_jv || $date_compare && $voucher_compare))
+									->addCheckbox($status != "cancelled" && $display_edit_delete  && ($restrict_jv || ($date_compare && $voucher_compare)))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
