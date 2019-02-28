@@ -1433,6 +1433,15 @@ class controller extends wc_controller
 					'ban-circle',
 					$show_btn
 				)
+				->addOtherTask(
+					'Print Check',
+					'print',
+					($chequenumber && $status == 'posted'),
+					'',
+					array(
+						'data-check' => $chequenumber
+					)
+				)
 				->addPrint()
 							//->addDelete($show_dlt)
 				->addCheckbox($show_btn)
@@ -1452,7 +1461,7 @@ class controller extends wc_controller
 					$table	.= '</tr>';
 				}
 
-				if($paymentmode == 'cheque'){
+				if($paymentmode == 'check'){
 					if($nextvno != $prevvno){
 						$table	.= '<tr>';
 						$table	.= '<td></td>';
@@ -1562,7 +1571,7 @@ class controller extends wc_controller
 		}
 		$print_dtls = new print_check();
 
-		$print_dtls->setDocumentType('Payment Voucher')
+		$print_dtls->setDocumentType('Disbursement Voucher')
 		->setDocumentInfo($print_chkdtl)
 		->drawPDF('pv_voucher_' . $vno);
 	}
