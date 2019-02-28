@@ -354,10 +354,10 @@ class controller extends wc_controller
 		$data["particulars"]     	= $data["main"]->particulars;
 		$data["paymenttype"]     	= $data["main"]->paymenttype;
 		$data['main_status']		= $data["main"]->status;
-
-		$data["listofcheques"]	 = isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array() ;
-		$data["show_cheques"] 	 = isset($data['rollArray'][$sid]) ? '' : 'hidden';
-		$data['booknumber'] = $data['rollArray'][$sid][0]['booknumber'];
+		// var_dump($data['rollArray']);
+		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
+		$data['booknumber'] 		= isset($data['rollArray'][$sid][0]['booknumber']) ? $data['rollArray'][$sid][0]['booknumber'] : "";
+		$data["show_cheques"] 		= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		
 		// Application Data
 		$payments 			= $data['payments'];
@@ -1004,6 +1004,17 @@ class controller extends wc_controller
 		$voucher 	= '';
 		$errmsg 	= array();
 
+		if ($data_post['paymentmode'] == 'cheque') {
+			$accountno = '';
+			$acc = explode(' - ', $data_post['bank_name']);
+			if(count($acc) == '2') {
+				$accountno = $acc[1];
+			} else {
+				$accountno = $acc[2];
+			}
+			$result = $this->payment_voucher->update_checks($data_post['booknumber'], $data_post['chequenumber'][1]);
+		}
+		
 		if(empty($error)) {
 			$result    	= array_filter($this->payment_voucher->savePayment($data_post));
 		} else {
@@ -1016,17 +1027,6 @@ class controller extends wc_controller
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
-		}
-		
-		if ($data_post['paymentmode'] == 'cheque') {
-			$accountno = '';
-			$acc = explode(' - ', $data_post['bank_name']);
-			if(count($acc) == '2') {
-				$accountno = $acc[1];
-			} else {
-				$accountno = $acc[2];
-			}
-			$result = $this->payment_voucher->update_checks($data_post['booknumber'], $data_post['chequenumber'][1]);
 		}
 
 		// $book_ids	=json_decode(stripcslashes($data_post['book_ids']));
@@ -1663,15 +1663,18 @@ class controller extends wc_controller
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
 		$table = '';
 		$count = 0;
+		$booknumber 	=	"";
 		if(empty($nums->result)) {
 			$table = false;
 		} else {
 			if(count($nums->result) == 1) {
 				foreach($nums->result as $key => $row) {
 					$table = $row->nextchequeno;
+					$booknumber = $row->booknumber;
 				}
 			} else {
 				foreach($nums->result as $key => $row) {
+					$booknumber = $row->booknumber;
 					$table .= '<tr class = "clickme" style = "cursor : pointer;">';
 					$table .= '<td class = "hidden booknumber"><input type = "hidden" value = '.$row->booknumber.' class = "booknum"></td>';
 					$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
@@ -1684,6 +1687,7 @@ class controller extends wc_controller
 		$nums->table = $table;
 		$nums->bank_id = $bank_id;
 		$nums->count = count($nums->result);
+		$nums->booknumber = $booknumber;
 		return $nums;
 	}
 }
