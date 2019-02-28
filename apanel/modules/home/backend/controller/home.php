@@ -13,12 +13,17 @@ class controller extends wc_controller {
 	public function index() {
 		$this->view->title			= ('Dashboard');
 		$data						= array();
+		$access						= $this->dashboard->getDasboardAccess();
 		$data['year']				= $this->dashboard->getYear();
 		$data['invoices']			= $this->dashboard->getInvoices();
 		$data['purchases']			= $this->dashboard->getPurchases();
 		$data['items']				= $this->dashboard->getItems();
 		$data['journalvouchers']	= $this->dashboard->getJournalVouchers();
-		$this->view->load('home', $data);
+		if($access):
+			$this->view->load('home', $data);
+		else:
+			$this->view->load('welcome');
+		endif;
 	}
 
 	public function ajax($task) {
