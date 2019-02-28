@@ -703,7 +703,7 @@ class payment_voucher_model extends wc_model
 			$total_currency			= (isset($data['total_currency']) && (!empty($data['total_currency']))) ? htmlentities(addslashes(trim($data['total_currency']))) : "";
 			$exchangerate			= (isset($data['exchangerate']) && (!empty($data['exchangerate']))) ? htmlentities(addslashes(trim($data['exchangerate']))) : "";
 			$currencycode			= (isset($data['currencycode']) && (!empty($data['currencycode']))) ? htmlentities(addslashes(trim($data['currencycode']))) : "";
-			$booknumber			= (isset($data['booknumber']) && (!empty($data['booknumber']))) ? htmlentities(addslashes(trim($data['booknumber']))) : "";
+			$booknumber				= (isset($data['booknumber']) && (!empty($data['booknumber']))) ? htmlentities(addslashes(trim($data['booknumber']))) : "";
 
 			$source				   	= (!empty($picked_payables)) ? "PV" : "DV";
 
@@ -1804,6 +1804,7 @@ class payment_voucher_model extends wc_model
 		->runSelect()
 		->setLimit(1)
 		->getRow();
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -1884,17 +1885,19 @@ class payment_voucher_model extends wc_model
 
 	public function update_checks($booknumber, $chequenumber) {
 		$getBank = $this->getbankinfo($booknumber);
-		$first = $getBank->firstchequeno;
-		$next = $getBank->nextchequeno;
-		$last = $getBank->lastchequeno;
+		// var_dump($getBank);
+		$first = isset($getBank->firstchequeno) ? $getBank->firstchequeno : "";
+		$next = isset($getBank->nextchequeno) ? $getBank->nextchequeno : "";
+		$last = isset($getBank->lastchequeno) ? $getBank->lastchequeno : "";
 		$data1['stat'] = ($next == $last) ? 'closed' : 'open';
 		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;
-		
+		// var_dump($data1);
 		$result = $this->db->setTable("bankdetail") 
 		->setValues($data1)
 		->setWhere("booknumber = '$booknumber'")
 		->setLimit(1)
 		->runUpdate();
+		// echo $this->db->getQuery();
 		return $result ;
 	}
 
