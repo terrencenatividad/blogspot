@@ -19,7 +19,7 @@
         public function getClosedDate() {
             $result     =   $this->db->setTable("journalvoucher")
                                      ->setFields("transactiondate")
-                                     ->setWhere("stat = 'posted' AND source = 'closing'")
+                                     ->setWhere("stat = 'posted' AND source IN ('closing','yrend_closing')")
                                      ->setOrderBy("transactiondate DESC")
                                      ->setLimit(1)
                                      ->runSelect()
