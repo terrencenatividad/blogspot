@@ -305,11 +305,12 @@ class balance_sheet_model extends wc_model {
 				$parentaccount		= ($accounts->parentnature) ? $accounts->parentnature : $accounts->accountnature;
 				$accounttype		= '';
 				$accountclass		= '';
+
 				foreach ($data as $x) {
 					if (isset($x[$key])) {
 						$account	= $x[$key];
 						$tot = (strtolower($accounts->accountnature) == 'debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
-						if ($accounts->accountnature != $parentaccount) {
+						if (strtolower($accounts->accountnature) == 'credit') {
 							$tot = $tot * -1;
 						}
 						$total	+= $tot;
@@ -336,7 +337,6 @@ class balance_sheet_model extends wc_model {
 				} else {
 					$total = 0;
 				}
-
 				if (($total !== 0 && !empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
 					$y[$accounttype][$accountclass][$accountname] = $col;
 				}

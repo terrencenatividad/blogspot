@@ -1197,7 +1197,8 @@ class controller extends wc_controller
 				$hide_tr = '';
 				$counter++;
 			}
-			$table .= '<tr class ="'.$hide_tr.'" data-id="' . $row->voucherno . '">';
+			$sq = isset($row->service_quotation) ? $row->service_quotation : '';
+			$table .= '<tr class ="'.$hide_tr.'" data-id="' . $row->voucherno . '" data-sq="' . $sq . '">';
 			$table .= '<td>' . $row->voucherno . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->notes . '</td>';

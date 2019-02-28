@@ -1885,7 +1885,7 @@ class payment_voucher_model extends wc_model
 	public function update_checks($booknumber, $chequenumber) {
 		$getBank = $this->getbankinfo($booknumber);
 		$first = $getBank->firstchequeno;
-		$next = $getBank->nextchequeno + 1;
+		$next = $getBank->nextchequeno;
 		$last = $getBank->lastchequeno;
 		$data1['stat'] = ($next == $last) ? 'closed' : 'open';
 		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;

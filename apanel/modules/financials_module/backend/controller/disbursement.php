@@ -1433,6 +1433,15 @@ class controller extends wc_controller
 					'ban-circle',
 					$show_btn
 				)
+				->addOtherTask(
+					'Print Check',
+					'print',
+					($chequenumber && $status == 'posted'),
+					'',
+					array(
+						'data-check' => $chequenumber
+					)
+				)
 				->addPrint()
 							//->addDelete($show_dlt)
 				->addCheckbox($show_btn)
@@ -1452,7 +1461,7 @@ class controller extends wc_controller
 					$table	.= '</tr>';
 				}
 
-				if($paymentmode == 'cheque'){
+				if($paymentmode == 'check'){
 					if($nextvno != $prevvno){
 						$table	.= '<tr>';
 						$table	.= '<td></td>';
@@ -1562,7 +1571,7 @@ class controller extends wc_controller
 		}
 		$print_dtls = new print_check();
 
-		$print_dtls->setDocumentType('Payment Voucher')
+		$print_dtls->setDocumentType('Disbursement Voucher')
 		->setDocumentInfo($print_chkdtl)
 		->drawPDF('pv_voucher_' . $vno);
 	}
@@ -1653,20 +1662,28 @@ class controller extends wc_controller
 		$bank_id = isset($getBank->id) ? $getBank->id : '';
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
 		$table = '';
+		$count = 0;
 		if(empty($nums->result)) {
 			$table = false;
 		} else {
-			foreach($nums->result as $row) {
-				$table .= '<tr class = "clickme" style = "cursor : pointer;">';
-				$table .= '<td class = "hidden booknumber"><input type = "hidden" value = '.$row->booknumber.' class = "booknum"></td>';
-				$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
-				$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
-				$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';
-				$table .= '</tr>';
+			if(count($nums->result) == 1) {
+				foreach($nums->result as $key => $row) {
+					$table = $row->nextchequeno;
+				}
+			} else {
+				foreach($nums->result as $key => $row) {
+					$table .= '<tr class = "clickme" style = "cursor : pointer;">';
+					$table .= '<td class = "hidden booknumber"><input type = "hidden" value = '.$row->booknumber.' class = "booknum"></td>';
+					$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
+					$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
+					$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';
+					$table .= '</tr>';
+				}
 			}
 		}
 		$nums->table = $table;
 		$nums->bank_id = $bank_id;
+		$nums->count = count($nums->result);
 		return $nums;
 	}
 }

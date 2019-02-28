@@ -76,14 +76,18 @@ class backend {
 				echo "Function Name Error: " . $function;
 				exit();
 			} else {
-				$url->redirect(BASE_URL);
+				//$url->redirect(BASE_URL);
+				echo "Function Name Error: " . $function;
+				exit();
 			}
 		} else if ( ! $result || $result->$type !== '1') {
 			if (DEBUGGING) {
 				echo "No Permission to Access this Module Task: " . ucfirst(str_replace('mod_', '', $type));
 				exit();
 			} else {
-				$url->redirect(BASE_URL);
+				//$url->redirect(BASE_URL);
+				echo "No Permission to Access this Module Task: " . ucfirst(str_replace('mod_', '', $type));
+				exit();
 			}
 		}
 		if ($result) {

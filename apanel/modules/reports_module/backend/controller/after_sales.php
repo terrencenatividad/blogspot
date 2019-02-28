@@ -90,10 +90,10 @@ class controller extends wc_controller {
 					   foreach ($serials as $val) {
 							$tablerow	.= '<tr">';
 							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.date('M d, Y', strtotime($row->transactiondate)).'</td>';
-							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->service_quotation.'</td>';
-							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->job_order_no.'</td>';
-							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si_goods.'</td>';
-							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si_service.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.BASE_URL.'parts_and_service/service_quotation/view/'.$row->service_quotation.'">'.$row->service_quotation.'</a></td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.BASE_URL.'parts_and_service/job_order/view/'.$row->job_order_no.'">'.$row->job_order_no.'</a></td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.BASE_URL.'sales/sales_invoice/view/'.$row->si_goods.'">'.$row->si_goods.'</td>';
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.BASE_URL.'billing/view/'.$row->si_service.'">'.$row->si_service.'</td>';
 							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->partnername.'</td>';
 							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->uom.'</td>';
 							if($val != ''){

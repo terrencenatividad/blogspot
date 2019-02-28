@@ -13,6 +13,7 @@
 
 			<form method = "post" class="form-horizontal" id="sales_invoice_form">
 				<input class = "form_iput" value="<?=$discounttype?>" name = "discounttype" id = "discounttype" type="hidden">
+				<input class = "form_iput" value="" name = "sq" id = "sq" type="hidden">
 				<input class = "form_iput" value="<?=$srctranstype?>" name = "srctranstype" id = "srctranstype" type="hidden">
 				
 				<div class = "row">
@@ -165,6 +166,7 @@
 									->setClass('datepicker datepicker-input')
 									->setAttribute(array('data-date-start-date' => $close_date))
 									->setAddon('calendar')
+									->setValidation('required')
 									->draw($show_input);
 						?>
 					</div>
@@ -1029,6 +1031,8 @@ function getDeliveries(code, voucher)
 		var notes 		= data.notes;
 		var items 		= data.items;
 
+		var sq 			= $('#sq').val();
+
 		$('#sales_invoice_form #customer').val(customer);
 		$('#sales_invoice_form #discounttype').val(discounttype);
 		$('#sales_invoice_form #remarks').val(notes);
@@ -1043,8 +1047,13 @@ function getDeliveries(code, voucher)
 
 		if (voucher == 'jo') {
 			$('#itemsTable tbody tr').find('.price').prop('readonly', false);
-			$('#itemsTable tbody tr').find('.discount').prop('readonly', false);	
 			$('#itemsTable tbody tr').find('.taxcode').prop('disabled', false);
+			if (sq != '' && (discounttype != '' || discounttype != 'none')) {
+				$('#itemsTable tbody tr').find('.discount').prop('readonly', true);	
+			}
+			else {
+				$('#itemsTable tbody tr').find('.discount').prop('readonly', false);	
+			}
 		}
 		else {
 			$('#itemsTable tbody tr').find('.price').prop('readonly', true);
@@ -1521,6 +1530,7 @@ function finalizeTransaction()
 	$('#sales_invoice_form #sourceno').trigger('blur');
 	$("#sales_invoice_form .itemcode").trigger('blur');
 	$("#sales_invoice_form #referenceno").trigger('blur');
+	$("#sales_invoice_form #duedate").trigger('blur');
 
 	if ($('#sales_invoice_form').find('.form-group.has-error').length == 0)
 	{	
@@ -1571,8 +1581,10 @@ function finalizeEditTransaction()
 	//$('#sales_invoice_form #customer').trigger('blur');
 	//$('#sales_invoice_form #drno').trigger('blur');
 	$("#sales_invoice_form .itemcode").trigger('blur');
+	$("#sales_invoice_form #referenceno").trigger('blur');
+	$("#sales_invoice_form #duedate").trigger('blur');
 
-	if ($(this).find('.form-group.has-error').length == 0)
+	if ($('#sales_invoice_form').find('.form-group.has-error').length == 0)
 	{
 		if($("#sales_invoice_form #itemcode\\[1\\]").val() != '' && $("#sales_invoice_form #transactiondate").val() != '' && $("#sales_invoice_form #duedate").val() != '' && $("#sales_invoice_form #customer").val() != '')
 		{
@@ -1879,8 +1891,10 @@ $(document).ready(function(){
 
 	$('#delivery_receiptList').on('click', 'tr[data-id]', function() {
 		var sourceno = $(this).attr('data-id');
+		var sq = $(this).attr('data-sq');
 		//$('#drno').val(drno);
 		$('#sourceno').val(sourceno).trigger('blur');
+		$('#sq').val(sq);
 		$('#delivery_list_modal').modal('hide');
 		var voucher = $('#delivery_list_modal #voucher_type:checked').val();
 		getDeliveries(sourceno, voucher);
@@ -2198,9 +2212,30 @@ $(document).ready(function(){
 	// -- For Deletion of Item Per Row -- End
 });
 
-// $('#itemsTable tbody').on('blur', '.discount', function() {
-// 	var discount = $(this).val();
-// 	$(this).find('tr').closest('.discountamount').val(discount);
-// });
+$('#itemsTable tbody').on('input change blur', '.price, .discount', function() {
+	var discount = $(this).closest('tr').find('.discount').val();
+	var sq = $('#sq').val();
+	var qty = $(this).closest('tr').find('.quantity').val();
+	var price = $(this).closest('tr').find('.price').val();
+	var amount = parseFloat(qty) * parseFloat(price);
+	if (sq == '') {
+		discountamount = (amount * parseFloat(discount)) / 100;
+		$(this).closest('tr').find('.discountrate').val(discount);
+		$(this).closest('tr').find('.discountamount').val(discountamount);
+	}
+	else {
+		discounttype = $('#discounttype').val();
+		if (discounttype == 'perc') {
+			discountamount = (amount * parseFloat(discount)) / 100;
+			$(this).closest('tr').find('.discountrate').val(discount);
+			$(this).closest('tr').find('.discountamount').val(discountamount);
+		}
+		else {
+			$(this).closest('tr').find('.discountrate').val(0.00);
+			$(this).closest('tr').find('.discountamount').val(amount);
+		}
+	}
+	addAmounts();
+});
 
 </script>

@@ -10,6 +10,21 @@ class dashboard_model extends wc_model {
 		$this->previous_month_query	= $this->getMonthly(1);
 	}
 
+	/**
+	 * Function to Check if User Group has access to view the dasboard
+	 */
+	public function getDasboardAccess() {
+		$result = $this->db->setTable(PRE_TABLE . '_user_group')
+							->setFields('dashboard')
+							->setWhere("status = 'active' AND groupname = '".GROUPNAME."' ")
+							->runSelect()
+							->getRow();
+		
+		$return = ($result) ? (boolean) $result->dashboard : 0;
+
+		return $return;
+	}
+
 	public function getYear() {
 		return $this->year;
 	}

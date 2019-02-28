@@ -1759,10 +1759,14 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 		{ bank: val_bank, curr_seq: num } 
 		).done(function(data){
 			if (data.table){
-				var row = $("#chequeTable tbody tr").length;
-				$('#table_chequelist tbody').html(data.table);
-				$('#cheque_pagination').html(data.pagination);
-				$('#chequeList').modal('show');
+				if(data.count == 1) {
+					cheque_element.closest('tr').find('.chequenumber').val(data.table);
+				} else {
+					var row = $("#chequeTable tbody tr").length;
+					$('#table_chequelist tbody').html(data.table);
+					$('#cheque_pagination').html(data.pagination);
+					$('#chequeList').modal('show');
+				}
 			} else {
 				$('#nocheckModal').modal('show');
 				$('#entriesTable #accountcode\\[2\\]').val('').trigger('change');
@@ -3955,7 +3959,7 @@ $(document).ready(function() {
 						if(data.code == '1')
 						{
 							$("#payableForm #btnSave").removeClass('disabled');
-+							$("#payableForm #btnSave_toggle").removeClass('disabled');
+							+							$("#payableForm #btnSave_toggle").removeClass('disabled');
 							$("#payableForm #h_voucher_no").val(data.voucher);
 							// window.location.href = '<?//=BASE_URL?>financials/payment_voucher';
 						}
