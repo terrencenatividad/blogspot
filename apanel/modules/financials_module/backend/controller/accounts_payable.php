@@ -2124,6 +2124,7 @@ class controller extends wc_controller
 		if ($reference == '') {
 			$post_data['reference'] = $this->accounts_payable->getLatestAPRecord();
 		}
+		
 		$task 			= $post_data['task'];
 		$upload_result 	= false;
 		unset($post_data['task']);
@@ -2137,13 +2138,12 @@ class controller extends wc_controller
 				 * @param group fields
 				 * @param custom condition
 				 */
-				// if ($task=='edit') 
+				
 				$attachment_id = $this->accounts_payable->getCurrentId("accountspayable_attachments", $reference);
 				if ($attachment_id=='0'){
+					$exist = false;
 					$attachment_id = $this->accounts_payable->getNextId("accountspayable_attachments","attachment_id");
 				}
-				// else
-					// $attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
 
 				foreach($upload_handler->response['files'] as $key => $row) {
 					$post_data['attachment_id'] 	= $attachment_id;
@@ -2151,13 +2151,13 @@ class controller extends wc_controller
 					$post_data['attachment_type'] 	= $row->type;
 					$post_data['attachment_url']	= $row->url;
 				}
-
-				if ($task == 'edit') {
+				
+				if ($task == 'edit' && $exist) {
 					$upload_result 	= $this->accounts_payable->replaceAttachment($post_data);
-					
 				}
-				else
+				else {
 					$upload_result 	= $this->accounts_payable->uploadAttachment($post_data);
+				}
 
 			}else{
 				// if($upload_handler->response['files'][0]->name == "Sorry, but file already exists"){
@@ -2165,6 +2165,8 @@ class controller extends wc_controller
 				// }
 				$upload_result 	= false;
 			}
+
+			return $upload_result;
 		}
 	}
 }
