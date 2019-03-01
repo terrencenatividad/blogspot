@@ -163,7 +163,7 @@
 
 		public function getSource($voucherno) {
 			$source = substr($voucherno, 0,2);
-			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno' AND srd.itemcode = tbl.itemcode AND srd.linenum = tbl.linenum)";
+			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno' AND srd.itemcode = tbl.itemcode AND srd.linenum = tbl.linenum AND stat!='Cancelled')";
 
 			if ($source == 'DR') {
 				$table 		= 'deliveryreceipt';
@@ -531,7 +531,7 @@
 				$sr_rows = $this->db->setTable('inventory_salesreturn_details srd')
 									->leftJoin('inventory_salesreturn sr ON sr.voucherno=srd.voucherno')
 									->setFields('sr.source_no, linenum, issueqty')
-									->setWhere("srd.voucherno='$value'")
+									->setWhere("srd.voucherno='$value' AND stat!='Cancelled'")
 									->runSelect()
 									->getResult();
 
