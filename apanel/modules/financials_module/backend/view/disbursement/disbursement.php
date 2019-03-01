@@ -210,8 +210,8 @@
 										->setId('chequenumber[1]')
 										->setClass('chequenumber')
 										->setMaxLength(30)
-								// ->setValidation('required alpha_num')
-										// ->setAttribute(array("readOnly"=>""))
+										->setValidation('required alpha_num')
+										->setAttribute(array("readOnly"=>""))
 										->setValue("")
 										->draw(true);
 										?>
@@ -1370,7 +1370,7 @@
 			
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val_bank, curr_seq: num } ).done(function(data){
 				if(data.table){
-			
+					
 					if(data.count == 1) {
 						cheque_element.closest('tr').find('.chequenumber').val(data.table);
 						$('#bankcode').val(data.bankcode);

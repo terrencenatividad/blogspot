@@ -248,7 +248,8 @@
 										->setClass('chequenumber')
 										->setValidation('required alpha_num')
 										->setMaxLength(30)
-												// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+										->setAttribute(array("readonly" => "readonly"))
+										// ->setAttribute(array("readonly" => "readonly"))
 										->setValue("")
 										->draw(true);
 										?>
@@ -328,7 +329,7 @@
 												->setClass("chequenumber $status")
 												->setMaxLength(30)
 												->setValidation('required alpha_num')
-												// ->setAttribute(array("readonly" => "readonly"))
+												->setAttribute(array("readonly" => "readonly"))
 													// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
 												->setValue($chequeno)
 												->draw($show_input);
@@ -4563,9 +4564,9 @@ $(document).ready(function() {
 		$('.tax_amount').val(acc);
 	});
 
-	// $('.chequenumber').focus(function() {
-	// 	$(this).blur();
-	// });
+	$('.chequenumber').focus(function() {
+		$(this).blur();
+	});
 
 	$(function() {
 			// $('select.cancelled').select2("enable",false);
