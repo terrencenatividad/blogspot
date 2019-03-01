@@ -207,7 +207,7 @@ class controller extends wc_controller
 				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
 				foreach ($getnextCheckno as $value) {
 					$cno = $value->checknum;
-					$ca = $value->booknumber;
+					$ca = $value->bankcode;
 					$result = $this->payment_voucher->update_checks($ca,$cno);
 				}
 			}
@@ -432,7 +432,7 @@ class controller extends wc_controller
 		$data['discount_code'] 		= $discount_code;
 
 		$data["listofcheques"]	 	= isset($data['rollArray'][$sid]) ? $data['rollArray'][$sid] : array();
-		$data['booknumber'] 		= isset($data['rollArray'][$sid][0]['booknumber']) ? $data['rollArray'][$sid][0]['booknumber'] : "";
+		$data['bankcode'] 		= isset($data['rollArray'][$sid][0]['bankcode']) ? $data['rollArray'][$sid][0]['bankcode'] : "";
 		$data["show_cheques"] 	= isset($data['rollArray'][$sid]) ? '' : 'hidden';
 		
 		$account_array	= array();
@@ -982,16 +982,14 @@ class controller extends wc_controller
 		$code 		= 0;
 		$voucher 	= '';
 		$errmsg 	= array();
-
+		
 		if($result)
 		{
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
 		}
-		
-		
-		
+
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		return $dataArray;
 	}
@@ -1842,20 +1840,32 @@ class controller extends wc_controller
 		$bank_id = isset($getBank->id) ? $getBank->id : '';
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
 		$table = '';
+		$count = 0;
+		$bankcode 	=	"";
 		if(empty($nums->result)) {
 			$table = false;
 		} else {
-			foreach($nums->result as $row) {
-				$table .= '<tr class = "clickme" style = "cursor : pointer;">';
-				$table .= '<td class = "hidden booknumber"><input type = "hidden" value = '.$row->booknumber.' class = "booknum"></td>';
-				$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
-				$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
-				$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';
-				$table .= '</tr>';
+			if(count($nums->result) == 1) {
+				foreach($nums->result as $key => $row) {
+					$table = $row->nextchequeno;
+					$bankcode = $row->bankcode;
+				}
+			} else {
+				foreach($nums->result as $key => $row) {
+					$table .= '<tr class = "clickme" style = "cursor : pointer;">';
+					$table .= '<td class = "hidden code"><input type = "hidden" value = '.$row->bankcode.' class = "bankcode"></td>';
+					$table .= '<td class = "text-center">'.$row->firstchequeno.'</td>';
+					$table .= '<td class = "text-center">'.$row->lastchequeno.'</td>';
+					$table .= '<td class = "nextchequeno text-center">'.$row->nextchequeno.'</td>';
+					$table .= '</tr>';
+				}
 			}
 		}
+
 		$nums->table = $table;
 		$nums->bank_id = $bank_id;
+		$nums->count = count($nums->result);
+		$nums->bankcode = $bankcode;
 		return $nums;
 	}
 }

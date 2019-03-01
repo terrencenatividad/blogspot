@@ -143,7 +143,16 @@
 				<div class="modal-body">
 					<div class="row">
 					<div class="modal-body">
-					<p>This may take a while. Are you sure you want to run it?</p>
+					<div class="row">
+						<div class="col-md-12">
+							<p>This may take a while. Are you sure you want to run it?</p>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<label for="asd">Depreciation Date:</label><input type="text" id="date" value="" class="form-control" readonly>
+						</div>
+					</div>
 					</div>
 					<div class="modal-footer text-center">
 						<button type="button" class="btn btn-primary" id = "yes_or_yes">Yes</button>
@@ -226,9 +235,10 @@
 				ajax_call.abort();
 			}
 			ajax_call = $.post('<?=MODULE_URL?>ajax/ajax_list', ajax, function(data) {
-				if(data.check != 'false'){
-					$('#run').prop('disabled', true);
-				}
+				// if(data.check != 'false'){
+				// 	$('#run').prop('disabled', true);
+				// }
+				$('#date').val(data.first_dep);
 				$('#tableList tbody').html(data.table);
 				$('#pagination').html(data.pagination);
 				if (ajax.page > data.page_limit && data.page_limit > 0) {
@@ -275,7 +285,8 @@
 		});
 
 			$("#rundep #yes_or_yes").click(function() {
-				$.post('<?=MODULE_URL?>ajax/ajax_load_depreciation', function(data) {
+				var date = $('#date').val()
+				$.post('<?=MODULE_URL?>ajax/ajax_load_depreciation','date='+date, function(data) {
 					getList();
 				});
 				$('#rundep').modal('hide');

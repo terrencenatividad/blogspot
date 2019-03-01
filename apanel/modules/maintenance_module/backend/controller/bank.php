@@ -285,9 +285,11 @@ class controller extends wc_controller
 			'nextchequeno',
 			'stat'
 		);
+		$file_uniq_id = uniqid();
 		$posted_data 	= $this->input->post($arrays);
 		$posted_data['stat'] = 'open';
 		$posted_data['nextchequeno'] = $posted_data['firstchequeno'];
+		$posted_data['code'] = $file_uniq_id;
 		$result  		= $this->bank->insertCheck($posted_data);
 		$firstchequeno 	= $posted_data['firstchequeno'];
 		$lastchequeno	= $posted_data['lastchequeno'];
@@ -333,13 +335,13 @@ class controller extends wc_controller
 				} else if($row->check_status == 'inactive'){
 					$status = '<span class="label label-warning">'.strtoupper($row->check_status).'</span>';
 				}
-				if($row->lastchequeno == $row->nextchequeno) {
+				if($row->stat == 'closed') {
 					$status = '<span class="label label-info"></span>';
 				}
 
 				$show_activate = ($row->check_status == 'active');
 				$show_deactivate = ($row->check_status == 'inactive');
-				$show_button = ($row->lastchequeno == $row->nextchequeno);
+				$show_button = ($row->stat == 'closed');
 				$show_delete = ($row->firstchequeno == $row->nextchequeno);
 
 				$dropdown = $this->ui->loadElement('check_task')

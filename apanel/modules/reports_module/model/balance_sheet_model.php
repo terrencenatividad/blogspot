@@ -216,7 +216,7 @@ class balance_sheet_model extends wc_model {
 		$current	=  $this->db->setTable('chartaccount c')
 							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate <= '$end'")
 							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode AND c2.accounttype = "P"')
-							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, SUM(COALESCE(credit, 0)) credit, (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) balance, IF( (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) < 0, 'credit','debit')  type, 'Current' accountclasscode, 'current' earnings")
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, SUM(COALESCE(credit, 0)) credit, (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) balance, IF( (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) < 0, 'credit','debit')  type, c.accountclasscode accountclasscode, 'current' earnings")
 							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' OR bt.source = 'yrend_closing') ")
 							->setGroupBy('c.id')
 							->setOrderBy("c.accountname")
@@ -305,11 +305,12 @@ class balance_sheet_model extends wc_model {
 				$parentaccount		= ($accounts->parentnature) ? $accounts->parentnature : $accounts->accountnature;
 				$accounttype		= '';
 				$accountclass		= '';
+
 				foreach ($data as $x) {
 					if (isset($x[$key])) {
 						$account	= $x[$key];
 						$tot = (strtolower($accounts->accountnature) == 'debit') ? $account->debit - $account->credit : $account->credit - $account->debit;
-						if ($accounts->accountnature != $parentaccount) {
+						if (strtolower($accounts->accountnature) == 'credit') {
 							$tot = $tot * -1;
 						}
 						$total	+= $tot;
@@ -336,8 +337,7 @@ class balance_sheet_model extends wc_model {
 				} else {
 					$total = 0;
 				}
-
-				if (($total !== 0 && !empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
+				if (($total !== 0 && !empty($accounttype))) {
 					$y[$accounttype][$accountclass][$accountname] = $col;
 				}
 			}

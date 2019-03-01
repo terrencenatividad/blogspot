@@ -163,7 +163,7 @@
 
 		public function getSource($voucherno) {
 			$source = substr($voucherno, 0,2);
-			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno' AND srd.itemcode = tbl.itemcode AND srd.linenum = tbl.linenum)";
+			$sql = "(SELECT SUM(srd.issueqty) FROM inventory_salesreturn_details srd LEFT JOIN inventory_salesreturn sr ON sr.voucherno = srd.voucherno WHERE sr.source_no='$voucherno' AND srd.itemcode = tbl.itemcode AND srd.linenum = tbl.linenum AND srd.stat!='Cancelled')";
 
 			if ($source == 'DR') {
 				$table 		= 'deliveryreceipt';
@@ -313,12 +313,17 @@
 				$result = $this->db->runInsert();
 			}
 
+
 			if ($result) {
 				$this->log->saveActivity("Create Sales Return [{$header['voucherno']}]");
-				$result = $this->updateSalesReturnDetails($details, $header['voucherno'], $header['source_no']);
+				$result2 = $this->updateSalesReturnDetails($details, $header['voucherno'], $header['source_no']);
 			}
-				
-			return $result;
+			return array('header' 			=> $result, 
+						'details' 			=> $result2['details'],
+						'DRreturnedqty' 	=> $result2['drqty'],
+						'DRreturnedserial' 	=> $result2['drserial'],
+						'itemserialize' 	=> $result2['itemserial']
+					);
 		}
 
 		public function updateSalesReturnDetails($details, $voucherno, $sourceno) {
@@ -332,9 +337,41 @@
 								->setValuesFromPost($details)
 								->runInsert();
 			if ($result) {
-				$drupdate = $this->updateDRqty($voucherno, $sourceno, $details['linenum']);
+				if (substr($sourceno, 0, 2) == 'SI') {
+					$dr 	= $this->getDRvoucher($sourceno);
+					$sourceno = $dr->sourceno;
+				}
+
+				$drqty = $this->updateDRqty($voucherno, $sourceno, $details['linenum']);
+
+				$updateserial 	= false;
+				$avail_serial 	= 'N/A';
+				$drserial 		= 'N/A';
+				foreach ($details['serialnumbers'] as $key => $row) {
+					if($row != ''){
+						$updateserial = true;
+					}
+				}
+
+				if ($updateserial) {
+					$not_avail = $this->updateItemSerialized($details['allserial'], 'Not Available');
+					$avail_serial 	= false;
+					$drserial 		= false;
+
+					if ($not_avail) {
+						$avail_serial = $this->updateItemSerialized($details['serialnumbers'], 'Available');
+
+						if ($serialupdate2) {
+							$drserial = $this->updateDRSerial($sourceno, $details['linenum'], $details['serialnumbers']);
+						}
+					}
+				}
+
 			}
-			return $result;
+			return array('details' 		=> $result,
+						'drqty' 		=> $drqty,
+						'drserial' 		=> $drserial,
+						'itemserial' 	=> $avail_serial);
 		}
 
 		public function updateDRqty($voucherno, $sourceno, $linenum){
@@ -343,7 +380,7 @@
 				$returned = $this->db->setTable('inventory_salesreturn_details srd')
 								->setFields('COALESCE(SUM(issueqty),0) qty')
 								->leftJoin('inventory_salesreturn sr ON sr.voucherno=srd.voucherno')
-								->setWhere("srd.voucherno='$voucherno' AND source_no='$sourceno' AND linenum='$value'")
+								->setWhere("source_no='$sourceno' AND linenum='$value'")
 								->runSelect()
 								->getRow();
 
@@ -482,7 +519,7 @@
 
 			$result = $this->db->setTable('items_serialized')
 							->setValues($serial_value)
-							->setWhere("voucherno IN ('$where')")
+							->setWhere("id IN ('$where')")
 							->runUpdate();
 
 			return $result;
@@ -494,7 +531,7 @@
 				$sr_rows = $this->db->setTable('inventory_salesreturn_details srd')
 									->leftJoin('inventory_salesreturn sr ON sr.voucherno=srd.voucherno')
 									->setFields('sr.source_no, linenum, issueqty')
-									->setWhere("srd.voucherno='$value'")
+									->setWhere("srd.voucherno='$value' AND srd.stat!='Cancelled'")
 									->runSelect()
 									->getResult();
 
@@ -520,7 +557,7 @@
 				}
 			}
 
-			return $kwan;
+			return $result;
 		}
 
 		public function getDRvoucher($sivoucher){
@@ -532,7 +569,7 @@
 			return $result;
 		}
 
-		public function createClearingEntries($voucherno, $sourcetype) {
+		public function createClearingEntries($voucherno, $sourcetype='') {
 			$exist = $this->db->setTable('journalvoucher')
 								->setFields('voucherno')
 								->setWhere("referenceno = '$voucherno'")
@@ -650,39 +687,28 @@
 			
 
 		/*
-		RUN DELETE AND INSERT UPDATED JV ENTRIES
+		RUN DELETE AND INSERT UPDATED JV DETAILS ENTRIES
 		*/
 
 			if ($result) {
+				$stat = $data['stat'];
 				$this->db->setTable('journaldetails')
 						->setWhere("voucherno = '$jvvoucherno'")
 						->runDelete();
 
-				if ($sourcetype == 'SI') {
-					# code...
+				$ic = $this->db->setTable('fintaxcode tax')
+							->setFields("salesAccount account")
+							->setWhere("fstaxcode = 'IC'")
+							->setLimit(1)
+							->runSelect()
+							->getRow();
+
+				foreach ($details as $key => $row) {
+					$item[] = $row->itemcode;
 				}
+				$item = implode("','", $item);
 
-				else{
-					$invr = $this->db->setTable('fintaxcode tax')
-										->setFields('salesAccount account, (SELECT SUM(netamount) FROM inventory_salesreturn_details WHERE defective="Yes" AND replacement="Yes") amount')
-										->setWhere("fstaxcode = 'INVR'")
-										->setLimit(1)
-										->runSelect()
-										->getRow();
-
-					$ic = $this->db->setTable('fintaxcode tax')
-										->setFields('salesAccount account, (SELECT SUM(netamount) FROM inventory_salesreturn_details WHERE defective="Yes" AND replacement="No") amount')
-										->setWhere("fstaxcode = 'IC'")
-										->setLimit(1)
-										->runSelect()
-										->getRow();
-
-					foreach ($details as $key => $row) {
-						$item[] = $row->itemcode;
-					}
-					$item = implode("','", $item);
-
-					$yes_item_account = $this->db->setTable('itemclass a')
+				$yes_inv_account = $this->db->setTable('itemclass a')
 									->setFields('a.inventory_account account, sum(netamount) amount')
 									->leftJoin('items i ON i.classid=a.id')
 									->leftJoin('inventory_salesreturn_details srd ON i.itemcode=srd.itemcode')
@@ -691,7 +717,7 @@
 									->runSelect()
 									->getResult();
 
-					$no_item_account = $this->db->setTable('itemclass a')
+				$no_inv_account = $this->db->setTable('itemclass a')
 									->setFields('a.inventory_account account, sum(netamount) amount')
 									->leftJoin('items i ON i.classid=a.id')
 									->leftJoin('inventory_salesreturn_details srd ON i.itemcode=srd.itemcode')
@@ -700,69 +726,126 @@
 									->runSelect()
 									->getResult();
 
+				if ($sourcetype == 'SI') {
+					$sra = $this->db->setTable('fintaxcode tax')
+								->setFields("salesAccount account")
+								->setWhere("fstaxcode = 'SRA'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+
+					$yes_no_ar_account = $this->db->setTable('itemclass a')
+								->setFields('a.receivable_account account, sum(netamount) amount')
+								->leftJoin('items i ON i.classid=a.id')
+								->leftJoin('inventory_salesreturn_details srd ON i.itemcode=srd.itemcode')
+								->setWhere("i.itemcode IN ('$item') AND voucherno='$voucherno' AND defective='Yes' AND srd.replacement='No'")
+								->setGroupBy('a.inventory_account')
+								->runSelect()
+								->getResult();
+
+					$no_ar_account = $this->db->setTable('itemclass a')
+								->setFields('a.receivable_account account, sum(netamount) amount')
+								->leftJoin('items i ON i.classid=a.id')
+								->leftJoin('inventory_salesreturn_details srd ON i.itemcode=srd.itemcode')
+								->setWhere("i.itemcode IN ('$item') AND voucherno='$voucherno' AND defective='No' AND srd.replacement='No'")
+								->setGroupBy('a.inventory_account')
+								->runSelect()
+								->getResult();
+
 					$linenum 	= 1;
-					foreach ($yes_item_account as $key => $row) {
-						$values[] = array("accountcode" 	=> $row->account,
-										"linenum" 			=> $linenum,
-										"voucherno" 		=> $jvvoucherno,
-										"transtype" 		=> 'IT',
-										"debit" 			=> 0,
-										"credit" 			=> $row->amount,
-										"converteddebit" 	=> 0,
-										"convertedcredit" 	=> $row->amount,
-										"detailparticulars" => '',
-										"stat" 				=> $data['stat']
-									);
+					foreach ($yes_inv_account as $key => $row) {
+						$debit_acc 	= $sra->account;
+						$credit_acc = $row->account;
+						$amt 		= $row->amount;
 
+						$values[] = $this->saveAccount($jvvoucherno, $debit_acc, $linenum, $amt, $stat, 'debit');
+						$linenum += 1;
+
+						$values[] = $this->saveAccount($jvvoucherno, $credit_acc, $linenum, $amt, $stat, 'credit');
 						$linenum += 1;
 					}
-					foreach ($no_item_account as $key => $row) {
-						$values[] = array("accountcode" 	=> $row->account,
-										"linenum" 			=> $linenum,
-										"voucherno" 		=> $jvvoucherno,
-										"transtype" 		=> 'IT',
-										"debit" 			=> $row->amount,
-										"credit" 			=> 0,
-										"converteddebit" 	=> $row->amount,
-										"convertedcredit" 	=> 0,
-										"detailparticulars" => '',
-										"stat" 				=> $data['stat']
-									);
+					foreach ($yes_no_ar_account as $key => $row) {
+						$debit_acc 	= $sra->account;
+						$credit_acc = $row->account;
+						$amt 		= $row->amount;
 
+						$values[] = $this->saveAccount($jvvoucherno, $debit_acc, $linenum, $amt, $stat, 'debit');
+						$linenum += 1;
+
+						$values[] = $this->saveAccount($jvvoucherno, $credit_acc, $linenum, $amt, $stat, 'credit');
 						$linenum += 1;
 					}
-					
-					$values[] = array("accountcode" 	=> $invr->account,
-									"linenum" 			=> $linenum,
-									"voucherno" 		=> $jvvoucherno,
-									"transtype" 		=> 'IT',
-									"debit" 			=> $invr->amount,
-									"credit" 			=> 0,
-									"converteddebit" 	=> $invr->amount,
-									"convertedcredit" 	=> 0,
-									"detailparticulars" => '',
-									"stat" 				=> $data['stat']
-								);
-					$linenum += 1;
-					$values[] = array("accountcode" 	=> $ic->account,
-									"linenum" 			=> $linenum,
-									"voucherno" 		=> $jvvoucherno,
-									"transtype" 		=> 'IT',
-									"debit" 			=> 0,
-									"credit" 			=> $ic->amount,
-									"converteddebit" 	=> 0,
-									"convertedcredit" 	=> $ic->amount,
-									"detailparticulars" => '',
-									"stat" 				=> $data['stat']
-								);
+					foreach ($no_inv_account as $key => $row) {
+						$debit_acc 	= $row->account;
+						$credit_acc = $sra->account;
+						$amt 		= $row->amount;
 
+						$values[] = $this->saveAccount($jvvoucherno, $debit_acc, $linenum, $amt, $stat, 'debit');
+						$linenum += 1;
+
+						$values[] = $this->saveAccount($jvvoucherno, $credit_acc, $linenum, $amt, $stat, 'credit');
+						$linenum += 1;
+					}
+					foreach ($no_ar_account as $key => $row) {
+						$debit_acc 	= $ic->account;
+						$credit_acc = $row->account;
+						$amt 		= $row->amount;
+
+						$values[] = $this->saveAccount($jvvoucherno, $debit_acc, $linenum, $amt, $stat, 'debit');
+						$linenum += 1;
+
+						$values[] = $this->saveAccount($jvvoucherno, $credit_acc, $linenum, $amt, $stat, 'credit');
+						$linenum += 1;
+					}
 				}
+
+				else{
+					// $invr = $this->db->setTable('fintaxcode tax')
+					// 			->setFields("salesAccount account, (SELECT SUM(netamount) FROM inventory_salesreturn_details WHERE voucherno='$voucherno' AND defective='Yes' AND replacement='Yes') amount")
+					// 			->setWhere("fstaxcode = 'INVR'")
+					// 			->setLimit(1)
+					// 			->runSelect()
+					// 			->getRow();
+
+					$invr = $this->db->setTable('fintaxcode tax')
+								->setFields("salesAccount account")
+								->setWhere("fstaxcode = 'INVR'")
+								->setLimit(1)
+								->runSelect()
+								->getRow();
+
+
+					$linenum 	= 1;
+					foreach ($yes_inv_account as $key => $row) {
+						$debit_acc 	= $invr->account;
+						$credit_acc = $row->account;
+						$amt 		= $row->amount;
+
+						$values[] = $this->saveAccount($jvvoucherno, $debit_acc, $linenum, $amt, $stat, 'debit');
+						$linenum += 1;
+
+						$values[] = $this->saveAccount($jvvoucherno, $credit_acc, $linenum, $amt, $stat, 'credit');
+						$linenum += 1;
+					}
+					foreach ($no_inv_account as $key => $row) {
+						$debit_acc 	= $row->account;
+						$credit_acc = $ic->account;
+						$amt 		= $row->amount;
+
+						$values[] = $this->saveAccount($jvvoucherno, $debit_acc, $linenum, $amt, $stat, 'debit');
+						$linenum += 1;
+
+						$values[] = $this->saveAccount($jvvoucherno, $credit_acc, $linenum, $amt, $stat, 'credit');
+						$linenum += 1;
+					}
+				}
+
 				$total_amount	= 0;
 				foreach ($values as $key => $row) {
 					$total_amount += $row["credit"];
 				}
 				
-				$detail_insert  = false;
+				$detail_insert = false;
 				$detail_insert = $this->db->setTable('journaldetails')
 											->setValues($values)
 											->runInsert();
@@ -773,15 +856,38 @@
 						'convertedamount'	=> $total_amount
 					);
 					$result = $this->db->setTable('journalvoucher')
-										->setValues($data)
-										->setWhere("voucherno = '$jvvoucherno'")
-										->setLimit(1)
-										->runUpdate();
-
+									->setValues($data)
+									->setWhere("voucherno = '$jvvoucherno'")
+									->setLimit(1)
+									->runUpdate();
 				}
 			}
 
 			return $result;
+		}
+
+		private function saveAccount($voucherno, $account, $linenum, $amount, $stat, $nature) {
+			if ($nature == 'debit') {
+				$debit 	= $amount;
+				$credit = 0;
+			}
+			if ($nature == 'credit') {
+				$debit 	= 0;
+				$credit = $amount;
+			}
+
+			$acc_entry = array("accountcode" 	=> $account,
+						"linenum" 			=> $linenum,
+						"voucherno" 		=> $voucherno,
+						"transtype" 		=> 'IT',
+						"debit" 			=> $debit,
+						"credit" 			=> $credit,
+						"converteddebit" 	=> $debit,
+						"convertedcredit" 	=> $credit,
+						"detailparticulars" => '',
+						"stat" 				=> $stat
+					);
+			return $acc_entry;
 		}
 
 		public function getSerialItemList($serialids) {

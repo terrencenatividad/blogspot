@@ -520,7 +520,8 @@ class controller extends wc_controller
 			$balance     		= $row->balance; 
 			$amount	  	 		= $row->amount; 
 			$vendor		 		= $row->vendor; 
-			$referenceno 		= $row->referenceno; 
+			$referenceno 		= $row->referenceno;
+			$sourceno 			= $row->sourceno;
 			$checker 	 		= $row->importchecker;
 			$import 	 		= ($checker == 'import') 	?	"Yes" 	:	"No";
 			$import_checker = ($checker == 'import');
@@ -566,8 +567,8 @@ class controller extends wc_controller
 				'print',
 				$bir_link
 			)
-			->addDelete($status && $restrict && $status_paid && !$import_checker)
-			->addCheckbox($status && $restrict && $status_paid && !$import_checker)
+			->addDelete($status && $restrict && $status_paid && empty($sourceno))
+			->addCheckbox($status && $restrict && $status_paid && empty($sourceno))
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
@@ -2010,6 +2011,28 @@ class controller extends wc_controller
 		return array('checker' => $checker, 'ret' => $ret);
 	}
 
+	private function ajax_check_cwt_edit() {
+		$accountcode = $this->input->post('accountcode');
+		$id = $this->input->post('id');
+		$linenum = $this->input->post('linenum');
+		$checker = '';
+		$taxbase = $this->accounts_payable->getTaxAmount($id, $linenum);
+		$accountclasscode = $this->accounts_payable->checkCWT($accountcode);
+		$acode = $accountclasscode->accountclasscode;
+		if($acode == 'OTHCL' || $acode == 'TAX' || $acode == 'CULIAB') {
+			$checker = 'true';
+		}
+		$tax_list  	= $this->accounts_payable->getATC($accountcode);
+		$ret = '';
+		foreach ($tax_list as $key) {
+			$in  = $key->ind;
+			$val = $key->val;
+			$ret .= "<option value=". $in.">" .$val. "</option>";
+		}
+
+		return array('checker' => $checker, 'ret' => $ret, 'taxbase' => $taxbase->taxbase_amount, 'taxcode' => $taxbase->taxcode);
+	}
+
 	private function ajax_get_taxrate() {
 		$taxaccount = $this->input->post('taxaccount');
 		$taxamount = $this->input->post('taxamount');
@@ -2101,6 +2124,7 @@ class controller extends wc_controller
 		if ($reference == '') {
 			$post_data['reference'] = $this->accounts_payable->getLatestAPRecord();
 		}
+		
 		$task 			= $post_data['task'];
 		$upload_result 	= false;
 		unset($post_data['task']);
@@ -2114,13 +2138,12 @@ class controller extends wc_controller
 				 * @param group fields
 				 * @param custom condition
 				 */
-				// if ($task=='edit') 
+				
 				$attachment_id = $this->accounts_payable->getCurrentId("accountspayable_attachments", $reference);
 				if ($attachment_id=='0'){
+					$exist = false;
 					$attachment_id = $this->accounts_payable->getNextId("accountspayable_attachments","attachment_id");
 				}
-				// else
-					// $attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
 
 				foreach($upload_handler->response['files'] as $key => $row) {
 					$post_data['attachment_id'] 	= $attachment_id;
@@ -2128,13 +2151,13 @@ class controller extends wc_controller
 					$post_data['attachment_type'] 	= $row->type;
 					$post_data['attachment_url']	= $row->url;
 				}
-
-				if ($task == 'edit') {
+				
+				if ($task == 'edit' && $exist) {
 					$upload_result 	= $this->accounts_payable->replaceAttachment($post_data);
-					
 				}
-				else
+				else {
 					$upload_result 	= $this->accounts_payable->uploadAttachment($post_data);
+				}
 
 			}else{
 				// if($upload_handler->response['files'][0]->name == "Sorry, but file already exists"){
@@ -2142,6 +2165,8 @@ class controller extends wc_controller
 				// }
 				$upload_result 	= false;
 			}
+
+			return $upload_result;
 		}
 	}
 }

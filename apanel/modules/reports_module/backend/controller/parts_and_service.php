@@ -52,9 +52,14 @@ class controller extends wc_controller {
 						$tablerow	.= '<tr">';
 						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->partnername.'</td>';
 						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.date('M d, Y', strtotime($row->transactiondate)).'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->service_quotation.'</td>';
+						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.BASE_URL.'parts_and_service/service_quotation/view/'.$row->service_quotation.'">'.$row->service_quotation.'</a></td>';
 						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->po_number.'</td>';
-						$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;'.$row->si.'</td>';
+						if($row->transtype == 'SI'){
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.BASE_URL.'sales/sales_invoice/view/'.$row->si.'">'.$row->si.'</a></td>';
+
+						}else{
+							$tablerow	.= '<td class="left" style="vertical-align:middle;">&nbsp;<a href="'.BASE_URL.'billing/view/'.$row->si.'">'.$row->si.'</a></td>';
+						}
 						$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($row->parts, 2).'</td>';
 						$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($row->service, 2).'</td>';
 						$tablerow	.= '<td class="text-right" style="vertical-align:middle;">&nbsp;'.number_format($row->parts + $row->service, 2).'</td>';

@@ -330,6 +330,7 @@ class accounts_receivable extends wc_model
 								"main.referenceno as referenceno",
 								"main.lockkey as importchecker",
 								"main.stat as stat",
+								"main.sourceno as sourceno",
 								"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
 								 IF(main.balance=0 AND main.stat='cancelled','cancelled',
 								 IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',

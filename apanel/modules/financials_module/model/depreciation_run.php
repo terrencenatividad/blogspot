@@ -1,7 +1,7 @@
 <?php
 class depreciation_run extends wc_model {
 
-	public function getAssetMasterList($fields,$sort) {
+	public function getAssetMasterList($fields,$sort,$dep_date) {
 		$fields = array(
 			'am.id',
 			'am.itemcode',
@@ -44,7 +44,7 @@ class depreciation_run extends wc_model {
 			$orderby = $sort;
 		}
 	
-		$date = $this->date->dateDbFormat();
+		$date = $this->date->dateDbFormat($dep_date);
 		
 		$condition = "MONTH(depreciation_date) = MONTH('$date') AND YEAR(depreciation_date) = YEAR('$date')";
 
@@ -123,7 +123,7 @@ class depreciation_run extends wc_model {
 		return $result;
 	}
 
-	public function getAsset123() {
+	public function getAsset123($dep_date) {
 		$fields = array('a.id id',
 		'itemcode',
 		'asset_class',
@@ -159,7 +159,7 @@ class depreciation_run extends wc_model {
 		'dsa.segment5 c_segment5',
 		'ac.assetclass'
 	);
-		$date = $this->date->dateDbFormat();
+		$date = $this->date->dateDbFormat($dep_date);
 	
 		$result = $this->db->setTable("asset_master a")
 						->setFields($fields)
@@ -168,10 +168,11 @@ class depreciation_run extends wc_model {
 						->leftJoin('chartaccount coa ON coa.id = a.gl_asset')
 						->leftJoin('chartaccount asd ON asd.id = a.gl_accdep')
 						->leftJoin('chartaccount dsa ON dsa.id = a.gl_depexpense')
-						->setWhere("a.stat = 'active' AND EXTRACT(YEAR_MONTH FROM depreciation_month) <= EXTRACT(YEAR_MONTH FROM '$date')")
+						->setWhere("a.stat = 'active' AND depreciation_month <= '$date'")
 						->setOrderBy('asset_class')
 						->runSelect()
 						->getResult();
+						// echo $this->db->getQuery();
 						
 		return $result;
 	}
@@ -206,10 +207,10 @@ class depreciation_run extends wc_model {
 		return $result;
 	}
 
-	public function saveJV($year,$month,$depreciation_amount,$gl_asset,$gl_accdep,$gl_depexp){
-		$date = $this->date->dateDbFormat();
-		$date = date("Y-m-t", strtotime($date));
-		$refdate = $this->date->dateFormat($date);
+	public function saveJV($dep_date,$depreciation_amount,$gl_asset,$gl_accdep,$gl_depexp){
+		$date = $this->date->dateDbFormat($dep_date);
+		$year = date("Y", strtotime($dep_date));
+		$month = date("m", strtotime($dep_date));
 
 		$a = $this->db->setTable('journalvoucher')
 						->setFields('voucherno')
@@ -220,7 +221,7 @@ class depreciation_run extends wc_model {
 		if($a){
 			foreach($a as $row){
 				$this->db->setTable('journalvoucher')
-				->setValues(array('voucherno' => $row->voucherno, 'transactiondate' => $date, 'referenceno' => 'Depreciation for '.$refdate, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation','sourceno' => $gl_accdep))
+				->setValues(array('voucherno' => $row->voucherno, 'transactiondate' => $date, 'referenceno' => 'Depreciation for '.$dep_date, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation','sourceno' => $gl_accdep))
 				->setWhere("voucherno = '$row->voucherno'")
 				->runUpdate();
 				
@@ -239,7 +240,7 @@ class depreciation_run extends wc_model {
 			$seq					= new seqcontrol();
 			$jvvoucherno			= $seq->getValue('JV');
 			$this->db->setTable('journalvoucher')
-					->setValues(array('voucherno' => $jvvoucherno, 'transactiondate' => $date, 'referenceno' => 'Depreciation for '.$refdate, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation','sourceno' => $gl_accdep))
+					->setValues(array('voucherno' => $jvvoucherno, 'transactiondate' => $date, 'referenceno' => 'Depreciation for '.$dep_date, 'transtype' => 'JV','stat' => 'posted', 'fiscalyear' => $year, 'period' => $month, 'amount' => $depreciation_amount, 'convertedamount' => $depreciation_amount, 'currencycode' => 'PHP', 'exchangerate' => '1','source' => 'depreciation','sourceno' => $gl_accdep))
 					->runInsert();
 	
 			$this->db->setTable('journaldetails')
@@ -327,4 +328,34 @@ class depreciation_run extends wc_model {
 		}
 		return '(' . implode(' OR ', $temp) . ')';
 	}
+
+	public function get_depreciation_start() {
+		$year = date("Y", strtotime($this->date->dateFormat()));
+		$result 	= $this->db->setTable("journalvoucher")
+							   ->setFields(array('voucherno, fiscalyear'))
+							   ->setWhere("stat NOT IN ('cancelled','temporary') AND source='closing' AND fiscalyear = '$year'")
+								->runSelect(false)
+								->getResult();
+		if(!$result){
+			$asset_ret 		= 	$this->db->setTable('asset_master am')
+										//  ->leftJoin("journalvoucher jv ON jv.period = MONTH(am.depreciation_month) AND jv.fiscalyear =  YEAR(am.depreciation_month)")
+										 ->setFields("am.id, am.depreciation_month, MONTH(am.depreciation_month) period, YEAR(am.depreciation_month) year")
+										 ->setWhere(1)
+										 ->setGroupBy("MONTH(am.depreciation_month), YEAR(am.depreciation_month)")
+										 ->setOrderBy("YEAR(am.depreciation_month) ASC, MONTH(am.depreciation_month) ASC")
+										 ->runSelect()
+										 ->getRow();
+
+		}else{
+			$asset_ret = $this->db->setTable("journalvoucher")
+									->setFields('DATE_ADD(transactiondate, INTERVAL 1 MONTH) as depreciation_month')
+									->setWhere("source = 'closing'")
+									->setOrderBy('transactiondate desc')
+									->runSelect()
+									->getRow(); 
+		}
+
+		return $asset_ret;
+	}
+
 }

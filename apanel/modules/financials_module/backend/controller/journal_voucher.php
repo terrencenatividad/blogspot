@@ -154,8 +154,8 @@ class controller extends wc_controller {
 			//Checker for Imported files or Closing
 			$checker 			=	isset($row->checker) && !empty($row->checker) 		? 	$row->checker 	:	"";
 			$uneditable_box 	= 	array("import","beginning","closing","yrend_closing","accrual_jv","reversed_ajv","jo_release","depreciation");
-			$display_edit_delete=  	in_array($checker, $uneditable_box) 	?	0	:	1;
-			// $display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing" || $checker!="accrual_jv" || $checker!="reverse_ajv" || $checker!="jo_release") 	?	1	:	0;
+			// $display_edit_delete=  	!in_array($checker, $uneditable_box) 	?	1	:	0;
+			$display_edit_delete=  	($checker!="import" || $checker!="beginning" || $checker!="closing"  || $checker!="yrend_closing" || $checker!="accrual_jv" || $checker!="reversed_ajv" || $checker!="jo_release" || $checker!="depreciation") 	?	1	:	0;
 
 			//Transaction Dates equivalent to the closing date / period should be deleted first
 			$latest_closed_date = 	$this->restrict->getClosedDate();
@@ -178,13 +178,15 @@ class controller extends wc_controller {
 			// echo "1 ".$display_edit_delete."\n\n";
 			// echo "2 ".$restrict_jv."\n\n";
 			// echo "3 ".$checker."\n\n";
-
+			// echo "4 ".$date_compare . "\n\n";
+			// echo "5 ".$voucher_compare . "\n\n";
+			// echo "($status != 'cancelled' && $display_edit_delete  && ($restrict_jv || ($date_compare && $voucher_compare))\n\n";
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
 									->addEdit($status != "cancelled" && $display_edit_delete && $restrict_jv )
-									->addDelete($status != "cancelled" && $display_edit_delete  && ($restrict_jv || $date_compare && $voucher_compare))
+									->addDelete($status != "cancelled" && $display_edit_delete  && ($restrict_jv || ($date_compare && $voucher_compare)))
 									->addPrint()
-									->addCheckbox($status != "cancelled" && $display_edit_delete  && ($restrict_jv || $date_compare && $voucher_compare))
+									->addCheckbox($status != "cancelled" && $display_edit_delete  && ($restrict_jv || ($date_compare && $voucher_compare)))
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($voucherno)
 									->draw();
@@ -347,6 +349,8 @@ class controller extends wc_controller {
 			if( empty($errmsg)  && !empty($z) ){
 				$total_debit 	=	0;
 				$total_credit 	=	0;
+				$totalDebit 	=	0;
+				$totalCredit 	=	0;
 				$prev_no 		=	$prev_date 		=	$prev_ref 	=	$prev_notes 	=	$voucherno 		= "";
 				foreach ($z as $key => $b) {
 					if ( ! empty($b)) {	
@@ -358,9 +362,9 @@ class controller extends wc_controller {
 						$account 		=	isset($b[4]) 					?	htmlentities(trim($b[4]))	:	"";
 						$account 		= 	str_replace('&ndash;', '-', $account);
 						$description 	=	isset($b[5]) 					?	htmlentities(trim($b[5]))	:	"";
-						$debit 			=	isset($b[6]) && !empty($b[6]) 	?	$b[6]	:	0;
-						$credit 		=	isset($b[7]) && !empty($b[7])	?	$b[7]	:	0;
-
+						$debit 			=	isset($b[6]) && !empty($b[6]) 	?	str_replace(',','',$b[6])	:	0;
+						$credit 		=	isset($b[7]) && !empty($b[7])	?	str_replace(',','',$b[7])	:	0;
+						
 						//Check if account Name exists
 						$acct_exists 	=	$this->jv_model->check_if_exists('id','chartaccount'," accountname = '$account' ");
 						$acct_count 	=	$acct_exists[0]->count;	
@@ -456,10 +460,10 @@ class controller extends wc_controller {
 						if ( ! isset($z[$key + 1]) || ($jvno != $z[$key + 1][0] && $z[$key + 1][0] != '')) {
 							$totaldebit[] 	= $total_debit;
 							$totalcredit[]	= $total_credit;
-							if ($total_credit != $total_debit){
-								$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
-								$errmsg		= array_filter($errmsg);
-							}
+							// if ($total_credit != $total_debit){
+							// 	$errmsg[]	= "The Total Debit and Total Credit must be equal.<br/>";
+							// 	$errmsg		= array_filter($errmsg);
+							// }
 						}
 
 						if(empty($errmsg)){
@@ -484,6 +488,10 @@ class controller extends wc_controller {
 						
 						$line++;
 					}
+				}
+				if(round($total_credit,2)!=round($total_debit,2)){
+					$errmsg[]	= "The Total Debit [<strong>".number_format($total_debit,2)."</strong>] and Total Credit [<strong>".number_format($total_credit,2)."</strong>] must be equal.<br/>";
+					$errmsg		= array_filter($errmsg);
 				}
 
 				if( empty($errmsg) ) {

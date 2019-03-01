@@ -166,6 +166,7 @@
 									->setClass('datepicker datepicker-input')
 									->setAttribute(array('data-date-start-date' => $close_date))
 									->setAddon('calendar')
+									->setValidation('required')
 									->draw($show_input);
 						?>
 					</div>
@@ -1529,6 +1530,7 @@ function finalizeTransaction()
 	$('#sales_invoice_form #sourceno').trigger('blur');
 	$("#sales_invoice_form .itemcode").trigger('blur');
 	$("#sales_invoice_form #referenceno").trigger('blur');
+	$("#sales_invoice_form #duedate").trigger('blur');
 
 	if ($('#sales_invoice_form').find('.form-group.has-error').length == 0)
 	{	
@@ -1579,8 +1581,10 @@ function finalizeEditTransaction()
 	//$('#sales_invoice_form #customer').trigger('blur');
 	//$('#sales_invoice_form #drno').trigger('blur');
 	$("#sales_invoice_form .itemcode").trigger('blur');
+	$("#sales_invoice_form #referenceno").trigger('blur');
+	$("#sales_invoice_form #duedate").trigger('blur');
 
-	if ($(this).find('.form-group.has-error').length == 0)
+	if ($('#sales_invoice_form').find('.form-group.has-error').length == 0)
 	{
 		if($("#sales_invoice_form #itemcode\\[1\\]").val() != '' && $("#sales_invoice_form #transactiondate").val() != '' && $("#sales_invoice_form #duedate").val() != '' && $("#sales_invoice_form #customer").val() != '')
 		{

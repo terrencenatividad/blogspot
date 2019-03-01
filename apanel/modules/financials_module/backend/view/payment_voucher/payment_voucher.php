@@ -12,9 +12,9 @@
 	<form method = "post" class="form-horizontal" id = "payableForm">
 		<input type = "hidden" id = "bank_name" name = "bank_name">
 		<?php if($task == 'edit') { ?>
-			<input type = "hidden" id = "booknumber" name = "booknumber" value = "<?php echo $booknumber; ?>">
+			<input type = "hidden" id = "bankcode" name = "bankcode" value = "<?php echo $bankcode; ?>">
 		<?php } else if($task == 'create') { ?>
-			<input type = "hidden" id = "booknumber" name = "booknumber">
+			<input type = "hidden" id = "bankcode" name = "bankcode">
 		<?php } ?>
 		<input type = "hidden" id = "book_id" name = "book_id" >
 		<input type = "hidden" id = "book_ids" name = "book_ids" >
@@ -248,7 +248,8 @@
 										->setClass('chequenumber')
 										->setValidation('required alpha_num')
 										->setMaxLength(30)
-												// ->setAttribute(array("onBlur" => "validateChequeNumber(this.id, this.value, this)"))
+										->setAttribute(array("readonly" => "readonly"))
+										// ->setAttribute(array("readonly" => "readonly"))
 										->setValue("")
 										->draw(true);
 										?>
@@ -1759,10 +1760,15 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 		{ bank: val_bank, curr_seq: num } 
 		).done(function(data){
 			if (data.table){
-				var row = $("#chequeTable tbody tr").length;
-				$('#table_chequelist tbody').html(data.table);
-				$('#cheque_pagination').html(data.pagination);
-				$('#chequeList').modal('show');
+				if(data.count == 1) {
+					cheque_element.closest('tr').find('.chequenumber').val(data.table);
+					$('#bankcode').val(data.bankcode);
+				} else {
+					var row = $("#chequeTable tbody tr").length;
+					$('#table_chequelist tbody').html(data.table);
+					$('#cheque_pagination').html(data.pagination);
+					$('#chequeList').modal('show');
+				}
 			} else {
 				$('#nocheckModal').modal('show');
 				$('#entriesTable #accountcode\\[2\\]').val('').trigger('change');
@@ -1820,8 +1826,8 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 $('#table_chequelist #cheque_list_container').on('click', 'tr', function() {
 	storechequetobank();
 	var num = $(this).find('.nextchequeno').html();
-	var booknumber = $(this).find('.booknum').val();
-	$('#booknumber').val(booknumber);
+	var bankcode = $(this).find('.bankcode').val();
+	$('#bankcode').val(bankcode);
 	curr_bank_seq[val_bank] = num;
 	cheque_element.closest('tr').find('.chequenumber').val(num);
 	$('#chequeList').modal('hide');
@@ -3955,7 +3961,7 @@ $(document).ready(function() {
 						if(data.code == '1')
 						{
 							$("#payableForm #btnSave").removeClass('disabled');
-+							$("#payableForm #btnSave_toggle").removeClass('disabled');
+							+							$("#payableForm #btnSave_toggle").removeClass('disabled');
 							$("#payableForm #h_voucher_no").val(data.voucher);
 							// window.location.href = '<?//=BASE_URL?>financials/payment_voucher';
 						}

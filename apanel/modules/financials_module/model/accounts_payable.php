@@ -594,12 +594,12 @@ class accounts_payable extends wc_model
 			"main.referenceno as referenceno",
 			"main.lockkey as importchecker",
 			"main.stat as stat",
+			"main.sourceno as sourceno",
 			"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
 			IF(main.balance=0 AND main.stat='cancelled','cancelled',
 			IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance!=payment.amount AND main.balance!=0 AND main.balance > 0 AND main.stat!='cancelled','partial',
-			IF(main.amountpaid=payment.amount AND main.balance=0 AND main.stat!='cancelled','paid','unpaid'))))) payment_status"
-			
+			IF(main.balance!=payment.amount AND main.balance!=0,'partial',
+			IF(main.amountpaid=payment.amount AND main.balance=0,'paid','unpaid'))))) payment_status"
 	);
 
 	// "IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
@@ -2187,11 +2187,21 @@ class accounts_payable extends wc_model
 
 	public function getAPDetails($id) {
 		$result = $this->db->setTable('ap_details ad')
-		->setFields('ad.budgetcode as budgetcode, ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
+		->setFields('ad.taxcode, ad.budgetcode as budgetcode, ad.accountcode as accountcode, ad.detailparticulars as description, ad.debit as debit, ad.credit as credit, IF(ad.debit != 0, converteddebit, convertedcredit) as currencyamount, ad.linenum as linenum, ad.converteddebit as converteddebit, ad.convertedcredit as convertedcredit')
 		->leftJoin('chartaccount as ca ON ca.id = ad.accountcode')
 		->setWhere("voucherno = '$id'")
 		->runSelect()
 		->getResult();
+
+		return $result;
+	}
+
+	public function getTaxAmount($id, $linenum) {
+		$result = $this->db->setTable('ap_details ad')
+		->setFields('taxbase_amount, taxcode')
+		->setWhere("voucherno = '$id' AND linenum = '$linenum'")
+		->runSelect()
+		->getRow();
 
 		return $result;
 	}
@@ -2342,9 +2352,12 @@ class accounts_payable extends wc_model
 	}
 	
 	public function getLatestAPRecord() {
+		$username = USERNAME;
+
 		$getRow = $this->db->setTable('accountspayable')
 		->setFields('voucherno')
 		->setOrderBy('accountspayable.entereddate DESC')
+		->setWhere("enteredby = '$username'")
 		->runSelect()
 		->getRow();
 

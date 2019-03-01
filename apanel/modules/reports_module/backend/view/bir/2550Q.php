@@ -1819,6 +1819,7 @@ $('#importation21G').on('blur', function() {
 
 $('#importation21H').on('blur', function() {
 	importationH();
+	total23F();
 });
 
 $('#monthlyvat26A').on('blur', function() {
@@ -1883,6 +1884,8 @@ $('#other23E').on('blur', function() {
 function total23F() {
 	var total23F = parseFloat($('#totalavailableinputtax23A').val().replace(/,/g, '')) + parseFloat($('#totalavailableinputtax23B').val().replace(/,/g, '')) + parseFloat($('#taxallocable23C').val().replace(/,/g, '')) + parseFloat($('#other23E').val().replace(/,/g, ''));
 	$('#total23F').val(addComma(total23F));
+	var totalallowableinputtax24 = $('#total22').val() - parseFloat($('#total23F').val().replace(/,/g, ''));
+	$('#totalallowableinputtax24').val(addComma(totalallowableinputtax24));
 }
 
 function computeTotalPayable() {

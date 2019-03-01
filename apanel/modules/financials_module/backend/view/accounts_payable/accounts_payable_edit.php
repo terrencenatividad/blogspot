@@ -398,22 +398,26 @@
 														</div>
 													</td>
 												<?php } else { ?>
-													<td class = "checkbox-select remove-margin text-center">
-														<?php
-														echo $ui->formField('checkbox')
-														->setSplit('', 'col-md-12')
-														->setId("wtax[]")
-														->setClass("wtax")
-														->setDefault("")
-														->setValue(1)
-														->setAttribute(array("disabled" => "disabled"))
-														->draw($show_input);
-														?>
+													<?php if(empty($row->taxcode)) : ?>
+														<td class = "checkbox-select remove-margin text-center">
+															<?php
+															echo $ui->formField('checkbox')
+															->setSplit('', 'col-md-12')
+															->setId("wtax[]")
+															->setClass("wtax")
+															->setDefault("")
+															->setValue(1)
+															->setAttribute(array("disabled" => "disabled"))
+															->draw($show_input);
+															?>
+														</td>
+													<?php endif; ?>
+												<?php } ?>
+												<?php if(!empty($row->taxcode)) { ?>
+													<td class="edit-button text-center ">
+														<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
 													</td>
 												<?php } ?>
-												<td class="edit-button text-center " style="display: none">
-													<button type="button" class="btn btn-primary btn-flat btn-xs"><i class="glyphicon glyphicon-pencil"></i></button>
-												</td>
 												<td class = "remove-margin hidden" >
 													<?php
 													echo $ui->formField('text')
@@ -421,6 +425,7 @@
 													->setName("taxcode[]")
 													->setId("taxcode")
 													->setClass('taxcode')
+													->setValue($row->taxcode)
 													->setValue("")
 													->draw($show_input);
 													?>
@@ -1237,6 +1242,24 @@
 					job = $('#jobs_tagged').val().split(',');	
 				}
 			});
+			var id = '<?=$ajax_post?>';
+			$('.edit-button').on('click', function() {
+				var $this = $(this);
+				row = $(this).closest('tr');
+				var linenum = $this.closest('tr').find('.linenum').val();
+				var accountcode = $this.closest('tr').find('.accountcode').val();
+				$.post('<?=MODULE_URL?>ajax/ajax_check_cwt_edit', '&accountcode=' + accountcode + id + '&linenum=' + linenum, function(data) {
+					if(data.checker == 'true') {
+						$('#atcModal').modal('show');
+						$('#tax_account').html(data.ret);
+						$('#tax_account').val(data.taxcode);
+						$('#tax_amount').val(data.taxbase);
+					} else {
+						$(this).closest('tr').find('.checkbox-select').show();
+						$(this).closest('tr').find('.edit-button').hide();
+					}
+				});
+			});
 
 			var job = [];
 			$('#job').on('click', function() {
@@ -1548,6 +1571,8 @@
 				$('#itemsTable tbody tr.clone #debit').last().val('');
 				$('#itemsTable tbody tr.clone #credit').last().val('');
 				$('#itemsTable tbody tr.clone .edit-button').last().hide();
+				$('#itemsTable tbody tr.clone #taxcode').last().val('');
+				$('#itemsTable tbody tr.clone #taxbase_amount').last().val('');
 				$('#itemsTable tbody tr.clone .checkbox-select').last().show();
 				$('#itemsTable tbody tr.clone .linenum').last().val(++data_id);
 			});
@@ -1588,7 +1613,7 @@
 				} else {
 					good = true;
 				}
-				
+
 				$('#payableForm').find('.form-group').find('input, textarea, select').trigger('blur');
 				if ($('#payableForm').find('.form-group.has-error').length == 0) {
 					if(good == true) {
@@ -1604,7 +1629,7 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},500);
+											},3000);
 										}
 									});
 								} else if(data.error != '') {
@@ -1620,7 +1645,7 @@
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},500);
+										},3000);
 									}
 								}
 							} else {
@@ -1634,7 +1659,7 @@
 					$('#payableForm').find('.form-group.has-error').first().find('input, textarea, select').focus();
 				}
 			});
-			
+
 			$('#payableForm #save_new').click(function(e) {
 				e.preventDefault();
 				$('#button_trigger').val('save_new');
@@ -1669,7 +1694,7 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},500);
+											},3000);
 										}
 									});
 								} else if(data.error != '') {
@@ -1685,7 +1710,7 @@
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},500);
+										},3000);
 									}
 								}
 							} else {
@@ -1734,7 +1759,7 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},500);
+											},3000);
 										}
 									});
 								} else if(data.error != '') {
@@ -1750,7 +1775,7 @@
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},500);
+										},3000);
 									}
 								}
 							} else {
@@ -1870,7 +1895,6 @@
 					var task = "edit";
 					data.formData = {reference: voucher_no, task: task};
 				<? }?>
-				
 			});
 			$('#attachments_form').bind('fileuploadalways', function (e, data) {
 				var error = data.result['files'][0]['error'];

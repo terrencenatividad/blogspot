@@ -291,4 +291,9 @@
 			showList();
 		});
 	}
+	$('#tableList').on('click', '.print_check',function(){
+		var voucher = $(this).attr('data-id');
+		var check 	= $(this).attr('data-check');
+		window.open('<?=MODULE_URL?>print_check/' + voucher +  '/'+ check , '_blank');
+	});
 </script>

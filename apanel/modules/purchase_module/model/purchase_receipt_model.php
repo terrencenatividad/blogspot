@@ -32,51 +32,54 @@ class purchase_receipt_model extends wc_model {
 		->setWhere("pd.voucherno = '$voucherno' AND pr.source_no = '$source_no' AND pd.budgetcode != ''")
 		->setGroupBy('pd.voucherno, account')
 		->runSelect()
-		->getRow();
+		->getResult();
+		
 		$arr = array();
 		if($get_info) {
-			$budgetcode = $get_info->budgetcode;
-			$accountcode = $get_info->account;
-			$itemcode = $get_info->itemcode;
+			foreach($get_info as $row) {
+				$budgetcode = $row->budgetcode;
+				$accountcode = $row->account;
+				$itemcode = $row->itemcode;
 
-			$get_pr_amount = $this->db->setTable('purchasereceipt_details as pd')
-			->leftJoin('purchasereceipt as pr ON pr.voucherno = pd.voucherno')
-			->setFields("SUM(pd.amount) as amount")
-			->setWhere("pd.voucherno = '$voucherno' AND pr.source_no = '$source_no' AND pd.budgetcode = '$budgetcode' AND pd.itemcode = '$itemcode'")
-			->runSelect()
-			->getRow();
+				$get_pr_amount = $this->db->setTable('purchasereceipt_details as pd')
+				->leftJoin('purchasereceipt as pr ON pr.voucherno = pd.voucherno')
+				->setFields("SUM(pd.amount) as amount")
+				->setWhere("pd.voucherno = '$voucherno' AND pr.source_no = '$source_no' AND pd.budgetcode = '$budgetcode' AND pd.itemcode = '$itemcode'")
+				->runSelect()
+				->getRow();
 
-			$get_po_amount = $this->db->setTable('purchaseorder_details as pd')
-			->setFields("SUM(pd.amount) as amount")
-			->setWhere("pd.voucherno = '$source_no' AND pd.budgetcode = '$budgetcode' AND pd.itemcode = '$itemcode'")
-			->runSelect()
-			->getRow();
+				$get_po_amount = $this->db->setTable('purchaseorder_details as pd')
+				->setFields("SUM(pd.amount) as amount")
+				->setWhere("pd.voucherno = '$source_no' AND pd.budgetcode = '$budgetcode' AND pd.itemcode = '$itemcode'")
+				->runSelect()
+				->getRow();
 
-			$arr['voucherno'] = $source_no;
-			$arr['budget_code'] = $budgetcode;
-			$arr['accountcode'] = $accountcode;
-			$arr['allocated'] = '0.00';
-
-			if($get_pr_amount->amount == $get_po_amount->amount) {
+				$arr['voucherno'] = $source_no;
+				$arr['budget_code'] = $budgetcode;
+				$arr['accountcode'] = $accountcode;
 				$arr['allocated'] = '0.00';
-				$arr['actual'] = $get_po_amount->amount;
-				$delete = $this->db->setTable('actual_budget')
-				->setWhere("voucherno = '$source_no' AND budget_code = '$budgetcode' AND accountcode = '$accountcode'")
-				->runDelete(false);
 
-				$result = $this->db->setTable('actual_budget')
-				->setValues($arr)
-				->runInsert(false);
-			} else if($get_pr_amount->amount < $get_po_amount) {
-				$arr['allocated'] = $get_pr_amount->amount;
-				$arr['actual'] = $get_pr_amount->amount;
-				$delete = $this->db->setTable('actual_budget')
-				->setWhere("voucherno = '$source_no' AND budget_code = '$budgetcode' AND accountcode = '$accountcode'")
-				->runDelete(false);
+				if($get_pr_amount->amount == $get_po_amount->amount) {
+					$arr['allocated'] = '0.00';
+					$arr['actual'] = $get_po_amount->amount;
+					$delete = $this->db->setTable('actual_budget')
+					->setWhere("voucherno = '$source_no' AND budget_code = '$budgetcode' AND accountcode = '$accountcode'")
+					->runDelete(false);
 
-				$result = $this->db->setTable('actual_budget')
-				->setValues($arr)
-				->runInsert(false);
+					$result = $this->db->setTable('actual_budget')
+					->setValues($arr)
+					->runInsert(false);
+				} else if($get_pr_amount->amount < $get_po_amount) {
+					$arr['allocated'] = $get_pr_amount->amount;
+					$arr['actual'] = $get_pr_amount->amount;
+					$delete = $this->db->setTable('actual_budget')
+					->setWhere("voucherno = '$source_no' AND budget_code = '$budgetcode' AND accountcode = '$accountcode'")
+					->runDelete(false);
+
+					$result = $this->db->setTable('actual_budget')
+					->setValues($arr)
+					->runInsert(false);
+				}
 			}
 		} else {
 			$result = false;
