@@ -144,6 +144,8 @@ class controller extends wc_controller {
 			$result = $this->check_existing_yrendjv();
 		}else if($task == "check_depreciation_run") {
 			$result = $this->check_depreciation_run();
+		}else if($task == "reduce_useful_life") {
+			$result = $this->reduce_useful_life();
 		}
 
 		echo json_encode($result); 
