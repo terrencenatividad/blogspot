@@ -260,6 +260,7 @@ class controller extends wc_controller {
 
 		$header  = $this->job_order->getJOheader($voucherno);
 		$details = $this->job_order->getJOcontent($voucherno);
+		$jr_details = $this->job_order->getJRcontent($voucherno);
 		$customer = $this->parts_and_service->getCustomerDetails($header->customer);
 		/** VENDOR DETAILS --END**/
 
@@ -269,7 +270,7 @@ class controller extends wc_controller {
 			'REF #'				=> $header->reference
 		);
 		$print = new jo_print_model();
-		$print->setDocumentType('Job Order')
+		$print->setDocumentType('Delivery Receipt')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customer)
 				->setRemarksDetail($header->notes)
@@ -671,17 +672,17 @@ class controller extends wc_controller {
 		$data['job_release_no'] 	= $job_release_no;
 		$data['transactiondate'] 	= date('Y-m-d', strtotime($data['transactiondate']));
 		$data['issuancedate'] 		= date('Y-m-d', strtotime($data['issuancedate']));
-		foreach ($data['quantity'] as $key => $value) {
-			if ($value < 1) {
-				unset($data['itemcode'][$key]);
-				unset($data['linenum'][$key]);
-				unset($data['detailparticulars'][$key]);
-				unset($data['warehouse'][$key]);
-				unset($data['quantity'][$key]);
-				unset($data['unit'][$key]);
-				unset($data['serialnumbers'][$key]);
-			}
-		}
+		// foreach ($data['quantity'] as $key => $value) {
+		// 	if ($value < 1) {
+		// 		unset($data['itemcode'][$key]);
+		// 		unset($data['linenum'][$key]);
+		// 		unset($data['detailparticulars'][$key]);
+		// 		unset($data['warehouse'][$key]);
+		// 		unset($data['quantity'][$key]);
+		// 		unset($data['unit'][$key]);
+		// 		unset($data['serialnumbers'][$key]);
+		// 	}
+		// }
 
 		$result						= $this->job_order->saveJobRelease($data);
 		
@@ -782,7 +783,6 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 		foreach ($result as $row) {
-		// var_dump($row->jrno);
 		if($task == ''){
 				$table .= '<tr data-id = "' . $row->jrno . '"">';
 				$table .= '<td colspan="5">' . 'Part Issuance No.: '.$row->jrno . '</td>';
@@ -797,16 +797,18 @@ class controller extends wc_controller {
 			
 			$list	= $this->job_order->getIssuedParts($row->jrno);
 			foreach ($list as $key => $row) {
-			$table .= '<tr>';
-			$table .= '<td>' . $row->itemcode . '</td>';
-			$table .= '<td>' . $row->detailparticulars . '</td>';
-			$table .= '<td>' . $row->description . '</td>';
-			$table .= '<td>' . $row->quantity . '</td>';
-			$table .= '<td>' . $row->unit . '</td>';
-			if($task == ''){
-				$table .= '<td>' . '' . '</td>';
-				$table .= '<td>' . '' . '</td>';
-			}
+				if($row->quantity > 0){
+					$table .= '<tr>';
+					$table .= '<td>' . $row->itemcode . '</td>';
+					$table .= '<td>' . $row->detailparticulars . '</td>';
+					$table .= '<td>' . $row->description . '</td>';
+					$table .= '<td>' . $row->quantity . '</td>';
+					$table .= '<td>' . $row->unit . '</td>';
+					if($task == ''){
+						$table .= '<td>' . '' . '</td>';
+						$table .= '<td>' . '' . '</td>';
+					}
+				}
 			$table .= '</tr>';
 		}
 	}		
