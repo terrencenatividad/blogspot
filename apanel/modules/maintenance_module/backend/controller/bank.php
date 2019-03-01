@@ -285,9 +285,11 @@ class controller extends wc_controller
 			'nextchequeno',
 			'stat'
 		);
+		$file_uniq_id = uniqid();
 		$posted_data 	= $this->input->post($arrays);
 		$posted_data['stat'] = 'open';
 		$posted_data['nextchequeno'] = $posted_data['firstchequeno'];
+		$posted_data['code'] = $file_uniq_id;
 		$result  		= $this->bank->insertCheck($posted_data);
 		$firstchequeno 	= $posted_data['firstchequeno'];
 		$lastchequeno	= $posted_data['lastchequeno'];
