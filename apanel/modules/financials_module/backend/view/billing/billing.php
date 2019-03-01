@@ -122,7 +122,7 @@
 										echo $ui->formField('hidden')
 											->setName('sq')
 											->setId('sq')
-											->setValue('')
+											->setValue($sq)
 											->draw($show_input);
 									?>
 								</div>
@@ -1159,14 +1159,14 @@
 
 		$(document).ready(function() {
 			var discounttype = $('#discounttype').val();
-			var job = $('#job_orderno').val();
-			if ((discounttype == 'amt' || discounttype == 'perc') && job == '') {
+			var sq = $('#sq').val();
+			if ((discounttype == 'amt' || discounttype == 'perc') && sq == '') {
 				$('#tableList tbody').find('.discount').removeAttr('readonly');
 			} 
 			else {
 				$('#tableList tbody').find('.discount').attr('readonly', '');
 			}
-			if (job == '') {
+			if (sq == '') {
 				$('#tableList tbody').find('.unitprice').removeAttr('readonly');
 				$('#tableList tbody').find('.taxcode').removeAttr('disabled');
 			}
