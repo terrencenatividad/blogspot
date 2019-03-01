@@ -568,13 +568,13 @@ class controller extends wc_controller {
 		);
 	}
 
-	public function update_useful_life() {
+	public function reduce_useful_life() {
 		$transaction_date  	  =	$this->input->post('datefrom');
 		$last_day_this_month  =	date("Y-m-t", strtotime($transaction_date));
 		$first_day_this_month = date('m-01-Y', strtotime($transaction_date));
 
 		$result = $this->trial_balance->retrieve_useful_life($first_day_this_month, $last_day_this_month);
-
+		// var_dump($result);
 		foreach($result as $key=>$row) {
 			$asset_id 		=	isset($row->asset_id) 	? $row->asset_id 	: "";
 			$useful_life 	=	isset($row->useful_life)? $row->useful_life : 0;
