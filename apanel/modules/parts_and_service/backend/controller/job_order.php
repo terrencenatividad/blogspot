@@ -394,7 +394,7 @@ class controller extends wc_controller {
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->partnername . '</td>';
 			$table .= '<td>' . $row->service_quotation . '</td>';
-			$table .= '<td>' . $row->po_number . '</td>';
+			$table .= '<td>' . $row->reference . '</td>';
 			$table .= '<td>' . $this->colorStat($row->stat) . '</td>';
 			$table .= '</tr>';
 		}
