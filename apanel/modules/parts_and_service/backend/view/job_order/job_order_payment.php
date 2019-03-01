@@ -438,6 +438,9 @@
 			}else{
 				var dsa = 'data-isbundle="0"';
 			}
+			if(details.warehouse == 'none'){
+				details.description = 'none';
+			}
 			row += `
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.bomqty+`" data-linenum="`+linenum+`">`;
 			row += `<td>
@@ -579,9 +582,9 @@
 									->draw(true);
 							?>
 							` + otherdetails + `
-						<input type="hidden" class="h_quantity"></td>`;
+						<input type="hidden" class="h_quantity" value="0"></td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn mainitem quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/><input type="hidden" class="h_quantity"></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn mainitem quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/><input type="hidden" class="h_quantity" value="0"></td>`;
 					}
 					}
 					
@@ -763,6 +766,8 @@
 						getList();		
 						$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
 						$('.quantity').val('0');
+						$('.h_quantity').val('0');	
+						$('.serialnumbers').val('');	
 						$('#isyu').show();
 						$('#save').addClass('hidden');	
 				});
@@ -1044,11 +1049,14 @@
 			var jobno = $('#job_order_no').val();
 			$('#delete_modal').modal('show');
 			$('#delete_yes').on('click', function(){
-				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id, function(data) {
+			$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id, function(data) {
 					getList();
+					$('.serialnumbers').val('');	
+					$('.quantity').val('0');
+					$('.h_quantity').val('0');	
 					$('#delete_modal').modal('hide');	
 				});
-						
+
 			});
 		});
 
@@ -1085,7 +1093,9 @@
 			var jobreleaseno = $('#job_release_no').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', form.serialize() + '&jobreleaseno='+ jobreleaseno + '<?=$ajax_post?>', function(data) {
 				getList();
+				$('.serialnumbers').val('');	
 				$('.quantity').val('0');	
+				$('.h_quantity').val('0');	
 				$('#isyu').show();
 				$('#save').addClass('hidden');	
 				$('#task').val('');	
