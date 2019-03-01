@@ -260,10 +260,9 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-
 									->addEdit($row->stat == 'Pending')
 									->addDelete($row->stat == 'Pending')
-									->addOtherTask('Approve', 'thumbs-up', $row->stat == 'Pending')
+									->addOtherTask('Approve', 'thumbs-up', (MOD_POST && $row->stat == 'Pending'))
 									->addPrint()
 									->addCheckbox($row->stat == 'Pending')
 									->setLabels(array('delete' => 'Cancel'))
