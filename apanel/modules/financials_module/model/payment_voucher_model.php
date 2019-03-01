@@ -235,7 +235,7 @@ class payment_voucher_model extends wc_model
 		$temp["payments"] = $applicationArray;
 
 		// Received Cheques for View
-		$chequeFields = 'pvc.voucherno, pvc.booknumber, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount, pvc.stat';
+		$chequeFields = 'pvc.voucherno, pvc.bankcode, pvc.chequeaccount, chart.accountname, pvc.chequenumber, pvc.chequedate, pvc.chequeamount, pvc.chequeconvertedamount, pvc.stat';
 		$cheque_cond  = "pvc.voucherno = '$sid'";
 		$cheque_join  = "chartaccount chart ON chart.id = pvc.chequeaccount AND chart.companycode = pvc.companycode";
 		
@@ -255,7 +255,7 @@ class payment_voucher_model extends wc_model
 				$pvno					= $chequeArray[$c]->voucherno;
 				$accountname			= $chequeArray[$c]->accountname;
 				$chequeaccount			= $chequeArray[$c]->chequeaccount;
-				$booknumber			= $chequeArray[$c]->booknumber;
+				$bankcode			= $chequeArray[$c]->bankcode;
 				$chequenumber			= $chequeArray[$c]->chequenumber; 
 				$chequedate				= $chequeArray[$c]->chequedate; 
 				$chequedate				= $this->date->dateFormat($chequedate);
@@ -265,7 +265,7 @@ class payment_voucher_model extends wc_model
 
 				$rollArray['accountname']			= $accountname;
 				$rollArray['chequeaccount']			= $chequeaccount;
-				$rollArray['booknumber']			= $booknumber;
+				$rollArray['bankcode']			= $bankcode;
 				$rollArray['chequenumber']			= $chequenumber;
 				$rollArray['chequedate']			= $chequedate;
 				$rollArray['chequeamount']			= $chequeamount;
@@ -703,7 +703,7 @@ class payment_voucher_model extends wc_model
 			$total_currency			= (isset($data['total_currency']) && (!empty($data['total_currency']))) ? htmlentities(addslashes(trim($data['total_currency']))) : "";
 			$exchangerate			= (isset($data['exchangerate']) && (!empty($data['exchangerate']))) ? htmlentities(addslashes(trim($data['exchangerate']))) : "";
 			$currencycode			= (isset($data['currencycode']) && (!empty($data['currencycode']))) ? htmlentities(addslashes(trim($data['currencycode']))) : "";
-			$booknumber			= (isset($data['booknumber']) && (!empty($data['booknumber']))) ? htmlentities(addslashes(trim($data['booknumber']))) : "";
+			$bankcode				= (isset($data['bankcode']) && (!empty($data['bankcode']))) ? htmlentities(addslashes(trim($data['bankcode']))) : "";
 
 			$source				   	= (!empty($picked_payables)) ? "PV" : "DV";
 
@@ -806,7 +806,7 @@ class payment_voucher_model extends wc_model
 						$cheque_header['chequedate']			= $chequedate;
 						$cheque_header['chequeamount']			= $chequeamount;
 						$cheque_header['chequeconvertedamount']	= $chequeamount;
-						$cheque_header['booknumber']			= $booknumber;
+						$cheque_header['bankcode']			= $bankcode;
 						$cheque_header['stat']					= ($not_cancelled == 'yes') ? 'cancelled' : 'uncleared';
 
 						$linecount++;
@@ -1777,7 +1777,7 @@ class payment_voucher_model extends wc_model
 
 	public function get_check_no($vno){
 		$result = $this->db->setTable('pv_cheques')
-		->setFields("max(chequenumber) checknum,chequeaccount, booknumber")
+		->setFields("max(chequenumber) checknum,chequeaccount, bankcode")
 		->setWhere("voucherno = '$vno' ")
 		->setGroupBy("chequeaccount")
 		->runSelect()
@@ -1797,13 +1797,14 @@ class payment_voucher_model extends wc_model
 		return $result;
 	}
 
-	public function getbankinfo($booknumber) {
+	public function getbankinfo($bankcode) {
 		$result = $this->db->setTable('bankdetail')
 		->setFields("firstchequeno, nextchequeno, lastchequeno")
-		->setWhere("booknumber = '$booknumber'")
+		->setWhere("code = '$bankcode'")
 		->runSelect()
 		->setLimit(1)
 		->getRow();
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -1838,7 +1839,7 @@ class payment_voucher_model extends wc_model
 	public function getNextCheckNum($bank_id, $curr_seq) {
 
 		$result = $this->db->setTable('bankdetail bd')
-		->setFields(array('bd.booknumber, bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
+		->setFields(array('bd.code as bankcode, bd.firstchequeno', 'bd.lastchequeno', 'bd.nextchequeno', 'cc.firstcancelled', 'cc.lastcancelled'))
 		->leftJoin('cancelled_checks cc ON cc.firstchequeno = bd.firstchequeno AND cc.lastchequeno = bd.lastchequeno')
 		->setWhere("bd.bank_id = '$bank_id' and bd.stat = 'open' and bd.check_status = 'active' AND bd.has_cancelled = 'no'")
 		->setOrderBy('firstchequeno')
@@ -1882,19 +1883,20 @@ class payment_voucher_model extends wc_model
 		return $result; 
 	}
 
-	public function update_checks($booknumber, $chequenumber) {
-		$getBank = $this->getbankinfo($booknumber);
-		$first = $getBank->firstchequeno;
-		$next = $getBank->nextchequeno;
-		$last = $getBank->lastchequeno;
+	public function update_checks($bankcode, $chequenumber) {
+		$getBank = $this->getbankinfo($bankcode);
+		$first = isset($getBank->firstchequeno) ? $getBank->firstchequeno : "";
+		$next = isset($getBank->nextchequeno) ? $getBank->nextchequeno : "";
+		$last = isset($getBank->lastchequeno) ? $getBank->lastchequeno : "";
 		$data1['stat'] = ($next == $last) ? 'closed' : 'open';
 		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;
-		
+		// var_dump($data1);
 		$result = $this->db->setTable("bankdetail") 
 		->setValues($data1)
-		->setWhere("booknumber = '$booknumber'")
+		->setWhere("code = '$bankcode'")
 		->setLimit(1)
 		->runUpdate();
+		// echo $this->db->getQuery();
 		return $result ;
 	}
 

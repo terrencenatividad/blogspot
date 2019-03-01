@@ -441,6 +441,11 @@ class db {
 		$this->page_limit = $page_limit;
 	}
 
+	public function setResultLimit($result_limit) {
+	    $this->result_limit = $result_limit;
+	    return $this;
+	}
+
 	public function setPage($page) {
 		$this->page = $page;
 	}

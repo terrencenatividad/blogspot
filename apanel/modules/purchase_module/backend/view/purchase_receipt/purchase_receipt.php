@@ -75,7 +75,7 @@
 											->setName('invoiceno')
 											->setId('invoiceno')
 											->setValue($invoiceno)
-											->setValidation('required')
+											//->setValidation('required')
 											->draw($show_input);
 									?>
 								</div>

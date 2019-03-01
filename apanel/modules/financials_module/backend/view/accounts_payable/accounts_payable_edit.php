@@ -1629,7 +1629,7 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},500);
+											},3000);
 										}
 									});
 								} else if(data.error != '') {
@@ -1645,7 +1645,7 @@
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},500);
+										},3000);
 									}
 								}
 							} else {
@@ -1694,7 +1694,7 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},500);
+											},3000);
 										}
 									});
 								} else if(data.error != '') {
@@ -1710,7 +1710,7 @@
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},500);
+										},3000);
 									}
 								}
 							} else {
@@ -1759,7 +1759,7 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},500);
+											},3000);
 										}
 									});
 								} else if(data.error != '') {
@@ -1775,7 +1775,7 @@
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},500);
+										},3000);
 									}
 								}
 							} else {
@@ -1895,7 +1895,6 @@
 					var task = "edit";
 					data.formData = {reference: voucher_no, task: task};
 				<? }?>
-				
 			});
 			$('#attachments_form').bind('fileuploadalways', function (e, data) {
 				var error = data.result['files'][0]['error'];

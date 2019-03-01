@@ -58,6 +58,7 @@ class controller extends wc_controller {
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
+		$data['sq']					= '';
 		$data['transactiondate']	= $this->date->dateFormat();
 		$data['customer_list']		= $this->billing_model->getCustomerList();
 		$data['warehouse_list']		= $this->billing_model->getWarehouseList();
@@ -78,6 +79,13 @@ class controller extends wc_controller {
 		$this->view->title			= 'Edit Billing';
 		$this->fields[]				= 'stat';
 		$data						= (array) $this->billing_model->getBillingById($this->fields, $voucherno);
+		if (isset($data['job_orderno'])) {
+			$sq						= $this->billing_model->getSQ($data['job_orderno']);
+			$data['sq']				= $sq->service_quotation;
+		}
+		else {
+			$data['sq']				= '';
+		}
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ui']					= $this->ui;
 		$data['customer_list']		= $this->billing_model->getCustomerList();
@@ -102,6 +110,7 @@ class controller extends wc_controller {
 		$data['transactiondate']	= $this->date->dateFormat($data['transactiondate']);
 		$data['ajax_task']			= '';
 		$data['ui']					= $this->ui;
+		$data['sq']					= '';
 		$data['customer_list']		= $this->billing_model->getCustomerList();
 		$data['warehouse_list']		= $this->billing_model->getWarehouseList();
 		$data["item_list"]			= $this->billing_model->getItemList();

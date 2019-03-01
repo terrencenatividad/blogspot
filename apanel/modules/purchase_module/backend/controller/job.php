@@ -53,6 +53,8 @@
             $data['task']               = 'view';
             $data['show_input']         = false;
             
+            $job = urldecode($job);
+
             $data["job_no"]             = $job;
 
             $retrievedjob               = $this->job->getJob($job);
@@ -124,6 +126,7 @@
             $data['task']               = 'update';
             $data['show_input']         = true;
             
+            $job = urldecode($job);
 
             $data["job_no"]             = $job;
             $retrievedjob               = $this->job->getJob($job);
@@ -419,10 +422,13 @@
         }
         
         private function ajax_load_ipo_list() {
-            $ajax     = $this->input->post('ajax');
-            $search     = (isset($ajax['search'])) ? $ajax['search'] : '';
-            $job        = $this->input->post('jobno');
-            $pagination = $this->job->getIPOPagination($search, $job);
+            $tmp = $this->input->post();
+            $ajax       = $this->input->post(array('search', 'limit', 'jobno'));
+            extract($ajax);
+            $search     = (isset($search)) ? $search : '';
+            $limit      = (isset($limit)) ? $limit : '5';
+
+            $pagination = $this->job->getIPOPagination($search, $limit, $jobno);
             $table      = '';
             if (empty($pagination->result)) {
                 $table = '<tr><td colspan="5" class="text-center"><b>No Records Found</b></td></tr>';
@@ -458,6 +464,7 @@
                 foreach ($pagination->result as $key => $row) {
                     
                     $taggedqty = $this->job->getTaggedItemQty($row->voucherno, $row->linenum, $job_no, $task);
+
                     $maxval = $row->receiptqty - $taggedqty->count;
                     
                     if ($maxval) {

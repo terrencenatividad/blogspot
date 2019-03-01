@@ -373,7 +373,7 @@ class controller extends wc_controller {
 									->addView()
 									->addEdit($row->stat == 'Returned' && $restrict_ri)
 									->addDelete($row->stat == 'Returned' && $restrict_ri)
-									->addPrint($row->stat == 'Returned')
+									->addPrint()
 									->addCheckbox($row->stat == 'Returned' && $restrict_ri)
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->voucherno)
@@ -397,10 +397,10 @@ class controller extends wc_controller {
 				$color = 'success';
 				break;
 			case 'Scrapped':
-				$color = 'danger';
+				$color = 'warning';
 				break;
 			case 'Cancelled':
-				$color = 'warning';
+				$color = 'danger';
 				break;
 		}
 		return '<span class="label label-' . $color . '">' . strtoupper($stat) . '</span>';
@@ -449,6 +449,7 @@ class controller extends wc_controller {
 
 		$header				= $this->input->post($fields1);
 		$details 			= $this->input->post($fields2);
+		$submit 			= $this->input->post('submit');
 /*
 	END : GET DATA FROM POST
 */
@@ -518,11 +519,9 @@ class controller extends wc_controller {
 				);
 
 		$sourcetype = 'DR';
-		$source 	= $header['source_no'];
 
 		if (substr($header['source_no'], 0, 2) == 'SI') {
 			$sourcetype = 'SI';
-			$source 	= $this->db->getDRvoucher($source);
 		}
 /*
 	END : PREPARE DATA FOR QUERY
@@ -533,19 +532,8 @@ class controller extends wc_controller {
 */
 		$result		= $this->sr_model->saveSalesReturn($values, $values2);
 
-		if ($result) {
-			$updateserial = false;
-			foreach ($details['serialnumbers'] as $key => $row) {
-				if($row != ''){
-					$updateserial = true;
-				}
-			}
-
-			if ($updateserial) {
-				$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
-				
-			}
-			$updateDRSerial = $this->sr_model->updateDRSerial($source, $details['linenum'], $details['serialnumbers']);
+		if ($result['details']) {
+			
 
 			$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
@@ -564,14 +552,15 @@ class controller extends wc_controller {
 */
 
 		$redirect_url = MODULE_URL;
-		// if ($submit == 'save_new') {
-		// 	$redirect_url = MODULE_URL . 'create';
-		// } else if ($submit == 'save_preview') {
-		// 	$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
-		// }
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save_preview') {
+			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		}
 		return array(
 			'redirect'	=> $redirect_url,
-			'success'	=> $result
+			'success'	=> $result,
+			'jvgenerate' => $jvresult
 		);
 	}
 
@@ -621,6 +610,7 @@ class controller extends wc_controller {
 		$header				= $this->input->post($fields1);
 		$details 			= $this->input->post($fields2);
 		$voucherno			= $this->input->post('voucherno');
+		$submit 			= $this->input->post('submit');
 /*
 	END : GET DATA FROM POST
 */
@@ -687,11 +677,9 @@ class controller extends wc_controller {
 					'stat' 				=> $arr_stat
 				);
 		$sourcetype = 'DR';
-		$source 	= $header['source_no'];
 
 		if (substr($header['source_no'], 0, 2) == 'SI') {
 			$sourcetype = 'SI';
-			$source 	= $this->db->getDRvoucher($source);
 		}
 
 /*
@@ -706,25 +694,10 @@ class controller extends wc_controller {
 								->preparePreviousValues();
 		}
 
-		$result		= $this->sr_model->saveSalesReturn($values, $values2);
+		$result	= $this->sr_model->saveSalesReturn($values, $values2);
 
 
-		if ($result) {
-			$updateserial = false;
-			foreach ($details['serialnumbers'] as $key => $row) {
-				if($row != ''){
-					$updateserial = true;
-				}
-			}
-
-			if ($updateserial) {
-				$serialupdate = $this->sr_model->updateItemSerialized($details['allserial'], 'Not Available');
-
-				if ($serialupdate) {
-					$serialupdate = $this->sr_model->updateItemSerialized($details['serialnumbers'], 'Available');
-				}
-			}
-			$updateDRSerial = $this->sr_model->updateDRSerial($header['source_no'], $details['linenum'], $details['serialnumbers']);
+		if ($result['details']) {
 			$jvresult = $this->sr_model->createClearingEntries($voucherno, $sourcetype);
 			if ($this->inventory_model) {
 				
@@ -740,26 +713,30 @@ class controller extends wc_controller {
 */
 
 		$redirect_url = MODULE_URL;
-		// if ($submit == 'save_new') {
-		// 	$redirect_url = MODULE_URL . 'create';
-		// } else if ($submit == 'save_preview') {
-		// 	$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
-		// }
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save_preview') {
+			$redirect_url = MODULE_URL . 'view/' . $data['voucherno'];
+		}
 		return array(
 			'redirect'	=> $redirect_url,
-			'success'	=> $result
+			'success'	=> $result,
+			'jvgenerate' => $jvresult
 		);
 	}
 
 	private function ajax_delete() {
 		$delete_id = $this->input->post('delete_id');
 		if ($delete_id) {
-			//$result 			= $this->sr_model->deleteSalesReturn($delete_id);
+			$result 			= $this->sr_model->deleteSalesReturn($delete_id);
 			$result_serial 		= $this->sr_model->revertItemSerialized($delete_id);
 			$result_dr 			= $this->sr_model->revertDRchanges($delete_id);
+
 		}
 		if ($result && $this->inventory_model) {
 			foreach ($delete_id as $voucherno) {
+				$result_jv[] = $this->sr_model->createClearingEntries($voucherno);
+
 				$this->inventory_model->prepareInventoryLog('Sales Return', $voucherno)
 										->computeValues()
 										->logChanges('Cancelled');

@@ -13,9 +13,9 @@
 	<form method = "post" class="form-horizontal" id = "payableForm">
 		<input type = "hidden" id = "bank_name" name = "bank_name" >
 		<?php if($task == 'edit') { ?>
-			<input type = "hidden" id = "booknumber" name = "booknumber" value = "<?php echo $booknumber; ?>">
+			<input type = "hidden" id = "bankcode" name = "bankcode" value = "<?php echo $bankcode; ?>">
 		<?php } else if($task == 'create') { ?>
-			<input type = "hidden" id = "booknumber" name = "booknumber">
+			<input type = "hidden" id = "bankcode" name = "bankcode">
 		<?php } ?>
 		<input type = "hidden" id = "book_id" >
 		<input type = "hidden" id = "book_ids" name = "book_ids" >
@@ -210,7 +210,7 @@
 										->setId('chequenumber[1]')
 										->setClass('chequenumber')
 										->setMaxLength(30)
-								// ->setValidation('required alpha_num')
+										->setValidation('required alpha_num')
 										->setAttribute(array("readOnly"=>""))
 										->setValue("")
 										->draw(true);
@@ -350,7 +350,7 @@
 													<?php endif; ?>
 
 													<?php else :  ?>
-														<?php if($main_status != 'cancelled'){ ?>
+														<?php if($main_status == 'posted'){?>
 															<td class="text-center">
 																<button type="button" class="btn btn-info btn-flat print_check <?=$status?>"  style="outline:none;" ><span class="glyphicon glyphicon-download-alt"></span></button>
 															</td>	
@@ -467,6 +467,7 @@
 													?>
 												</td>
 												<?endif;?>
+												<td class="text-right"></td>
 											</tr>	
 										</tfoot>
 									</table>
@@ -1369,12 +1370,14 @@
 			
 			$.post("<?=BASE_URL?>financials/disbursement/ajax/getNumbers" , { bank: val_bank, curr_seq: num } ).done(function(data){
 				if(data.table){
-
+					
 					if(data.count == 1) {
 						cheque_element.closest('tr').find('.chequenumber').val(data.table);
+						$('#bankcode').val(data.bankcode);
 					} else {
 						var row = $("#chequeTable tbody tr").length;
 						$('#table_chequelist tbody').html(data.table);
+						$('#bankcode booknum').val(data.bankcode);
 						$('#cheque_pagination').html(data.pagination);
 						$('#chequeList').modal('show');
 					}
@@ -1462,12 +1465,18 @@
 		});
 
 		$('#table_chequelist #cheque_list_container').on('click', 'tr', function() {
+			storechequetobank();
 			var num = $(this).find('.nextchequeno').html();
-			var booknumber = $(this).find('.booknum').val();
-			$('#booknumber').val(booknumber);
+			var bankcode = $(this).find('.bankcode').val();
+			$('#bankcode').val(bankcode);
 			curr_bank_seq[val_bank] = num;
 			cheque_element.closest('tr').find('.chequenumber').val(num);
 			$('#chequeList').modal('hide');
+			if (typeof book_ids[val_bank] === 'undefined') {
+				book_ids[val_bank] = [];
+			}
+			book_ids[val_bank].push(num);
+			$('#book_ids').val(JSON.stringify(book_ids));
 		});
 
 		function getnum(val, next){ 
@@ -3027,7 +3036,7 @@
 							window.open('<?=MODULE_URL?>print_check/' + vno +  '/'+ cno , '_blank');
 						})
 
-						$('.cancelled, .chequenumber').focus(function() {
+						$('.cancelled').focus(function() {
 							$(this).trigger('blur');
 						});
 

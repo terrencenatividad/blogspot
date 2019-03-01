@@ -2448,7 +2448,7 @@ $(document).ready(function(){
 			var code 	= 	$(this).val();
 			var taxcode_= 	$(this);
 
-			$.post('<?=BASE_URL?>sales/sales_invoice/ajax/get_value', "taxcode=" + code + "&event=getTaxRate", function(data) {
+			$.post('<?=MODULE_URL?>ajax/get_value', "taxcode=" + code + "&event=getTaxRate", function(data) {
 				taxcode_.closest('tr').find('.taxrate').val(data.taxrate).trigger('change');
 			});
 

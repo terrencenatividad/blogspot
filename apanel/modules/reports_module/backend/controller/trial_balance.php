@@ -499,7 +499,7 @@ class controller extends wc_controller {
 			$firstdayofdate =	 date($fiscalyear.'-'.$period.'-01');
 			$ret_released 	=	 $this->trial_balance->getPartialJobOrderCount($firstdayofdate, $transactiondate);
 			$count_released =  	(!empty($ret_released->count) && $ret_released->count!=0) ? $ret_released->count 	:	0;
-
+	
 			// echo "Count Released = ".$count_released;
 			if( $count_released > 0){ 
 				$data2['source'] 	=	$source;
@@ -508,7 +508,8 @@ class controller extends wc_controller {
 				$data2['voucher'] 	= 	$this->seq->getValue("JV");
 				$data2['sourceno']  = 	$voucherno;
 				$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
-	
+				$result 			= 	$result['result'];
+
 				if($result){
 					$data2['source'] 	=	$source;
 					$data2['datefrom'] 	=	$transactiondate;
@@ -516,10 +517,11 @@ class controller extends wc_controller {
 					$data2['voucher'] 	= 	$this->seq->getValue("JV");
 					$data2['sourceno']  = 	$voucherno;
 					$result 			=	$this->trial_balance->save_accrual_journal_voucher($data2);
+					$result 			= 	$result['result'];
 				}
 			}
 		}
-		return $dataArray 	=	array( "result"=>$result['result'], "period" => $period);
+		return $dataArray 	=	array( "result"=>$result, "period" => $period);
 	}
 
 	public function eradicate_temporary_jv(){
@@ -581,6 +583,10 @@ class controller extends wc_controller {
 
 			$result 	=	$this->trial_balance->update_asset($asset_id, $update_data);
 		}
+
+		return array(
+			'update' => $result
+		);
 	}
 }
 ?>
