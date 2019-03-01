@@ -10,7 +10,7 @@
     width: 22px;
     height: 22px;
     background: url(blue.png) no-repeat;
-    border: none;
+    border: solid 1px rgb(150,150,150);
     cursor: pointer;
 }
 
