@@ -982,16 +982,27 @@ class controller extends wc_controller
 		$code 		= 0;
 		$voucher 	= '';
 		$errmsg 	= array();
-
+		
+		if ($data_post['paymentmode'] == 'cheque'){
+			$book_ids	= isset($data_post['book_ids']) && $data_post['book_ids'] != "" ? json_decode(stripcslashes($data_post['book_ids'])) : array();
+			$book_end	= isset($data_post['book_end']) && $data_post['book_end'] != "" ? json_decode(stripcslashes($data_post['book_end'])) : array();
+			$book_last	= isset($data_post['book_last'])&& $data_post['book_last'] != "" ? json_decode(stripcslashes($data_post['book_last'])) : array();
+			// var_dump($book_ids);
+			foreach ($book_ids as $bank => $book_id) {
+				foreach ($book_id as $key => $id) {
+					$book_last_num = isset($book_last->$bank->$id) ? $book_last->$bank->$id : $id;
+					$result = $this->payment_voucher->update_checks($book_last_num, $id, $bank, $book_end->{$bank}[$key]);
+				} 
+			}
+		}
+		
 		if($result)
 		{
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
 		}
-		
-		
-		
+
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
 		return $dataArray;
 	}
@@ -1843,12 +1854,14 @@ class controller extends wc_controller
 		$nums = $this->payment_voucher->getNextCheckNum($bank_id, $data['curr_seq']);
 		$table = '';
 		$count = 0;
+		$booknumber 	=	"";
 		if(empty($nums->result)) {
 			$table = false;
 		} else {
 			if(count($nums->result) == 1) {
 				foreach($nums->result as $key => $row) {
 					$table = $row->nextchequeno;
+					$booknumber = $row->booknumber;
 				}
 			} else {
 				foreach($nums->result as $key => $row) {
@@ -1864,6 +1877,7 @@ class controller extends wc_controller
 		$nums->table = $table;
 		$nums->bank_id = $bank_id;
 		$nums->count = count($nums->result);
+		$nums->booknumber = $booknumber;
 		return $nums;
 	}
 }
