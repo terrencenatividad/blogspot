@@ -85,7 +85,8 @@
 										->setId('job_type')
 										->setList($job_list)
 										->setValue($jobtype)
-										->setValidation('required')
+										->setNone('None')
+										//->setValidation('required')
 										->draw($show_input);
 
 								?>
