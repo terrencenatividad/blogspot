@@ -1344,10 +1344,10 @@ class controller extends wc_controller
 						if ( ! isset($z[$key + 1]) || ($jvno != $z[$key + 1][0] && $z[$key + 1][0] != '')) {
 							$totaldebit[] 	= $total_debit;
 							$totalcredit[]	= $total_credit;
-							if ($total_credit != $total_debit){
-								$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
-								$errmsg		= array_filter($errmsg);
-							}
+							// if ($total_credit != $total_debit){
+							// 	$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
+							// 	$errmsg		= array_filter($errmsg);
+							// }
 						}
 
 						if(empty($errmsg)){
@@ -1378,6 +1378,11 @@ class controller extends wc_controller
 						
 						$line++;
 					}
+				}
+
+				if(round($total_credit,2)!=round($total_debit,2)){
+					$errmsg[]	= "The Total Debit [<strong>".number_format($total_debit,2)."</strong>] and Total Credit [<strong>".number_format($total_credit,2)."</strong>] must be equal.<br/>";
+					$errmsg		= array_filter($errmsg);
 				}
 
 				if( empty($errmsg) ) {
