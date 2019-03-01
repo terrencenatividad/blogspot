@@ -779,20 +779,17 @@ class job_order_model extends wc_model
 				->runUpdate();
 
 				$serialnumbers = $this->db->setTable('job_release')
-						->setFields(array('serialnumbers'))
-						->setWhere("job_release_no = '$id'")
+						->setFields("GROUP_CONCAT(serialnumbers SEPARATOR ',') as serialnumbers")
+						->setWhere("job_release_no = '$id' AND serialnumbers != ''")
 						->runSelect()
 						->getResult();
 
-				foreach ($serialnumbers[0] as $row) {
-					if ($row != "") {
-						$ids = explode(",", $row);
-					foreach ($ids as $id) {
-							$this->db->setTable('items_serialized')
-												->setValues(array('stat'=>'Available'))
-												->setWhere("id = '$id'")
-												->runUpdate();
-						}
+				foreach ($serialnumbers as $row) {
+					if($row->serialnumbers != NULL){
+						$this->db->setTable('items_serialized')
+										->setValues(array('stat'=>'Available'))
+										->setWhere("id IN ($row->serialnumbers)")
+										->runUpdate();
 					}
 				}
 
@@ -962,6 +959,18 @@ class job_order_model extends wc_model
 		$result = $this->db->setTable('job_order_details jo')
 						->setFields("itemcode, detailparticular, quantity, uom")
 						->setWhere("job_order_no='$voucherno'")
+						->runSelect()
+						->getResult();
+
+		return $result;
+	}
+
+	public function getJRcontent($voucherno){
+		$result = $this->db->setTable('job_release jo')
+						->setFields('itemcode, detailparticulars, quantity, unit uom,SUM(quantity) issuedqty')
+						->setWhere("job_order_no='$voucherno' AND stat != 'cancelled'")
+						->setOrderBy('linenum')
+						->setGroupBy('itemcode')
 						->runSelect()
 						->getResult();
 

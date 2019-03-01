@@ -595,7 +595,7 @@
 				
 			}
 		}).done(function(){
-			$.post('<?=MODULE_URL?>ajax/update_useful_life', "datefrom="+current_date , function(response2) {
+			$.post('<?=MODULE_URL?>ajax/reduce_useful_life', "datefrom="+current_date , function(response2) {
 				
 			});
 		});

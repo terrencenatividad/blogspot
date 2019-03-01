@@ -2171,7 +2171,7 @@ class controller extends wc_controller
 				$upload_result 	= false;
 			}
 
-			return $upload_result;
+			// return $upload_result;
 		}
 	}
 }
