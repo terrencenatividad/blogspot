@@ -237,6 +237,7 @@ script + .wrapper > .content-wrapper {
 	min-height: 30px;
 }
 .btn-checkbox .icheckbox_square-blue:not(.checked) {
+	border: solid 1px rgb(150,150,150);
 	background-color: white;
 }
 .icheckbox_square-blue.disabled {
