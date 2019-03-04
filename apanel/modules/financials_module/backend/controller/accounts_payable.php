@@ -560,15 +560,15 @@ class controller extends wc_controller
 
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
-			->addEdit($status && $restrict && !$pr && $status_paid && !$import_checker)
+			->addEdit($status && $restrict && !$pr && ($stat != 'paid') && !$import_checker)
 			->addPrint()
 			->addOtherTask(
 				'Print 2307',
 				'print',
 				$bir_link
 			)
-			->addDelete($status && $restrict && $status_paid && empty($sourceno))
-			->addCheckbox($status && $restrict && $status_paid && empty($sourceno))
+			->addDelete($status && $restrict && ($stat != 'paid') && empty($sourceno))
+			->addCheckbox($status && $restrict && ($stat != 'paid') && empty($sourceno))
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
