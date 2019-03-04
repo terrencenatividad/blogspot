@@ -966,13 +966,24 @@ class job_order_model extends wc_model
 	}
 
 	public function getJRcontent($voucherno){
-		$result = $this->db->setTable('job_release jo')
-						->setFields('itemcode, detailparticulars, quantity, unit uom,SUM(quantity) issuedqty')
-						->setWhere("job_order_no='$voucherno' AND stat != 'cancelled'")
-						->setOrderBy('linenum')
+		$result = $this->db->setTable('job_order_details jo')
+						->leftJoin('job_release j ON j.job_order_no = jo.job_order_no AND j.itemcode = jo.itemcode')
+						->setFields("jo.itemcode, jo.detailparticular, jo.quantity ,SUM(j.quantity) issuedqty, uom, serialnumbers")
+						->setWhere("jo.job_order_no='$voucherno' AND j.stat != 'cancelled'")
 						->setGroupBy('itemcode')
+						->setOrderBy('jo.linenum')
 						->runSelect()
 						->getResult();
+
+		return $result;
+	}
+
+	public function getSerialById($id) {
+		$result = $this->db->setTable('items_serialized')
+							->setFields('serialno, engineno, chassisno')
+							->setWhere("id='$id'")
+							->runSelect()
+							->getRow();
 
 		return $result;
 	}
