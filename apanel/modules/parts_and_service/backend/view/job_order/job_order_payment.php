@@ -1049,7 +1049,7 @@
 			var jobno = $('#job_order_no').val();
 			$('#delete_modal').modal('show');
 			$('#delete_yes').on('click', function(){
-			$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id, function(data) {
+			$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id + '&jobno=' + jobno, function(data) {
 					getList();
 					$('.serialnumbers').val('');	
 					$('.quantity').val('0');
