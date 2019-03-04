@@ -191,7 +191,7 @@ class controller extends wc_controller {
 				$credit 			= ($amount < 0) ? abs($amount) : 0;
 				$periodbalance      = $amount;
 
-				$accumulatedbalance = $balcarry + $periodbalance;
+				$accumulatedbalance = $prevcarry + $balcarry + $periodbalance;
 
 				$totalprevcarry 		+= $prevcarry;
 				$totalbalcarry  		+= $balcarry;
@@ -294,7 +294,7 @@ class controller extends wc_controller {
 				$credit 			= ($amount < 0) ? abs($amount) : 0;
 				$periodbalance      = $amount;
 
-				$accumulatedbalance = $balcarry + $periodbalance;
+				$accumulatedbalance = $prevcarry + $balcarry + $periodbalance;
 					
 				$totaldebit 				+= $debit;
 				$totalcredit 				+= $credit;
