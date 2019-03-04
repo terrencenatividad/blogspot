@@ -782,9 +782,10 @@ class controller extends wc_controller {
 
 	private function ajax_delete_issue() {
 		$delete_id = $this->input->post('id');
+		$job_order_no = $this->input->post('jobno');
 		
 		if ($delete_id) {
-			$result = $this->job_order->deleteJobRelease($delete_id);
+			$result = $this->job_order->deleteJobRelease($delete_id, $job_order_no);
 		}
 		if ($result && $this->inventory_model) {
 			
