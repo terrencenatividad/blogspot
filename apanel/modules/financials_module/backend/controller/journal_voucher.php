@@ -388,7 +388,8 @@ class controller extends wc_controller {
 								$errmsg[]	= "Document Set on <strong>row $line</strong> should not be empty.<br/>";
 								$errmsg		= array_filter($errmsg);
 							} else {
-								$voucherno		= $this->seq->getValue('JV');
+								//$voucherno		= $this->seq->getValue('JV');
+								$voucherno	= $jvno;
 							}
 							// Check if Transaction Date is not Empty 
 							if($transdate == ''){
@@ -416,7 +417,8 @@ class controller extends wc_controller {
 							} else if ($jvno != $prev_no) {
 								$total_credit 	= 0;
 								$total_debit 	= 0;
-								$voucherno		= $this->seq->getValue('JV');
+								//$voucherno		= $this->seq->getValue('JV');
+								$voucherno 		= $jvno;
 							} 
 							if ($jvno == $prev_no) {
 								// Check Transaction Date is the same
@@ -504,8 +506,10 @@ class controller extends wc_controller {
 						'amount' 			=> $totaldebit,
 						'convertedamount' 	=> $totaldebit,
 					); 
-					
+					$vouchlist 			= 	array();
 					foreach ($header['voucherno'] as $key => $row) {
+						$header['voucherno']		= $this->seq->getValue('JV');
+						$vouchlist[] 				= $header['voucherno'];
 						$header['currencycode'][] 	= "PHP";
 						$header['exchangerate'][] 	= 1;
 						$header['stat'][] 			= "posted";
