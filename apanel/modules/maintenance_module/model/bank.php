@@ -49,7 +49,6 @@ class bank extends wc_model
 		->setOrderBy($sort)
 		->setGroupBy("b.id")
 		->runPagination();
-							// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -190,9 +189,7 @@ class bank extends wc_model
 		$result = $this->db->setTable('bankdetail')
 		->setValues($data2)
 		->runInsert();
-		// echo $this->db->getQuery();
 		return $result;
-
 	}
 
 
@@ -203,14 +200,13 @@ class bank extends wc_model
 		->leftJoin("bankdetail bd ON b.id = bd.bank_id ")
 		->runSelect()
 		->getResult();
-
 		return $result;
 	}
 
 	public function checkListing($search="", $sort ,$limit, $id){
 		$add_cond 	=	( !empty($search) || $search != "" )  	? 	" AND (shortname LIKE '%$search%' OR bankcode LIKE '%$search%'  OR accountno LIKE '%$search%') " 	: 	"";
 
-		$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname","has_cancelled", "bd.check_status");
+		$fields 	=	array("b.accountno","bank_id","id","booknumber","firstchequeno","lastchequeno" ,"nextchequeno", "bd.entereddate", "bd.stat","shortname","has_cancelled", "bd.check_status","code");
 
 		$result = $this->db->setTable('bankdetail bd')
 		->setFields($fields)
@@ -223,36 +219,43 @@ class bank extends wc_model
 
 	public function retrieveCheck($id, $bookno){
 		$result = $this->db->setTable('bankdetail')
-		->setFields('booknumber, firstchequeno,lastchequeno ')
-		->setWhere(" bank_id = '$id' AND firstchequeno = '$bookno'")
+		->setFields('booknumber, firstchequeno,lastchequeno, code ')
+		//->setWhere(" bank_id = '$id' AND firstchequeno = '$bookno'")
+		->setWhere(" code = '$id' ")
 		->runSelect()
 		->getResult();
 		return $result;
 	}
 
-	public function update_check($id, $data, $old){
+	public function update_check($id, $data, $code){
 		$bno = $data['bank_id'];
 		$new = $data['booknumber'];
 		$data['nextchequeno'] = $data['firstchequeno'];
 
-		$condition 	= "booknumber = '$old'";
-		$result 	= $this->db->setTable('bankdetail')
-		->setWhere($condition)
-		->runDelete();
+		// $condition 	= "code = '$code'";
+		// $result 	= $this->db->setTable('bankdetail')
+		// ->setWhere($condition)
+		// ->runDelete();
 
-		if($result){
-			$result  = $this->db->setTable('bankdetail')
-			->setValues($data)
-			->runInsert();
-		}
-
+		// if($result){
+		// 	$result  = $this->db->setTable('bankdetail')
+		// 	->setValues($data)
+		// 	->runInsert();
+		// }
+		unset($data['bank_id']);
+		$result 	 = $this->db->setTable('bankdetail')
+		->setValues($data)
+		->setWhere("code = '$code'")
+		->setLimit(1)
+		->runUpdate();
+		
 		return $result;
 	}
 
 	public function activateCheck($fields, $booknumber){
 		$result 			   = $this->db->setTable('bankdetail')
 		->setValues($fields)
-		->setWhere("booknumber = '$booknumber'")
+		->setWhere("code = '$booknumber'")
 		->setLimit(1)
 		->runUpdate();
 		return $result;
@@ -262,7 +265,7 @@ class bank extends wc_model
 	public function deactivateCheck($fields, $booknumber){
 		$result 			   = $this->db->setTable('bankdetail')
 		->setValues($fields)
-		->setWhere("booknumber = '$booknumber'")
+		->setWhere("code = '$booknumber'")
 		->setLimit(1)
 		->runUpdate();
 
@@ -318,7 +321,8 @@ class bank extends wc_model
 	}
 
 	public function deleteCheck($posted_data, $id){
-		$condition 		= "firstchequeno = '$posted_data' AND bank_id = '$id'";
+		//$condition 		= "firstchequeno = '$posted_data' AND bank_id = '$id'";
+		$condition 		= " code = '$id' ";
 		$result 		= $this->db->setTable('bankdetail')
 		->setWhere($condition)
 		->runDelete();
@@ -403,7 +407,6 @@ class bank extends wc_model
 		->setWhere("bank_id = '$bank' AND firstcancelled >= '$first' AND lastcancelled = '$last'")
 		->runSelect()
 		->getResult();
-		// echo $this->db->getQuery();
 		return $result;
 	}
 

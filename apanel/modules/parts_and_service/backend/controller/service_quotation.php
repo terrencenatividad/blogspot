@@ -65,7 +65,7 @@ class controller extends wc_controller {
 		}
 	}
 	public function listing() {
-		$this->view->title		= 'Service Quotation';
+		$this->view->title		= 'Sales Quotation';
 		$this->view->addCSS(array(
 				'jquery.fileupload.css'
 			)
@@ -86,7 +86,7 @@ class controller extends wc_controller {
 		$this->view->load('service_quotation/service_quotation_list', $data);
 	}
 	public function create() {
-		$this->view->title			= 'Add Service Quotation';
+		$this->view->title			= 'Add Sales Quotation';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
@@ -123,7 +123,7 @@ class controller extends wc_controller {
 		$this->view->load('service_quotation/service_quotation', $data);
 	}
 	public function edit($id) {
-		$this->view->title			= 'Edit Service Quotation';
+		$this->view->title			= 'Edit Sales Quotation';
 		$this->fields[]				= 'stat';
 		$data						= $this->input->post($this->fields);
 		$data['ui']					= $this->ui;
@@ -168,7 +168,7 @@ class controller extends wc_controller {
 		$this->view->load('service_quotation/service_quotation', $data);
 	}
 	public function view($id) {
-		$this->view->title			= 'View Service Quotation';
+		$this->view->title			= 'View Sales Quotation';
 		$this->view->addCSS(array(
 				'jquery.fileupload.css'
 			)
@@ -260,10 +260,9 @@ class controller extends wc_controller {
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
 									->addView()
-
 									->addEdit($row->stat == 'Pending')
 									->addDelete($row->stat == 'Pending')
-									->addOtherTask('Approve', 'thumbs-up', $row->stat == 'Pending')
+									->addOtherTask('Approve', 'thumbs-up', (MOD_POST && $row->stat == 'Pending'))
 									->addPrint()
 									->addCheckbox($row->stat == 'Pending')
 									->setLabels(array('delete' => 'Cancel'))
@@ -496,7 +495,7 @@ class controller extends wc_controller {
 			'REF #'				=> $header->reference
 		);
 		$print = new sq_print_model();
-		$print->setDocumentType('Service Quotation')
+		$print->setDocumentType('Sales Quotation')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customer)
 				->setStatDetail($header->stat)
@@ -579,7 +578,7 @@ class controller extends wc_controller {
 		$print->drawSummary($summary);
 		// $print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
 
-		$print->drawPDF('Service Quotation - ' . $voucherno);
+		$print->drawPDF('Sales Quotation - ' . $voucherno);
 	}
 	private function get_item_details()
 	{
