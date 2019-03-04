@@ -23,24 +23,24 @@
 												->setId('job_order_no')
 												->setValue($job_order_no)
 												->addHidden($job_order_no)
-												->setValidation('required')
+												// ->setValidation('required')
 												->draw(($show_input && $ajax_task != 'ajax_edit'));
 										?>
 									<?php endif ?>
 								</div>
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Document Date')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('transactiondate')
-											->setId('transactiondate')
-											->setClass('datepicker-input')
-											->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
-											->setAddon('calendar')
-											->setValue($transactiondate)
-											->setValidation('required')
-											->draw($show_input);
+											echo $ui->formField('text')
+													->setLabel('Issuance Date')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('issuancedate')
+													->setId('issuancedate')
+													->setClass('datepicker-input')
+													->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
+													->setAddon('calendar')
+													->setValue($issuancedate)
+													->setValidation('required')
+													->draw(true);
 									?>
 									<input type="hidden" name="h_transactiondate" value="<?php echo $transactiondate ?>">
 								</div>
@@ -56,7 +56,7 @@
 											->setId('customer')
 											->setList($customer_list)
 											->setValue($customer)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 
 										echo $ui->formField('hidden')
@@ -74,16 +74,16 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-												->setLabel('Issuance Date')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('issuancedate')
-												->setId('issuancedate')
-												->setClass('datepicker-input')
-												->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
-												->setAddon('calendar')
-												->setValue($issuancedate)
-												->setValidation('required')
-												->draw(true);
+											->setLabel('Document Date')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('transactiondate')
+											->setId('transactiondate')
+											->setClass('datepicker-input')
+											->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
+											->setAddon('calendar')
+											->setValue($transactiondate)
+											// ->setValidation('required')
+											->draw($show_input);
 									?>
 								</div>
 							</div>
@@ -98,7 +98,7 @@
 											->setAttribute(array('readonly'))
 											->setAddon('search')
 											->setValue($service_quotation)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 									?>
 								</div>
@@ -122,7 +122,7 @@
 												->setName('reference')
 												->setId('reference')
 												->setValue($reference)
-												->setValidation('required')
+												// ->setValidation('required')
 												->draw($show_input);
 									?>
 								</div>

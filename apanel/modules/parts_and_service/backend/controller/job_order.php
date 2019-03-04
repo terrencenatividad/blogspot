@@ -256,14 +256,11 @@ class controller extends wc_controller {
 		}
 		$this->view->load('job_order/job_order', $data);
 	}
-	public function print_preview($voucherno){
 
+	public function print_preview($voucherno) {
 		$header  = $this->job_order->getJOheader($voucherno);
 		$details = $this->job_order->getJOcontent($voucherno);
-		$jr_details = $this->job_order->getJRcontent($voucherno);
 		$customer = $this->parts_and_service->getCustomerDetails($header->customer);
-		/** VENDOR DETAILS --END**/
-
 		$docheader	= array(
 			'Date' 	=> $this->date->dateFormat($header->transactiondate),
 			'JO #'				=> $header->voucherno,
@@ -280,15 +277,15 @@ class controller extends wc_controller {
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(40, 100, 30, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'L'))
+		$print->setHeaderWidth(array(40, 85, 25, 25, 25))
+				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'Issued Qty', 'UOM'))
+				->setRowAlign(array('L', 'L', 'R', 'R', 'L'))
 				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('J','R','R'));	
-
+				->setSummaryAlign(array('J','R','R'));
+		
+		$documentcontent	= $this->job_order->getJRcontent($voucherno);
 		$detail_height = 37;
-		$total_quantity = 0;
 
 		/**
 		 * Custom : Tag as printed
@@ -298,36 +295,72 @@ class controller extends wc_controller {
 		$print_data['printby'] = USERNAME;
 		$print_data['printdate'] = date("Y-m-d H:i:s");
 		$this->job_order->updateData($print_data, "job_order", " job_order_no = '$voucherno' AND print = '0' ");
-		
-		//$notes = preg_replace('!\s+!', ' ', $header->notes);
+
+		$hasSerial = false;
+		foreach($documentcontent as $key => $row) {
+			if ($row->serialnumbers != ''){
+				$hasSerial = true;
+			}
+		}
+
+		if ($hasSerial) {
+			$print->setHeaderWidth(array(30, 50, 20, 20, 20, 20, 20, 20))
+					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
+					->setHeader(array('Item Code', 'Description', 'Qty', 'Issued Qty', 'UOM', 'S/N', 'E/N', 'C/N',))
+					->setRowAlign(array('L', 'L', 'R', 'R', 'L', 'L', 'L', 'L'))
+					->setSummaryWidth(array('120', '50', '30'))
+					->setSummaryAlign(array('J','R','R'));		
+		}
+
+		//$notes = preg_replace('!\s+!', ' ', $documentinfo->notes);
 		$notes = htmlentities($header->notes);
-		foreach ($details as $key => $row) {
+		$total_quantity = 0;
+		$total_issuedqty = 0;
+		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
-			
-			$total_quantity += $row->quantity;
-			$print->addRow($row);
 
+			$total_quantity	 += $row->quantity;
+			$total_issuedqty += $row->issuedqty;
+			$row->quantity	= number_format($row->quantity, 0);
+			$row->issuedqty	= number_format($row->issuedqty, 0);
+			if($hasSerial){
+				$print->addRow(array($row->itemcode, $row->detailparticular, $row->quantity, $row->issuedqty, $row->uom, '', '', ''));
+				if ($row->serialnumbers != '') {
+					$serials = explode(',', $row->serialnumbers);
+					foreach($serials as $id) {
+						$serial = $this->job_order->getSerialById($id);
+						$sndisplay = $serial->serialno;
+						$endisplay = $serial->engineno;
+						$cndisplay = $serial->chassisno;
+						$print->addRow(array('', '', '', '', '', $sndisplay, $endisplay, $cndisplay));
+					}
+				}
+			} 
+			else {
+				$print->addRow($row);
+			}
 			if (($key + 1) % $detail_height == 0) {
-				
 				$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
-											array($notes, '', ''),
+											array($notes, 'Total Issued Qty', $total_issuedqty),
 											array('', '', ''),
 											array('', '', ''),
 											array('', '', '')
 				));
-				$total_amount = 0;
+				$total_quantity  = 0;
+				$total_issuedqty = 0;
 			}
 		}
 		$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
-											array($notes, '', ''),
+											array($notes, 'Total Issued Qty', $total_issuedqty),
 											array('', '', ''),
 											array('', '', ''),
 											array('', '', '')
 		));
 		$print->drawPDF('Job Order - ' . $voucherno);
 	}
+	
 	public function payment($id) {
 		$this->view->title			= 'Job Order - Issue Parts';
 		$this->fields[]				= 'stat';
