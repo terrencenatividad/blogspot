@@ -1186,9 +1186,9 @@
 				<div class="modal-body">
 					<p>Uploading Attachment</p>
 				</div>
-			</div><!-- /.modal-content -->
-		</div><!-- /.modal-dialog -->
-	</div><!-- /.modal -->
+			</div>
+		</div>
+	</div>
 	
 	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-md" role="document">
@@ -1743,7 +1743,6 @@
 														window.location = data.redirect;
 													},1000);
 												});
-											});
 											} else {
 												$('#delay_modal').modal('show');
 												setTimeout(function() {
