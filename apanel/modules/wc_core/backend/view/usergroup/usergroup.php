@@ -117,7 +117,7 @@
 														$access_label = 'Issue Parts';
 													}elseif($moduleaccess->module_name == 'Job Order' && $access_type == 'mod_post'){
 														$access_label = 'Tag as Complete';
-													}elseif($moduleaccess->module_name == 'Service Quotation' && $access_type == 'mod_post'){
+													}elseif($moduleaccess->module_name == 'Sales Quotation' && $access_type == 'mod_post'){
 														$access_label = 'Approve';
 													}
 													echo $ui->formField('checkbox')
