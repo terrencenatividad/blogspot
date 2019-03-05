@@ -113,7 +113,7 @@
 												if ($moduleaccess->{str_replace('mod', 'has', $access_type)}): ?>
 												<?php
 													$access_label = $access;
-													if($moduleaccess->module_name == 'Job Order' && $access_type == 'mod_view'){
+													if($moduleaccess->module_name == 'Job Order' && $access_type == 'mod_close'){
 														$access_label = 'Issue Parts';
 													}elseif($moduleaccess->module_name == 'Job Order' && $access_type == 'mod_post'){
 														$access_label = 'Tag as Complete';
