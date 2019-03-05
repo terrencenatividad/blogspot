@@ -38,7 +38,8 @@ class controller extends wc_controller
 			'bank_id',
 			'booknumber',
 			'firstchequeno',
-			'lastchequeno'
+			'lastchequeno',
+			'code'
 		);
 	}
 
@@ -365,7 +366,7 @@ class controller extends wc_controller
 					'arrow-down',
 					!$show_deactivate
 				)
-				->setValue($row->booknumber)
+				->setValue($row->code)
 				->draw();
 
 				$check = ($show_button) ? '' : $dropdown;
@@ -443,20 +444,21 @@ class controller extends wc_controller
 		$bookno 	= $this->input->post("booknumber");
 		$data2		= (array) $this->bank->retrieveCheck($id, $bookno);
 		$booknumber 	= $data2[0]->booknumber; 
-		$firstchequeno 	= $data2[0]->firstchequeno; 
-		$lastchequeno 	= $data2[0]->lastchequeno; 
-		$data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno , 'task' => 'update_check');
+		$firstchequeno 	= $data2[0]->firstchequeno;
+		$lastchequeno 	= $data2[0]->lastchequeno;
+		$code 			= $data2[0]->code;
+		$data = array("booknumber" => $booknumber,"firstchequeno" => $firstchequeno, 'lastchequeno' => $lastchequeno , 'task' => 'update_check', 'code' => $code);
 		return $data;
 	}
 
 	public function update_check(){
 		$posted_data 	= $this->input->post($this->fields2);
-		$old 			= $this->input->post('oldbooknumber');
+		$code 			= $this->input->post('code');
 		$result  		= $this->bank->insertCheck($posted_data);
 		$firstchequeno 	= $posted_data['firstchequeno'];
 		$lastchequeno	= $posted_data['lastchequeno'];
 		$bank_id		= $posted_data['bank_id'];
-		$accntname 		= $this->bank->update_check($bank_id, $posted_data, $old);
+		$accntname 		= $this->bank->update_check($bank_id, $posted_data, $code);
 		$bankdesc 		= $this->bank->getAccountname($bank_id);
 		$isname = $bankdesc[0]->shortname;
 		if( $accntname )
@@ -501,8 +503,9 @@ class controller extends wc_controller
 	public function delete_check(){
 		$posted_data 	= $this->input->post('booknumber');
 		$id 			= $this->input->post('id');
+		$bank_id 		= $this->input->post('bank_id');
 
-		$bankdesc 		= $this->bank->getAccountname($id);
+		$bankdesc 		= $this->bank->getAccountname($bank_id);
 		$isname 		= $bankdesc[0]->shortname;
 		$firstchequeno 	= $bankdesc[0]->firstchequeno;
 		$lastchequeno 	= $bankdesc[0]->lastchequeno;

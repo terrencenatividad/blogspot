@@ -1,11 +1,11 @@
-	<section class="content">
+<section class="content">
 		<div class="box box-primary">
 			<div class="box-header pb-none">
 				<div class="row">
 					<div class="col-md-3">
 						<div class="form-group">
 							<div class="input-group">
-								<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" value="<?php echo $datefilter ?>" data-daterangefilter="month">
+								<input type="text" name="daterangefilter" id="daterangefilter" class="form-control" autocomplete="off" value="<?php echo $datefilter ?>" data-daterangefilter="month">
 								<span class="input-group-addon">
 									<i class="glyphicon glyphicon-calendar"></i>
 								</span>
@@ -14,39 +14,7 @@
 					</div>
 					<div class="col-md-7">
 						<div class="row">
-							<div class="col-md-4">
-								<?php
-									echo $ui->formField('dropdown')
-											->setPlaceholder('Filter Item')
-											->setName('itemcode')
-											->setId('itemcode')
-											->setNone('Filter: All')
-											->setList($item_list)
-											->draw();
-								?>
-							</div>
-							<div class="col-md-4">
-								<?php
-									echo $ui->formField('dropdown')
-											->setPlaceholder('Customer')
-											->setName('customer')
-											->setId('customer')
-											->setNone('Filter: All')
-											->setList($customer_list)
-											->draw();
-								?>
-							</div>
-							<div class="col-md-4">
-								<?php
-									echo $ui->formField('dropdown')
-											->setPlaceholder('Warehouse')
-											->setName('warehouse')
-											->setId('warehouse')
-											->setNone('Filter: All')
-											->setList($warehouse_list)
-											->draw();
-								?>
-							</div>
+							
 						</div>
 					</div>
 					<div class="col-md-2 text-right">
@@ -61,7 +29,40 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-4 col-md-offset-8">
+					<div class="col-md-2">
+						<?php
+							echo $ui->formField('dropdown')
+									->setPlaceholder('Filter Item')
+									->setName('itemcode')
+									->setId('itemcode')
+									->setNone('Filter: All')
+									->setList($item_list)
+									->draw();
+						?>
+					</div>
+					<div class="col-md-2">
+						<?php
+							echo $ui->formField('dropdown')
+									->setPlaceholder('Customer')
+									->setName('customer')
+									->setId('customer')
+									->setNone('Filter: All')
+									->setList($customer_list)
+									->draw();
+						?>
+					</div>
+					<div class="col-md-2">
+						<?php
+							echo $ui->formField('dropdown')
+									->setPlaceholder('Warehouse')
+									->setName('warehouse')
+									->setId('warehouse')
+									->setNone('Filter: All')
+									->setList($warehouse_list)
+									->draw();
+						?>
+					</div>
+					<div class="col-md-3 col-md-offset-3">
 						<div class="row">
 							<div class="col-sm-8 col-xs-6 text-right">
 								<label for="" class="padded">Items: </label>
@@ -78,7 +79,7 @@
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> 
 			</div>
 			<div class="box-body table-responsive no-padding" id="report_content">
 				<table id="tableList" class="table table-hover table-sidepad" cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -144,11 +145,8 @@
 
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
-			var li = $(this).closest('li');
-			if (li.not('.active').length && li.not('.disabled').length) {
-				ajax.page = $(this).attr('data-page');
-				getList();
-			}
+			ajax.page = $(this).attr('data-page');
+			getList();
 		});
 
 		$('#itemcode').on('change', function() {

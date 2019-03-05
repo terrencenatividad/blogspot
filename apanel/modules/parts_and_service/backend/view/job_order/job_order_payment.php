@@ -23,24 +23,24 @@
 												->setId('job_order_no')
 												->setValue($job_order_no)
 												->addHidden($job_order_no)
-												->setValidation('required')
+												// ->setValidation('required')
 												->draw(($show_input && $ajax_task != 'ajax_edit'));
 										?>
 									<?php endif ?>
 								</div>
 								<div class="col-md-6">
 									<?php
-										echo $ui->formField('text')
-											->setLabel('Document Date')
-											->setSplit('col-md-4', 'col-md-8')
-											->setName('transactiondate')
-											->setId('transactiondate')
-											->setClass('datepicker-input')
-											->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
-											->setAddon('calendar')
-											->setValue($transactiondate)
-											->setValidation('required')
-											->draw($show_input);
+											echo $ui->formField('text')
+													->setLabel('Issuance Date')
+													->setSplit('col-md-4', 'col-md-8')
+													->setName('issuancedate')
+													->setId('issuancedate')
+													->setClass('datepicker-input')
+													->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
+													->setAddon('calendar')
+													->setValue($issuancedate)
+													->setValidation('required')
+													->draw(true);
 									?>
 									<input type="hidden" name="h_transactiondate" value="<?php echo $transactiondate ?>">
 								</div>
@@ -56,7 +56,7 @@
 											->setId('customer')
 											->setList($customer_list)
 											->setValue($customer)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 
 										echo $ui->formField('hidden')
@@ -74,16 +74,16 @@
 								<div class="col-md-6">
 									<?php
 										echo $ui->formField('text')
-												->setLabel('Issuance Date')
-												->setSplit('col-md-4', 'col-md-8')
-												->setName('issuancedate')
-												->setId('issuancedate')
-												->setClass('datepicker-input')
-												->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
-												->setAddon('calendar')
-												->setValue($issuancedate)
-												->setValidation('required')
-												->draw(true);
+											->setLabel('Document Date')
+											->setSplit('col-md-4', 'col-md-8')
+											->setName('transactiondate')
+											->setId('transactiondate')
+											->setClass('datepicker-input')
+											->setAttribute(array('readonly', 'data-date-start-date' => $close_date))
+											->setAddon('calendar')
+											->setValue($transactiondate)
+											// ->setValidation('required')
+											->draw($show_input);
 									?>
 								</div>
 							</div>
@@ -98,7 +98,7 @@
 											->setAttribute(array('readonly'))
 											->setAddon('search')
 											->setValue($service_quotation)
-											->setValidation('required')
+											// ->setValidation('required')
 											->draw($show_input);
 									?>
 								</div>
@@ -122,7 +122,7 @@
 												->setName('reference')
 												->setId('reference')
 												->setValue($reference)
-												->setValidation('required')
+												// ->setValidation('required')
 												->draw($show_input);
 									?>
 								</div>
@@ -438,6 +438,9 @@
 			}else{
 				var dsa = 'data-isbundle="0"';
 			}
+			if(details.warehouse == 'none'){
+				details.description = 'none';
+			}
 			row += `
 				<tr class="`+asd+`" ` + dsa +` data-value = "`+details.bomqty+`" data-linenum="`+linenum+`">`;
 			row += `<td>
@@ -579,9 +582,9 @@
 									->draw(true);
 							?>
 							` + otherdetails + `
-						<input type="hidden" class="h_quantity"></td>`;
+						<input type="hidden" class="h_quantity" value="0"></td>`;
 					} else {
-						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn mainitem quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/><input type="hidden" class="h_quantity"></td>`;
+						row += `<td class="text-right qty_col"><input type = "button" class = "btn btn-md btn-success btn-flat col-md-12 text-right serialbtn mainitem quantity partbtn" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0">` + otherdetails + `<input type = "hidden" class = "quantity serialbtn" name = "quantity[]" data-value = "` + (parseFloat(details.quantity) || 0) + `" value = "0"/><input type="hidden" class="h_quantity" value="0"></td>`;
 					}
 					}
 					
@@ -763,6 +766,8 @@
 						getList();		
 						$('html, body').animate({scrollTop: $("#familyislove").offset().top}, 500);
 						$('.quantity').val('0');
+						$('.h_quantity').val('0');	
+						$('.serialnumbers').val('');	
 						$('#isyu').show();
 						$('#save').addClass('hidden');	
 				});
@@ -1044,11 +1049,14 @@
 			var jobno = $('#job_order_no').val();
 			$('#delete_modal').modal('show');
 			$('#delete_yes').on('click', function(){
-				$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id, function(data) {
+			$.post('<?=MODULE_URL?>ajax/ajax_delete_issue', 'id='+ id + '&jobno=' + jobno, function(data) {
 					getList();
+					$('.serialnumbers').val('');	
+					$('.quantity').val('0');
+					$('.h_quantity').val('0');	
 					$('#delete_modal').modal('hide');	
 				});
-						
+
 			});
 		});
 
@@ -1085,7 +1093,9 @@
 			var jobreleaseno = $('#job_release_no').val();
 			$.post('<?=MODULE_URL?>ajax/ajax_update_issue', form.serialize() + '&jobreleaseno='+ jobreleaseno + '<?=$ajax_post?>', function(data) {
 				getList();
+				$('.serialnumbers').val('');	
 				$('.quantity').val('0');	
+				$('.h_quantity').val('0');	
 				$('#isyu').show();
 				$('#save').addClass('hidden');	
 				$('#task').val('');	

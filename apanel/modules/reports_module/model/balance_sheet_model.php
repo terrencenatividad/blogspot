@@ -134,7 +134,7 @@ class balance_sheet_model extends wc_model {
 	public function getRecords($start, $end) {
 		
 		$result		=  $this->db->setTable('chartaccount c')
-								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('OTHCA', 'CUASET', 'ACCREC', 'CASH', 'OTHNCA', 'PPE', 'PREPAID', 'INV', 'VAT', 'OTHCL', 'CULIAB', 'ACCPAY', 'LTP', 'TAX', 'INPVAT', 'NVNTRY', 'NCASET', 'NCLIAB', 'OUTVAT') AND transactiondate <= '$end'")
+								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('OTHCA', 'CUASET', 'ACCREC', 'CASH', 'OTHNCA', 'PPE', 'PREPAID', 'INV', 'VAT', 'OTHCL', 'CULIAB', 'ACCPAY', 'LTP', 'TAX', 'INPVAT', 'NVNTRY', 'NCASET', 'NCLIAB', 'OUTVAT','EQUITY') AND transactiondate <= '$end'")
 								->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
 								->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, '' earnings")
 								->setWhere("c.fspresentation = 'BS'")
@@ -145,9 +145,10 @@ class balance_sheet_model extends wc_model {
 		// if($end == "2018-06-30") {
 		// 	echo $this->db->getQuery();
 		// }
-		$earnings = $this->getEarnings($start, $end);
+		// $earnings = $this->getEarnings($start, $end);
 
-		return array_merge($result, $earnings);
+		// return array_merge($result, $earnings);
+		return $result;
 	}
 
 	public function getPeriodList($year) {

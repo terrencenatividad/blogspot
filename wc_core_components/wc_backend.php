@@ -61,7 +61,7 @@ class backend {
 			$type = 'mod_unpost';
 		} else if ($this->checkAccessType(array('post'), $function)) {
 			$type = 'mod_post';
-		} else if ($this->checkAccessType(array('close','eradicate'), $function)) {
+		} else if ($this->checkAccessType(array('close','eradicate','reduce'), $function)) {
 			$type = 'mod_close';
 		} 
 		$result		= $db->setTable(PRE_TABLE . '_module_access wma')
@@ -99,7 +99,7 @@ class backend {
 			define('MOD_PRINT', ($result->mod_print === '1'));
 			define('MOD_POST', ($result->mod_post === '1'));
 			define('MOD_UNPOST', ($result->mod_unpost === '1'));
-			define('MOD_CLOSE', ($result->mod_unpost === '1'));
+			define('MOD_CLOSE', ($result->mod_close === '1'));
 		}
 		if (isset($type)) {
 			define('MODULE_NAME', $module_name);

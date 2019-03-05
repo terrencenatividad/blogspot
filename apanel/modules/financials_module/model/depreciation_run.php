@@ -64,7 +64,7 @@ class depreciation_run extends wc_model {
 	
 	}
 
-	public function getAsset2($fields, $search, $sort ,$checked) {
+	public function getAsset2($fields, $search, $sort ,$asset_class, $budget_center, $dep_date) {
 		$fields = array(
 			'am.id',
 			'am.itemcode',
@@ -100,13 +100,14 @@ class depreciation_run extends wc_model {
 		$sort = ($sort) ? $sort : 'asset_number asc';
 		$condition = '';
 	
-		if($checked){
-			$condition .=  " am.id IN ($checked) ";
+		if($asset_class){
+			$condition .=  " AND am.asset_class = '$asset_class' ";
+		}
+		if($budget_center){
+			$condition .=  " AND am.department = '$budget_center' ";
 		}
 
-		$date = $this->date->dateDbFormat();
-		
-		$condition .= " AND EXTRACT(YEAR_MONTH FROM depreciation_month) <= EXTRACT(YEAR_MONTH FROM '$date')";
+		$dep_date = $this->date->dateDbFormat($dep_date);
 
 		$result = $this->db->setTable('asset_master am') 
 							->setFields($fields)
@@ -116,9 +117,11 @@ class depreciation_run extends wc_model {
 							->leftJoin('chartaccount c ON c.id = am.gl_asset')
 							->leftJoin('chartaccount o ON o.id = am.gl_accdep')
 							->leftJoin('chartaccount a ON a.id = am.gl_depexpense')
-							->setWhere($condition)
+							->setWhere("MONTH(depreciation_month) <= MONTH('$dep_date') AND YEAR(depreciation_month) <= YEAR('$dep_date') ". $condition)
 							->runSelect()
 							->getResult();
+
+							// echo $this->db->getQuery();
 
 		return $result;
 	}
@@ -254,16 +257,21 @@ class depreciation_run extends wc_model {
 		
 	}
 
-	public function getAssetList($fields, $search, $sort) {
+	public function getAssetList($fields, $search, $sort, $asset_class, $budget_center) {
 		$fields = array('a.id id',
 		'asset_number',
-		'name',
-		'assetclass'
+		'asset_name'
 	);
 		$sort = ($sort) ? $sort : 'asset_number asc';
 		$condition = '';
 		if ($search) {
 			$condition = ' AND ' .$this->generateSearch($search, array('a.asset_number','assetclass','c.name'));
+		}
+		if($asset_class){
+			$condition .= " AND a.asset_class = '$asset_class'";
+		}
+		if($budget_center){
+			$condition .= " AND a.department = '$budget_center'";
 		}
 		$result = $this->db->setTable("asset_master a")
 						->setFields($fields)

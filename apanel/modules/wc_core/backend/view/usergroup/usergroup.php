@@ -112,8 +112,16 @@
 											<?php 
 												if ($moduleaccess->{str_replace('mod', 'has', $access_type)}): ?>
 												<?php
+													$access_label = $access;
+													if($moduleaccess->module_name == 'Job Order' && $access_type == 'mod_close'){
+														$access_label = 'Issue Parts';
+													}elseif($moduleaccess->module_name == 'Job Order' && $access_type == 'mod_post'){
+														$access_label = 'Tag as Complete';
+													}elseif($moduleaccess->module_name == 'Sales Quotation' && $access_type == 'mod_post'){
+														$access_label = 'Approve';
+													}
 													echo $ui->formField('checkbox')
-														->setLabel($access)
+														->setLabel($access_label)
 														->setSplit('col-xs-6 force-left', 'col-xs-6 no-padding force-right')
 														->setName("module_access[{$moduleaccess->module_name}][{$access_type}]")
 														->setId("module_access_{$key}_{$access_type}")
