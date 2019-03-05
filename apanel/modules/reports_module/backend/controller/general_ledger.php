@@ -141,7 +141,7 @@ class controller extends wc_controller {
 				} else if( $transtype == 'JV' ) {
 					$link 	.=	BASE_URL."financials/journal_voucher/view/";
 				} else if( $transtype == 'DV' ) {
-					$link 	.=	BASE_URL."financials/payment/view/";
+					$link 	.=	BASE_URL."financials/disbursement/view/";
 				}
 
 				// $link 	.=	($voucherno2 != "") 	? 	$voucherno2 	: 	$voucherno;
