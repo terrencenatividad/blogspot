@@ -316,6 +316,7 @@ class controller extends wc_controller {
 		$notes = htmlentities($header->notes);
 		$total_quantity = 0;
 		$total_issuedqty = 0;
+		// var_dump($documentcontent);
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();

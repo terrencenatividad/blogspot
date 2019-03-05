@@ -473,7 +473,7 @@ class accounts_payable extends wc_model
 		$vendfilter      = isset($data['vendor']) ? htmlentities($data['vendor']) : ""; 
 		$addCond         = isset($data['filter']) ? htmlentities($data['filter']) : "";
 		$searchkey 		 = isset($data['search']) ? htmlentities($data['search']) : "";
-		$sort 		 	 = isset($data['sort']) ? htmlentities($data['sort']) : "main.transactiondate";
+		$sort 		 	 = isset($data['sort']) ? htmlentities($data['sort']) : "main.voucherno DESC";
 
 		$datefilterArr		= explode(' - ',$daterangefilter);
 		$datefilterFrom		= (!empty($datefilterArr[0])) ? date("Y-m-d",strtotime($datefilterArr[0])) : "";
@@ -615,13 +615,14 @@ class accounts_payable extends wc_model
 
 
 		$result 	=	$this->db->setTable($ap_table)
-		->setFields($ap_fields)
-		->leftJoin($ap_join)
-		->leftJoin("($sub_select) payment ON payment.apno = main.voucherno ")
-		->setWhere($ap_cond)
-		->setHaving($addCondition)
-		->setOrderBy($sort)
-		->runPagination();
+								->setFields($ap_fields)
+								->leftJoin($ap_join)
+								->leftJoin("($sub_select) payment ON payment.apno = main.voucherno ")
+								->setWhere($ap_cond)
+								->setHaving($addCondition)
+								->setOrderBy($sort)
+								->runPagination();
+				// echo $this->db->getQuery();
 		return $result;
 
 	}

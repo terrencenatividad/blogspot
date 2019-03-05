@@ -1825,6 +1825,10 @@
 			}
 		});
 
+		$('#assetid').on('change', function() {
+			$('#addmonths').val('');
+		});
+		
 		$('#assetid').on('focus', function() {
 			var assetcode = $('#assetid').val();
 			
