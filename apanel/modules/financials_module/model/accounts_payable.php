@@ -595,11 +595,13 @@ class accounts_payable extends wc_model
 			"main.lockkey as importchecker",
 			"main.stat as stat",
 			"main.sourceno as sourceno",
-			"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance!=payment.amount AND main.balance!=0,'partial',
-			IF(main.amountpaid=payment.amount AND main.balance=0,'paid','unpaid'))))) payment_status"
+			"IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
+			IF(main.balance != main.amount AND main.balance != 0 AND main.stat!='cancelled','partial',
+			IF(main.balance = 0 AND main.amountpaid = main.amount AND main.stat!='cancelled', 'paid',
+			IF(main.stat!='cancelled','unpaid','cancelled')
+			)
+			)
+		) payment_status"
 	);
 
 	// "IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
@@ -615,13 +617,13 @@ class accounts_payable extends wc_model
 
 
 		$result 	=	$this->db->setTable($ap_table)
-								->setFields($ap_fields)
-								->leftJoin($ap_join)
-								->leftJoin("($sub_select) payment ON payment.apno = main.voucherno ")
-								->setWhere($ap_cond)
-								->setHaving($addCondition)
-								->setOrderBy($sort)
-								->runPagination();
+		->setFields($ap_fields)
+		->leftJoin($ap_join)
+		->leftJoin("($sub_select) payment ON payment.apno = main.voucherno ")
+		->setWhere($ap_cond)
+		->setHaving($addCondition)
+		->setOrderBy($sort)
+		->runPagination();
 				// echo $this->db->getQuery();
 		return $result;
 
