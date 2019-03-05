@@ -2521,11 +2521,17 @@ function validateField(form,id,help_block) {
 /**CANCEL TRANSACTION**/
 function cancelTransaction(vno){
 	var voucher		= document.getElementById('h_voucher_no').value;
+	var paymentmode = $('#paymentmode').val();
 	var companycode	= "<?= COMPANYCODE ?>";
 
-	var datatable	= 'accountspayable';
-	var detailtable	= 'ar_details';
-	var condition	= " voucherno = '"+vno+"' AND stat = 'temporary' ";
+	var datatable	= 'paymentvoucher';
+	var detailstable = '';
+	if(paymentmode == 'cash') {
+		detailtable	= 'pv_details';
+	} else {
+		detailtable	= 'pv_cheque';
+	}
+	var condition	= " voucherno = '"+vno+"' AND stat = 'posted' ";
 	
 	if(task == 'create')
 	{	
