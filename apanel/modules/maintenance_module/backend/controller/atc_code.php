@@ -33,7 +33,7 @@ class controller extends wc_controller
 
 		/**TAX ACCOUNT**/
 		$data["account_list"] = $this->atc_code->getValue("chartaccount", 
-			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('TAX','CULIAB','OTHCL') ", "",false,false);
+			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountclasscode IN('ACCPAY','CULIAB','NCLIAB') ", "",false,false);
 
 		$data["s_account_list"] = $this->atc_code->getValue("chartaccount", 
 			array("id ind","CONCAT(segment5, ' - ', accountname) val"), " accountname = 'Creditable Withholding Tax'", "",false,false);
