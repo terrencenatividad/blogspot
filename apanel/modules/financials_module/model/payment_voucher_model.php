@@ -488,7 +488,7 @@ class payment_voucher_model extends wc_model
 			$result 	=	$query->setOrderBy('transactiondate DESC, voucherno DESC')
 			->runPagination();
 		}
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
