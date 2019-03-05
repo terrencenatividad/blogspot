@@ -560,15 +560,15 @@ class controller extends wc_controller
 
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
-			->addEdit($status && $restrict && !$pr && $status_paid && !$import_checker)
+			->addEdit($status && $restrict && !$pr && ($stat != 'paid') && !$import_checker)
 			->addPrint()
 			->addOtherTask(
 				'Print 2307',
 				'print',
 				$bir_link
 			)
-			->addDelete($status && $restrict && $status_paid && empty($sourceno))
-			->addCheckbox($status && $restrict && $status_paid && empty($sourceno))
+			->addDelete($status && $restrict && ($stat != 'paid') && empty($sourceno))
+			->addCheckbox($status && $restrict && ($stat != 'paid') && empty($sourceno))
 			->setValue($voucher)
 			->setLabels(array('delete' => 'Cancel'))
 			->draw();
@@ -1719,7 +1719,8 @@ class controller extends wc_controller
 								$errmsg[]	= "Document Set on <strong>row $line</strong> should not be empty.<br/>";
 								$errmsg		= array_filter($errmsg);
 							} else {
-								$voucherno		= $seq->getValue('AP');
+								//$voucherno		= $seq->getValue('AP');
+								$voucherno		= $jvno;
 							}
 							// Check if Transaction Date is not Empty 
 							if($transdate == ''){
@@ -1770,7 +1771,8 @@ class controller extends wc_controller
 							} else if ($jvno != $prev_no) {
 								$total_credit 	= 0;
 								$total_debit 	= 0;
-								$voucherno		= $seq->getValue('AP');
+								//$voucherno		= $seq->getValue('AP');
+								$voucherno		= $jvno;
 							} 
 							if ($jvno == $prev_no) {
 								//Check Transaction Date if the same
@@ -1857,10 +1859,10 @@ class controller extends wc_controller
 						if ( ! isset($z[$key + 1]) || ($jvno != $z[$key + 1][0] && $z[$key + 1][0] != '')) {
 							$totaldebit[] 	= $total_debit;
 							$totalcredit[]	= $total_credit;
-							if ($total_credit != $total_debit){
-								$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
-								$errmsg		= array_filter($errmsg);
-							}
+							// if ($total_credit != $total_debit){
+							// 	$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
+							// 	$errmsg		= array_filter($errmsg);
+							// }
 						}
 
 						if(empty($errmsg)){
@@ -1905,6 +1907,11 @@ class controller extends wc_controller
 					}
 				}
 
+				if(round($total_credit,2)!=round($total_debit,2)){
+					$errmsg[]	= "The Total Debit [<strong>".number_format($total_debit,2)."</strong>] and Total Credit [<strong>".number_format($total_credit,2)."</strong>] must be equal.<br/>";
+					$errmsg		= array_filter($errmsg);
+				}
+
 				if( empty($errmsg) ) {
 
 					$header 	=	array(
@@ -1919,8 +1926,10 @@ class controller extends wc_controller
 						'convertedamount' 	=> $totaldebit,
 						'balance' 			=> $totaldebit
 					); 
-					
+					$vouchlist 			= 	array();
 					foreach ($header['voucherno'] as $key => $row) {
+						$header['voucherno'] 		= $seq->getValue('AP');
+						$vouchlist[] 				= $header['voucherno'];
 						$header['currencycode'][] 	= "PHP";
 						$header['exchangerate'][] 	= 1;
 						$header['stat'][] 			= "posted";
@@ -2166,7 +2175,7 @@ class controller extends wc_controller
 				$upload_result 	= false;
 			}
 
-			return $upload_result;
+			// return $upload_result;
 		}
 	}
 }

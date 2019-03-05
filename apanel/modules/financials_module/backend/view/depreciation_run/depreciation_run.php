@@ -93,10 +93,36 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> -->
-					<h4 class="modal-title">Tag Asset</h4>
+					<h4 class="modal-title">Simulate Asset</h4>
 				</div>
 				<div class="modal-body">
-					<div class="row">
+				<div class="row">
+					<div class="col-md-6">
+					<?php
+						echo $ui->formField('dropdown')
+							->setLabel('Asset Class')
+							->setPlaceholder('Select Asset Class')
+							->setSplit('col-md-3', 'col-md-8')
+							->setName('asset_class')
+							->setId('asset_class')
+							->setList($asset_class)
+							->draw(true);
+					?>
+					</div>
+					<div class="col-md-6">
+					<?php
+						echo $ui->formField('dropdown')
+							->setLabel('Budget Center')
+							->setPlaceholder('Select Budget Center')
+							->setSplit('col-md-4', 'col-md-8')
+							->setName('budget_center')
+							->setId('budget_center')
+							->setList($budget_center)
+							->draw(true);
+					?>
+					</div>
+				</div>
+					<!-- <div class="row">
 						<div class="col-md-4 col-md-offset-8">
 							<div class="input-group">
 								<input id="table_search" class="form-control pull-right" placeholder="Search" type="text">
@@ -105,17 +131,17 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 				</div>
 				<input type="hidden" id="checked" class="checkedass">
 				<div class="modal-body">
 				<table id="asset_modal_list" class="table table-hover table-clickable table-sidepad no-margin-bottom">
 						<thead>
 							<tr class="info">
-								<th class="col-xs-1"></th>
-								<th class="col-xs-4">Asset Class</th>
-								<th class="col-xs-3">Asset Number</th>
-								<th class="col-xs-3">Budget Center</th>
+								<!-- <th class="col-xs-1"></th> -->
+								<th class="col-xs-4">Asset Number</th>
+								<!-- <th class="col-xs-3">Asset Number</th> -->
+								<th class="col-xs-4">Asset Name</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -222,6 +248,14 @@
 			ajax.page = 1;
 			getList();
 		});
+		$('#asset_class').on('change', function() {
+			ajax.asset_class   = $('#asset_class').val();
+			getAssetList();
+		});
+		$('#budget_center').on('change', function() {
+			ajax.budget_center = $('#budget_center').val();
+			getAssetList();
+		});
 		$('#pagination').on('click', 'a', function(e) {
 			e.preventDefault();
 			var li = $(this).closest('li');
@@ -269,13 +303,19 @@
 			if (ajax_call != '') {
 				ajax_call.abort();
 			}
-			ajax.limit = 5;
+			ajax.limit 		   = 5;
+			ajax.asset_class = $('#asset_class').val();
+			ajax.budget_center = $('#budget_center').val();
 			ajax_call1 = $.post('<?=MODULE_URL?>ajax/ajax_load_asset', ajax, function(data) {
-				$('#asset_modal_list tbody').html(data.table);
-				$('#pagination_asset').html(data.pagination);
-				if (ajax.page > data.page_limit && data.page_limit > 0) {
-					ajax.page = data.page_limit;
-					getAssetList();
+				if(ajax.asset_class == '' && ajax.budget_center == ''){
+					$('#asset_modal_list tbody').html('<tr><td colspan="2" class="text-center"><b>Please select an asset class or a budget center.</b></td></tr>');
+				}else{
+					$('#asset_modal_list tbody').html(data.table);
+					$('#pagination_asset').html(data.pagination);
+					if (ajax.page > data.page_limit && data.page_limit > 0) {
+						ajax.page = data.page_limit;
+						getAssetList();
+					}
 				}
 			});
 		}
@@ -303,15 +343,27 @@
 
 		
 		$('#sim').on('click', function() {
-			checked = [];
-			$('.check:checked').each(function() {
-				var ass = $(this).attr('data-id');
-				checked.push(ass);
-				$('.checkedass').val(checked);
-				ajax1.checked = $('.checkedass').val();
+			ajax1.date = $('#date').val()
+			ajax1.asset_class = $('#asset_class').val();
+			ajax1.budget_center = $('#budget_center').val();
+			$.post('<?=MODULE_URL?>ajax/ajax_list_2', ajax1, function(data) {
 				$('#assetmodal').modal('hide');
-				getList2();
+				$('#tableList tbody').html(data.table);
+				$('#pagination').html(data.pagination);
+				if (ajax1.page > data.page_limit && data.page_limit > 0) {
+					ajax1.page = data.page_limit;
+					getList2();
+				}
 			});
+			// checked = [];
+			// $('.check:checked').each(function() {
+			// 	var ass = $(this).attr('data-id');
+			// 	checked.push(ass);
+			// 	$('.checkedass').val(checked);
+			// 	ajax1.checked = $('.checkedass').val();
+			// 	$('#assetmodal').modal('hide');
+				// getList2();
+			// });
 		});
 
 		$('#pagination_asset').on('click', 'a', function(e) {

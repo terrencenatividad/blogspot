@@ -135,22 +135,25 @@
 			return $errmsg;
         }
         
-        public function getIPOPagination($search='', $job) {
+        public function getIPOPagination($search='', $limit, $job) {
             $addcond = '';
             if ($search != '') {
                 $addcond = "AND ipo.voucherno LIKE '%$search%'";
             }
+
             $pagination = $this->db->setTable("import_purchaseorder ipo")
                             ->setFields("ipo.voucherno, ipo.transactiondate")
+
                             ->leftJoin("import_purchaseorder_details ipod ON ipod.voucherno=ipo.voucherno")
                             
                             ->leftJoin("job_details jd ON jd.ipo_no=ipod.voucherno AND jd.linenum=ipod.linenum AND jd.stat!='cancelled'")
-                            ->setWhere("ipo.stat IN ('open', 'partial', 'posted') AND ipod.receiptqty - COALESCE((SELECT SUM(qty) FROM job_details WHERE ipo_no=ipod.voucherno AND stat!='cancelled'),0) > 0 $addcond ")
+                            ->setWhere("ipo.stat IN ('open', 'partial', 'posted') AND ipod.receiptqty - COALESCE((SELECT SUM(qty) FROM job_details WHERE ipo_no=ipod.voucherno AND linenum=ipod.linenum AND stat!='cancelled'),0) > 0 $addcond ")
                             ->setGroupBy("ipo.voucherno")
                             ->setOrderBy("ipo.transactiondate DESC, ipo.voucherno DESC")
+                            ->setResultLimit($limit)
                             ->runPagination();
                             // $query = $this->db->getQuery();
-                            // var_dump($query);
+                            //var_dump($query);
             return $pagination;
         }
 
@@ -165,10 +168,10 @@
 
         public function getTaggedItemQty($ipo, $linenum, $job="", $task="") {
             if ($task == 'save') {
-                $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND j.stat='on-going'";
+                $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND j.stat IN ('on-going', 'closed')";
             }
             else {
-                $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND jd.job_no != '".$job."' AND j.stat='on-going'";
+                $condition = "jd.ipo_no='".$ipo."' AND jd.linenum='".$linenum."' AND jd.job_no != '".$job."' AND j.stat IN ('on-going', 'closed')";
             }
             $result = $this->db->setTable("job_details jd")
                             ->setFields("COALESCE(SUM(jd.qty), 0) AS count")
@@ -176,7 +179,7 @@
                             ->setWhere($condition)
                             ->runSelect()
                             ->getRow();
-
+                            // $query=$this->db->getQuery();
             return $result;
         }
 

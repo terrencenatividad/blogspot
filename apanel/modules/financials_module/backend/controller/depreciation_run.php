@@ -24,8 +24,10 @@ class controller extends wc_controller {
 	}
 
 	public function listing() {
-		$this->view->title	= $this->ui->ListLabel('');
+		$this->view->title			= $this->ui->ListLabel('');
 		$data['ui']					= $this->ui;
+		$data['asset_class']		= $this->depreciation_run->getAssetClass();
+		$data['budget_center']		= $this->depreciation_run->getAssetDepartment();
 		$this->view->load('depreciation_run/depreciation_run', $data);
 	}
 	
@@ -94,11 +96,13 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_list_2() {
-		$data		= $this->input->post(array('search', 'sort','checked'));
-		$sort		= $data['sort'];
-		$search		= $data['search'];
-		$checked	= $data['checked'];
-		$pagination	= $this->depreciation_run->getAsset2($this->fields, $search, $sort, $checked);
+		$data		 	= $this->input->post(array('search', 'sort', 'asset_class','budget_center','date'));
+		$sort		 	= $data['sort'];
+		$search		 	= $data['search'];
+		$asset_class 	= $data['asset_class'];
+		$budget_center	= $data['budget_center'];
+		$dep_date		= $data['date'];
+		$pagination	= $this->depreciation_run->getAsset2($this->fields, $search, $sort, $asset_class, $budget_center,$dep_date);
 		// var_dump($pagination);
 		$table		= '';
 		if (empty($pagination)) {
@@ -106,7 +110,7 @@ class controller extends wc_controller {
 		}
 		$date = $this->date->dateDbFormat();
 		foreach ($pagination as $row) {
-			$accumulated	= $this->depreciation_run->getAccumulated($checked);
+			$accumulated	= $this->depreciation_run->getAccumulated($row->asset_number);
 			$time  					= strtotime($row->depreciation_month);
 			$depreciation 			= 0;
 			$accumulated_amount = $accumulated->depamount;
@@ -146,10 +150,12 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_load_asset() {
-		$data		= $this->input->post(array('search', 'sort', ''));
-		$sort		= $data['sort'];
-		$search		= $data['search'];
-		$pagination	= $this->depreciation_run->getAssetList($this->fields, $search, $sort);
+		$data		 	= $this->input->post(array('search', 'sort', 'asset_class','budget_center'));
+		$sort		 	= $data['sort'];
+		$search		 	= $data['search'];
+		$asset_class 	= $data['asset_class'];
+		$budget_center	= $data['budget_center'];
+		$pagination		= $this->depreciation_run->getAssetList($this->fields, $search, $sort, $asset_class, $budget_center);
 
 		$table		= '';
 		if (empty($pagination->result)) {
@@ -162,10 +168,10 @@ class controller extends wc_controller {
 								->addEdit()
 								->draw();
 			
-			$table .= '<td align = "center">' . '<input type="checkbox" class="check" value="0" data-id="'.$row->id.'">' . '</td>';
-			$table .= '<td>' . $row->assetclass . '</td>';
+			// $table .= '<td align = "center">' . '<input type="checkbox" class="check" value="0" data-id="'.$row->id.'">' . '</td>';
 			$table .= '<td>' . $row->asset_number . '</td>';
-			$table .= '<td>' . $row->name . '</td>';
+			// $table .= '<td>' . $row->asset_number . '</td>';
+			$table .= '<td>' . $row->asset_name . '</td>';
 			$table .= '</tr>';
 			
 		}

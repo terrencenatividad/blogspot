@@ -313,10 +313,12 @@
 			<div class="row">
 				<div id="submit_container" class="col-md-12 text-center">
 					<?php
-						if ($stat == 'Returned' && $restrict_ri || empty($stat)) {
-							echo $ui->drawSubmit($show_input); 
-						}
-					?>
+                        if($ajax_task == 'ajax_create'){
+                            echo $ui->drawSubmitDropdown($show_input); 
+                        } else if ($ajax_task == 'ajax_edit') {
+                            echo $ui->drawSubmit($show_input); 
+                        }
+                    ?>
 					<a href="<?=MODULE_URL?>" class="btn btn-default" data-toggle="back_page">Cancel</a>
 				</div>
 			</div>
@@ -1104,7 +1106,7 @@ $('form').on('click', '[type="submit"]', function(e) {
 			});
 
 			$.post('<?=MODULE_URL?>ajax/<?=$ajax_task?>', form_element.serialize() + '<?=$ajax_post?>' + submit_data, function(data) {
-				if (data.success) {
+				if (data.success.header) {
 					$('#delay_modal').modal('show');
 					setTimeout(function() {							
 						window.location = data.redirect;						

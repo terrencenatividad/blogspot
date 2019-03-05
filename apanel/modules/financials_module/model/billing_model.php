@@ -325,6 +325,16 @@ class billing_model extends wc_model {
 		return $result;
 	}
 
+	public function getSQ($jo) {
+		$result = $this->db->setTable('job_order')
+							->setFields('service_quotation')
+							->setWhere("job_order_no = '$jo'")
+							->runSelect()
+							->getRow();
+
+		return $result;
+	}
+
 	public function getValue($table, $cols = array(), $cond, $orderby = "", $bool = "")
 	{
 		$result = $this->db->setTable($table)

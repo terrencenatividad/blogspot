@@ -296,7 +296,7 @@ class controller extends wc_controller
 		);
 
 		$print = new sales_print_model();
-		$print->setDocumentType('Sales Quotation')
+		$print->setDocumentType('Quotation')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customerdetails)
 				->setDocumentDetails($documentdetails)
@@ -327,7 +327,7 @@ class controller extends wc_controller
 		}
 		$print->drawSummary(array('Total Amount' => number_format($total_amount, 2)));
 
-		$print->drawPDF('Sales Quotation - ' . $voucherno);
+		$print->drawPDF('Quotation - ' . $voucherno);
 	}
 
 	public function ajax($task)

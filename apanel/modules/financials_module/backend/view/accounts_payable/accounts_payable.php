@@ -1311,7 +1311,19 @@
 			</div>
 		</div>
 	</div>
-
+	
+	<div id="uploading_modal" class="modal fade" tabindex="-1" role="dialog" tabindex="-1" data-backdrop="static">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title modal-success"><span class="glyphicon glyphicon-cloud-upload"></span>  In-Progress</h4>
+				</div>
+				<div class="modal-body">
+					<p>Uploading Attachment</p>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 
 	<div id="attach_modal" class="modal fade" tabindex="-1" role="dialog">
 		<div class="modal-dialog modal-md" role="document">
@@ -1350,6 +1362,7 @@
 				</form>
 			</div>
 		</div>
+	</div>
 		<script>
 			function computeDueDate()
 			{
@@ -1831,10 +1844,23 @@
 									$('#warning-modal').on('hidden.bs.modal', function() {
 										if(data.success) {
 											$('#attach_button:enabled').click();
-											$('#delay_modal').modal('show');
-											setTimeout(function() {
-												window.location = data.redirect;
-											},500);
+											if ($('#file').val() != "") {
+												$('#attachments_form').bind('fileuploadprogress', function(e, data2) {
+													$('#uploading_modal').modal('show');	
+												});
+												$('#attachments_form').bind('fileuploaddone', function (e, data2) {
+													$('#uploading_modal').modal('hide');
+													$('#delay_modal').modal('show');
+													setTimeout(function() {
+														window.location = data.redirect;
+													},1000);
+												});
+											} else {
+												$('#delay_modal').modal('show');
+												setTimeout(function() {
+													window.location = data.redirect;
+												},1000);
+											}
 										}
 									});
 								} else if(data.error != '') {
@@ -1847,10 +1873,23 @@
 								} else {
 									if(data.success) {
 										$('#attach_button:enabled').click();
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
+										if ($('#file').val() != "") {
+											$('#attachments_form').bind('fileuploadprogress', function(e, data2) {
+												$('#uploading_modal').modal('show');	
+											});
+											$('#attachments_form').bind('fileuploaddone', function (e, data2) {
+												$('#uploading_modal').modal('hide');
+												$('#delay_modal').modal('show');
+												setTimeout(function() {
+													window.location = data.redirect;
+												},1000);
+											});
+										} else {
+											$('#delay_modal').modal('show');
+											setTimeout(function() {
+												window.location = data.redirect;
+											},1000);
+										}
 									}
 								}
 							} else {
@@ -1898,10 +1937,23 @@
 									$('#warning-modal').on('hidden.bs.modal', function() {
 										if(data.success) {
 											$('#attach_button:enabled').click();
-											$('#delay_modal').modal('show');
-											setTimeout(function() {
-												window.location = data.redirect;
-											},500);
+											if ($('#file').val() != "") {
+												$('#attachments_form').bind('fileuploadprogress', function(e, data2) {
+													$('#uploading_modal').modal('show');	
+												});
+												$('#attachments_form').bind('fileuploaddone', function (e, data2) {
+													$('#uploading_modal').modal('hide');
+													$('#delay_modal').modal('show');
+													setTimeout(function() {
+														window.location = data.redirect;
+													},1000);
+												});
+											} else {
+												$('#delay_modal').modal('show');
+												setTimeout(function() {
+													window.location = data.redirect;
+												},1000);
+											}
 										}
 									});
 								} else if(data.error != '') {
@@ -1914,10 +1966,23 @@
 								} else {
 									if(data.success) {
 										$('#attach_button:enabled').click();
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
+										if ($('#file').val() != "") {
+											$('#attachments_form').bind('fileuploadprogress', function(e, data2) {
+												$('#uploading_modal').modal('show');	
+											});
+											$('#attachments_form').bind('fileuploaddone', function (e, data2) {
+												$('#uploading_modal').modal('hide');
+												$('#delay_modal').modal('show');
+												setTimeout(function() {
+													window.location = data.redirect;
+												},1000);
+											});
+										} else {
+											$('#delay_modal').modal('show');
+											setTimeout(function() {
+												window.location = data.redirect;
+											},1000);
+										}
 									}
 								}
 							} else {
@@ -1964,10 +2029,23 @@
 									$('#warning-modal').on('hidden.bs.modal', function() {
 										if(data.success) {
 											$('#attach_button:enabled').click();
-											$('#delay_modal').modal('show');
-											setTimeout(function() {
-												window.location = data.redirect;
-											},500);
+											if ($('#file').val() != "") {
+												$('#attachments_form').bind('fileuploadprogress', function(e, data2) {
+													$('#uploading_modal').modal('show');	
+												});
+												$('#attachments_form').bind('fileuploaddone', function (e, data2) {
+													$('#uploading_modal').modal('hide');
+													$('#delay_modal').modal('show');
+													setTimeout(function() {
+														window.location = data.redirect;
+													},1000);
+												});
+											} else {
+												$('#delay_modal').modal('show');
+												setTimeout(function() {
+													window.location = data.redirect;
+												},1000);
+											}
 										}
 									});
 								} else if(data.error != '') {
@@ -1980,10 +2058,23 @@
 								} else {
 									if(data.success) {
 										$('#attach_button:enabled').click();
-										$('#delay_modal').modal('show');
-										setTimeout(function() {
-											window.location = data.redirect;
-										},500);
+										if ($('#file').val() != "") {
+											$('#attachments_form').bind('fileuploadprogress', function(e, data2) {
+												$('#uploading_modal').modal('show');	
+											});
+											$('#attachments_form').bind('fileuploaddone', function (e, data2) {
+												$('#uploading_modal').modal('hide');
+												$('#delay_modal').modal('show');
+												setTimeout(function() {
+													window.location = data.redirect;
+												},1000);
+											});
+										} else {
+											$('#delay_modal').modal('show');
+											setTimeout(function() {
+												window.location = data.redirect;
+											},1000);
+										}
 									}
 								}
 							} else {

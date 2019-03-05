@@ -75,7 +75,7 @@
 											->setName('invoiceno')
 											->setId('invoiceno')
 											->setValue($invoiceno)
-											->setValidation('required')
+											//->setValidation('required')
 											->draw($show_input);
 									?>
 								</div>
@@ -1825,6 +1825,10 @@
 			}
 		});
 
+		$('#assetid').on('change', function() {
+			$('#addmonths').val('');
+		});
+		
 		$('#assetid').on('focus', function() {
 			var assetcode = $('#assetid').val();
 			
