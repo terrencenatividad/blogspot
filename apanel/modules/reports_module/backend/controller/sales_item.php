@@ -17,8 +17,8 @@ class controller extends wc_controller {
 		$data['datefilter']		= $this->date->datefilterMonth();
 		$data['category_list']	= $this->item_class_model->getParentClass('');
 		$data['item_list']		= $this->sales_item_model->getItemList();
-		$data['customer_list']		= $this->sales_item_model->getCustomerList();
-		$data['warehouse_list']		= $this->sales_item_model->getWarehouseList();
+		$data['customer_list']	= $this->sales_item_model->getCustomerList();
+		$data['warehouse_list']	= $this->sales_item_model->getWarehouseList();
 		$this->view->load('sales_item', $data);
 	}
 
@@ -46,37 +46,65 @@ class controller extends wc_controller {
 			'Net Qty',
 			'Amount',
 		);
+		$result = $this->sales_item_model->getSales($category, $itemcode, $customer, $warehouse, $sort, $dates[0], $dates[1]);
+
+		$itemcode 		= 	($itemcode == "" || $itemcode == "none") 	? "All" : $itemcode;
+		$customer 		= 	($customer == "" || $customer == "none") 	? "All" : $customer;
+		$warehouse 		= 	($warehouse == "" || $warehouse == "none") 	? "All" : $warehouse;
+		
+		$ret_data1 		=	$this->sales_item_model->getName($customer, "customer");
+		$customername 	=	isset($ret_data1->val) ? $ret_data1->val : $customer;
+
 		$csv = 'Sales Per Item';
 		$csv .= "\n\n";
 		$csv .= '"Date:","'.$this->date->dateFormat($dates[0]).' - '.$this->date->dateFormat($dates[1]).'"';
+		$csv .= "\n";
+		$csv .= '"Item:","'.$itemcode.'"';
+		$csv .= "\n";
+		$csv .= '"Customer:","'.$customername.'"';
+		$csv .= "\n";
+		$csv .= '"Warehouse:","'.$warehouse.'"';
 		$csv .= "\n\n";
 		$csv .= '"' . implode('","', $header) . '"';
+		$csv .= "\n";
 		$totalsold		= 0;
 		$totalreturned	= 0;
 		$totalamount	= 0;
-		$result = $this->sales_item_model->getSales($category, $itemcode, $customer, $warehouse, $sort, $dates[0], $dates[1]);
-		foreach ($result as $key => $row) {
-			$totalsold		+= $row->sales;
-			$totalreturned	+= $row->returns;
-			$totalamount	+= $row->total_amount;
+		$grandSold 		= 0;
+		$grandReturned 	= 0;
+		$grandTotal 	= 0;
+		$grandNetofRet 	= 0;
+		$prev_category = '';
+		if($result) {
+			foreach ($result as $key => $row) {
+				$totalsold		+= $row->sales;
+				$totalreturned	+= $row->returns;
+				$totalamount	+= $row->total_amount;
+				$csv .= "\n";
+				$csv .= '"' . $row->itemname . '",';
+				$csv .= '"' . $row->category . '",';				
+				$csv .= '"' . strtoupper($row->uom) . '",';
+				$csv .= '"' . number_format($row->sales) . '",';
+				$csv .= '"' . number_format($row->returns) . '",';
+				$csv .= '"' . number_format($row->sales - $row->returns) . '",';
+				$csv .= '"' . number_format($row->total_amount, 2) . '"';
+				$grandSold  	+= $totalsold;
+				$grandReturned 	+= $totalreturned;
+				$grandTotal  	+= $totalamount;
+				$grandNetofRet 	+= ($totalsold - $totalreturned);
+			}
+		} else {
 			$csv .= "\n";
-			$csv .= '"' . $row->itemname . '",';
-			$csv .= '"' . $row->category . '",';
-			$csv .= '"' . strtoupper($row->uom) . '",';
-			$csv .= '"' . number_format($row->sales) . '",';
-			$csv .= '"' . number_format($row->returns) . '",';
-			$csv .= '"' . number_format($row->sales - $row->returns) . '",';
-			$csv .= '"' . number_format($row->total_amount, 2) . '"';
+			$csv .= '"","","' . number_format(0, 2) . '","' . number_format(0, 2) . '","' . number_format(0, 2) . '","' . number_format(0, 2) . '"';
 		}
 		$csv .= "\n";
 		$footer = array(
 			'',
 			'',
-			'',
-			number_format($totalsold),
-			number_format($totalreturned),
-			number_format($totalsold - $totalreturned),
-			number_format($totalamount, 2),
+			number_format($grandSold),
+			number_format($grandReturned),
+			number_format($grandNetofRet),
+			number_format($grandTotal, 2),
 		);
 		$csv .= '"' . implode('","', $footer) . '"';
 		echo $csv;
@@ -119,8 +147,8 @@ class controller extends wc_controller {
 			$table = '<tr><td colspan="7" class="text-center"><b>No Records Found</b></td></tr>';
 		}
 
-		$details = $this->sales_item_model->getSalesTotal($category, $itemcode, $customer, $warehouse, $dates[0], $dates[1]);
-
+		$details = $this->sales_item_model->getSalesTotal($category, $itemcode, $customer, $warehouse, $sort, $dates[0], $dates[1]);
+		
 		$tabledetails = '';
 
 		if ($pagination->page_limit > 1) {
