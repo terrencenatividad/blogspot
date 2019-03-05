@@ -425,7 +425,7 @@ class controller extends wc_controller {
 									->setValue($row->job_order_no)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' .MOD_CLOSE. $row->job_order_no . '</td>';
+			$table .= '<td>' . $row->job_order_no . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->partnername . '</td>';
 			$table .= '<td>' . $row->service_quotation . '</td>';
