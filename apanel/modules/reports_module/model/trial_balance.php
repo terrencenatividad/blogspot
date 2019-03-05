@@ -816,7 +816,7 @@ class trial_balance extends wc_model {
 									->setWhere($condition)
 									->setLimit(1)
 									->runUpdate();
-
+									
 		if( $result ){
 			$result 	=	$this->update_jvdetails_status($voucherno);
 		}
@@ -849,7 +849,7 @@ class trial_balance extends wc_model {
 									->setValues($data)
 									->setWhere($condition)
 									->runUpdate();
-									
+
 		return $result;
 	}
 
@@ -1151,13 +1151,11 @@ class trial_balance extends wc_model {
 			$nextmonth 			=	date('Y-m-d', strtotime('+1 month', strtotime($firstdayofdate)));
 			$next_m  			= 	date('m', strtotime($nextmonth));
 			$next_y 			= 	date('Y', strtotime($nextmonth));
-			// echo $next_m."\n";
-			// echo $type."|";
+
 			if($type == "reversed_ajv") {
 				$month 				= 	$next_m;
 				$year 				=	$next_y;
 			}
-			// echo $month;
 		} else {
 			$exploded_date		=	explode(' - ',$lastdayofdate);
 			$firstdayofdate 	=	$exploded_date[0];
@@ -1167,7 +1165,7 @@ class trial_balance extends wc_model {
 			$month 				=	date('m', strtotime($lastdayofdate));
 			$year 				=	date('Y', strtotime($lastdayofdate));
 
-			if($type == "reversed_jv") {
+			if($type == "reversed_ajv") {
 				$month 			= 	date('m', strtotime($firstdayofdate));
 				$year 			=	date('Y', strtotime($firstdayofdate));
 			}
@@ -1180,7 +1178,7 @@ class trial_balance extends wc_model {
 
 		// Accrual Entry
 		$getpartials 	= 	$this->getAccountsOfReleasedItem($firstdayofdate, $lastdayofdate);
-		
+
 		foreach($getpartials as $key=>$row){
 			// var_dump($key);
 			// echo $key;
@@ -1235,24 +1233,29 @@ class trial_balance extends wc_model {
 						$accounts['linenum'] 			=	1;
 						$result  						=	$this->create_jvdetails_debit($accounts);
 
-						$accounts['account'] 			=	$credit_acct;
-						$accounts['linenum'] 			=	2;
-						$result  						=	$this->create_jvdetails_credit($accounts);
+						if($result) {
+							$accounts['account'] 			=	$credit_acct;
+							$accounts['linenum'] 			=	2;
+							$result  						=	$this->create_jvdetails_credit($accounts);
+						}
 					} else {
 						$accounts['account'] 			=	$credit_acct;
 						$accounts['linenum'] 			=	1;
 						$result  						=	$this->create_jvdetails_debit($accounts);
 
-						$accounts['account'] 			=	$debit_acct;
-						$accounts['linenum'] 			=	2;
-						$result  						=	$this->create_jvdetails_credit($accounts);
-					
-						if($result && $type == "reversed_ajv"){
-							$update['transactiondate']	=	$nextmonth;
-							$result  					=	$this->update_transaction_date($update, $generatedvoucher);
+						if($result) {
+							$accounts['account'] 			=	$debit_acct;
+							$accounts['linenum'] 			=	2;
+							$result  						=	$this->create_jvdetails_credit($accounts);
 						}
 					}
+					if($result && $type == "reversed_ajv"){
+						$update['transactiondate']	=	$nextmonth;
+						$result  					=	$this->update_transaction_date($update, $generatedvoucher);
+					}
 				}
+			} else {
+				$result = 1;
 			}
 		}	
 

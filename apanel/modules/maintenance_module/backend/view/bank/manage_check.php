@@ -14,6 +14,7 @@
 				<input type="hidden" id="old_last" value="">
 				<input type="hidden" name="oldbooknumber" id="booknumber" value="<?=$booknumber?>">	
 				<input type="hidden" id="task" value="">
+				<input type="hidden" id="code" name="code" value="">
 				<input type="hidden" id="inner_input" value="">	
 
 				<div class = "col-md-12">&nbsp;</div>
@@ -615,7 +616,8 @@ $('#check_container').on('click', '.manage_check', function(){
 
 $('#btnEdit').hide();
 $('#check_container').on('click', '.edit_check_series', function(){
-	ajax.id     =  $('#id').val();
+	//ajax.id     =  $('#id').val();
+	ajax.id = $(this).attr('data-id');
 	bookno =  $(this).closest('tr').find('#start_check').html();
 	var result = bookno.split('-');
 	ajax.booknumber = result[0];
@@ -627,6 +629,7 @@ $('#check_container').on('click', '.edit_check_series', function(){
 			$('#old_first').val(data.firstchequeno);
 			$('#old_last').val(data.lastchequeno);
 			$('#task').val(data.task);
+			$('#checkForm #code').val(data.code);
 			var task = data.task;
 			if (task == 'update_check'){
 				$('#btnSave').hide();
@@ -651,7 +654,9 @@ $('#checkForm #btnEdit').on('click',function(){
 });
 
 $('#check_container').on('click', '.delete_check_series', function(){
-	ajax.id     =  $('#id').val();
+	//ajax.id     =  $('#id').val();
+	ajax.bank_id     =  $('#id').val();
+	ajax.id = $(this).attr('data-id');
 	bookno =  $(this).closest('tr').find('#start_check').html();
 	var result = bookno.split('-');
 	ajax.booknumber = result[0];

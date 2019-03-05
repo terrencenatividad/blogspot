@@ -243,9 +243,12 @@
         $('#ipo_tableList tbody').html(`<tr><td colspan="5" class="text-center">Loading Items</td></tr>`);
         $('#ipo_pagination').html('');
         $('#ipo_list_modal').modal('show');
-        var obj = {ajax,jobno:job_no};
-        console.log(obj);
-        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_list', {ajax,jobno:job_no}, function(data) {
+
+        // var obj = {ajax,jobno:job_no};
+        // console.log(obj);
+        ajax.jobno = job_no;
+        console.log(ajax);
+        $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_list', ajax, function(data) {
             $('#ipo_tableList tbody').html(data.table);
             $('#ipo_pagination').html(data.pagination);
             if (ajax.page > data.page_limit && data.page_limit > 0) {
@@ -262,7 +265,7 @@
         
         $.post('<?=MODULE_URL?>ajax/ajax_load_ipo_items', {ajax, ipo:ipo,task:task,job:job},function (data) {
             $('#item_tableList tbody').html(data.table);
-            $('#item_pagination').html(data.pagination);
+            //$('#item_pagination').html(data.pagination);
             
             if (ajax.page > data.page_limit && data.page_limit > 0) {
                 ajax.page = data.page_limit;
@@ -343,7 +346,7 @@
         }
         
     }
-        
+
     $(document).ready(function (){
         console.log(jobvoucher);
         $('#job_no').on('change', function(){
@@ -441,9 +444,13 @@
         });
         $('#ipo_pagination').on('click', 'a', function(e) {
             e.preventDefault();
-            ajax.page = $(this).attr('data-page');
-            checkholder();
-            getList();
+            var li = $(this).closest('li');
+            if (li.not('.active').length && li.not('.disabled').length) {
+                ajax.page = $(this).attr('data-page');
+                console.log(ajax.page);
+                checkholder();
+                getList();
+            }
         });
         $('#item_pagination').on('click', 'a', function(e) {
             e.preventDefault();

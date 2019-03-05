@@ -134,7 +134,7 @@ class balance_sheet_model extends wc_model {
 	public function getRecords($start, $end) {
 		
 		$result		=  $this->db->setTable('chartaccount c')
-								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('OTHCA', 'CUASET', 'ACCREC', 'CASH', 'OTHNCA', 'PPE', 'PREPAID', 'INV', 'VAT', 'OTHCL', 'CULIAB', 'ACCPAY', 'LTP', 'TAX', 'INPVAT', 'NVNTRY', 'NCASET', 'NCLIAB', 'OUTVAT') AND transactiondate <= '$end'")
+								->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('OTHCA', 'CUASET', 'ACCREC', 'CASH', 'OTHNCA', 'PPE', 'PREPAID', 'INV', 'VAT', 'OTHCL', 'CULIAB', 'ACCPAY', 'LTP', 'TAX', 'INPVAT', 'NVNTRY', 'NCASET', 'NCLIAB', 'OUTVAT','EQUITY') AND transactiondate <= '$end'")
 								->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode')
 								->setFields("c.id, c.accountname, c.accountnature, c2.accountnature parentnature, SUM(debit) debit, SUM(credit) credit, c.accountclasscode, '' earnings")
 								->setWhere("c.fspresentation = 'BS'")
@@ -145,9 +145,10 @@ class balance_sheet_model extends wc_model {
 		// if($end == "2018-06-30") {
 		// 	echo $this->db->getQuery();
 		// }
-		$earnings = $this->getEarnings($start, $end);
+		// $earnings = $this->getEarnings($start, $end);
 
-		return array_merge($result, $earnings);
+		// return array_merge($result, $earnings);
+		return $result;
 	}
 
 	public function getPeriodList($year) {
@@ -216,7 +217,7 @@ class balance_sheet_model extends wc_model {
 		$current	=  $this->db->setTable('chartaccount c')
 							->leftJoin("balance_table bt ON c.id = bt.accountcode AND c.accountclasscode IN ('EQUITY', 'REV', 'RETEAR', 'REVENU', 'COST' 'COSTSA', 'EXP', 'INTAX', 'INCTAX', 'OPSEXP', 'OTREXP') AND transactiondate <= '$end'")
 							->leftJoin('chartaccount c2 ON c.parentaccountcode = c2.segment5 AND c.companycode = c2.companycode AND c2.accounttype = "P"')
-							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, SUM(COALESCE(credit, 0)) credit, (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) balance, IF( (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) < 0, 'credit','debit')  type, 'Current' accountclasscode, 'current' earnings")
+							->setFields("c.accountname, c.accountnature, c2.accountnature parentnature,  SUM(COALESCE(debit,0)) debit, SUM(COALESCE(credit,0)) credit, SUM(COALESCE(credit, 0)) credit, (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) balance, IF( (SUM(COALESCE(debit, 0)) - SUM(COALESCE(credit, 0))) < 0, 'credit','debit')  type, c.accountclasscode accountclasscode, 'current' earnings")
 							->setWhere("c.fspresentation = 'BS' AND (bt.source = 'closing' OR bt.source = 'yrend_closing') ")
 							->setGroupBy('c.id')
 							->setOrderBy("c.accountname")
@@ -337,7 +338,7 @@ class balance_sheet_model extends wc_model {
 				} else {
 					$total = 0;
 				}
-				if (($total !== 0 && !empty($accounttype)) || in_array($accountclasscode, array('Current', 'Previous'))) {
+				if (($total !== 0 && !empty($accounttype))) {
 					$y[$accounttype][$accountclass][$accountname] = $col;
 				}
 			}

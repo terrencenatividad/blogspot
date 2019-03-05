@@ -1194,7 +1194,8 @@ class controller extends wc_controller
 								$errmsg[]	= "Document Set on <strong>row $line</strong> should not be empty.<br/>";
 								$errmsg		= array_filter($errmsg);
 							} else {
-								$voucherno		= $this->seq->getValue('AR');
+								//$voucherno		= $this->seq->getValue('AR');
+								$voucherno = $jvno;
 							}
 							// Check if Transaction Date is not Empty 
 							if($transdate == ''){
@@ -1245,7 +1246,8 @@ class controller extends wc_controller
 							} else if ($jvno != $prev_no) {
 								$total_credit 	= 0;
 								$total_debit 	= 0;
-								$voucherno		= $this->seq->getValue('AR');
+								//$voucherno		= $this->seq->getValue('AR');
+								$voucherno = $jvno;
 							} 
 							if ($jvno == $prev_no) {
 								//Check Transaction Date if the same
@@ -1344,10 +1346,10 @@ class controller extends wc_controller
 						if ( ! isset($z[$key + 1]) || ($jvno != $z[$key + 1][0] && $z[$key + 1][0] != '')) {
 							$totaldebit[] 	= $total_debit;
 							$totalcredit[]	= $total_credit;
-							if ($total_credit != $total_debit){
-								$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
-								$errmsg		= array_filter($errmsg);
-							}
+							// if ($total_credit != $total_debit){
+							// 	$errmsg[]	= "The Total Debit and Total Credit on <strong>row $line</strong> must be equal.<br/>";
+							// 	$errmsg		= array_filter($errmsg);
+							// }
 						}
 
 						if(empty($errmsg)){
@@ -1380,6 +1382,11 @@ class controller extends wc_controller
 					}
 				}
 
+				if(round($total_credit,2)!=round($total_debit,2)){
+					$errmsg[]	= "The Total Debit [<strong>".number_format($total_debit,2)."</strong>] and Total Credit [<strong>".number_format($total_credit,2)."</strong>] must be equal.<br/>";
+					$errmsg		= array_filter($errmsg);
+				}
+
 				if( empty($errmsg) ) {
 
 					$header 	=	array(
@@ -1394,8 +1401,10 @@ class controller extends wc_controller
 						'convertedamount' 	=> $totaldebit,
 						'balance' 			=> $totaldebit
 					); 
-					
+					$vouchlist 			= 	array();
 					foreach ($header['voucherno'] as $key => $row) {
+						$header['voucherno']		= $this->seq->getValue('AR');
+						$vouchlist[] 				= $header['voucherno'];
 						$header['currencycode'][] 	= "PHP";
 						$header['exchangerate'][] 	= 1;
 						$header['stat'][] 			= "posted";
