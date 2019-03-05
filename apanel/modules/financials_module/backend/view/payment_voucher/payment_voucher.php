@@ -4529,9 +4529,10 @@ $(document).ready(function() {
 		tax_amount = tax_amount.replace(/,/g,'');
 		$.post("<?= MODULE_URL ?>ajax/get_account",{tax_account:tax_account,tax_amount:tax_amount})
 		.done(function(data) {
-			var credit = data.amount ;
+			var credit = data.amount;
+			credit = credit.toString().substring(0, credit.toString().indexOf(".") + 3)
 			var taxcode = data.tax_account;
-			row.find('.credit').val(addCommas(credit.toFixed(2)));
+			row.find('.credit').val(addCommas(credit));
 			row.find('.taxbase_amount').val(tax_amount);
 			row.find('.taxcode').val(tax_account);
 			addAmountAll('credit');

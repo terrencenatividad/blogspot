@@ -414,18 +414,18 @@ class controller extends wc_controller {
 			$showactions = ($row->stat=='completed' || $row->stat=='cancelled')? false : true;
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-									//->addView()
+									->addView()
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Issue Parts', 'bookmark', (MOD_VIEW && $showactions))
+									->addOtherTask('Issue Parts', 'bookmark', (MOD_CLOSE && $showactions))
 									->addOtherTask('Tag as Complete', 'bookmark', (MOD_POST && $showactions))
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
 									->setValue($row->job_order_no)
 									->draw();
 			$table .= '<td align = "center">' . $dropdown . '</td>';
-			$table .= '<td>' . $row->job_order_no . '</td>';
+			$table .= '<td>' .MOD_CLOSE. $row->job_order_no . '</td>';
 			$table .= '<td>' . $this->date->dateFormat($row->transactiondate) . '</td>';
 			$table .= '<td>' . $row->partnername . '</td>';
 			$table .= '<td>' . $row->service_quotation . '</td>';
