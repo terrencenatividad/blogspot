@@ -13,7 +13,7 @@
 									->setName('groupname')
 									->setId('groupname')
 									->setValue($groupname)
-									->setValidation('required')
+									->setValidation('required code')
 									->setMaxLength(25)
 									->draw($show_input);
 							?>
