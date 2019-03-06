@@ -488,7 +488,7 @@ class payment_voucher_model extends wc_model
 			$result 	=	$query->setOrderBy('transactiondate DESC, voucherno DESC')
 			->runPagination();
 		}
-
+		// echo $this->db->getQuery();
 		return $result;
 	}
 
@@ -806,7 +806,7 @@ class payment_voucher_model extends wc_model
 						$cheque_header['chequedate']			= $chequedate;
 						$cheque_header['chequeamount']			= $chequeamount;
 						$cheque_header['chequeconvertedamount']	= $chequeamount;
-						$cheque_header['bankcode']			= $bankcode;
+						$cheque_header['bankcode']				= $bankcode;
 						$cheque_header['stat']					= ($not_cancelled == 'yes') ? 'cancelled' : 'uncleared';
 
 						$linecount++;
@@ -839,7 +839,7 @@ class payment_voucher_model extends wc_model
 			$post_header['source']			= $source;
 			$post_header['paymenttype']		= $paymenttype;	
 			$post_header['referenceno']		= $referenceno;
-			$post_header['stat']			= 'posted';
+			$post_header['stat']			= 'open';
 			$post_header['postedby']		= USERNAME;
 			$post_header['postingdate']		= $datetime;
 
@@ -1125,8 +1125,8 @@ class payment_voucher_model extends wc_model
 			$iApplicationLineNum	= 1;
 			foreach ($combined_payables as $pickedKey => $pickedValue) {
 				$payable 					= $pickedValue['vno'];
-				$amount 					= $pickedValue['amt'];
-				$balance 					= $pickedValue['bal'];
+				$amount 					= str_replace(',','',$pickedValue['amt']);
+				$balance 					= str_replace(',','',$pickedValue['bal']);
 				$discount 					= $pickedValue['dis'];
 				
 				$applied_sum				= 0;
@@ -1138,7 +1138,7 @@ class payment_voucher_model extends wc_model
 					array(
 						"amount as convertedamount"
 					), 
-					" voucherno = '$payable' AND stat IN('open','posted') "
+					" voucherno = '$payable' AND stat IN('posted') "
 				);
 
 				$applied_amounts			= $this->getValue(
@@ -1148,19 +1148,23 @@ class payment_voucher_model extends wc_model
 						"COALESCE(SUM(discount),0) AS discount",
 						"COALESCE(SUM(forexamount),0) AS forexamount"
 					), 
-					" apvoucherno = '$payable' AND stat IN('open','posted')" 
+					" apvoucherno = '$payable' AND stat IN('open','posted','temporary')" 
 				);
 
+				// var_dump($applied_amounts);
+
 				$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
-				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount  + $applied_disc;
+				$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount;
 				
 				$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 				$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 				
-				$balance_info['amountpaid']	= $applied_sum;
+				$invoice_balance			= $invoice_amount - $applied_sum - $applied_disc;
 
-				$balance_info['balance']	= $balance - $amount;
-				
+				$balance_info['amountpaid']	= $applied_sum  + $applied_disc;
+
+				$balance_info['balance']	= $invoice_balance;
+
 				$insertResult = $this->db->setTable($applicableHeaderTable)
 				->setValues($balance_info)
 				->setWhere("voucherno = '$payable'")
