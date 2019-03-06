@@ -4007,7 +4007,7 @@ $(document).ready(function() {
 						if(data.code == '1')
 						{
 							$("#payableForm #btnSave").removeClass('disabled');
-							+							$("#payableForm #btnSave_toggle").removeClass('disabled');
+							$("#payableForm #btnSave_toggle").removeClass('disabled');
 							$("#payableForm #h_voucher_no").val(data.voucher);
 							// window.location.href = '<?//=BASE_URL?>financials/payment_voucher';
 						}

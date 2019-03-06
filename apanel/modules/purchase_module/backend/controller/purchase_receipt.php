@@ -581,8 +581,8 @@ class controller extends wc_controller {
 		$result						= $this->purchase_model->savePurchaseReceipt($data, $data2);
 		$serials					= $this->input->post($this->serial_fields);		
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$data['voucherno']);
-		$attachment_update['reference'] = $data['voucherno'];
-		$attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
+		// $attachment_update['reference'] = $data['voucherno'];
+		// $attachment					= $this->purchase_model->updateAttachmentReference($attachment_update,$data['source_no']);
 		// retrieve  freight, insurance, packaging 
 		// $ret_misc 					= $this->purchase_model->retrieve_misc_fees($data['source_no']);
 		// $total_misc_fee 			= isset($ret_misc->total_miscfee) ? $ret_misc->total_miscfee 	:	0;	
@@ -657,7 +657,7 @@ class controller extends wc_controller {
 		$serials					= $this->input->post($this->serial_fields);
 		$delete						= $this->purchase_model->deleteSerialNumbers($temp_voucherno);
 		$result2					= $this->purchase_model->saveSerialNumbers($serials,$temp_voucherno);
-		$get_attachment				= $this->purchase_model->getAttachmentFile($voucherno);
+		// $get_attachment				= $this->purchase_model->getAttachmentFile($voucherno);
 		// $attachment_update['reference'] = $data['voucherno'];
 		// if (isset($get_attachment->attachment_url)) {
 		// 	$attachment				= $this->purchase_model->updateAttachmentReference($temp_voucherno,$data['source_no']);
@@ -787,6 +787,9 @@ class controller extends wc_controller {
 		$post_data 		= $this->input->post();
 		$upload_handler	= new UploadHandler();
 		$reference 		= $post_data['reference'];
+		if ($reference == '') {
+			$post_data['reference'] = $this->purchase_model->getLatestPRRecord();
+		}
 		$task 			= $post_data['task'];
 		$upload_result 	= false;
 		unset($post_data['task']);
@@ -802,6 +805,7 @@ class controller extends wc_controller {
 				// if ($task=='edit') 
 				$attachment_id = $this->purchase_model->getCurrentId("purchasereceipt_attachments", $reference);
 				if ($attachment_id=='0'){
+					$exist = false;
 					$attachment_id = $this->purchase_model->getNextId("purchasereceipt_attachments","attachment_id");
 				}
 				// else
@@ -814,58 +818,18 @@ class controller extends wc_controller {
 					$post_data['attachment_url']	= $row->url;
 				}
 
-				if ($task == 'edit')
+				if ($task == 'edit' && $exist) {
 					$upload_result 	= $this->purchase_model->replaceAttachment($post_data);
-				else
+				}
+				else {
 					$upload_result 	= $this->purchase_model->uploadAttachment($post_data);
+					var_dump($upload_result);	 
+				}
 
 			}else{
 				$upload_result 	= false;
 			}
 		}
-		// if($upload_result && $task == 'listing'){
-		// 	/**
-		// 	 * Update status of Service Quotation to Approved
-		// 	 */
-		// 	// $this->service_quotation->updateData(array('stat' => 'Approved'), 'servicequotation', " voucherno = '$reference' ");
-		// }
-		
-		// $result = array(
-		// 	'upload_result' => $upload_result,
-		// 	'msg'			=> $message
-		// );
-		// return $result;
-		// if (isset($upload_handler->response) && isset($upload_handler->response['files'])) {
-		// 	if(!$upload_handler->response['files'][0]->error){
-		// 		/**
-		// 		 * Generate Attachment Id
-		// 		 * @param table
-		// 		 * @param group fields
-		// 		 * @param custom condition
-		// 		 */
-		// 		$attachment_id = $this->case->getNextId("claim_report_attachments","attachment_id"," AND caseno = '$caseno' AND report_id = '$report' ");
-
-		// 		foreach($upload_handler->response['files'] as $key => $row) {
-		// 			if ($row->deleteUrl) {
-		// 				$post_data['attachment_id'] 	= $attachment_id;
-		// 				$post_data['attachment_name'] 	= $row->name;
-		// 				$post_data['type'] 				= $row->type;
-		// 				$post_data['url'] uploadAttachmentl;
-		// 			}
-		// 		}
-		// 		$this->case->uploadAttachmuploadAttachment
-		// 	}else{
-		// 		foreach($upload_handler->ruploadAttachment => $row) {
-		// 			if ($row->deleteUrl) {uploadAttachment
-		// 				$post_data['attachment_id'] 	= $attachment_id;
-		// 				$post_data['attachment_name'] 	= $row->name;
-		// 				$post_data['type'] 				= $row->type;
-		// 				$post_data['url'] 				= $row->url;
-		// 			}
-		// 		}
-		// 		$this->case->deleteAttachment($post_data);
-		// 	}
-		// }
 	}
 
 }
