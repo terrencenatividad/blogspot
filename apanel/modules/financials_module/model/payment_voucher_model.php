@@ -839,7 +839,7 @@ class payment_voucher_model extends wc_model
 			$post_header['source']			= $source;
 			$post_header['paymenttype']		= $paymenttype;	
 			$post_header['referenceno']		= $referenceno;
-			$post_header['stat']			= 'posted';
+			$post_header['stat']			= 'open';
 			$post_header['postedby']		= USERNAME;
 			$post_header['postingdate']		= $datetime;
 
