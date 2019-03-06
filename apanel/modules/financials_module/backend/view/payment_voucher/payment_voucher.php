@@ -1779,10 +1779,10 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 				$('.chequenumber').val('');
 			}
 		}).fail(function(xhr, status, error) {
-			console.log('debug mode : ');
-			console.log('xhr : '+xhr);
-			console.log('status : '+status);
-			console.log('error : '+error);
+			// console.log('debug mode : ');
+			// console.log('xhr : '+xhr);
+			// console.log('status : '+status);
+			// console.log('error : '+error);
 		});
 
 
@@ -2862,6 +2862,7 @@ function getCheckAccounts() {
 
 var payments 		= <?=$payments;?>;
 var container 		= (payments != '') ? payments : [];
+// console.log(container);
 var selectedIndex 	= -1;
 function getPVDetails(){
 	storechequetobank();
@@ -2956,7 +2957,7 @@ function selectPayable(id,toggle){
 	var balance 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var paymentamount_val = $('#payable_list_container #paymentamount'+id).attr('value');
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
-		console.log("BALNACE = "+balance);
+		// console.log("BALNACE = "+balance);
 	if(check.prop('checked' )){
 		if(toggle == 1){
 			check.prop('checked', false);
@@ -3000,9 +3001,13 @@ function init_storage(){
 
 function add_storage(id,balance,discount){
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
+	// console.log("Amount Entered (Add Storage): "+amount);
+	// console.log("payment amount: "+amount);
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
 	if(amount != 0){
 		var found = false;
+		// console.log(container);
+		// console.log(newvalue);
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
 				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
@@ -3015,12 +3020,22 @@ function add_storage(id,balance,discount){
 
 				var available_balance 	=	(parseFloat(balance) - parseFloat(original_discount)) - new_amount;
 					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
+				
+				// console.log("Balance = "+balance);
+				// console.log("Original Discount = "+original_discount);
+				// console.log("New Amount = "+new_amount);
+				// console.log("Available Balance = "+available_balance);
 
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
-				console.log(available_balance);
-				$('#payable_list_container #payable_balance'+id).html(available_balance);
-				$('#payable_list_container #payable_balance'+id).data('value',available_balance);
+				
+				// console.log("New Amount = "+new_amount);
+				// console.log("Original Discount = "+original_discount);
+				// console.log("Discount = "+discount);
+				// console.log("Discounted Amount = "+discounted_amount);
+				
+				$('#payable_list_container #payable_balance'+id).html(addCommas(available_balance));
+				// $('#payable_list_container #payable_balance'+id).attr('data-value',addCommas(available_balance));
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
 				found = true;
@@ -3034,24 +3049,28 @@ function add_storage(id,balance,discount){
 				// console.log(newvalue);
 			}
 		}
-		if(found === false) {
+		if(found == false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			$('#payable_list_container #payable_balance'+id).html('0.00');
+			// $('#payable_list_container #payable_balance'+id).html(addCommas(balance.toFixed(2)));
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
-		}
-		
+		} 
 	}else{
-		$('#payable_list_container #payable_balance'+id).html(addComma(balance));
-		$('#payable_list_container #payable_balance'+id).attr('data-value',available_balance);
+		// console.log("Balance (Add Storage): "+balance);
+		$('#payable_list_container #payable_balance'+id).html(addCommas(balance.toFixed(2)));
+		// $('#payable_list_container #payable_balance'+id).attr('data-value',addCommas(balance.toFixed(2)));
 		if(container.length > 0){
 			container = container.filter(function( obj ) {
 				return obj.vno !== id;
 			});
 		}
+		container.push(newvalue);
+		// console.log("container" );
+		// console.log(container);
 	}
 	localStorage.selectedPayables = JSON.stringify(container);
 	init_storage();
+	// console.log(" ------- ");
 	//console.log(JSON.parse(localStorage.getItem('selectedPayables')));
 }
 
@@ -3068,6 +3087,8 @@ function checkBalance(val,id){
 	current_payment		= removeComma(current_payment);
 	var newval			= removeComma(val);
 	total_amount 		= removeComma(total_amount);
+
+	// console.log("Entered Amount: "+newval);
 
 	var condition = "";
 	var input 	  = "";
@@ -3125,6 +3146,7 @@ function checkBalance(val,id){
 	}
 	if(error == 0){
 		$('#TagPayablesBtn').prop("disabled",false);
+		// console.log("Due Amount: "+dueamount);
 		add_storage(id,dueamount,discount);
 		addPaymentAmount();	
 	} else {
@@ -3531,7 +3553,7 @@ $(document).ready(function() {
 	* Apply Exchange Rate and converted amount
 	*/
 	$('#rateForm #btnProceed').click(function(e){
-		console.log(e);
+		// console.log(e);
 
 		var valid 			= 0;
 		var oldamount 		= $('#rateForm #oldamount').val();
@@ -3922,7 +3944,7 @@ $(document).ready(function() {
 			}
 			else
 			{
-				console.log(data.msg);
+				// console.log(data.msg);
 			}
 		});
 	});
