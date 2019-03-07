@@ -62,6 +62,7 @@
 											->setSplit('col-md-4', 'col-md-8')
 											->setName('proformadesc')
 											->setId('proformadesc')
+											->setMaxLength(250)
 											->setValue($proformadesc)
 											->draw($task != "view");	
 

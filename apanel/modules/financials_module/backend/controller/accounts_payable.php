@@ -112,6 +112,13 @@ class controller extends wc_controller
 		$data['close_date']			= $close_date;
 		$data["transactiondate"]    = $this->date->dateFormat();
 		$data["currencycode"]    	= 'PHP';
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 	= $company_setting[0]->wtax_option;
+		$data["toggle_wtax"]	= ($company_setting[0]->wtax_option != 'AP') ? "hidden" : "";
 		$data["duedate"]      		= $this->date->dateFormat();
 		$data['currencycodes'] = $this->accounts_payable->getCurrencyCode();
 		$data["vendor_list"]          = $this->accounts_payable->retrieveVendorList();
@@ -147,22 +154,45 @@ class controller extends wc_controller
 		$det = (array) $this->accounts_payable->getSupplierDetails($vendor);
 		$close_date 				= $this->accounts_payable->getClosedDate();
 		$data['close_date']			= $close_date;
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 	= $company_setting[0]->wtax_option;
+		$data["toggle_wtax"]	= ($company_setting[0]->wtax_option != 'AP') ? "hidden" : "";
 
 		$check_stat = $this->accounts_payable->checkStat($id);
 		$amountpaid = $check_stat->amountpaid;
 		$bal = $check_stat->balance;
 		$amount = $check_stat->amount;
 		$stat = '';
+
+		/**
+		 * Get total posted payments
+		 */
+		$payments 	 				= $this->accounts_payable->getValue("pv_application",array("(COALESCE(SUM(convertedamount),0) + COALESCE(SUM(discount),0) - COALESCE(SUM(forexamount), 0)) paymentamount"),"apvoucherno = '$id' AND stat = 'posted'");
+		$paymentamount       		= $payments[0]->paymentamount;
 		// maling stat chinecheck, fix data stat here. 
-		if($bal == $amount && $data['stat'] == 'posted') {
-			$stat = 'unpaid';
-		} else if($bal != $amount && $bal != 0 && $data['stat'] == 'posted') {
-			$stat = 'partial';
-		} else if($bal == 0 && $amountpaid == $amount && $data['stat'] == 'posted'){
+		// if($bal == $amount && $data['stat'] == 'posted') {
+		// 	$stat = 'unpaid';
+		// } else if($bal != $amount && $bal != 0 && $data['stat'] == 'posted') {
+		// 	$stat = 'partial';
+		// } else if($bal == 0 && $amountpaid == $amount && $data['stat'] == 'posted'){
+		// 	$stat = 'paid';
+		// } else if($bal != 0 && $data['stat'] == 'cancelled'){
+		// 	$stat = 'cancelled';
+		// }
+		if($amount == $paymentamount && $data['stat'] == 'posted') {
 			$stat = 'paid';
-		} else if($bal != 0 && $data['stat'] == 'cancelled'){
+		} else if($paymentamount > 0 && $amount != $paymentamount && $data['stat'] == 'posted') {
+			$stat = 'partial';
+		} else if($paymentamount == 0 && $data['stat'] == 'posted'){
+			$stat = 'unpaid';
+		} else if($data['stat'] == 'cancelled'){
 			$stat = 'cancelled';
 		}
+
 		if($stat == 'partial' || $stat == 'paid') {
 			$data['payments'] = $this->accounts_payable->getPVDetails($id);
 			$data['yes'] = 'yes';
@@ -244,6 +274,13 @@ class controller extends wc_controller
 		$data['email'] = $det['email'];
 		$data['address1'] = $det['address1'];
 		$data['tinno'] = $det['tinno'];
+		$company_setting = $this->accounts_payable->companySettings(
+			array(
+				'wtax_option'
+			)
+		);
+		$data["wtax_option"] 	= $company_setting[0]->wtax_option;
+		$data["toggle_wtax"]	= ($company_setting[0]->wtax_option != 'AP') ? "hidden" : "";
 		$data['budget_list'] = $this->accounts_payable->getBudgetCodes();
 		$data["ui"]   			   = $this->ui;
 		$data['status_badge'] = $this->colorStat($data['stat']);
