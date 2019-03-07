@@ -325,7 +325,7 @@
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
 															->setClass('itemdescription')
-															->setAttribute(array("maxlength" => "100"))
+															->setAttribute(array("maxlength" => "250"))
 															->setValue("")
 															->draw($show_input);
 												?>
@@ -508,7 +508,7 @@
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
 															->setClass('detailparticulars')
-															->setAttribute(array("maxlength" => "100"))
+															->setAttribute(array("maxlength" => "250"))
 															->setValue($detailparticular)
 															->draw($show_input);
 												?>

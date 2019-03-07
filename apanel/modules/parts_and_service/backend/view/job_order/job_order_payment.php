@@ -498,7 +498,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular')
-								->setMaxLength(100)
+								->setMaxLength(250)
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
 							echo $ui->formField('hidden')

@@ -839,7 +839,7 @@ class controller extends wc_controller
 									->setId('detailparticulars['.$row.']')
 									->setAttribute(
 										array(
-											"maxlength" => "100",
+											"maxlength" => "250",
 											"readOnly" => "readOnly"
 										)
 									)
