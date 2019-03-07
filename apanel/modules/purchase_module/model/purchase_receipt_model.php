@@ -963,4 +963,19 @@ class purchase_receipt_model extends wc_model {
 
 	}
 
+	public function getLatestPRRecord() {
+		$username = USERNAME;
+
+		$getRow = $this->db->setTable('purchasereceipt')
+		->setFields('voucherno')
+		->setOrderBy('purchasereceipt.entereddate DESC')
+		->setWhere("enteredby = '$username'")
+		->runSelect()
+		->getRow();
+
+		$result = $getRow->voucherno;
+
+		return $result;
+	}
+
 }
