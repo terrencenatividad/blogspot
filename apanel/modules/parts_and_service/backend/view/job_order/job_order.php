@@ -578,7 +578,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular parent')
-								->setMaxLength(100)
+								->setMaxLength(250)
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
@@ -597,7 +597,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular parts detailforBundle')
-								->setMaxLength(100)
+								->setMaxLength(250)
 								->setValue('` + details.detailparticular + `')
 								->setAttribute(array('readOnly' => true, 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->draw($show_input);

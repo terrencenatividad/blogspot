@@ -27,6 +27,7 @@
 									->setSplit('col-md-2', 'col-md-8')
 									->setName('description')
 									->setId('description')
+									->setMaxLength(250)
 									->setValue($description)
 									->setValidation('required')
 									->draw($show_input);

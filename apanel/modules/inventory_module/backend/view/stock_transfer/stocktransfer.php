@@ -260,7 +260,7 @@
 								->setPlaceholder('Item Name')
 								->setName('detailparticular[]')
 								->setClass('detailparticular')
-								->setMaxLength(100)
+								->setMaxLength(250)
 								->setAttribute(array("readonly"=>""))
 								->setValue('` + details.detailparticular + `')
 								//->addHidden(true)

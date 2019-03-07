@@ -355,7 +355,7 @@
 											->setSplit('', 'col-md-12')
 											->setName('detailparticulars['.$row.']')
 											->setId('detailparticulars['.$row.']')
-											->setAttribute(array("maxlength" => "100"))
+											->setAttribute(array("maxlength" => "250"))
 											->setValue("")
 											->draw($show_input);
 											?>
@@ -553,7 +553,7 @@
 												->setSplit('', 'col-md-12')
 												->setName('detailparticulars['.$row.']')
 												->setId('detailparticulars['.$row.']')
-												->setAttribute(array("maxlength" => "100"))
+												->setAttribute(array("maxlength" => "250"))
 												->setValue($detailparticular)
 												->draw($show_input);
 												?>
