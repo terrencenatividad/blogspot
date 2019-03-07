@@ -429,11 +429,11 @@ class controller extends wc_controller {
 			$showactions = ($row->stat=='completed' || $row->stat=='cancelled')? false : true;
 			$table .= '<tr>';
 			$dropdown = $this->ui->loadElement('check_task')
-									//->addView()
+									->addView()
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Issue Parts', 'bookmark', (MOD_VIEW && $showactions))
+									->addOtherTask('Issue Parts', 'bookmark', (MOD_CLOSE && $showactions))
 									->addOtherTask('Tag as Complete', 'bookmark', (MOD_POST && $showactions))
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))

@@ -206,6 +206,7 @@
 																		->setSplit('', 'col-md-12')
 																		->setName('description[]')
 																		->setId('description')
+																		->setMaxLength(250)
 																		->setClass('description')
 																		->draw($show_input);	
 																		?></td>
@@ -244,6 +245,7 @@
 																				->setSplit('', 'col-md-12')
 																				->setName('description[]')
 																				->setId('description')
+																				->setMaxLength(250)
 																				->setClass('description')
 																				->setValue($row->description)
 																				->draw($show_input);	

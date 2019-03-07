@@ -111,7 +111,7 @@
 													->setName('description')
 													->setId('description')
 													->setValue($description)
-													->setAttribute(array("maxlength" => "1000"))
+													->setAttribute(array("maxlength" => "250"))
 													->setValidation('required')
 													->draw($show_input);
 										?>
