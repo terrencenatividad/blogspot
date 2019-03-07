@@ -3430,9 +3430,9 @@ function add_storage(id,balance,discount,credits,excess){
 
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount) + parseFloat(original_credits)) - discount - credits;
 					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
-					console.log( " AVAILABLE BALANCE "+available_balance);
+				// console.log( " AVAILABLE BALANCE "+available_balance);
 				$('#payable_list_container #payable_balance'+id).html(available_balance);
-				$('#payable_list_container #payable_balance'+id).data('value',available_balance);
+				// $('#payable_list_container #payable_balance'+id).data('value',available_balance);
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
 				found = true;
@@ -3448,20 +3448,21 @@ function add_storage(id,balance,discount,credits,excess){
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			$('#payable_list_container #payable_balance'+id).html('0.00');
+			// $('#payable_list_container #payable_balance'+id).html('0.00');
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
 			$('#payable_list_container #credits_used'+id).val('0.00');
 		}
 		
 	}else{
-		console.log(balance);
+		// console.log(balance);
 		$('#payable_list_container #payable_balance'+id).html(addComma(balance));
-		$('#payable_list_container #payable_balance'+id).attr('data-value',available_balance);
+		// $('#payable_list_container #payable_balance'+id).attr('data-value',available_balance);
 		if(container.length > 0){
 			container = container.filter(function( obj ) {
 				return obj.vno !== id;
 			});
 		}
+		container.push(newvalue);
 	}
 	localStorage.selectedPayables = JSON.stringify(container);
 	init_storage();

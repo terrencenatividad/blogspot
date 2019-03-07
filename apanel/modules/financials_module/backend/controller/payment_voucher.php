@@ -1017,6 +1017,7 @@ class controller extends wc_controller
 	private function load_payables()
 	{
 		$data       	= $this->input->post(array("vendor", "voucherno"));
+		$pvno 			= $this->input->post('voucherno');
 		$task       	= $this->input->post("task");
 		$search			= $this->input->post('search');
 		$currencycode	= $this->input->post('currencycode');
@@ -1084,12 +1085,15 @@ class controller extends wc_controller
 
 				$json_encode 					= json_encode($json_data);
 
-				$result_pvapp	= $this->payment_voucher->getValue("pv_application", array("SUM(amount) AS amount","SUM(discount) as discount"),"apvoucherno = '$voucher' AND stat IN('open','posted')", "", "", "apvoucherno");
+				$result_pvapp	= $this->payment_voucher->getValue("pv_application", array("SUM(amount) AS amount","SUM(discount) as discount"),"apvoucherno = '$voucher' AND voucherno !='$pvno' AND stat IN('open','posted')", "", "", "apvoucherno");
 				$appliedamount  = isset($result_pvapp[0]->amount)  			? 	$result_pvapp[0]->amount		: 	0;
 				$applieddiscount= isset($result_pvapp[0]->discount)			?	$result_pvapp[0]->discount		:	0;
 
 				// $balance_2		= $balance;
-				
+				// echo "Current Balance : ".$balance."\n\n";
+				// echo "Applied Amount : ".$appliedamount."\n\n";
+				// echo "Applied Discount : ".$applieddiscount."\n\n";
+
 				$balance_2 	=	0;
 				if (isset($amt_array[$voucher])) {
 					// $balance_2	= str_replace(',','',$amt_array[$voucher]['bal']);
@@ -1104,14 +1108,24 @@ class controller extends wc_controller
 					$amount		= str_replace(',','',$amount);
 					$balance_2	= str_replace(',','',$balance_2);
 
-					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
-					$balance_2 	= $balance_2 - $amount - $discount;
-					$balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
-					$balance 	= ($task == "edit") ? $balance + $appliedamount + $applieddiscount  : $balance;
+					// echo "Amount : ".$amount."\n\n";
+					// echo "Balance : ".$balance_2."\n\n";
+					// echo "Discount : ".$discount."\n\n";
+
+					// $balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
+					// $balance_2 	= $balance_2 - $amount - $discount;
+					// $balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
+					// $balance 	= ($task == "edit") ? $balance + $appliedamount + $applieddiscount  : $balance;
+					$balance 	= ($balance - $appliedamount - $applieddiscount);
+					$balance_2 	= ($amount > 0) ? $balance - $amount - $discount : $balance;
+
+					// echo "Balance 1 : ".$balance."\n\n";
+					// echo "Balance 2 : ".$balance_2."\n\n";
 				} else {
 					$balance_2 	= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
 				}
-				
+				// echo " --- \n\n";
+
 				$balance 		= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
 				// echo $balance;
 				$disable_checkbox 	=	"";

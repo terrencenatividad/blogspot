@@ -118,9 +118,12 @@
 														$access_label = 'Issue Parts';
 													}elseif($moduleaccess->module_name == 'Job Order' && $access_type == 'mod_post'){
 														$access_label = 'Tag as Complete';
-													}elseif($moduleaccess->module_name == 'Sales Quotation' && $access_type == 'mod_post'){
+													}elseif(($moduleaccess->module_name == 'Sales Quotation' || $moduleaccess->module_name == 'Stock Transfer') && $access_type == 'mod_post'){
 														$access_label = 'Approve';
+													}elseif($moduleaccess->module_name == 'Stock Transfer' && $access_type == 'mod_unpost'){
+														$access_label = 'Reject';
 													}
+													
 													echo $ui->formField('checkbox')
 														->setLabel($access_label)
 														->setSplit('col-xs-6 force-left', 'col-xs-6 no-padding force-right')
