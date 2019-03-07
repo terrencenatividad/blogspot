@@ -332,7 +332,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('itemname')
-								->setMaxLength(100)
+								->setMaxLength(250)
 								->setValue('` + details.detailparticular + `')
 								->addHidden()
 								->draw($show_input);

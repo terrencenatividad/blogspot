@@ -1133,11 +1133,15 @@
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							Please make sure that the amount paid for the payable(s) below are greater than zero(0).
 						</span>
-						<span id="discountAmtError" class="help-block hidden small">
+						<span id="discountAmtError" class="help-block hidden small has-error">
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							You cannot input a <strong>Discount</strong> greater than the <strong>Amount to Receive</strong>.
 						</span>
-						<span id="receiveAmtError" class="help-block hidden small">
+						<span id="payableError" class="help-block hidden small has-error">
+							<i class="glyphicon glyphicon-exclamation-sign"></i> 
+							You cannot input an <strong>Amount to Receive</strong> greater than the <strong>Current Balance</strong>.
+						</span>
+						<span id="receiveAmtError" class="help-block hidden small has-error">
 							<i class="glyphicon glyphicon-exclamation-sign"></i> 
 							You cannot enter a negative amount.
 						</span>
@@ -1775,10 +1779,10 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 				$('.chequenumber').val('');
 			}
 		}).fail(function(xhr, status, error) {
-			console.log('debug mode : ');
-			console.log('xhr : '+xhr);
-			console.log('status : '+status);
-			console.log('error : '+error);
+			// console.log('debug mode : ');
+			// console.log('xhr : '+xhr);
+			// console.log('status : '+status);
+			// console.log('error : '+error);
 		});
 
 
@@ -2858,6 +2862,7 @@ function getCheckAccounts() {
 
 var payments 		= <?=$payments;?>;
 var container 		= (payments != '') ? payments : [];
+// console.log(container);
 var selectedIndex 	= -1;
 function getPVDetails(){
 	storechequetobank();
@@ -2950,20 +2955,20 @@ function selectPayable(id,toggle){
 	var paymentamount 	= $('#payable_list_container #paymentamount'+id);
 	var discountamount 	= $('#payable_list_container #discountamount'+id);
 	var balance 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
-
-	if(check.prop('checked')){
+	var paymentamount_val = $('#payable_list_container #paymentamount'+id).attr('value');
+	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
+		// console.log("BALNACE = "+balance);
+	if(check.prop('checked' )){
 		if(toggle == 1){
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
-			paymentamount.val('');
+			paymentamount.val('0.00');
 			discountamount.prop('disabled',true);
-			// discountamount.val('');
 		}else{
 			check.prop('checked', true);
 			paymentamount.prop('disabled',false);
 			paymentamount.val(balance);
 			discountamount.prop('disabled',false);
-			// discountamount.val(balance);
 		}
 	}else{
 		if(toggle == 1){
@@ -2971,19 +2976,18 @@ function selectPayable(id,toggle){
 			paymentamount.prop('disabled',false);
 			paymentamount.val(balance);
 			discountamount.prop('disabled',false);
-			// discountamount.val(balance);
 		}else{
 			check.prop('checked', false);
 			paymentamount.prop('disabled',true);
-			paymentamount.val('');
+			paymentamount.val('0.00');
 			discountamount.prop('disabled',true);
-			// discountamount.val('0.00');
 		}
 	}
 
 	$('#payable_list_container #check'+id).iCheck('update');
 
 	// Get number of checkboxes and assign to textarea
+	balance 	=	removeComma(balance);
 	add_storage(id,balance,0);
 	addPaymentAmount();
 }
@@ -2997,122 +3001,158 @@ function init_storage(){
 
 function add_storage(id,balance,discount){
 	var amount 		= $('#paymentModal #paymentamount'+id).val();
+	// console.log("Amount Entered (Add Storage): "+amount);
+	// console.log("payment amount: "+amount);
 	var newvalue 	= {vno:id,amt:amount,bal:balance,dis:discount};
 	if(amount != 0){
 		var found = false;
+		// console.log(container);
+		// console.log(newvalue);
 		for(var i=0; element=container[i]; i++) {
 			if(element.vno == newvalue.vno) {
 				var original_amount 	=	(removeComma(element.amt) > 0) ? removeComma(element.amt)  : 0;
 				var original_balance 	=	(removeComma(element.bal) > 0) ? removeComma(element.bal)  : 0;
 				var original_discount	=	(removeComma(element.dis) > 0) ? removeComma(element.dis)  : 0;
-				
+
 				var new_amount 			=	(removeComma(newvalue.amt) > 0) ? removeComma(newvalue.amt) : 0;
 				var new_balance 		=	(removeComma(newvalue.bal) > 0) ? removeComma(newvalue.bal)	: 0;
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 
-				var available_balance 	=	(parseFloat(original_balance) - parseFloat(original_discount)) - new_amount;
-				available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
+				var available_balance 	=	(parseFloat(balance) - parseFloat(original_discount)) - new_amount;
+					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 				
-				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
-				discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
+				// console.log("Balance = "+balance);
+				// console.log("Original Discount = "+original_discount);
+				// console.log("New Amount = "+new_amount);
+				// console.log("Available Balance = "+available_balance);
 
-				$('#payable_list_container #payable_balance'+id).html(available_balance);
+				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
+					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
+				
+				// console.log("New Amount = "+new_amount);
+				// console.log("Original Discount = "+original_discount);
+				// console.log("Discount = "+discount);
+				// console.log("Discounted Amount = "+discounted_amount);
+				
+				$('#payable_list_container #payable_balance'+id).html(addCommas(available_balance));
+				// $('#payable_list_container #payable_balance'+id).attr('data-value',addCommas(available_balance));
 				$('#payable_list_container #paymentamount'+id).val(discounted_amount);
 
 				found = true;
 				if(parseFloat(new_amount) === 0) {
-					container[i] = false;
+					container[i] 	= 	false;
 					
 				} else {
 					newvalue.amt 	=	discounted_amount;
-					container[i] = newvalue;
-				}            
+					container[i] 	=	newvalue;
+				}           
 				// console.log(newvalue);
 			}
 		}
-		if(found === false) {
+		if(found == false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			$('#payable_list_container #payable_balance'+id).html('0.00');
+			// $('#payable_list_container #payable_balance'+id).html(addCommas(balance.toFixed(2)));
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
-		}
-		
+		} 
 	}else{
-		$('#payable_list_container #payable_balance'+id).html(addComma(balance));
-		container = container.filter(function( obj ) {
-			return obj.vno !== id;
-		});
+		// console.log("Balance (Add Storage): "+balance);
+		$('#payable_list_container #payable_balance'+id).html(addCommas(balance.toFixed(2)));
+		// $('#payable_list_container #payable_balance'+id).attr('data-value',addCommas(balance.toFixed(2)));
+		if(container.length > 0){
+			container = container.filter(function( obj ) {
+				return obj.vno !== id;
+			});
+		}
+		container.push(newvalue);
+		// console.log("container" );
+		// console.log(container);
 	}
 	localStorage.selectedPayables = JSON.stringify(container);
 	init_storage();
+	// console.log(" ------- ");
 	//console.log(JSON.parse(localStorage.getItem('selectedPayables')));
 }
 
 /**CHECK BALANCE**/
 function checkBalance(val,id){
 	var table 			= document.getElementById('payable_list_container');
+	var total_amount 	= $('#payable_list_container #payable_amount'+id).attr('data-value');
 	var dueamount 		= $('#payable_list_container #payable_balance'+id).attr('data-value');
 	var discountamount 	= $('#payable_list_container #discountamount'+id).val();
+	var current_payment = $('#payable_list_container #paymentamount'+id).val();
 
 	dueamount			= removeComma(dueamount);
 	discount			= removeComma(discountamount);
+	current_payment		= removeComma(current_payment);
 	var newval			= removeComma(val);
+	total_amount 		= removeComma(total_amount);
+
+	// console.log("Entered Amount: "+newval);
 
 	var condition = "";
 	var input 	  = "";
 	var error 	  = 0;
-
-	condition 			= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) );
+		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
-	if(condition) {
-		$('#payable_list_container tr').each(function(index) {
-			var value = $(this).find('.paymentamount').val();
-			value = parseFloat(removeComma(value));
-			var balances = 	$(this).find('.balances').attr('data-value');
-			balances = parseFloat(removeComma(balances));
-			var ind_disc = $(this).find('.discountamount').val();
-			ind_disc = removeComma(ind_disc);
-
-			if(value >= 0){
-				$('#receiveAmtError').addClass('hidden');
-			} else {
-				$('#receiveAmtError').removeClass('hidden');
+	var excess_payment 	= 0;
+	var ind_excess 		= 0;
+	if(condition){
+		if(current_payment >= 0){
+			$('#receiveAmtError').addClass('hidden');
+		} else {
+			$('#receiveAmtError').removeClass('hidden');
+			error++;
+		}
+		if(current_payment >= 0) {
+			if(current_payment > dueamount) {
+				$("#payableError").removeClass('hidden');
+				$('#payable_list_container #paymentamount'+id).closest('div').addClass('has-error');
+				$('#payable_list_container #payable_balance'+id).html(parseFloat(dueamount));
+				$('#total_payment').val('');
 				error++;
+			} else {
+				$("#payableError").addClass('hidden');
+				$('#payable_list_container #paymentamount'+id).closest('div').removeClass('has-error');
 			}
-			if(value >= 0 && ind_disc > value) {
+		}
+		
+		if(discount > 0){
+			if(discount > current_payment) {
 				$("#discountAmtError").removeClass('hidden');
-				$(this).find('.discountamount').closest('div').addClass('has-error');
-				$(this).find('.paymentamount').closest('div').addClass('has-error');
+				$('#payable_list_container #discountamount'+id).closest('div').addClass('has-error');
+				$('#payable_list_container #paymentamount'+id).closest('div').addClass('has-error');
 				$('#total_payment').val('');
 				$('#total_discount').val('');
-				$('#TagPayablesBtn').prop('disabled',true);
 				error++;
 			} else {
 				$("#discountAmtError").addClass('hidden');
-				$(this).find('.discountamount').closest('div').removeClass('has-error');
-				$(this).find('.paymentamount').closest('div').removeClass('has-error');
-				$('#TagPayablesBtn').prop('disabled',false);
+				$('#payable_list_container #discountamount'+id).closest('div').removeClass('has-error');
+				$('#payable_list_container #paymentamount'+id).closest('div').removeClass('has-error');
 			}
-			if(ind_disc == 0){
+		} else if (discount == 0) {
 				$("#discountAmtError").addClass('hidden');
-				$(this).find('.discountamount').closest('div').removeClass('has-error');
-				$(this).find('.paymentamount').closest('div').removeClass('has-error');
-				$('#TagPayablesBtn').prop('disabled',false);
-			}
-		});
+				$('#payable_list_container #discountamount'+id).closest('div').removeClass('has-error');
+		}
+
+		// $('#payable_list_container #overpayment_'+id).attr('data-value',ind_excess);
+		// $('#payable_list_container #overpayment_'+id).html(ind_excess);
 		$('#payable_list_container #paymentamount'+id).value = '';
+
+		// excess_payment = compute_excess_amt();
+		// $('#payableForm #overpayment').val(excess_payment);
 	}else{
-		$('#payable_list_container #paymentamount'+id).value = val;
+		$('#payable_list_container #paymentamount'+id).value = newval;
 	}
-
-	// console.log(parseFloat(val) + " " + parseFloat(totalamountval));
-
-	if(error == 0) {
+	if(error == 0){
+		$('#TagPayablesBtn').prop("disabled",false);
+		// console.log("Due Amount: "+dueamount);
 		add_storage(id,dueamount,discount);
 		addPaymentAmount();	
+	} else {
+		$('#TagPayablesBtn').prop("disabled",true);
 	}
 }
-
 function validateCheques(){
 	var table 	= document.getElementById('chequeTable');
 	count		= table.rows.length - 2;
@@ -3513,7 +3553,7 @@ $(document).ready(function() {
 	* Apply Exchange Rate and converted amount
 	*/
 	$('#rateForm #btnProceed').click(function(e){
-		console.log(e);
+		// console.log(e);
 
 		var valid 			= 0;
 		var oldamount 		= $('#rateForm #oldamount').val();
@@ -3904,7 +3944,7 @@ $(document).ready(function() {
 			}
 			else
 			{
-				console.log(data.msg);
+				// console.log(data.msg);
 			}
 		});
 	});
@@ -3967,7 +4007,7 @@ $(document).ready(function() {
 						if(data.code == '1')
 						{
 							$("#payableForm #btnSave").removeClass('disabled');
-							+							$("#payableForm #btnSave_toggle").removeClass('disabled');
+							$("#payableForm #btnSave_toggle").removeClass('disabled');
 							$("#payableForm #h_voucher_no").val(data.voucher);
 							// window.location.href = '<?//=BASE_URL?>financials/payment_voucher';
 						}
