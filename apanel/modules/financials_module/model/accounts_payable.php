@@ -572,7 +572,7 @@ class accounts_payable extends wc_model
 			"pvapp.voucherno rvoucher", "pvapp.apvoucherno apno");
 		$pv_table 		=	"pv_application pvapp";
 		//$pv_cond 		=	"pvapp.stat NOT IN('cancelled','temporary')";
-		$pv_cond 		=	"pvm.stat = 'posted'";
+		$pv_cond 		=	"pvapp.stat = 'posted'";
 		$pv_groupby 	=	"pvapp.apvoucherno";					
 
 		$sub_select = $this->db->setTable($pv_table)
@@ -595,11 +595,9 @@ class accounts_payable extends wc_model
 			"main.lockkey as importchecker",
 			"main.stat as stat",
 			"main.sourceno as sourceno",
-			"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
-			IF(main.balance!=payment.amount AND main.balance!=0,'partial',
-			IF(main.amountpaid=payment.amount AND main.balance=0,'paid','unpaid'))))) payment_status"
+			"IF(main.stat ='cancelled','cancelled',
+			IF(payment.amount > 0,'partial',
+			IF(main.amountpaid = payment.amount AND main.balance<=0,'paid','unpaid'))) payment_status"
 	);
 
 	// "IF(main.amount = main.balance AND main.stat != 'cancelled','unpaid',
@@ -622,9 +620,8 @@ class accounts_payable extends wc_model
 		->setHaving($addCondition)
 		->setOrderBy($sort)
 		->runPagination();
-				// echo $this->db->getQuery();
-		return $result;
 
+		return $result;
 	}
 
 	public function buildQuery($table, $fields = array(), $cond = "")
