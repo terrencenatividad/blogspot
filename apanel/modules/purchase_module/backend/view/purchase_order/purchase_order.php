@@ -362,7 +362,7 @@
 											->setName('itemprice['.$row.']')
 											->setId('itemprice['.$row.']')
 											->setClass("text-right price")
-											->setValidation('required decimal')
+											->setValidation('decimal')
 											->setAttribute(array("maxlength" => "20"))
 											->setValue(number_format($price,2))
 											->draw($show_input);
@@ -1565,6 +1565,7 @@ function finalizeTransaction(type, error, checkamount, date_checker)
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
 	var no_error = true;
+	var amount_error = true; // cannot be zero
 	$('.quantity').each(function() {
 		if( $(this).val() <= 0 )
 		{
@@ -1573,15 +1574,24 @@ function finalizeTransaction(type, error, checkamount, date_checker)
 		}
 	});
 
+	// $('.price').each(function() {
+	// 	if( $(this).val() <= 0 )
+	// 	{
+	// 		no_error = false;
+	// 		$(this).closest('div').addClass('has-error');
+	// 	}
+	// });
+
+	var total_price 	= 0;
 	$('.price').each(function() {
-		if( $(this).val() <= 0 )
-		{
-			no_error = false;
-			$(this).closest('div').addClass('has-error');
-		}
+		total_price += parseFloat($(this).val());
 	});
 
-	if($("#purchase_order_form").find('.form-group.has-error').length == 0 && no_error)
+	if(total_price == 0) {
+		amount_error = false;
+	}
+
+	if($("#purchase_order_form").find('.form-group.has-error').length == 0 && no_error && amount_error)
 	{	
 		$('#save').val(type);
 		computeAmount();
@@ -1615,7 +1625,11 @@ function finalizeTransaction(type, error, checkamount, date_checker)
 		}
 	}
 	else{
-		$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
+		if(no_error == false) {
+			$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
+		} else if(amount_error == false){
+			$('#warning_modal').modal('show').find('#warning_message').html('The Total Amount of this transaction cannot be zero.');		
+		}
 		//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
 		//$("#purchase_order_form").find('.form-group.has-error').first().find('input, textarea, select').focus();
 		next = $('#purchase_order_form').find(".has-error").first();
@@ -1631,6 +1645,7 @@ function finalizeEditTransaction()
 	$("#purchase_order_form").find('.form-group').find('input, textarea, select').trigger('blur');
 
 	var no_error = true;
+	var amount_error = true; // cannot be zero
 	$('.quantity').each(function() {
 		if( $(this).val() <= 0 )
 		{
@@ -1639,13 +1654,22 @@ function finalizeEditTransaction()
 		}
 	});
 
+	// $('.price').each(function() {
+	// 	if( $(this).val() <= 0 )
+	// 	{
+	// 		no_error = false;
+	// 		$(this).closest('div').addClass('has-error');
+	// 	}
+	// });
+
+	var total_price 	= 0;
 	$('.price').each(function() {
-		if( $(this).val() <= 0 )
-		{
-			no_error = false;
-			$(this).closest('div').addClass('has-error');
-		}
+		total_price += parseFloat($(this).val());
 	});
+
+	if(total_price == 0) {
+		amount_error = false;
+	}
 	
 	if($('#purchase_order_form').find('.form-group.has-error').length == 0  && no_error)
 	{
@@ -1712,7 +1736,13 @@ function finalizeEditTransaction()
 	}
 	else 
 	{
-		$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');
+		if(no_error == false) {
+			$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
+		} else if(amount_error == false){
+			$('#warning_modal').modal('show').find('#warning_message').html('The Total Amount of this transaction cannot be zero.');		
+		}
+		next = $('#purchase_order_form').find(".has-error").first();
+		$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 		// $("#purchase_order_form").find('.form-group.has-error').first().find('input, textarea, select').focus();
 	}
 
