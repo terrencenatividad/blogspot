@@ -644,7 +644,9 @@
 											</td>	
 										</tr>	
 										<tr id="total">
-											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<?php if($toggle_wtax != 'hidden') {  ?>
+												<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<?php }  ?>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
