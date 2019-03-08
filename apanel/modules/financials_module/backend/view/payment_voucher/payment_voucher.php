@@ -10,6 +10,7 @@
 		<p class = "text-bold">Please contact admin to fix this issue.</p>
 	</div>
 	<form method = "post" class="form-horizontal" id = "payableForm">
+		<input type = "hidden" id = "h_task" name = "h_task" value="<?php echo $task;?>">
 		<input type = "hidden" id = "bank_name" name = "bank_name">
 		<?php if($task == 'edit') { ?>
 			<input type = "hidden" id = "bankcode" name = "bankcode" value = "<?php echo $bankcode; ?>">
@@ -3986,6 +3987,35 @@ $(document).ready(function() {
 			validateField('paymentForm', e.target.id, e.target.id + "_help");
 	});
 
+	function finalize_saving(button_name){
+		$.post("<?=BASE_URL?>financials/payment_voucher/ajax/update_temporarily_saved_data",$("#payableForm").serialize())
+		.done(function(data)
+		{	
+			if(data.success == 1) {
+				$('#delay_modal').modal('show');
+				setTimeout(function() {
+					if(button_name == 'save') {
+						window.location.href = '<?=MODULE_URL?>view/'+ data.voucher;	
+					} else if(button_name == 'save_new') {
+						window.location.href = '<?=MODULE_URL?>create';
+					} else if(button_name == 'save_exit') {
+						window.location.href = '<?=MODULE_URL?>';	
+					}							
+				}, 1000)
+			} else {
+				var msg = "";
+
+				for(var i = 0; i < data.msg.length; i++)
+				{
+					msg += data.msg[i];
+				}
+
+				$("#errordiv").removeClass("hidden");
+				$("#errordiv #msg_error ul").html(msg);
+			}
+		});
+	}
+
 	// Process New Transaction
 	if('<?= $task ?>' == "create"){
 		/**SAVE TEMPORARY DATA THROUGH AJAX**/
@@ -4017,13 +4047,21 @@ $(document).ready(function() {
 		});
 
 		/**FINALIZE TEMPORARY DATA AND REDIRECT TO LIST**/
-		$("#payableForm #btnSave").click(function()
-		{
+		$("#payableForm #btnSave").click(function(){
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);						
 			var valid	= 0;
+			var button_name = "save";
+
 			var selected_rows 	= JSON.stringify(container);
+
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','vendor', "vendor_help");
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
+			
+			/**validate items**/
+			valid		+= validateDetails();
 			
 			if(selected_rows == "[]")
 			{
@@ -4051,10 +4089,12 @@ $(document).ready(function() {
 				valid		+= validateDetails();
 			}
 
-			if(valid == 0)
-			{
+			var form_element = $(this).closest('form');
+
+			if(valid == 0 && form_element.closest('form').find('.form-group.has-error').length == 0) {
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
+				
 				$('.cancelled').prop("disabled",false);
 				
 				$("#payableForm #btnSave").html('Saving...');
@@ -4066,12 +4106,13 @@ $(document).ready(function() {
 				{	
 					if(data.code == 1)
 					{
-						$('#delay_modal').modal('show');
-						setTimeout(function() {													
-							$("#payableForm #h_voucher_no").val(data.voucher);
-							$("#payableForm").submit();
-						}, 1000)
-						
+						// $('#delay_modal').modal('show');
+						// setTimeout(function() {													
+						// 	$("#payableForm #h_voucher_no").val(data.voucher);
+						// 	$("#payableForm").submit();
+						// }, 1000)
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);		
 					}
 					else
 					{
