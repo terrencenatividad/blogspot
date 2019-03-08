@@ -158,14 +158,16 @@ class purchase_order extends wc_model
 		->setGroupBy('pr.source_no')
 		->buildSelect();
 
-		return $this->db->setTable('purchaseorder po')
-		->setFields($fields)
-		->leftJoin('partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" AND p.companycode = po.companycode')
-		->leftJoin("($receipt) pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode")
-		->setWhere(" po.stat NOT IN ( 'temporary' )   $add_query")
-		->setOrderBy($sort)
-		->setGroupBy('po.voucherno')
-		->runPagination();		
+		$result = $this->db->setTable('purchaseorder po')
+							->setFields($fields)
+							->leftJoin('partners p ON p.partnercode = po.vendor AND p.partnertype = "supplier" AND p.companycode = po.companycode')
+							->leftJoin("($receipt) pr ON pr.source_no = po.voucherno AND pr.vendor = p.partnercode")
+							->setWhere(" po.stat NOT IN ( 'temporary' )   $add_query")
+							->setOrderBy($sort)
+							->setGroupBy('po.voucherno')
+							->runPagination();	
+		// echo $this->db->getQuery();
+		return $result;
 	}
 
 	public function retrieveExistingPO($voucherno)

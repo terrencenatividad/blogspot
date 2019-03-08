@@ -380,15 +380,25 @@ class controller extends wc_controller
 				->setSummaryWidth(array('170', '30'));
 		
 		$documentcontent	= $this->stock_transfer->getDocumentApprovalContent($voucherno);
-		$detail_height = 37;
+		$detail_height = 30;
 
 		$total_quantity = 0;
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
+				$detail_height = 30;
 			}
 
 			
+			$y = $print->GetY();
+			$print->addRow($row);
+			$y2 = $print->GetY();
+
+			$numlines = ($y - 58 > 0) ? (($y2 - $y) / 6) - 1 : 0;
+
+			$detail_height -= $numlines;
+
+
 			if($row->serialno != "" || $row->engineno != "" || $row->chassisno != ""){
 				$qty = 1;
 				$sn = ($row->serialno == '')? 'N/A':$row->serialno;
