@@ -1876,13 +1876,13 @@
 												$('#delay_modal').modal('show');
 												setTimeout(function() {
 													window.location = data.redirect;
-												},1000);
+												},500);
 											});
 										} else {
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},1000);
+											},500);
 										}
 									}
 								});
@@ -1905,13 +1905,13 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},1000);
+											},500);
 										});
 									} else {
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},1000);
+										},500);
 									}
 								}
 							}
@@ -1969,13 +1969,13 @@
 												$('#delay_modal').modal('show');
 												setTimeout(function() {
 													window.location = data.redirect;
-												},1000);
+												},500);
 											});
 										} else {
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},1000);
+											},500);
 										}
 									}
 								});
@@ -1998,13 +1998,13 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},1000);
+											},500);
 										});
 									} else {
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},1000);
+										},500);
 									}
 								}
 							}
@@ -2061,13 +2061,13 @@
 												$('#delay_modal').modal('show');
 												setTimeout(function() {
 													window.location = data.redirect;
-												},1000);
+												},500);
 											});
 										} else {
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},1000);
+											},500);
 										}
 									}
 								});
@@ -2090,13 +2090,13 @@
 											$('#delay_modal').modal('show');
 											setTimeout(function() {
 												window.location = data.redirect;
-											},1000);
+											},500);
 										});
 									} else {
 										$('#delay_modal').modal('show');
 										setTimeout(function() {
 											window.location = data.redirect;
-										},1000);
+										},500);
 									}
 								}
 							}
@@ -2225,7 +2225,7 @@
 						$('#attachment_success').modal('show');
 						setTimeout(function() {							
 							window.location = '<?=MODULE_URL?>view/'+voucherno;						
-						}, 1000)
+						}, 500)
 					<?php } ?>
 
 					var msg = data.result['files'][0]['name'];
