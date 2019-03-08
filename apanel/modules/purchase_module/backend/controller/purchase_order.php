@@ -267,7 +267,7 @@ class controller extends wc_controller
 		$data['proforma_list'] 	= $this->po->retrieveProformaList();
 		$data["business_type"] 	= $this->po->getOption("businesstype");
 		$data["vat_type"] 		= $this->po->getOption("vat_type");
-		$data['budget_list'] = $this->po->getBudgetCodes();
+		$data['budget_list']	= $this->po->getBudgetCodes();
 		$data["tax_codes"] 		= $this->po->getTaxCode('VAT',"fstaxcode ind, shortname val");
 		$data["wtax_codes"] 	= $this->po->getTaxCode('WTX',"fstaxcode ind, shortname val");
 
@@ -652,7 +652,7 @@ class controller extends wc_controller
 		if( !empty($pagination->result) ) :
 			foreach ($pagination->result as $key => $row) {
 
-				$vendor 	= $this->po->getValue('partners',array('first_name','last_name')," partnercode = '$row->vendor' ");
+				$vendor 	= $this->po->getValue('partners',array('first_name','last_name'),'partnercode = "'.$row->vendor.'"');
 				$has_rcpt 	= $this->po->getValue('purchasereceipt',array('COUNT(voucherno) as receipt')," source_no = '$row->voucherno' ");
 				
 				//$vendor_name 	=	$vendor[0]->first_name . " " . $vendor[0]->last_name;

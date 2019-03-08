@@ -545,7 +545,9 @@
 											</td>	
 										</tr>	
 										<tr id="total">
-											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<?php if($toggle_wtax != 'hidden') {  ?>
+												<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<?php }  ?>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
@@ -1517,28 +1519,45 @@
 			var acctfield 	= $(this);
 			var budget 		= $(this).closest('tr').find('.budgetcode').val();
 			row = $(this).closest('tr');
-			$.post('<?=MODULE_URL?>ajax/ajax_check_cwt', '&accountcode=' + accountcode, function(data) {
-				if(data.checker == 'true') {
-					$('#atcModal').modal('show');
-					$('#tax_account').html(data.ret);
-					$('#tax_amount').val('');
-				} else {
-					$(this).closest('tr').find('.checkbox-select').show();
-					$(this).closest('tr').find('.edit-button').hide();
-				}
-			}).done(function(){
-				if(budget==""){
-					$.post('<?=MODULE_URL?>ajax/checkifacctisinbudget', "accountcode=" + accountcode, function(data) {
-						if(data.result == 1){
-							acctfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
-						} else {
-							acctfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
-						}
-					});
-				} else {
-					checkifpairexistsinbudget(accountcode, budget, acctfield, 'item');
-				}
-			});
+			var wtax = '<?=$wtax_option?>';
+			if(wtax == 'AP') {
+				$.post('<?=MODULE_URL?>ajax/ajax_check_cwt', '&accountcode=' + accountcode, function(data) {
+					if(data.checker == 'true') {
+						$('#atcModal').modal('show');
+						$('#tax_account').html(data.ret);
+						$('#tax_amount').val('');
+					} else {
+						$(this).closest('tr').find('.checkbox-select').show();
+						$(this).closest('tr').find('.edit-button').hide();
+					}
+				}).done(function(){
+					if(budget==""){
+						$.post('<?=MODULE_URL?>ajax/checkifacctisinbudget', "accountcode=" + accountcode, function(data) {
+							if(data.result == 1){
+								acctfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
+							} else {
+								acctfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
+							}
+						});
+					} else {
+						checkifpairexistsinbudget(accountcode, budget, acctfield, 'item');
+					}
+				});
+			} else {
+				$(function(){
+					if(budget==""){
+						$.post('<?=MODULE_URL?>ajax/checkifacctisinbudget', "accountcode=" + accountcode, function(data) {
+							if(data.result == 1){
+								acctfield.closest('tr').find('.budgetcode').closest('.form-group').addClass('has-error');
+							} else {
+								acctfield.closest('tr').find('.budgetcode').closest('.form-group').removeClass('has-error');
+							}
+						});
+					} else {
+						checkifpairexistsinbudget(accountcode, budget, acctfield, 'item');
+					}
+				});
+			}
 		});
 
 		var creditamt = 0;
@@ -1579,6 +1598,7 @@
 
 		var data_id = 2;
 		$('.add-data').on('click', function() {
+			data_id = $('#itemsTable tbody tr.clone .linenum').last().val();
 			$('#itemsTable tbody tr.clone select').select2('destroy');
 
 			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 
@@ -1588,9 +1608,10 @@
 			clone.clone(true).insertAfter(ParentRow);
 
 			$('#itemsTable tbody tr.clone select').select2({width: "100%"});
+			$('#itemsTable tbody tr.clone .accountcode').last().val('').trigger('change');
 			$('#itemsTable tbody tr.clone #detailparticulars').last().val('');
-			$('#itemsTable tbody tr.clone #debit').last().val('');
-			$('#itemsTable tbody tr.clone #credit').last().val('');
+			$('#itemsTable tbody tr.clone #debit').last().val('').removeAttr('readonly');
+			$('#itemsTable tbody tr.clone #credit').last().val('').removeAttr('readonly');
 			$('#itemsTable tbody tr.clone .edit-button').last().hide();
 			$('#itemsTable tbody tr.clone #taxcode').last().val('');
 			$('#itemsTable tbody tr.clone #taxbase_amount').last().val('');
