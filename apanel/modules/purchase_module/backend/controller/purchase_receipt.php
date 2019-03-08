@@ -823,7 +823,6 @@ class controller extends wc_controller {
 				}
 				else {
 					$upload_result 	= $this->purchase_model->uploadAttachment($post_data);
-					var_dump($upload_result);	 
 				}
 
 			}else{

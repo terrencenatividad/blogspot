@@ -1825,11 +1825,11 @@
 							if ($('#file').val() != "") {
 								$('#attachments_form').bind('fileuploadprogress', function(e, data2) {
 									$('#uploading_modal').modal('show');	
-									console.log('start');
+									// console.log('start');
 								});
-								$('#attachments_form').bind('fileuploadalways', function (e, data2) {
+								$('#attachments_form').bind('fileuploadstop', function (e, data2) {
 									$('#uploading_modal').modal('hide');
-									console.log('done');
+									// console.log('done');
 									$('#delay_modal').modal('show');
 									setTimeout(function() {
 										window.location = data.redirect;

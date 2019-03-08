@@ -323,20 +323,26 @@ class controller extends wc_controller
 		
 		$documentcontent	= $this->stock_transfer->getDocumentRequestContent($voucherno);
 
-		$detail_height = 37;
+		$detail_height = 30;
 		$total_quantity = 0;
 
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
+				$detail_height = 30;
 			}
-
 			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
 
-			$print->addRow($row);
-			
 
+			$y = $print->GetY();
+			$print->addRow($row);
+			$y2 = $print->GetY();
+
+			$numlines = ($y - 58 > 0) ? (($y2 - $y) / 6) - 1 : 0;
+
+			$detail_height -= $numlines;
+			
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;

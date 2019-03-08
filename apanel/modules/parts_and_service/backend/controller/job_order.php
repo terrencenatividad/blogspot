@@ -267,7 +267,7 @@ class controller extends wc_controller {
 			'REF #'				=> $header->reference
 		);
 		$print = new jo_print_model();
-		$print->setDocumentType('Delivery Receipt')
+		$print->setDocumentType('JOB ORDER')
 				->setFooterDetails(array('Approved By', 'Checked By'))
 				->setCustomerDetails($customer)
 				->setRemarksDetail($header->notes)
@@ -277,14 +277,15 @@ class controller extends wc_controller {
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(40, 85, 25, 25, 25))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
-				->setHeader(array('Item Code', 'Description', 'Qty', 'Issued Qty', 'UOM'))
-				->setRowAlign(array('L', 'L', 'R', 'R', 'L'))
-				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('J','R','R'));
+		$print->setHeaderWidth(array(40, 100, 30, 30))
+					->setHeaderAlign(array('C', 'C', 'C', 'C'))
+					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+					->setRowAlign(array('L', 'L', 'R', 'L'))
+					->setSummaryWidth(array('120', '50', '30'))
+					->setSummaryAlign(array('J','R','R'));	
 		
-		$documentcontent	= $this->job_order->getJRcontent($voucherno);
+		$documentcontent	= $this->job_order->getJOcontent($voucherno);
+		$documentcontent1	= $this->job_order->getJRcontent($voucherno);
 		$detail_height = 37;
 
 		/**
@@ -296,70 +297,84 @@ class controller extends wc_controller {
 		$print_data['printdate'] = date("Y-m-d H:i:s");
 		$this->job_order->updateData($print_data, "job_order", " job_order_no = '$voucherno' AND print = '0' ");
 
-		$hasSerial = false;
-		foreach($documentcontent as $key => $row) {
-			if ($row->serialnumbers != ''){
-				$hasSerial = true;
-			}
-		}
-
-		if ($hasSerial) {
-			$print->setHeaderWidth(array(30, 50, 20, 20, 20, 20, 20, 20))
-					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'))
-					->setHeader(array('Item Code', 'Description', 'Qty', 'Issued Qty', 'UOM', 'S/N', 'E/N', 'C/N',))
-					->setRowAlign(array('L', 'L', 'R', 'R', 'L', 'L', 'L', 'L'))
-					->setSummaryWidth(array('120', '50', '30'))
-					->setSummaryAlign(array('J','R','R'));		
-		}
-
-		//$notes = preg_replace('!\s+!', ' ', $documentinfo->notes);
 		$notes = htmlentities($header->notes);
 		$total_quantity = 0;
 		$total_issuedqty = 0;
-		// var_dump($documentcontent);
+		
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
 			}
+			
+			$total_quantity += $row->quantity;
+			$print->addRow(array($row->itemcode,$row->detailparticular, $row->quantity, $row->uom));
 
-			$total_quantity	 += $row->quantity;
-			$total_issuedqty += $row->issuedqty;
-			$row->quantity	= number_format($row->quantity, 0);
-			$row->issuedqty	= number_format($row->issuedqty, 0);
-			if($hasSerial){
-				$print->addRow(array($row->itemcode, $row->detailparticular, $row->quantity, $row->issuedqty, $row->uom, '', '', ''));
-				if ($row->serialnumbers != '') {
-					$serials = explode(',', $row->serialnumbers);
-					foreach($serials as $id) {
-						$serial = $this->job_order->getSerialById($id);
-						$sndisplay = $serial->serialno;
-						$endisplay = $serial->engineno;
-						$cndisplay = $serial->chassisno;
-						$print->addRow(array('', '', '', '', '', $sndisplay, $endisplay, $cndisplay));
-					}
-				}
-			} 
-			else {
-				$print->addRow($row);
-			}
+
 			if (($key + 1) % $detail_height == 0) {
+				
 				$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
-											array($notes, 'Total Issued Qty', $total_issuedqty),
+											array($notes, '', ''),
 											array('', '', ''),
 											array('', '', ''),
 											array('', '', '')
 				));
-				$total_quantity  = 0;
-				$total_issuedqty = 0;
+				$total_amount = 0;
 			}
 		}
+
 		$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
-											array($notes, 'Total Issued Qty', $total_issuedqty),
+		array($notes, '', ''),
+		array('', '', ''),
+		array('', '', ''),
+		array('', '', '')
+		));
+
+		$print->setDocumentType('Delivery Receipt')
+				->setFooterDetails(array('Approved By', 'Checked By'))
+				->setCustomerDetails($customer)
+				->setRemarksDetail($header->notes)
+				->setDocumentDetails($docheader)
+				->setStatDetail($header->stat)
+				->setDocumentInfo($header)
+				->addReceived();
+
+		$print->setHeaderWidth(array(25, 30, 85, 30, 30))
+					->setHeaderAlign(array('C', 'C', 'C', 'C','C'))
+					// ->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+					->setHeader1(array('Date','Item Code', 'Description', 'Qty', 'UOM'))
+					->setRowAlign(array('L', 'L', 'L', 'R', 'L'))
+					->setSummaryWidth(array('120', '50', '30'))
+					->setSummaryAlign(array('J','R','R'));	
+
+		foreach ($documentcontent1 as $key => $row) {
+			if ($key % $detail_height == 0) {
+				$print->drawHeader1();
+			}
+			
+			$total_issuedqty += $row->quantity;
+			$issuancedate = $this->date->dateFormat($row->issuancedate);
+			$print->addRow1(array($issuancedate,$row->itemcode,$row->detailparticulars, $row->quantity, $row->unit));
+
+
+			if (($key + 1) % $detail_height == 0) {
+				
+				$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
+											array($notes, '', ''),
 											array('', '', ''),
 											array('', '', ''),
 											array('', '', '')
-		));
-		$print->drawPDF('Job Order - ' . $voucherno);
+				));
+				$total_amount = 0;
+			}
+		}
+		$print->drawSummary(array(array('Notes:', 'Total Issued Qty', $total_issuedqty),
+		array($notes, '', ''),
+		array('', '', ''),
+		array('', '', ''),
+		array('', '', '')
+));
+		
+		$print->drawPDF('Delivery Receipt - ' . $voucherno);
 	}
 	
 	public function payment($id) {

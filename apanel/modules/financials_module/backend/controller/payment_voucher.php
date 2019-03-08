@@ -876,6 +876,7 @@ class controller extends wc_controller
 
 		if($result){
 			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
+			$this->payment_voucher->editData($data, "pv_application", "voucherno = '$id'");
 			$code 	= 1; 
 			$msg 	= "Successfully Posted voucher ".$id;
 			$this->logs->saveActivity("Posted Payment Voucher [$id]");
@@ -898,6 +899,7 @@ class controller extends wc_controller
 
 		if($result){
 			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
+			$this->payment_voucher->editData($data, "pv_application", "voucherno = '$id'");
 			$code 	= 1; 
 			$msg 	= "Successfully Unposted voucher ".$id;
 			$this->logs->saveActivity("Unposted Payment Voucher [$id]");
