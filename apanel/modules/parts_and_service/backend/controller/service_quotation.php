@@ -504,10 +504,10 @@ class controller extends wc_controller {
 				// ->addTermsAndCondition()
 				->addReceived();
 
-		$print->setHeaderWidth(array(25, 40, 15, 10, 15, 25, 20, 20, 30))
-				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C','C','C'))
-				->setHeader(array('Item Code', 'Description', 'Warranty', 'Qty', 'UOM', 'Price','Discount','Tax','Amount'))
-				->setRowAlign(array('L', 'L', 'L', 'R', 'L', 'R', 'R','R','R'))
+		$print->setHeaderWidth(array(30, 40, 20, 20, 30, 30, 30))
+				->setHeaderAlign(array('C','C','C','C','C','C','C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price','Tax','Amount'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'R','R','R'))
 				->setSummaryWidth(array('120', '50', '30'))
 				->setSummaryAlign(array('L','R','R'));
 

@@ -3448,7 +3448,7 @@ function add_storage(id,balance,discount,credits,excess){
 		if(found === false) {
 			var discount_val 	=	0;
 			container.push(newvalue);
-			// $('#payable_list_container #payable_balance'+id).html('0.00');
+			$('#payable_list_container #payable_balance'+id).html('0.00');
 			$('#payable_list_container #discountamount'+id).val(addCommas(discount_val.toFixed(2)));
 			$('#payable_list_container #credits_used'+id).val('0.00');
 		}
