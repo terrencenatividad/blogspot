@@ -1628,7 +1628,7 @@ function finalizeTransaction(type, error, checkamount, date_checker)
 		if(no_error == false) {
 			$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
 		} else if(amount_error == false){
-			$('#warning_modal').modal('show').find('#warning_message').html('The Total Amount of this transaction cannot be zero.');		
+			$('#warning_modal').modal('show').find('#warning_message').html('The total amount for this Purchase Order should not be equal to zero.');		
 		}
 		//$('#warning_modal').modal('show').find('#warning_message').html('Please Input Quantity > 0');
 		//$("#purchase_order_form").find('.form-group.has-error').first().find('input, textarea, select').focus();
@@ -1739,7 +1739,7 @@ function finalizeEditTransaction()
 		if(no_error == false) {
 			$('#warning_modal').modal('show').find('#warning_message').html('Please make sure all required fields are filled out.');		
 		} else if(amount_error == false){
-			$('#warning_modal').modal('show').find('#warning_message').html('The Total Amount of this transaction cannot be zero.');		
+			$('#warning_modal').modal('show').find('#warning_message').html('The total amount for this Purchase Order should not be equal to zero.');		
 		}
 		next = $('#purchase_order_form').find(".has-error").first();
 		$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
