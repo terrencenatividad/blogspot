@@ -596,7 +596,7 @@ class accounts_payable extends wc_model
 			"main.stat as stat",
 			"main.sourceno as sourceno",
 			"IF(main.stat ='cancelled','cancelled',
-			IF(payment.amount > 0 AND main.balance > 0 AND main.amount > payment.amount,'partial',
+			IF(payment.amount > 0 AND main.amount > payment.amount,'partial',
 			IF(main.amountpaid = payment.amount AND main.balance<=0,'paid','unpaid'))) payment_status"
 	);
 

@@ -71,7 +71,7 @@ class print_check extends fpdf {
         $this->SetFont('Times','',10);
         $this->Cell(160,4,'',0,0,'R');
         $this->SetFont('Times','',10);
-        $this->RotatedText(84, 46, $date, 90);
+        $this->RotatedText(87, 46, $date, 90);
         $this->Ln(8);
 
         $this->SetFont('Times','',10);
@@ -82,17 +82,17 @@ class print_check extends fpdf {
         $this->Cell(2,3,'',0,0,'C');
         $this->Cell(2,3,'',0,0,'C');
         $this->Cell(40,3,"",0,0,'L');
-        $this->RotatedText(92.5, 165,'**'.strtoupper($vendor).'**', 90);
+        $this->RotatedText(95.5, 165,'**'.strtoupper($vendor).'**', 90);
         $this->Cell(2,3,'',0,0,'C');
         $this->SetFont('Times','',10);
-        $this->RotatedText(92.5, 43,number_format($amount,2), 90);
+        $this->RotatedText(95.5, 43,number_format($amount,2), 90);
         $this->SetFont('Times','',10);
         
         $this->Ln(12);
         $this->Cell(2,3,'',0,0,'C');
         $this->Cell(2,3,'',0,0,'C');
         $this->Cell(13,3,"",0,0,'L');
-        $this->RotatedText(100.5, 180,'**'.strtoupper($first_part).'**', 90);
+        $this->RotatedText(103.5, 180,'**'.strtoupper($first_part).'**', 90);
         
         $this->Ln(6);
         $this->Cell(2,3,'',0,0,'C');
