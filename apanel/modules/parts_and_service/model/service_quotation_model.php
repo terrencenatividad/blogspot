@@ -316,6 +316,7 @@ class service_quotation_model extends wc_model
 		$result = $this->db->setTable('servicequotation_details sq')
 						->setFields("itemcode, detailparticular, qty quantity, uom, unitprice price, taxamount, amount, taxcode, taxrate")
 						->setWhere("voucherno='$voucherno'")
+						->setOrderBy('linenum ASC')
 						->runSelect()
 						->getResult();
 
