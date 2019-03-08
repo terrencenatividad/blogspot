@@ -433,7 +433,7 @@ class payment_voucher_model extends wc_model
 		}
 
 		$mainTable 		= "accountspayable main";
-		$mainFields 	= array("main.companycode, main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount) balance, 
+		$mainFields 	= array("main.companycode, main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount - COALESCE(pv.payment,0)) balance, 
 			(main.convertedamount - COALESCE(pv.payment,0)) remaining_for_payment, COALESCE(pv.convertedamount,0) as payment, main.exchangerate as exchangerate");
 		$mainCondition	= "main.stat = 'posted' AND main.vendor = '$vendorcode'";
 		$mainGroupBy 	= "main.voucherno";

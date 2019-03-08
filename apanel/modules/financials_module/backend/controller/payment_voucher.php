@@ -1114,12 +1114,13 @@ class controller extends wc_controller
 					// echo "Balance : ".$balance_2."\n\n";
 					// echo "Discount : ".$discount."\n\n";
 
-					// $balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
-					// $balance_2 	= $balance_2 - $amount - $discount;
-					// $balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
+					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
+					$balance_2 	= $balance_2 - $amount - $discount;
+					$balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
 					// $balance 	= ($task == "edit") ? $balance + $appliedamount + $applieddiscount  : $balance;
-					$balance 	= ($balance - $appliedamount - $applieddiscount);
-					$balance_2 	= ($amount > 0) ? $balance - $amount - $discount : $balance;
+					// $balance 	= ($balance - $appliedamount - $applieddiscount);
+					// $balance_2 	= ($amount > 0) ? $balance - $amount - $discount : $balance;
+					$balance 	= ($task == "edit") ? $appliedamount + $applieddiscount  : $balance;
 
 					// echo "Balance 1 : ".$balance."\n\n";
 					// echo "Balance 2 : ".$balance_2."\n\n";
@@ -1306,6 +1307,7 @@ class controller extends wc_controller
 			$apvoucherno = $decode_json[$i]["vno"];
 			$accountcode = $this->payment_voucher->getValue('ap_details apd LEFT JOIN chartaccount AS chart ON apd.accountcode = chart.id AND chart.companycode = apd.companycode','accountcode',"voucherno = '$apvoucherno' AND chart.accountclasscode = 'ACCPAY'","","","apd.accountcode");
 			$accountcode = isset($accountcode[0]->accountcode)   ?  $accountcode[0]->accountcode   :  "";
+			// echo $accountcode."\n\n";
 			if ( ! isset($account_amounts[$accountcode])) {
 				$account_amounts[$accountcode] = 0;
 			}
@@ -1328,7 +1330,7 @@ class controller extends wc_controller
 
 		$results			= ($cheques) ? $cheques : array(array());
 		$result 			= $this->payment_voucher->retrievePVDetails($data);
-
+		// var_dump($result);
 		$results			= array_merge($result, $results);
 		$table 				= "";
 		$row 				= 1;
@@ -1355,15 +1357,9 @@ class controller extends wc_controller
 				$accountcode       	= (!empty($results[$i]->accountcode)) 			? $results[$i]->accountcode 		: "";
 				$detailparticulars 	= (!empty($results[$i]->detailparticulars)) 	? $results[$i]->detailparticulars 	: "";
 				$ischeck 			= (!empty($results[$i]->ischeck)) 				? $results[$i]->ischeck 			: "no";
-				// Sum of credit will go to debit side on PV
-				// $debit         	   = number_format($results[$i]->sumcredit, 2);
-				$debit = (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
-				// $debit = ($paymenttype == 'cheque' && isset($account_total[$accountcode])) ?  $results[$i]->chequeamount : 0;
+				$debit 				= (isset($account_total[$accountcode])) ? $account_total[$accountcode] : 0;
 				$totaldebit    	   += $credit;
-
-				// $discount_class 	=	($discount_code == $accountcode) 	?	"discount_row" : "";
-
-				$basecurrency = $exchangerate * $debit;
+				$basecurrency 		= $exchangerate * $debit;
 				
 				$table .= '<tr class="clone" valign="middle">';
 				$table .= 	'<td class = "checkbox-select remove-margin text-center '.$toggle_wtax.'">';
