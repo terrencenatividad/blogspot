@@ -1005,51 +1005,29 @@
 					<?endif;?>
 					&nbsp; -->
 					<?php
-					if( $show_input )
-					{
-						$save		= ($task == 'create') ? 'name="save"' : '';
-						$save_new	= ($task == 'create') ? 'name="save_new"' : '';
-						?>
-						<input class = "form_iput" value = "" name = "h_save" id = "save" type = "hidden">
-						
-						
-						<div class="btn-group" id="save_group">
-							<input type = "button" value = "Save & Preview" name = "save" id = "btnSave" class="btn btn-primary btn-flat"/>
-							<input class = "form_iput" value = "" name = "h_save" id = "h_save" type = "hidden">
-							<?php
-							if($task == 'create'){
-								?>
-								<button type="button" id="btnSave_toggle" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-									<span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu left" role="menu">
-									<li style="cursor:pointer;" id="save_new">
-										&nbsp;&nbsp;Save &amp; New
-										<input type = "hidden" value = "" name = "h_save_new" id = "h_save_new"/>
-									</li>
-									<li class="divider"></li>
-									<li style="cursor:pointer;" id="save_preview">
-										&nbsp;&nbsp;Save &amp; Exit
-										<input type = "hidden" value = "" name = "h_save_preview" id = "h_save_preview"/>
-									</li>
-								</ul>
-								<?php
-							}
-							?>
-						</div>
-						&nbsp;&nbsp;&nbsp;
-						
-					<? } ?>
+						if($show_input):
 					
+						echo $ui->addSavePreview()
+								->addSaveNew()
+								->addSaveExit()
+								->drawSaveOption();
 
-
-
+						if($task == 'view') {
+							echo $ui->drawSubmit($show_input);
+						}
+					?>
+						<input class = "form_iput" value = "" name = "submit" id = "submit" type = "hidden">
+					<?	
+						endif;
+					?>
+					&nbsp;
 					<?
 					if(($main_status == 'open' && $has_access == 1) && $restrict_pv){
 						echo '<a role = "button" href="'.MODULE_URL.'edit/'.$generated_id.'" class="btn btn-primary btn-flat">Edit</a>';
 					}
+					echo $ui->drawCancel();
 					?>
-					<button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button>
+					<!-- <button type="button" class="btn btn-default btn-flat" data-id="<?=$generated_id?>" id="btnCancel">Cancel</button> -->
 				</div>
 			</div>
 			
@@ -4099,7 +4077,7 @@ $(document).ready(function() {
 				
 				$("#payableForm #btnSave").html('Saving...');
 
-				$("#payableForm #h_save").val("h_save");
+				$("#payableForm #submit").val("h_save");
 
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
@@ -4134,34 +4112,56 @@ $(document).ready(function() {
 		$("#payableForm #save_new").click(function()
 		{
 			var valid	= 0;
+			var button_name = 'save_new';
+
+			var selected_rows 	= JSON.stringify(container);
 
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','vendor', "vendor_help");
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
 			
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
-			var paymentmode = $('#paymentmode').val();
-			/**validate accounts**/
-			if(paymentmode == 'cheque'){
-				valid 	+=	applySelected_();
+			
+			if(selected_rows == "[]")
+			{
+				bootbox.dialog({
+					message: "Please tag Payables first.",
+					title: "Oops!",
+					buttons: {
+						yes: {
+							label: "OK",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
+								valid		+= 1;
+							}
+						}
+					}
+				});
 			}
+
+			if(valid == 0){
+				var paymentmode = $('#paymentmode').val();
+				/**validate accounts**/
+				if(paymentmode == 'cheque'){
+					valid 	+=	applySelected_();
+				}
+				valid		+= validateDetails();
+			}
+
 			if(valid == 0)
 			{
-				$("#payableForm #h_save").val("h_save_new");
+				$("#payableForm #submit").val("save_new");
 
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
 					if(data.code == 1)
 					{
-						$('#delay_modal').modal('show');
-						setTimeout(function() {													
-							$("#payableForm #h_voucher_no").val(data.voucher);
-							$("#payableForm").submit();
-						}, 1000)
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);	
 					}
 					else
 					{
@@ -4181,37 +4181,127 @@ $(document).ready(function() {
 		});
 
 		/**FINALIZE TEMPORARY DATA AND REDIRECT TO PREVIEW INVOICE**/
-		$("#payableForm #save_preview").click(function()
+		$("#payableForm #save").click(function()
 		{
 			var valid	= 0;
-			
+			var button_name = 'save';
+
+			var selected_rows 	= JSON.stringify(container);
+
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','vendor', "vendor_help");
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
 			
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
-			var paymentmode = $('#paymentmode').val();
-			/**validate accounts**/
-			if(paymentmode == 'cheque'){
-				valid 	+=	applySelected_();
+			
+			if(selected_rows == "[]")
+			{
+				bootbox.dialog({
+					message: "Please tag Payables first.",
+					title: "Oops!",
+					buttons: {
+						yes: {
+							label: "OK",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
+								valid		+= 1;
+							}
+						}
+					}
+				});
 			}
+
+			if(valid == 0){
+				var paymentmode = $('#paymentmode').val();
+				/**validate accounts**/
+				if(paymentmode == 'cheque'){
+					valid 	+=	applySelected_();
+				}
+				valid		+= validateDetails();
+			}
+			
 			if(valid == 0)
 			{
-				$("#payableForm #h_save").val("h_save_preview");
+				$("#payableForm #submit").val("save");
+
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
+				.done(function(data)
+				{
+					if(data.code == 1){
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);									
+					} else {
+						var msg = "";
+
+						for(var i = 0; i < data.msg.length; i++)
+						{
+							msg += data.msg[i];
+						}
+
+						$("#errordiv").removeClass("hidden");
+						$("#errordiv #msg_error ul").html(msg);
+					}
+				});
+			}
+		});
+
+		/**FINALIZE TEMPORARY DATA AND REDIRECT TO PREVIEW INVOICE**/
+		$("#payableForm #save_exit").click(function()
+		{
+			var valid	= 0;
+			var button_name = "save_exit";
+
+			var selected_rows 	= JSON.stringify(container);
+
+			/**validate vendor field**/
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+			
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
+			
+			/**validate items**/
+			valid		+= validateDetails();
+			
+			if(selected_rows == "[]")
+			{
+				bootbox.dialog({
+					message: "Please tag Payables first.",
+					title: "Oops!",
+					buttons: {
+						yes: {
+							label: "OK",
+							className: "btn-primary btn-flat",
+							callback: function(result) {
+								valid		+= 1;
+							}
+						}
+					}
+				});
+			}
+
+			if(valid == 0){
+				var paymentmode = $('#paymentmode').val();
+				/**validate accounts**/
+				if(paymentmode == 'cheque'){
+					valid 	+=	applySelected_();
+				}
+				valid		+= validateDetails();
+			}
+
+			if(valid == 0)
+			{
+				$("#payableForm #submit").val("save_exit");
 
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
 					if(data.code == 1)
 					{
-						$('#delay_modal').modal('show');
-						setTimeout(function() {													
-							$("#payableForm #h_voucher_no").val(data.voucher);
-							$("#payableForm").submit();
-						}, 1000)
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);	
 					}
 					else
 					{
@@ -4254,21 +4344,23 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO LIST**/
 		$("#payableForm #btnSave").click(function(e)
 		{
-			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)									
-			var valid			= 0;
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);						
+			var valid	= 0;
+			var button_name = "save";
+
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','vendor', "vendor_help");
-			
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
+			valid		+= validateDetails();
+
 			var paymentmode = $('#paymentmode').val();
-			/**validate accounts**/
 			if(paymentmode == 'cheque'){
 				valid 	+=	applySelected_();
 			}
-			valid		+= validateDetails();
 			
 			if(valid == 0)
 			{
@@ -4285,10 +4377,8 @@ $(document).ready(function() {
 				{
 					if(data.code == 1)
 					{
-						$('#delay_modal').modal('show');
-						setTimeout(function() {									
-							$("#payableForm").submit();
-						}, 1000)
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);	
 					}
 					else
 					{
@@ -4309,41 +4399,40 @@ $(document).ready(function() {
 		/**SAVE CHANGES AND REDIRECT TO CREATE NEW INVOICE**/
 		$("#payableForm #save_new").click(function()
 		{
-			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)									
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);				
 			var valid	= 0;
+			var button_name = "save_new";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','vendor', "vendor_help");
-			
-			valid		+= validateField('payableForm','due_date', "due_date_help");
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
+
 			var paymentmode = $('#paymentmode').val();
-			/**validate accounts**/
 			if(paymentmode == 'cheque'){
 				valid 	+=	applySelected_();
 			}
+
 			if(valid == 0)
 			{
 				$("#payableForm #btnSave").addClass('disabled');
 				$("#payableForm #btnSave_toggle").addClass('disabled');
 				
-				
 				$("#payableForm #btnSave").html('Saving...');
 
-				$("#payableForm #h_save").val("h_save_new");
+				$("#payableForm #submit").val("save_new");
 				
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function(data)
 				{
 					if(data.code == 1)
 					{
-						$('#delay_modal').modal('show');
-						setTimeout(function() {										
-							$("#payableForm").submit();
-						}, 1000)
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);	
 					}
 					else
 					{
@@ -4360,25 +4449,73 @@ $(document).ready(function() {
 				});
 			}
 		});
-		
-		$("#payableForm #save_preview").click(function()
-		{
-			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false)						
+
+		$("#payableForm #save").click(function(){
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);				
 			var valid	= 0;
+			var button_name = "save";
 			
 			/**validate vendor field**/
-			valid		+= validateField('payableForm','document_date', "document_date_help");
-			valid		+= validateField('payableForm','vendor', "vendor_help");
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
-			valid		+= validateField('payableForm','duedate', "due_date_help");
+			/**validate items**/
+			valid		+= validateDetails();
+
+			var paymentmode = $('#paymentmode').val();
+			if(paymentmode == 'cheque'){
+				valid 	+=	applySelected_();
+			}
+			
+			if(valid == 0){
+				$("#payableForm #btnSave").addClass('disabled');
+				$("#payableForm #btnSave_toggle").addClass('disabled');
+				
+				$("#payableForm #btnSave").html('Saving...');
+
+				$("#payableForm #submit").val("save");
+
+				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
+				.done(function( data ) {
+					if(data.code == 1) {
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);	
+					} else {
+						var msg = "";
+
+						for(var i = 0; i < data.msg.length; i++)
+						{
+							msg += data.msg[i];
+						}
+
+						$("#errordiv").removeClass("hidden");
+						$("#errordiv #msg_error ul").html(msg);
+					}
+				});
+			}
+		});
+		
+		$("#payableForm #save_exit").click(function()
+		{
+			$('#itemsTable tbody tr td').find('.accountcode').find('option[disabled]').prop('disabled', false);					
+			var valid	= 0;
+			var button_name = "save_exit";
+			
+			/**validate vendor field**/
+			$("#payableForm #vendor").trigger('blur');
+			$("#payableForm #document_date").trigger('blur');
+
+			valid 		+= $("#payableForm").find('.form-group.has-error').length;
 			
 			/**validate items**/
 			valid		+= validateDetails();
 			var paymentmode = $('#paymentmode').val();
-			/**validate accounts**/
 			if(paymentmode == 'cheque'){
 				valid 	+=	applySelected_();
 			}
+
 			if(valid == 0)
 			{
 				$("#payableForm #btnSave").addClass('disabled');
@@ -4386,17 +4523,15 @@ $(document).ready(function() {
 				
 				$("#payableForm #btnSave").html('Saving...');
 
-				$("#payableForm #h_save").val("h_save_preview");
+				$("#payableForm #submit").val("save_exit");
 				
 				$.post("<?=BASE_URL?>financials/payment_voucher/ajax/create_payments",$("#payableForm").serialize())
 				.done(function( data ) 
 				{
 					if(data.code == 1)
 					{
-						$('#delay_modal').modal('show');
-						setTimeout(function() {									
-							$("#payableForm").submit();
-						}, 1000)
+						$("#payableForm #h_voucher_no").val(data.voucher);
+						finalize_saving(button_name);	
 					}
 					else
 					{

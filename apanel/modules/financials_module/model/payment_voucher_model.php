@@ -480,13 +480,13 @@ class payment_voucher_model extends wc_model
 			$fields 	= array("c.companycode, c.voucherno, c.transactiondate, c.amount, c.referenceno, c.balance, c.remaining_for_payment, c.payment, c.exchangerate");
 
 			$result  		=	$this->db->setTable("($main_query) c")
-			->setFields($fields)
-			->setOrderBy('c.transactiondate DESC, c.voucherno DESC')
-			->runPagination();	
+										->setFields($fields)
+										->setOrderBy('c.transactiondate DESC, c.voucherno DESC')
+										->runPagination();	
 										// echo $this->db->getQuery();
 		} else {
 			$result 	=	$query->setOrderBy('transactiondate DESC, voucherno DESC')
-			->runPagination();
+									->runPagination();	
 		}
 		// echo $this->db->getQuery();
 		return $result;

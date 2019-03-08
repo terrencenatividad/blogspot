@@ -1135,7 +1135,8 @@ class controller extends wc_controller
 
 	private function create_payments(){
 		$data_post 	= $this->input->post();
-
+		$submit = $data_post['submit'];
+		
 		$result    	= array_filter($this->payment_voucher->savePayment($data_post));
 
 		$code 		= 0;
@@ -1147,6 +1148,15 @@ class controller extends wc_controller
 			$code 		= $result['code'];
 			$voucher 	= $result['voucher'];
 			$errmsg 	= $result['errmsg'];
+		}
+
+		$redirect_url = MODULE_URL;
+		if ($submit == 'save_new') {
+			$redirect_url = MODULE_URL . 'create';
+		} else if ($submit == 'save') {
+			$redirect_url = MODULE_URL . 'view/' . $voucher;
+		} else if ($submit == 'save_exit') {
+			$redirect_url = MODULE_URL;
 		}
 
 		$dataArray = array("code" => $code, "voucher" => $voucher, "errmsg" => $errmsg);
@@ -1270,12 +1280,12 @@ class controller extends wc_controller
 					// echo "Discount : ".$discount."\n\n";
 
 					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
-					$balance_2 	= $balance_2 - $amount - $discount;
+					$balance_2 	= ($balance_2 - ($appliedamount + $applieddiscount)) - $amount - $discount;
 					$balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
 					// $balance 	= ($task == "edit") ? $balance + $appliedamount + $applieddiscount  : $balance;
 					// $balance 	= ($balance - $appliedamount - $applieddiscount);
 					// $balance_2 	= ($amount > 0) ? $balance - $amount - $discount : $balance;
-					$balance 	= ($task == "edit") ? $appliedamount + $applieddiscount  : $balance;
+					$balance 	= ($task == "edit") ? $balance + $amount + $discount  : $balance;
 
 					// echo "Balance 1 : ".$balance."\n\n";
 					// echo "Balance 2 : ".$balance_2."\n\n";
