@@ -74,6 +74,7 @@
 									->setSplit('col-md-3', 'col-md-8')
 									->setName('short_desc')
 									->setId('short_desc')
+									->setMaxLength(250)
 									->setValue($short_desc)
 									->setValidation('required')
 									->draw($task != "view");

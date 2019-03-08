@@ -373,7 +373,7 @@ class controller extends wc_controller
 
 		
 
-		$print->setHeaderWidth(array(30, 50, 10, 20, 30, 30, 30))
+		$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
@@ -550,8 +550,8 @@ class controller extends wc_controller
 								 ->addView()
 								 ->addEdit($stat == 'open' && ($enteredby == $this->user) && $restrict_str)
 								 ->addOtherTask('Transfer Stocks', 'open',($stat == 'approved' || $stat == 'partial') && $restrict_str)
-								 ->addOtherTask('Approve', 'thumbs-up', $stat == 'open' && $restrict_str)
-								 ->addOtherTask('Reject', 'thumbs-down', $stat == 'open' && $restrict_str)
+								 ->addOtherTask('Approve', 'thumbs-up', MOD_POST && $stat == 'open' && $restrict_str)
+								 ->addOtherTask('Reject', 'thumbs-down', MOD_UNPOST && $stat == 'open' && $restrict_str)
 								 ->addOtherTask('Close Request', 'bookmark', $stat == 'posted' && $restrict_str)
 								 ->addDelete(($stat == 'open') &&  ($enteredby == $this->user) && $restrict_str)
 								 ->addPrint()

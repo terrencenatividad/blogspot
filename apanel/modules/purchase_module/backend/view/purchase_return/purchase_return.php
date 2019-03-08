@@ -462,7 +462,7 @@ function addVoucherDetails(details, index) {
 						->setSplit('', 'col-md-12')
 						->setName('detailparticular[]')
 						->setClass('description')
-						->setMaxLength(100)
+						->setMaxLength(250)
 						->setValue('` + details.detailparticular + `')
 						->addHidden()
 						->draw($show_input);

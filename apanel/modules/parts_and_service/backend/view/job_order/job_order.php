@@ -162,7 +162,7 @@
 										echo $ui->drawSubmitDropdown($show_input, isset($ajax_task) ? $ajax_task : '');
 									}
 								?>
-								<?php if(!$show_input && $stat != 'completed' && $stat != 'cancelled'):?><a href="<?=MODULE_URL?>payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
+								<?php if(!$show_input && $stat != 'completed' && $stat != 'cancelled' && MOD_CLOSE):?><a href="<?=MODULE_URL?>payment/<?php echo $job_order_no ?>" class="btn btn-warning">Issue Parts</a><?endif;?>
 								<a href="<?=BASE_URL;?>parts_and_service/job_order" class="btn btn-default">Cancel</a>
 							</div>
 						</div>
@@ -578,7 +578,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular parent')
-								->setMaxLength(100)
+								->setMaxLength(250)
 								->setAttribute(array('data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->setValue('` + details.detailparticular + `')
 								->draw($show_input);
@@ -597,7 +597,7 @@
 								->setSplit('', 'col-md-12')
 								->setName('detailparticular[]')
 								->setClass('detailparticular parts detailforBundle')
-								->setMaxLength(100)
+								->setMaxLength(250)
 								->setValue('` + details.detailparticular + `')
 								->setAttribute(array('readOnly' => true, 'data-linenum' => '` + (linenum) + `', 'data-parentline' => '` + (parentline) + `'))
 								->draw($show_input);

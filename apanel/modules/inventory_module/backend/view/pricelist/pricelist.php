@@ -49,7 +49,7 @@
 									->setSplit('col-md-4', 'col-md-8')
 									->setName('pricelistdesc')
 									->setId('pricelistdesc')
-									->setMaxLength(200)
+									->setMaxLength(250)
 									->setValue($itemPriceDesc)
 									->setValidation('required')
 									->draw($show_input);
@@ -106,7 +106,7 @@
 											->setSplit('', 'col-md-12')
 											->setName('detailparticulars['.$row.']')
 											->setId('detailparticulars['.$row.']')
-											->setMaxLength(100)
+											->setMaxLength(250)
 											->setAttribute(array("readonly"=>''))
 											->setValue("")
 											->draw($show_input);

@@ -720,7 +720,7 @@ class sales_invoice extends wc_model
 			$header_fields 	= 	"dr.customer, dr.remarks, dr.taxamount, dr.taxcode, (dr.discountamount/so.amount) discount, dr.discounttype, dr.discountamount";
 			$condition 		=	" dr.voucherno = '$code' ";
 			$retrieved_data['header'] 	= 	$this->db->setTable('deliveryreceipt dr')
-													->leftJoin('salesorder so on so.voucherno = dr.source_no AND so.companycode = dr.companycode')
+													->leftJoin('salesorder so on so.voucherno = dr.source_no')
 													->setFields($header_fields)
 													->setWhere($condition)
 													->setLimit('1')
@@ -733,7 +733,7 @@ class sales_invoice extends wc_model
 			$retrieved_data['details'] 	= $this->db->setTable('deliveryreceipt_details drd')
 											->setFields($detail_fields)
 											->leftJoin('deliveryreceipt dr ON dr.voucherno = drd.voucherno')
-											->leftJoin('salesorder_details sod ON sod.voucherno = dr.source_no AND sod.itemcode = drd.itemcode')
+											->leftJoin('salesorder_details sod ON sod.voucherno = dr.source_no AND sod.itemcode = drd.itemcode AND sod.companycode = drd.companycode AND drd.linenum = sod.linenum')
 											->setWhere($condition)
 											->runSelect()
 											->getResult();
@@ -763,6 +763,7 @@ class sales_invoice extends wc_model
 											->runSelect()
 											->getResult();
 		}
+		
 		return $retrieved_data;
 	}
 

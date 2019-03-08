@@ -168,8 +168,12 @@
                             <table class="table table-hover table-condensed " id="itemsTable">
                                 <thead>
                                     <tr class="info">
-                                        <th class="col-md-1 text-center">Withholding Tax</th>
-                                        <th class="col-md-1 text-center">Budget Code</th>
+                                        <th class="col-md-1 text-center <?=$toggle_wtax?>">Withholding Tax</th>
+                                        <?php if($toggle_wtax == 'hidden') {  ?>
+                                            <th class="col-md-2 text-center">Budget Code</th>
+                                        <?php } else { ?>
+                                            <th class="col-md-1 text-center">Budget Code</th>
+                                        <?php } ?>
                                         <th class="col-md-2 text-center">Account</th>
                                         <th class="col-md-2 text-center">Description</th>
                                         <th class="col-md-2 text-center" colspan = "2">Debit</th>
@@ -185,7 +189,7 @@
                                             <?php foreach ($details as $key => $row) : ?>
                                                 <tr class="clone" valign="middle">
                                                     <?php if($ajax_task == 'ajax_view') { ?>
-                                                        <td class = "checkbox-select remove-margin text-center">
+                                                        <td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
                                                             <div class="hidden">
                                                                 <?php
                                                                 echo $ui->formField('checkbox')
@@ -200,7 +204,7 @@
                                                             </div>
                                                         </td>
                                                     <?php } else { ?>
-                                                        <td class = "checkbox-select remove-margin text-center">
+                                                        <td class = "checkbox-select remove-margin text-center <?=$toggle_wtax?>">
                                                             <?php
                                                             echo $ui->formField('checkbox')
                                                             ->setSplit('', 'col-md-12')

@@ -315,7 +315,7 @@
 															->setId('detailparticulars['.$row.']')
 															->setAttribute(
 																array(
-																	"maxlength" => "100"
+																	"maxlength" => "250"
 																)
 															)
 															->setValue("")
@@ -463,7 +463,7 @@
 															->setSplit('', 'col-md-12')
 															->setName('detailparticulars['.$row.']')
 															->setId('detailparticulars['.$row.']')
-															->setAttribute(array("maxlength" => "100","readOnly"=>"readOnly"))
+															->setAttribute(array("maxlength" => "250","readOnly"=>"readOnly"))
 															->setValue($detailparticular)
 															->draw($show_input);
 												?>

@@ -64,7 +64,7 @@
 												->setName('itemdesc')
 												->setId('itemdesc')
 												->setValue($itemdesc)
-												->setMaxLength(1000)
+												->setMaxLength(250)
 												->setValidation('required')
 												->draw($show_input);
 										?>

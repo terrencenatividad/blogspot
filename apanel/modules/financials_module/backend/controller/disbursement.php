@@ -763,6 +763,7 @@ class controller extends wc_controller
 			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
 			$code 	= 1; 
 			$msg 	= "Successfully Posted voucher ".$id;
+			$this->logs->saveActivity("Posted Disbursement Voucher [$id]");
 		}else{
 			$code 	= 0; 
 			$msg 	= "Sorry, the system was unable to Post the voucher.";
@@ -784,6 +785,7 @@ class controller extends wc_controller
 			$this->payment_voucher->editData($data, "pv_details", "voucherno = '$id'");
 			$code 	= 1; 
 			$msg 	= "Successfully Unposted voucher ".$id;
+			$this->logs->saveActivity("Unposted Disbursement Voucher [$id]");
 		}else{
 			$code 	= 0; 
 			$msg 	= "Sorry, the system was unable to Unpost the voucher.";

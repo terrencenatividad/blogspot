@@ -700,7 +700,7 @@ class job_order_model extends wc_model
 		$voucherno 	='';
 		$sourceno 	= $data['job_order_no'];
 		$linenum 	= implode(',', $data['linenum']);
-		$orderstat 	= 'completed';
+		$orderstat 	= 'partial';
 		$data['stat'] = 'released';	
 		
 		$result = $this->db->setTable('job_release')
@@ -730,9 +730,9 @@ class job_order_model extends wc_model
 					$row->quantity -=  $data['quantity'][$key];
 				}
 			}
-			if ($row->quantity) {
-				$orderstat = 'partial';
-			}
+			// if ($row->quantity) {
+			// 	$orderstat = 'partial';
+			// }
 		}
 
 		$order_value = array('stat' => $orderstat);
@@ -772,7 +772,7 @@ class job_order_model extends wc_model
 		return $result;
 	}
 
-	public function deleteJobRelease($id) {
+	public function deleteJobRelease($id,$job_order_no) {
 		$result	= $this->db->setTable('job_release')
 				->setValues(array('stat'=>'cancelled'))
 				->setWhere("job_release_no = '$id'")
@@ -795,9 +795,28 @@ class job_order_model extends wc_model
 
 			if ($result) {
 				$this->log->saveActivity("Deleted Job Release [$id]");
+				$this->updateStatus($job_order_no);
 			}
 
 		return $result;
+	}
+
+	public function updateStatus($job_order_no){
+			$result = $this->db->setTable('job_release')
+							->setFields('job_order_no')
+							->setWhere("job_order_no = '$job_order_no' AND stat != 'cancelled'")
+							->runSelect()
+							->getResult();
+							// echo $this->db->getQuery();
+
+			if(!$result){
+				$result1 = $this->db->setTable('job_order')
+									->setValues(array('stat' => 'prepared'))
+									->setWhere("job_order_no = '$job_order_no'")
+									->runUpdate();
+			return $result1;
+		}
+			
 	}
 		
 	// public function checkIsBundle($data) {
@@ -966,14 +985,15 @@ class job_order_model extends wc_model
 	}
 
 	public function getJRcontent($voucherno){
-		$result = $this->db->setTable('job_order_details jo')
-						->leftJoin('job_release j ON j.job_order_no = jo.job_order_no AND j.itemcode = jo.itemcode')
-						->setFields("jo.itemcode, jo.detailparticular, jo.quantity ,SUM(j.quantity) issuedqty, uom, serialnumbers")
-						->setWhere("jo.job_order_no='$voucherno' AND j.stat != 'cancelled'")
-						->setGroupBy('itemcode')
-						->setOrderBy('jo.linenum')
+		$result = $this->db->setTable('job_release')
+						// ->leftJoin("job_release j ON j.job_order_no = jo.job_order_no AND j.itemcode = jo.itemcode AND j.stat != 'cancelled'")
+						->setFields("issuancedate, itemcode, detailparticulars, quantity, unit")
+						->setWhere("job_order_no='$voucherno' AND quantity > 0 AND stat != 'cancelled'")
+						// ->setGroupBy('itemcode')
+						->setOrderBy('linenum')
 						->runSelect()
 						->getResult();
+						// echo $this->db->getQuery();
 
 		return $result;
 	}
