@@ -334,7 +334,7 @@ class accounts_receivable extends wc_model
 								"IF(main.balance!=0 AND main.stat='cancelled','cancelled',
 								 IF(main.balance=0 AND main.stat='cancelled','cancelled',
 								 IF(main.balance!=payment.amount AND main.balance!=0 AND main.stat='cancelled','cancelled',
-								 IF(main.balance!=payment.amount AND main.balance!=0,'partial',
+								 IF(main.balance!=payment.amount AND main.balance>0,'partial',
 								 IF(main.amountreceived=payment.amount AND main.balance=0,'paid','unpaid'))))) payment_status"
 						);
 						// $balance != $amount && $balance != 0 && $stat == 'cancelled'
