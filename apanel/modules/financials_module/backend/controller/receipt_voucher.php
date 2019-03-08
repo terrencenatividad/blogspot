@@ -1393,7 +1393,7 @@ class controller extends wc_controller
 			
 				$json_encode 					= json_encode($json_data);
 
-				$result_rvapp	= $this->receipt_voucher->getValue("rv_application", array("arvoucherno","SUM(convertedamount) AS amount", "SUM(discount) as discount", "SUM(overpayment) overpayment", "SUM(credits_used) credits_used"),"arvoucherno = '$voucher' AND voucherno!='$rvno' AND stat IN('open','posted')", "", "", "arvoucherno");
+				$result_rvapp	= $this->receipt_voucher->getValue("rv_application", array("arvoucherno","SUM(convertedamount) AS amount", "SUM(discount) as discount", "SUM(overpayment) overpayment", "SUM(credits_used) credits_used"),"arvoucherno = '$voucher' AND stat IN('open','posted')", "", "", "arvoucherno");
 
 				$appliedvoucher  = isset($result_rvapp[0]->arvoucherno) 	?	$result_rvapp[0]->arvoucherno	:  '';
 				$appliedamount  = isset($result_rvapp[0]->amount) 			?	$result_rvapp[0]->amount		:	0;
@@ -1412,13 +1412,13 @@ class controller extends wc_controller
 					// echo "Balance 2 = ".$balance_2;
 					// echo "Amount 2 = ".$amount;
 					// echo "Discount 2 = ".$discount;
-					// $balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
-					// $balance_2 	= $balance_2 - $amount - $discount;
-					// $balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
+					$balance_2	= ($balance_2 > 0) ? $balance_2 : $balance + $amount + $discount;
+					$balance_2 	= $balance_2 - $amount - $discount;
+					$balance_2 	= ($amount > $balance_2) ? 0 	:	$balance_2;
 					// echo "Balance 2 = ".$balance_2;
-					// $balance 	= ($task == "edit") ? $appliedamount + $applieddiscount  : $balance;
-					$balance 	= ($balance - $appliedamount - $applieddiscount);
-					$balance_2 	= ($amount > 0) ? $balance - $amount - $discount : $balance;
+					$balance 	= ($task == "edit") ? $appliedamount + $applieddiscount  : $balance;
+					// $balance 	= ($balance - $appliedamount - $applieddiscount);
+					// $balance_2 	= ($amount > 0) ? $balance - $amount - $discount : $balance;
 				} else {
 					$balance_2 	= ($task == "edit" && $balance == 0) ? ($balance + $appliedamount + $applieddiscount) : $balance;
 				}
