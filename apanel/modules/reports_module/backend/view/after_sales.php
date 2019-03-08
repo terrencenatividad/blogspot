@@ -40,7 +40,7 @@
 							->addHeader("Service Quotation No.",array('class'=>'col-md-2'),'sort','service_quotation')
 							->addHeader("Job Order No.",array('class'=>'col-md-2'),'sort','job_order_no')
 							->addHeader('Sales Invoice (Parts)',array('class'=>'col-md-2'),'sort','si_goods')
-							->addHeader('Sales Invoice (Services)',array('class'=>'col-md-1'),'sort','si_service')
+							->addHeader('Billing (Services)',array('class'=>'col-md-1'),'sort','si_service')
 							->addHeader('Customer',array('class'=>'col-md-1'),'sort','partnername')
 							->addHeader('Unit',array('class'=>'col-md-1'),'sort','uom')
 							->addHeader('Serial No.',array('class'=>'col-md-1'),'sort','serialno')

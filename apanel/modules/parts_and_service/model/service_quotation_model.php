@@ -314,7 +314,7 @@ class service_quotation_model extends wc_model
 
 	public function getSQcontent($voucherno){
 		$result = $this->db->setTable('servicequotation_details sq')
-						->setFields("itemcode, detailparticular, haswarranty, qty quantity, uom, unitprice price, IF(discounttype = 'perc', CONCAT(discountrate,'%'), discountrate), taxamount, amount, taxcode, taxrate")
+						->setFields("itemcode, detailparticular, qty quantity, uom, unitprice price, taxamount, amount, taxcode, taxrate")
 						->setWhere("voucherno='$voucherno'")
 						->runSelect()
 						->getResult();

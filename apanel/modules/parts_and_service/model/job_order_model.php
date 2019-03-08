@@ -985,12 +985,12 @@ class job_order_model extends wc_model
 	}
 
 	public function getJRcontent($voucherno){
-		$result = $this->db->setTable('job_order_details jo')
-						->leftJoin("job_release j ON j.job_order_no = jo.job_order_no AND j.itemcode = jo.itemcode AND j.stat != 'cancelled'")
-						->setFields("jo.itemcode, jo.detailparticular, jo.quantity ,SUM(j.quantity) issuedqty, uom, serialnumbers")
-						->setWhere("jo.job_order_no='$voucherno'")
-						->setGroupBy('itemcode')
-						->setOrderBy('jo.linenum')
+		$result = $this->db->setTable('job_release')
+						// ->leftJoin("job_release j ON j.job_order_no = jo.job_order_no AND j.itemcode = jo.itemcode AND j.stat != 'cancelled'")
+						->setFields("issuancedate, itemcode, detailparticulars, quantity, unit")
+						->setWhere("job_order_no='$voucherno' AND quantity > 0 AND stat != 'cancelled'")
+						// ->setGroupBy('itemcode')
+						->setOrderBy('linenum')
 						->runSelect()
 						->getResult();
 						// echo $this->db->getQuery();

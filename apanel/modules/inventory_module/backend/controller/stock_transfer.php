@@ -323,20 +323,26 @@ class controller extends wc_controller
 		
 		$documentcontent	= $this->stock_transfer->getDocumentRequestContent($voucherno);
 
-		$detail_height = 37;
+		$detail_height = 30;
 		$total_quantity = 0;
 
 		foreach ($documentcontent as $key => $row) {
 			if ($key % $detail_height == 0) {
 				$print->drawHeader();
+				$detail_height = 30;
 			}
-
 			$total_quantity	+= $row->Quantity;
 			$row->Quantity	= number_format($row->Quantity, 2);
 
-			$print->addRow($row);
-			
 
+			$y = $print->GetY();
+			$print->addRow($row);
+			$y2 = $print->GetY();
+
+			$numlines = ($y - 58 > 0) ? (($y2 - $y) / 6) - 1 : 0;
+
+			$detail_height -= $numlines;
+			
 			if (($key + 1) % $detail_height == 0) {
 				$print->drawSummary(array('Total Qty' => $total_quantity));
 				$total_quantity = 0;
@@ -367,7 +373,7 @@ class controller extends wc_controller
 
 		
 
-		$print->setHeaderWidth(array(30, 50, 10, 20, 30, 30, 30))
+		$print->setHeaderWidth(array(30, 70, 20, 20, 20, 20, 20))
 				->setHeaderAlign(array('C', 'C', 'C', 'C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'S/N', 'E/N', 'C/N'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'L', 'L', 'L'))
@@ -544,8 +550,8 @@ class controller extends wc_controller
 								 ->addView()
 								 ->addEdit($stat == 'open' && ($enteredby == $this->user) && $restrict_str)
 								 ->addOtherTask('Transfer Stocks', 'open',($stat == 'approved' || $stat == 'partial') && $restrict_str)
-								 ->addOtherTask('Approve', 'thumbs-up', $stat == 'open' && $restrict_str)
-								 ->addOtherTask('Reject', 'thumbs-down', $stat == 'open' && $restrict_str)
+								 ->addOtherTask('Approve', 'thumbs-up', MOD_POST && $stat == 'open' && $restrict_str)
+								 ->addOtherTask('Reject', 'thumbs-down', MOD_UNPOST && $stat == 'open' && $restrict_str)
 								 ->addOtherTask('Close Request', 'bookmark', $stat == 'posted' && $restrict_str)
 								 ->addDelete(($stat == 'open') &&  ($enteredby == $this->user) && $restrict_str)
 								 ->addPrint()
