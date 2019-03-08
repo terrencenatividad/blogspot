@@ -438,7 +438,7 @@
                                                         ?>
                                                     </td>
                                                     <td class = "text-center">
-                                                        <a href="<?=MODULE_URL?>print_preview/<?=$voucherno?>" style = "text-decoration: none; color : black;" class = "btn btn-default btn-xs">
+                                                        <a href="<?=BASE_URL?>financials/payment_voucher/print_preview/<?=$row->voucherno?>" style = "text-decoration: none; color : black;" class = "btn btn-default btn-xs">
                                                             <span class="glyphicon glyphicon-print"></span>
                                                         </a>
                                                     </td>
