@@ -339,7 +339,7 @@ class controller extends wc_controller
 			$print->addRow($row);
 			$y2 = $print->GetY();
 
-			$numlines = ($y - 58 > 0) ? (($y2 - $y) / 6) - 1 : (($y2 - $y) / 6) - 1;
+			$numlines = ($y - 58 > 0) ? (($y2 - $y) / 6) - 1 : 0;
 
 			$detail_height -= $numlines;
 			
