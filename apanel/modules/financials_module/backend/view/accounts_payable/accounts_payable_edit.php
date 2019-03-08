@@ -545,7 +545,9 @@
 											</td>	
 										</tr>	
 										<tr id="total">
-											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<?php if($toggle_wtax != 'hidden') {  ?>
+												<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
+											<?php }  ?>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
 											<td style="border-top:1px solid #DDDDDD;">&nbsp;</td>
@@ -1579,6 +1581,7 @@
 
 		var data_id = 2;
 		$('.add-data').on('click', function() {
+			data_id = $('#itemsTable tbody tr.clone .linenum').last().val();
 			$('#itemsTable tbody tr.clone select').select2('destroy');
 
 			var clone = $("#itemsTable tbody tr.clone:first").clone(true); 

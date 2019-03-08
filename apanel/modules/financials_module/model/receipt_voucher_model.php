@@ -363,7 +363,7 @@ class receipt_voucher_model extends wc_model
 		}
 
 		$mainTable 		= "accountsreceivable main";
-		$mainFields 	= array("main.companycode, main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount) balance, 
+		$mainFields 	= array("main.companycode, main.voucherno, main.transactiondate, main.convertedamount amount, main.referenceno, (main.convertedamount - COALESCE(rv.payment,0)) balance, 
 								(main.convertedamount - COALESCE(rv.payment,0)) remaining_for_payment, COALESCE(rv.credits_used,0) credits_used, 
 								COALESCE(rv.overpayment,0) as overpayment, COALESCE(rv.convertedamount,0) as payment");
 		$mainCondition	= "main.stat = 'posted' AND main.customer = '$customercode'";
