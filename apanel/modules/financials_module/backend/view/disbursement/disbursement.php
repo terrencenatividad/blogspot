@@ -2633,11 +2633,32 @@
 							next = $('#payableForm').find(".has-error").first();
 							$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 						}
-					}).done(function(data2){
+					}).done(function(data){
 						$.post("<?=BASE_URL?>financials/disbursement/ajax/update_temporarily_saved_data",$("#payableForm").serialize())
-						.done(function(data)
+						.done(function(data2)
 						{
+							if(data2.success == 1) {
+								$('#delay_modal').modal('show');
+								setTimeout(function() {
+									if(button_name == 'save') {
+										window.location.href = '<?=MODULE_URL?>view/'+ data2.voucher;	
+									} else if(button_name == 'save_new') {
+										window.location.href = '<?=MODULE_URL?>create';
+									} else if(button_name == 'save_exit') {
+										window.location.href = '<?=MODULE_URL?>';	
+									}							
+								}, 1000)
+							} else {
+								var msg = "";
 
+								for(var i = 0; i < data.msg.length; i++)
+								{
+									msg += data.msg[i];
+								}
+
+								$("#errordiv").removeClass("hidden");
+								$("#errordiv #msg_error ul").html(msg);
+							}
 						});
 					});
 				} else {

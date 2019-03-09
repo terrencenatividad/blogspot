@@ -880,6 +880,21 @@ class controller extends wc_controller
 		return $dataArray = array("result"=>$result);
 	}
 	public function update_actual_budget($data){
+		$voucherno				= (isset($data['h_voucher_no']) && (!empty($data['h_voucher_no']))) ? htmlentities(addslashes(trim($data['h_voucher_no']))) : "";
+		$h_check_rows 			= (isset($data['selected_rows']) && (!empty($data['selected_rows']))) ? $data['selected_rows'] : "";
+		$invoice_data  			= str_replace('\\', '', $h_check_rows);
+		$invoice_data  			= html_entity_decode($invoice_data);
+		$picked_payables		= json_decode($invoice_data, true);
+		$source				   	= (!empty($picked_payables)) ? "PV" : "DV";
+
+		$gen_value              = $this->payment_voucher->getValue("paymentvoucher", "COUNT(*) as count", " voucherno != ''");	
+		$temporary_voucher     	= (!empty($gen_value[0]->count)) ? $source.'_'.($gen_value[0]->count + 1) : $source.'_1';
+
+		$voucherno 				= (!empty($voucherno)) ? $voucherno : $temporary_voucher;
+		
+		$isExist				= $this->payment_voucher->getValue("paymentvoucher", array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
+		$status					= (!empty($isExist[0]->stat) && ($isExist[0]->stat == "open" || $isExist[0]->stat == "posted")) ? "open" : "temporary";
+			
 		foreach($data as $postIndex => $postValue){
 			if($postIndex == 'budgetcode' || $postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount' || $postIndex=='currencyamount'){
 				$a		= '';
@@ -915,7 +930,7 @@ class controller extends wc_controller
 			$post_detail['credit']					= $credit;
 			$post_detail['converteddebit']			= $debit;
 			$post_detail['convertedcredit'] 		= $credit;
-			$post_detail['stat']					= $post_header['stat'];
+			$post_detail['stat']					= $status;
 			$aPvDetailArray[]						= $post_detail;
 		}
 		
@@ -944,6 +959,8 @@ class controller extends wc_controller
 														->setWhere("voucherno = '$voucherno'")
 														->runUpdate(false);
 				}
+			} else {
+				$insertResult = 1;
 			}
 		}
 		return $insertResult;
@@ -991,38 +1008,40 @@ class controller extends wc_controller
 				}
 
 				// Update the AP
-				$applied_sum				= 0;
-				$applied_discount			= 0;
-				$applied_forexamount		= 0;
+				if($transtype == "PV") {
+					$applied_sum				= 0;
+					$applied_discount			= 0;
+					$applied_forexamount		= 0;
 
-				$ap_voucher 				= $this->payment_voucher->getValue("pv_application", "apvoucherno", "voucherno = '$generatedvoucher'");
+					$ap_voucher 				= $this->payment_voucher->getValue("pv_application", "apvoucherno", "voucherno = '$generatedvoucher'");
 
-				foreach($ap_voucher as $key => $row){
-					$apvoucher 	=	isset($row->apvoucherno) ? $row->apvoucherno : "";
+					foreach($ap_voucher as $key => $row){
+						$apvoucher 	=	isset($row->apvoucherno) ? $row->apvoucherno : "";
 
-					$invoice_amounts			= $this->payment_voucher->getValue("accountspayable", array("amount as convertedamount"), " voucherno = '$apvoucher' AND stat IN('open','posted') ");
-					$applied_amounts			= $this->payment_voucher->getValue(
-													"pv_application",
-													array(
-														"COALESCE(SUM(amount),0) convertedamount",
-														"COALESCE(SUM(discount),0) discount",
-														"COALESCE(SUM(forexamount),0) forexamount"
-													), 
-													"  apvoucherno = '$apvoucher' AND stat IN('open','posted') "
-												);
+						$invoice_amounts			= $this->payment_voucher->getValue("accountspayable", array("amount as convertedamount"), " voucherno = '$apvoucher' AND stat IN('open','posted') ");
+						$applied_amounts			= $this->payment_voucher->getValue(
+														"pv_application",
+														array(
+															"COALESCE(SUM(amount),0) convertedamount",
+															"COALESCE(SUM(discount),0) discount",
+															"COALESCE(SUM(forexamount),0) forexamount"
+														), 
+														"  apvoucherno = '$apvoucher' AND stat IN('open','posted') "
+													);
 
-					$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
-					$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
-					$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_disc;
-					$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
+						$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
+						$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
+						$applied_sum				= $applied_amounts[0]->convertedamount - $applied_amounts[0]->forexamount + $applied_disc;
+						$applied_sum				= (!empty($applied_sum)) ? $applied_sum : 0;
 
-					$balance_info['amountpaid']		= $applied_sum;
-					$balance_amt 					= $invoice_amount - $applied_sum;
-					$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;	
-				
-					$updateTempRecord = $this->payment_voucher->updateData("accountspayable", $balance_info, "voucherno = '$apvoucher'");
-						
-				}	
+						$balance_info['amountpaid']		= $applied_sum;
+						$balance_amt 					= $invoice_amount - $applied_sum;
+						$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;	
+					
+						$updateTempRecord = $this->payment_voucher->updateData("accountspayable", $balance_info, "voucherno = '$apvoucher'");
+							
+					}	
+				}
 			}
 		}
 
