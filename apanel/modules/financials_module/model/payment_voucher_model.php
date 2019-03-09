@@ -664,6 +664,15 @@ class payment_voucher_model extends wc_model
 			return $errmsg;
 		}
 
+		public function getAccountClassCode($account) {
+			$result = $this->db->setTable('chartaccount')
+								->setFields('accountclasscode code')
+								->setWhere("id ='$account'")
+								->runSelect()
+								->getRow();
+			return $result;
+		}
+
 		public function savePayment($data)
 		{
 		// var_dump($data);
@@ -880,6 +889,8 @@ class payment_voucher_model extends wc_model
 			}
 
 			$iDetailLineNum = 1;
+			// $total_payment 	= 0;
+			$total_actual_credits = 0;
 			$aPvDetailArray = array();
 
 			foreach($tempArray as $tempArrayIndex => $tempArrayValue)
@@ -911,6 +922,14 @@ class payment_voucher_model extends wc_model
 
 				$iDetailLineNum++;
 				$aPvDetailArray[]						= $post_detail;
+
+				// $totalamount 	+= $credit;
+				// Check if Account is Cash 
+				$accountclass 	=	$this->getAccountClassCode($accountcode);
+				$acccode 			= 	isset($accountclass->code) ? $accountclass->code : "";
+				if($acccode!="" && $acccode == "CASH") {
+					$total_actual_credits 	+= $credit;
+				}
 			}
 
 			$aPvApplicationArray 	= array();
@@ -1013,7 +1032,11 @@ class payment_voucher_model extends wc_model
 
 			/**UPDATE HEADER AMOUNTS**/
 			$update_info				= array();
-			$update_info['netamount']	= $totalamount;
+			$update_info['netamount']			= $totalamount;
+			$update_info['amount']	 			= $total_actual_credits;
+			$convertedamount 					= $exchangerate * $total_actual_credits;
+			$convertedamount 					= str_replace(',','',$convertedamount);
+			$update_info['convertedamount']	 	= $convertedamount;
 
 			$insertResult = $this->db->setTable($mainAppTable) 
 									->setValues($update_info)
@@ -1068,6 +1091,23 @@ class payment_voucher_model extends wc_model
 				if(!$insertResult){
 					$code 		= 0;
 					$errmsg[] 	= "<li>Error in Saving Payment Voucher Details.</li>";
+				} else {
+					$update_info						= array();
+					$update_info['netamount']			= $totalamount;
+					$update_info['amount']	 			= $total_actual_credits;
+					$convertedamount 					= $exchangerate * $total_actual_credits;
+					$convertedamount 					= str_replace(',','',$convertedamount);
+					$update_info['convertedamount']	 	= $convertedamount;
+
+					$insertResult = $this->db->setTable($mainAppTable) 
+											->setValues($update_info)
+											->setWhere("voucherno = '$voucherno'")
+											->runUpdate();
+
+					if(!$insertResult){
+						$code 		= 0;
+						$errmsg[] 	= "<li>Error in Updating Payment Voucher Header.</li>";
+					}	
 				}
 			// }
 			// else{
