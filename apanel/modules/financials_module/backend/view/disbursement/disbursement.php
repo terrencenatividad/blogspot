@@ -11,6 +11,7 @@
 	</div>
 
 	<form method = "post" class="form-horizontal" id = "payableForm">
+		<input type = "hidden" id = "h_task" name = "h_task" value= "<?php echo $task;?>" >
 		<input type = "hidden" id = "bank_name" name = "bank_name" >
 		<?php if($task == 'edit') { ?>
 			<input type = "hidden" id = "bankcode" name = "bankcode" value = "<?php echo $bankcode; ?>">
@@ -2632,6 +2633,12 @@
 							next = $('#payableForm').find(".has-error").first();
 							$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 						}
+					}).done(function(data2){
+						$.post("<?=BASE_URL?>financials/disbursement/ajax/update_temporarily_saved_data",$("#payableForm").serialize())
+						.done(function(data)
+						{
+
+						});
 					});
 				} else {
 					next = $('#payableForm').find(".has-error").first();
