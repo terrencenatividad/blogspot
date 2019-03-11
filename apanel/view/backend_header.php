@@ -62,6 +62,7 @@
 						<i class="fa fa-bars"></i>
 					</button>
 				</div>
+				<p class="navbar-text navbar-text-maintenance marquee"><strong>Hey!</strong> Just a friendly reminder. Remember to have your lunch @ exactly <strong>12:00 pm</strong> to <strong>1:00 pm</strong>. :)</p>
 				<div class="collapse navbar-collapse pull-left" id="navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="hidden-sm">
