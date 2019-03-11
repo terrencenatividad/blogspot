@@ -44,7 +44,7 @@ class vat_summary extends wc_model {
 										bt.transactiondate as transactiondate, part.tinno as tin, SUM(bt.debit) as debit, SUM(bt.credit) as credit, part.address1 as address, bt.voucherno")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
 							->leftJoin('partners as part ON part.partnercode = bt.partnercode AND part.companycode = bt.companycode ')
-							->setWhere("bt.transtype IN('AR','AP','PV','RV','JV') AND ca.accountname LIKE '%$type%' $filter ")
+							->setWhere("bt.transtype IN('AR','AP','PV','DV','RV','JV') AND ca.accountname LIKE '%$type%' $filter ")
 							->setGroupBy("bt.voucherno")
 							->setOrderBy("bt.accountcode, part.partnername ASC")
 							->runPagination();
@@ -53,7 +53,7 @@ class vat_summary extends wc_model {
 							->setFields("ca.accountname as accountname, SUM(bt.debit) as debit, SUM(bt.credit) as credit, bt.transtype as transtype, bt.voucherno")
 							->leftJoin('chartaccount as ca ON ca.id = bt.accountcode AND ca.companycode = bt.companycode ')
 							->leftJoin('partners as part ON part.partnercode = bt.partnercode AND part.companycode = bt.companycode ')
-							->setWhere("bt.transtype IN('AR','AP','PV','RV','PV','JV') AND (ca.accountname LIKE '%Output%' OR ca.accountname LIKE '%Input%') $filter")
+							->setWhere("bt.transtype IN('AR','AP','PV','DV','RV','PV','JV') AND (ca.accountname LIKE '%Output%' OR ca.accountname LIKE '%Input%') $filter")
 							->setGroupBy("bt.accountcode")
 							->setOrderBy("ca.accountname DESC")
 							->runPagination();
@@ -86,7 +86,7 @@ class vat_summary extends wc_model {
 					$table 		= 'ar_details';
 				}else if($transtype == 'AP'){
 					$table 		= 'ap_details';
-				}else if($transtype == 'PV'){
+				}else if($transtype == 'PV' || $transtype == 'DV'){
 					$table 		= 'pv_details';
 				}else if($transtype == 'JV'){
 					$table 		= 'journaldetails';
@@ -120,7 +120,7 @@ class vat_summary extends wc_model {
 					$table 		= 'ar_details';
 				}else if($transtype == 'AP'){
 					$table 		= 'ap_details';
-				}else if($transtype == 'PV'){
+				}else if($transtype == 'PV' || $transtype == 'DV'){
 					$table 		= 'pv_details';
 				}else if($transtype == 'JV'){
 					$table 		= 'journaldetails';

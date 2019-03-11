@@ -597,7 +597,7 @@ class controller extends wc_controller
 
 			$dropdown = $this->ui->loadElement('check_task')
 			->addView()
-			->addEdit($status && $restrict && !$pr && ($stat != 'paid') && !$import_checker)
+			->addEdit($status && $restrict && ($stat != 'paid') && !$import_checker)
 			->addPrint()
 			->addOtherTask(
 				'Print 2307',

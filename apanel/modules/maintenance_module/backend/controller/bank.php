@@ -452,6 +452,12 @@ class controller extends wc_controller
 		return $data;
 	}
 
+	public function ajax_get_nextcheck(){
+		$code 		= $this->input->post("code");
+		$data		= $this->bank->retrieveNextCheck($code);
+		return array('nextchequeno' => $data->nextchequeno);
+	}
+
 	public function update_check(){
 		$posted_data 	= $this->input->post($this->fields2);
 		$code 			= $this->input->post('code');

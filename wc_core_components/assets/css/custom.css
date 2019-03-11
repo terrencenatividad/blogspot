@@ -445,3 +445,27 @@ input[type=checkbox]
 {
   -webkit-appearance:checkbox;
 }
+
+.navbar-text-maintenance{
+	color : white;
+	font-weight : strong;
+}
+
+/* Make it a marquee */
+.marquee {
+    width: 400px;
+    overflow: hidden;
+    white-space: nowrap;
+    box-sizing: border-box;
+    animation: marquee 50s linear infinite;
+}
+
+.marquee:hover {
+    animation-play-state: paused
+}
+
+/* Make it move */
+@keyframes marquee {
+    0%   { text-indent: 27.5em }
+    100% { text-indent: -50em }
+}

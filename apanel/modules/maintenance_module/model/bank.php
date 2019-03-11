@@ -227,21 +227,19 @@ class bank extends wc_model
 		return $result;
 	}
 
+	public function retrieveNextCheck($code){
+		$result = $this->db->setTable('bankdetail')
+		->setFields('nextchequeno ')
+		->setWhere("code = '$code' ")
+		->runSelect()
+		->getRow();
+		return $result;
+	}
+
 	public function update_check($id, $data, $code){
 		$bno = $data['bank_id'];
 		$new = $data['booknumber'];
-		$data['nextchequeno'] = $data['firstchequeno'];
-
-		// $condition 	= "code = '$code'";
-		// $result 	= $this->db->setTable('bankdetail')
-		// ->setWhere($condition)
-		// ->runDelete();
-
-		// if($result){
-		// 	$result  = $this->db->setTable('bankdetail')
-		// 	->setValues($data)
-		// 	->runInsert();
-		// }
+		
 		unset($data['bank_id']);
 		$result 	 = $this->db->setTable('bankdetail')
 		->setValues($data)
