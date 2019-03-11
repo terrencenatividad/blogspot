@@ -308,6 +308,10 @@ class controller extends wc_controller
 		);
 
 		$print = new print_inventory_model();
+		
+			  
+
+
 		$print->setDocumentType('Transfer - Request')
 			  ->setFooterDetails(array('Approved By', 'Checked By'))
 			  ->setCustomerDetails($documentinfo)
@@ -319,34 +323,47 @@ class controller extends wc_controller
 				->setHeaderAlign(array('C', 'C', 'C', 'C'))
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
 				->setRowAlign(array('L', 'L', 'R', 'L'))
-				->setSummaryWidth(array('170', '30'));
+				->setSummaryWidth(array('170', '30'))
+				->drawHeader();
 		
 		$documentcontent	= $this->stock_transfer->getDocumentRequestContent($voucherno);
 
-		$detail_height = 30;
 		$total_quantity = 0;
+		$next_page 		= false;
+		$summary 	 	= false;
 
 		foreach ($documentcontent as $key => $row) {
-			if ($key % $detail_height == 0) {
-				$print->drawHeader();
-				$detail_height = 30;
-			}
-			$total_quantity	+= $row->Quantity;
-			$row->Quantity	= number_format($row->Quantity, 2);
+			$tmpprint = new print_inventory_model();
+			$tmpprint->setDocumentType('Transfer - Request')
+				->setHeaderWidth(array(40, 100, 30, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
+				->setFooterDetails(array('Approved By', 'Checked By'))
+			  	->drawHeader();
+			$tmpprint->SetY(58);
 
+			$tmp_y 		= $tmpprint->GetY();
+			$tmpprint->addRow($row);
+			$tmp_y2 	= $tmpprint->GetY();
 
-			$y = $print->GetY();
-			$print->addRow($row);
-			$y2 = $print->GetY();
-
-			$numlines = ($y - 58 > 0) ? (($y2 - $y) / 6) - 1 : 0;
-
-			$detail_height -= $numlines;
+			$tmp_height = $tmp_y2 - $tmp_y;
+			$row_y 		= $print->GetY();
+			$row_height = 240 - $row_y;
 			
-			if (($key + 1) % $detail_height == 0) {
+
+
+			if ($row_height >= $tmp_height) {
+				$print->addRow($row);
+			} else{
 				$print->drawSummary(array('Total Qty' => $total_quantity));
+				$print->drawHeader();
+				$print->addRow($row);
 				$total_quantity = 0;
 			}
+			
+			$total_quantity	+= $row->Quantity;
+			$row->Quantity	= number_format($row->Quantity, 2);
 		}
 		$print->drawSummary(array('Total Qty' => $total_quantity));
 
@@ -394,7 +411,7 @@ class controller extends wc_controller
 			$print->addRow($row);
 			$y2 = $print->GetY();
 
-			$numlines = ($y - 58 > 0) ? (($y2 - $y) / 6) - 1 : 0;
+			$numlines = (($y2 - $y) / 6) - 1;
 
 			$detail_height -= $numlines;
 
