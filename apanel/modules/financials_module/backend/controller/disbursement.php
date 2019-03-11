@@ -894,7 +894,7 @@ class controller extends wc_controller
 		
 		$isExist				= $this->payment_voucher->getValue("paymentvoucher", array("stat"), "voucherno = '$voucherno' AND stat IN ('posted','temporary','cancelled') ");
 		$status					= (!empty($isExist[0]->stat) && ($isExist[0]->stat == "open" || $isExist[0]->stat == "posted")) ? "open" : "temporary";
-			
+		
 		foreach($data as $postIndex => $postValue){
 			if($postIndex == 'budgetcode' || $postIndex=='h_accountcode' || $postIndex=='detailparticulars' || $postIndex=='ischeck' || $postIndex=='debit' || $postIndex=='credit' || $postIndex=='taxcode' || $postIndex=='taxbase_amount' || $postIndex=='currencyamount'){
 				$a		= '';
@@ -945,9 +945,9 @@ class controller extends wc_controller
 					$budget['actual'] 		= $aPvDetailArray[$i]['debit'];
 
 					$insertResult 			= $this->db->setTable('actual_budget') 
-														->setValues($budget)
-														->setWhere("voucherno = '$voucherno'")
-														->runUpdate(false);
+					->setValues($budget)
+					->setWhere("voucherno = '$voucherno'")
+					->runUpdate(false);
 				} else {
 					$budget['budget_code'] 	= $aPvDetailArray[$i]['budgetcode'];
 					$budget['accountcode'] 	= $aPvDetailArray[$i]['accountcode'];
@@ -955,9 +955,9 @@ class controller extends wc_controller
 					$budget['actual'] 		= $aPvDetailArray[$i]['credit'];
 
 					$insertResult 			= $this->db->setTable('actual_budget') 
-														->setValues($budget)
-														->setWhere("voucherno = '$voucherno'")
-														->runUpdate(false);
+					->setValues($budget)
+					->setWhere("voucherno = '$voucherno'")
+					->runUpdate(false);
 				}
 			} else {
 				$insertResult = 1;
@@ -990,7 +990,7 @@ class controller extends wc_controller
 			if($isExist[0]->voucherno){
 				/**UPDATE MAIN TABLES**/
 				$generatedvoucher			= ($task == 'create') ? $this->seq->getValue($transtype)	: $data_validate['h_voucher_no']; 
-			
+				
 				$update_info				= array();
 				$update_info['voucherno']	= $generatedvoucher;
 				$update_info['stat']		= 'open';
@@ -1020,14 +1020,14 @@ class controller extends wc_controller
 
 						$invoice_amounts			= $this->payment_voucher->getValue("accountspayable", array("amount as convertedamount"), " voucherno = '$apvoucher' AND stat IN('open','posted') ");
 						$applied_amounts			= $this->payment_voucher->getValue(
-														"pv_application",
-														array(
-															"COALESCE(SUM(amount),0) convertedamount",
-															"COALESCE(SUM(discount),0) discount",
-															"COALESCE(SUM(forexamount),0) forexamount"
-														), 
-														"  apvoucherno = '$apvoucher' AND stat IN('open','posted') "
-													);
+							"pv_application",
+							array(
+								"COALESCE(SUM(amount),0) convertedamount",
+								"COALESCE(SUM(discount),0) discount",
+								"COALESCE(SUM(forexamount),0) forexamount"
+							), 
+							"  apvoucherno = '$apvoucher' AND stat IN('open','posted') "
+						);
 
 						$invoice_amount				= (!empty($invoice_amounts)) ? $invoice_amounts[0]->convertedamount : 0;
 						$applied_disc 				= (!empty($applied_amounts[0]->discount)) ? $applied_amounts[0]->discount : 0;
@@ -1037,9 +1037,9 @@ class controller extends wc_controller
 						$balance_info['amountpaid']		= $applied_sum;
 						$balance_amt 					= $invoice_amount - $applied_sum;
 						$balance_info['balance']		= ($balance_amt >= 0) 	?	$balance_amt	:	0;	
-					
+						
 						$updateTempRecord = $this->payment_voucher->updateData("accountspayable", $balance_info, "voucherno = '$apvoucher'");
-							
+						
 					}	
 				}
 			}
@@ -1185,13 +1185,6 @@ class controller extends wc_controller
 		$errmsg 	= array();
 
 		if ($data_post['paymentmode'] == 'cheque') {
-			$accountno = '';
-			$acc = explode(' - ', $data_post['bank_name']);
-			if(count($acc) == '2') {
-				$accountno = $acc[1];
-			} else {
-				$accountno = $acc[2];
-			}
 			$result = $this->payment_voucher->update_checks($data_post['bankcode'], $data_post['chequenumber'][1]);
 		}
 		
