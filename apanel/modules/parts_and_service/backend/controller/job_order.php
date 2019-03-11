@@ -267,114 +267,120 @@ class controller extends wc_controller {
 			'REF #'				=> $header->reference
 		);
 		$print = new jo_print_model();
-		$print->setDocumentType('JOB ORDER')
-				->setFooterDetails(array('Approved By', 'Checked By'))
-				->setCustomerDetails($customer)
-				->setRemarksDetail($header->notes)
-				->setDocumentDetails($docheader)
-				->setStatDetail($header->stat)
-				->setDocumentInfo($header)
-				// ->addTermsAndCondition()
-				->addReceived();
+		$print->setDocumentType('Job Order')
+			  ->setFooterDetails(array('Approved By', 'Checked By'))
+			  ->setCustomerDetails($customer)
+			  ->setDocumentDetails($docheader)
+			  ->setDocumentInfo($header)
+			  ->setStatDetail($header->stat)
+			  ->addReceived();
 
 		$print->setHeaderWidth(array(40, 100, 30, 30))
-					->setHeaderAlign(array('C', 'C', 'C', 'C'))
-					->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-					->setRowAlign(array('L', 'L', 'R', 'L'))
-					->setSummaryWidth(array('120', '50', '30'))
-					->setSummaryAlign(array('J','R','R'));	
+				->setHeaderAlign(array('C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
+				->setSummaryWidth(array('170', '30'))
+				->drawHeader();
 		
 		$documentcontent	= $this->job_order->getJOcontent($voucherno);
-		$documentcontent1	= $this->job_order->getJRcontent($voucherno);
-		$detail_height = 37;
+		$documentcontent_jr	= $this->job_order->getJRcontent($voucherno);
 
-		/**
-		 * Custom : Tag as printed
-		 * Also store user and timestamp
-		 */
-		$print_data['print'] = 1;
-		$print_data['printby'] = USERNAME;
-		$print_data['printdate'] = date("Y-m-d H:i:s");
-		$this->job_order->updateData($print_data, "job_order", " job_order_no = '$voucherno' AND print = '0' ");
-
-		$notes = htmlentities($header->notes);
 		$total_quantity = 0;
-		$total_issuedqty = 0;
-		
+		$next_page 		= false;
+		$summary 	 	= false;
+
 		foreach ($documentcontent as $key => $row) {
-			if ($key % $detail_height == 0) {
-				$print->drawHeader();
-			}
-			
-			$total_quantity += $row->quantity;
-			$print->addRow(array($row->itemcode,$row->detailparticular, $row->quantity, $row->uom));
-
-
-			if (($key + 1) % $detail_height == 0) {
-				
-				$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
-											array($notes, '', ''),
-											array('', '', ''),
-											array('', '', ''),
-											array('', '', '')
-				));
-				$total_amount = 0;
-			}
-		}
-
-		$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
-		array($notes, '', ''),
-		array('', '', ''),
-		array('', '', ''),
-		array('', '', '')
-		));
-
-		$print->setDocumentType('Delivery Receipt')
-				->setFooterDetails(array('Approved By', 'Checked By'))
-				->setCustomerDetails($customer)
-				->setRemarksDetail($header->notes)
-				->setDocumentDetails($docheader)
+			$tmpprint = new jo_print_model();
+			$tmpprint->setDocumentType('Job Order')
+				->setHeaderWidth(array(40, 100, 30, 30))
+				->setHeaderAlign(array('C', 'C', 'C', 'C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
+				->setRowAlign(array('L', 'L', 'R', 'L'))
 				->setStatDetail($header->stat)
-				->setDocumentInfo($header)
-				->addReceived();
+				->setFooterDetails(array('Approved By', 'Checked By'))
+			  	->drawHeader();
+			$tmpprint->SetY(58);
 
-		$print->setHeaderWidth(array(25, 30, 85, 30, 30))
-					->setHeaderAlign(array('C', 'C', 'C', 'C','C'))
-					// ->setHeader(array('Item Code', 'Description', 'Qty', 'UOM'))
-					->setHeader1(array('Date','Item Code', 'Description', 'Qty', 'UOM'))
-					->setRowAlign(array('L', 'L', 'L', 'R', 'L'))
-					->setSummaryWidth(array('120', '50', '30'))
-					->setSummaryAlign(array('J','R','R'));	
+			$tmp_y 		= $tmpprint->GetY();
+			$tmpprint->addRow($row);
+			$tmp_y2 	= $tmpprint->GetY();
 
-		foreach ($documentcontent1 as $key => $row) {
-			if ($key % $detail_height == 0) {
-				$print->drawHeader1();
+			$tmp_height = $tmp_y2 - $tmp_y;
+			$row_y 		= $print->GetY();
+			$row_height = 240 - $row_y;
+			
+
+
+			if ($row_height >= $tmp_height) {
+				$print->addRow($row);
+			} else{
+				$print->drawSummary(array('Total Qty' => $total_quantity));
+				$print->drawHeader();
+				$print->addRow($row);
+				$total_quantity = 0;
 			}
 			
-			$total_issuedqty += $row->quantity;
-			$issuancedate = $this->date->dateFormat($row->issuancedate);
-			$print->addRow1(array($issuancedate,$row->itemcode,$row->detailparticulars, $row->quantity, $row->unit));
-
-
-			if (($key + 1) % $detail_height == 0) {
-				
-				$print->drawSummary(array(array('Notes:', 'Total Qty', $total_quantity),
-											array($notes, '', ''),
-											array('', '', ''),
-											array('', '', ''),
-											array('', '', '')
-				));
-				$total_amount = 0;
-			}
+			$total_quantity	+= $row->quantity;
+			$row->quantity	= number_format($row->quantity, 2);
 		}
-		$print->drawSummary(array(array('Notes:', 'Total Issued Qty', $total_issuedqty),
-		array($notes, '', ''),
-		array('', '', ''),
-		array('', '', ''),
-		array('', '', '')
-));
+		$print->drawSummary(array('Total Qty' => $total_quantity));
 		
-		$print->drawPDF('Delivery Receipt - ' . $voucherno);
+
+		if($documentcontent_jr){
+			$print->setDocumentType('Delivery Receipt');
+
+			$print->setHeaderWidth(array(25,40, 80, 30, 25))
+					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
+					->setHeader(array('Date','Item Code', 'Description', 'Qty', 'UOM'))
+					->setRowAlign(array('L', 'L', 'L', 'R', 'L'))
+					->setSummaryWidth(array('170', '30'))
+					->drawHeader();
+
+			$total_issuedqty = 0;
+			foreach ($documentcontent_jr as $key => $row) {
+				$tmpprint = new jo_print_model();
+				$tmpprint->setDocumentType('Delivery Receipt')
+					->setHeaderWidth(array(20,40, 80, 30, 30))
+					->setHeaderAlign(array('C', 'C', 'C', 'C', 'C'))
+					->setHeader(array('Date','Item Code', 'Description', 'Qty', 'UOM'))
+					->setRowAlign(array('L', 'L', 'R', 'L'))
+					->setStatDetail($header->stat)
+					->setDocumentInfo($header)
+					->setFooterDetails(array('Approved By', 'Checked By'))
+					->drawHeader();
+
+				$issuancedate = $this->date->dateFormat($row->issuancedate);
+					
+				$tmpprint->SetY(58);
+	
+				$tmp_y 		= $tmpprint->GetY();
+				$tmpprint->addRow(array($issuancedate,$row->itemcode,$row->detailparticulars, $row->quantity, $row->unit));
+				$tmp_y2 	= $tmpprint->GetY();
+	
+				$tmp_height = $tmp_y2 - $tmp_y;
+				$row_y 		= $print->GetY();
+				$row_height = 240 - $row_y;
+				
+	
+	
+				if ($row_height >= $tmp_height) {
+					$print->addRow(array($issuancedate,$row->itemcode,$row->detailparticulars, $row->quantity, $row->unit));
+				} else{
+					$print->drawSummary(array('Total Issued Qty' => $total_issuedqty));
+					$print->drawHeader();
+					$print->addRow(array($issuancedate,$row->itemcode,$row->detailparticulars, $row->quantity, $row->unit));
+					$total_issuedqty = 0;
+				}
+				
+				$total_issuedqty	+= $row->quantity;
+				$row->quantity	= number_format($row->quantity, 2);
+			}
+			$print->drawSummary(array('Total Issued Qty' => $total_issuedqty));
+		}
+
+		
+		
+		$print->drawPDF('Job Order - ' . $voucherno);
 	}
 	
 	public function payment($id) {
@@ -433,7 +439,7 @@ class controller extends wc_controller {
 									->addEdit($row->stat == 'prepared')
 									->addDelete($row->stat == 'prepared')
 									->addPrint()
-									->addOtherTask('Issue Parts', 'bookmark', (MOD_CLOSE && $showactions))
+									->addOtherTask('Issue Parts', 'bookmark', ($showactions))
 									->addOtherTask('Tag as Complete', 'bookmark', (MOD_POST && $showactions))
 									->addCheckbox($row->stat == 'prepared')
 									->setLabels(array('delete' => 'Cancel'))
