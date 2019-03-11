@@ -639,6 +639,26 @@ $('#check_container').on('click', '.edit_check_series', function(){
 	});
 });
 
+
+
+$('#lastchequeno').on('blur', function() {
+	var lastchequeno = $(this).val();
+	var row = $(this);
+	if($('#task').val() == 'update_check') {
+		$.post('<?=MODULE_URL?>ajax/ajax_get_nextcheck', '&code=' + $('#code').val(), function(data) {
+			if(data) {
+				if(data.nextchequeno >= lastchequeno) {
+					row.closest('.form-group').addClass('has-error');
+					row.closest('.form-group').find('.help-block').html('Should be greater than next check number.');
+				} else {
+					row.closest('.form-group').removeClass('has-error');
+					row.closest('.form-group').find('.help-block').html('');
+				}
+			}
+		});
+	}
+});
+
 $('#checkForm #btnEdit').on('click',function(){
 	$('#checkForm #firstchequeno').trigger('blur');
 	$('#checkForm #lastchequeno').trigger('blur');
