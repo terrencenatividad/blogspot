@@ -193,7 +193,7 @@ class controller extends wc_controller
 			$stat = 'cancelled';
 		}
 
-		if($stat == 'partial' || $stat == 'paid') {
+		if($stat == 'partial' || $stat == 'paid' || $bal != $amount) {
 			$data['payments'] = $this->accounts_payable->getPVDetails($id);
 			$data['yes'] = 'yes';
 			$data['table'] = '';

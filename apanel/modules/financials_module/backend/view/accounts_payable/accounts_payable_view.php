@@ -363,7 +363,7 @@
                                         <?php $amount = 0; ?>
                                         <?php if(isset($payments)) { ?>
                                             <?php foreach ($payments as $key => $row) : ?>
-                                                <?php $amount = $row->amount; ?>
+                                                <?php $amount += $row->amount; ?>
                                                 <tr>
                                                     <td class = "remove-margin">
                                                         <?php
@@ -421,7 +421,7 @@
                                                         ->setId('amount')
                                                         ->setAttribute(array("maxlength" => "100"))
                                                         ->setClass('amount')
-                                                        ->setValue($row->amount)
+                                                        ->setValue(number_format($row->amount,2))
                                                         ->draw($show_input);
                                                         ?>
                                                     </td>
@@ -438,7 +438,7 @@
                                                         ?>
                                                     </td>
                                                     <td class = "text-center">
-                                                        <a href="<?=MODULE_URL?>print_preview/<?=$voucherno?>" style = "text-decoration: none; color : black;" class = "btn btn-default btn-xs">
+                                                        <a href="<?=BASE_URL?>financials/payment_voucher/print_preview/<?=$row->voucherno?>" style = "text-decoration: none; color : black;" class = "btn btn-default btn-xs">
                                                             <span class="glyphicon glyphicon-print"></span>
                                                         </a>
                                                     </td>
@@ -452,7 +452,7 @@
                                                 <label for="subtotal" class="control-label">Total </label>
                                             </td>
                                             <td style="border-top:1px solid #DDDDDD;" class="text-right">
-                                                <label class="control-label" style="padding: 0 12px 0 12px;" id = "total_amount"><?php echo $amount ?></label>
+                                                <label class="control-label" style="padding: 0 12px 0 12px;" id = "total_amount"><?php echo number_format($amount,2) ?></label>
                                             </td>
                                             <td style="border-top:1px solid #DDDDDD;" class="text-right">
                                                 <label class="control-label" style="padding: 0 12px 0 12px;">0.00</label>

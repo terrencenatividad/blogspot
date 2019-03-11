@@ -11,6 +11,7 @@
 	</div>
 
 	<form method = "post" class="form-horizontal" id = "payableForm">
+		<input type = "hidden" id = "h_task" name = "h_task" value= "<?php echo $task;?>" >
 		<input type = "hidden" id = "bank_name" name = "bank_name" >
 		<?php if($task == 'edit') { ?>
 			<input type = "hidden" id = "bankcode" name = "bankcode" value = "<?php echo $bankcode; ?>">
@@ -2632,6 +2633,33 @@
 							next = $('#payableForm').find(".has-error").first();
 							$('html,body').animate({ scrollTop: (next.offset().top - 100) }, 'slow');
 						}
+					}).done(function(data){
+						$.post("<?=BASE_URL?>financials/disbursement/ajax/update_temporarily_saved_data",$("#payableForm").serialize())
+						.done(function(data2)
+						{
+							if(data2.success == 1) {
+								$('#delay_modal').modal('show');
+								setTimeout(function() {
+									if(button_name == 'save') {
+										window.location.href = '<?=MODULE_URL?>view/'+ data2.voucher;	
+									} else if(button_name == 'save_new') {
+										window.location.href = '<?=MODULE_URL?>create';
+									} else if(button_name == 'save_exit') {
+										window.location.href = '<?=MODULE_URL?>';	
+									}							
+								}, 1000)
+							} else {
+								var msg = "";
+
+								for(var i = 0; i < data.msg.length; i++)
+								{
+									msg += data.msg[i];
+								}
+
+								$("#errordiv").removeClass("hidden");
+								$("#errordiv #msg_error ul").html(msg);
+							}
+						});
 					});
 				} else {
 					next = $('#payableForm').find(".has-error").first();
