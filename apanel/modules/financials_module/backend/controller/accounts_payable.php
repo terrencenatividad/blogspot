@@ -2186,6 +2186,7 @@ class controller extends wc_controller
 				 */
 				
 				$attachment_id = $this->accounts_payable->getCurrentId("accountspayable_attachments", $reference);
+				$exist = true;
 				if ($attachment_id=='0'){
 					$exist = false;
 					$attachment_id = $this->accounts_payable->getNextId("accountspayable_attachments","attachment_id");
