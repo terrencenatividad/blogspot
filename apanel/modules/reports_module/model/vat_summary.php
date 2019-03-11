@@ -86,7 +86,7 @@ class vat_summary extends wc_model {
 					$table 		= 'ar_details';
 				}else if($transtype == 'AP'){
 					$table 		= 'ap_details';
-				}else if($transtype == 'PV'){
+				}else if($transtype == 'PV' || $transtype == 'DV'){
 					$table 		= 'pv_details';
 				}else if($transtype == 'JV'){
 					$table 		= 'journaldetails';
@@ -120,7 +120,7 @@ class vat_summary extends wc_model {
 					$table 		= 'ar_details';
 				}else if($transtype == 'AP'){
 					$table 		= 'ap_details';
-				}else if($transtype == 'PV'){
+				}else if($transtype == 'PV' || $transtype == 'DV'){
 					$table 		= 'pv_details';
 				}else if($transtype == 'JV'){
 					$table 		= 'journaldetails';
