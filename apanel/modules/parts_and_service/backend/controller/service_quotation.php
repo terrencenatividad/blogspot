@@ -509,9 +509,9 @@ class controller extends wc_controller {
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price','Tax','Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R','R','R'))
 				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('L','R','R'));
+				->setSummaryAlign(array('L','R','R'))
+				->drawHeader();
 
-		$detail_height = 20;
 		$notes = preg_replace('!\s+!', ' ', $header->notes);
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
@@ -519,13 +519,14 @@ class controller extends wc_controller {
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount 	= 0;
-		$notes = $header->notes; 
+		$notes 			= $header->notes; 
+
+		$details_length = count($details) - 1;
+		$print_height 	= 240;
 		foreach ($details as $key => $row) {
-			if ($key % $detail_height == 0) {
-				$print->drawHeader();
+			if ($key == $details_length) {
+				$print_height = 210;
 			}
-			// $vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
-			// $vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
 			if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
 				$vatable_sales += $row->amount;
 			}
@@ -538,12 +539,38 @@ class controller extends wc_controller {
 				}
 			}
 			$tax			+= $row->taxamount;
-			$discount 	    = isset($documentinfo->discount) ? $documentinfo->discount : 0;
 			$row->quantity	= number_format($row->quantity);
 			$row->price		= number_format($row->price, 2);
 			$row->amount	= number_format($row->amount, 2);
 			$row->taxamount	= number_format($row->taxamount, 2);
-			$print->addRow($row);
+
+			$tmpprint = new sq_print_model();
+			$tmpprint->setDocumentType('Transfer - Request')
+				->setStatDetail($header->stat)
+				->setHeaderWidth(array(30, 40, 20, 20, 30, 30, 30))
+				->setHeaderAlign(array('C','C','C','C','C','C','C'))
+				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price','Tax','Amount'))
+				->setRowAlign(array('L', 'L', 'R', 'L', 'R','R','R'))
+				->setFooterDetails(array('Approved By', 'Checked By'))
+			  	->drawHeader();
+			$tmpprint->SetY(58);
+
+			$tmp_y 		= $tmpprint->GetY();
+			$tmpprint->addRow($row);
+			$tmp_y2 	= $tmpprint->GetY();
+
+			$tmp_height = $tmp_y2 - $tmp_y;
+			$row_y 		= $print->GetY();
+			$row_height = $print_height - $row_y;
+			
+
+
+			if ($row_height >= $tmp_height) {
+				$print->addRow($row);
+			} else{
+				$print->drawHeader();
+				$print->addRow($row);
+			}
 			// if (($key + 1) % $detail_height == 0) {
 			// 	$total_amount = $vatable_sales + $vat_exempt + $vat_zerorated + $tax;
 			// 	$summary = array(array('Notes:', 'VATable Sales', number_format($vatable_sales, 2)),
