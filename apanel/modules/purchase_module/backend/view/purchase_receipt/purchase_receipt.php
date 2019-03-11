@@ -486,8 +486,12 @@
 				<div class="modal-footer">
 					<div class="col-md-12 col-sm-12 col-xs-12 text-center">
 						<div class="btn-group">
-							<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button" disabled>Attach</button>
-							<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal" disabled>Attach</button>
+							<?php if ($show_input) { ?>
+								<button type="button" class="btn btn-primary btn-sm btn-flat hidden" id="attach_button" disabled>Attach</button>
+								<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button_close" data-dismiss="modal" disabled>Attach</button>
+							<?php } else { ?>
+								<button type="button" class="btn btn-primary btn-sm btn-flat" id="attach_button" disabled>Attach</button>
+							<?php } ?>
 						</div>
 						&nbsp;&nbsp;&nbsp;
 						<div class="btn-group">
@@ -1986,28 +1990,40 @@
 				<? }?>
 				
 			});
+			<?php if (!$show_input) { ?>
 			$('#attachments_form').bind('fileuploadalways', function (e, data) {
 				// var error = data.result['files'][0]['error'];
-				var form_group = $('#attachments_form #files').closest('.form-group');
+				// var form_group = $('#attachments_form #files').closest('.form-group');
 				// if(!error){
-				// 	// var source_no = $('#source_no').val();
-				// 	var voucherno =  $('#input_voucherno').val();
-				// 	$('#attach_modal').modal('hide');
-				// 	<?php if (!$show_input) { ?>
-				// 		$('#attachment_success').modal('show');
-				// 		setTimeout(function() {							
-				// 			window.location = '<?=MODULE_URL?>view/'+voucherno;						
-				// 		}, 1000)
-				// 	<?php } ?>
+					// var source_no = $('#source_no').val();
+					var voucherno =  $('#input_voucherno').val();
+					// $('#attach_modal').modal('hide');
+					// <?php if (!$show_input) { ?>
+						// $('#attachment_success').modal('show');
+						$('#attachments_form').bind('fileuploadstart', function(e, data2) {
+							$('#attach_modal').modal('hide');	
+							$('#uploading_modal').modal('show');
+							console.log('start');
+						});
+						$('#attachments_form').bind('fileuploadstop', function (e, data2) {
+							$('#uploading_modal').modal('hide');
+							console.log('done');
+							$('#delay_modal').modal('show');
+							setTimeout(function() {							
+								window.location = '<?=MODULE_URL?>view/'+voucherno;						
+							}, 1000)
+						});
+						
+					// <?php } ?>
 
-				// 	var msg = data.result['files'][0]['name'];
-				// 	form_group.removeClass('has-error');
-				// 	form_group.find('p.help-block.m-none').html('');
-				// 	$('#attach_button').prop('disabled', false);
-				// 	$('#attach_button_close').prop('disabled', false);
-				// 	$('#attachments_form #files').closest('.input-group').find('.form-control').html('');
-				// 	// $('#file').val('').trigger('blur');
-				// 	// getList();
+					// var msg = data.result['files'][0]['name'];
+					// form_group.removeClass('has-error');
+					// form_group.find('p.help-block.m-none').html('');
+					// $('#attach_button').prop('disabled', false);
+					// $('#attach_button_close').prop('disabled', false);
+					// $('#attachments_form #files').closest('.input-group').find('.form-control').html('');
+					// $('#file').val('').trigger('blur');
+					// getList();
 				// }else{
 				// 	var msg = data.result['files'][0]['name'];
 				// 	form_group.addClass('has-error');
@@ -2017,5 +2033,6 @@
 				// 	$('#file').val('').trigger('blur');
 				// }
 			});
+			<?php } ?>
 		});
 	</script>
