@@ -1781,13 +1781,12 @@ class payment_voucher_model extends wc_model
 
 	public function get_check_no($vno){
 		$result = $this->db->setTable('pv_cheques')
-		->setFields("max(chequenumber) checknum,chequeaccount, bankcode")
+		->setFields("max(chequenumber) checknum, chequeaccount, bankcode")
 		->setWhere("voucherno = '$vno' ")
 		->setGroupBy("chequeaccount")
 		->runSelect()
-		->getResult();
+		->getRow();
 		return $result;
-
 	}
 
 	public function getbankid($ca){
@@ -1894,7 +1893,6 @@ class payment_voucher_model extends wc_model
 		$last = isset($getBank->lastchequeno) ? $getBank->lastchequeno : "";
 		$data1['stat'] = ($next == $last) ? 'closed' : 'open';
 		$data1['nextchequeno'] = ($chequenumber == $last) ? $chequenumber : $chequenumber + 1;
-		// var_dump($data1);
 		$result = $this->db->setTable("bankdetail") 
 		->setValues($data1)
 		->setWhere("code = '$bankcode'")

@@ -205,11 +205,9 @@ class controller extends wc_controller
 
 				// update checks
 				$getnextCheckno 			= $this->payment_voucher->get_check_no($generatedvoucher);
-				foreach ($getnextCheckno as $value) {
-					$cno = $value->checknum;
-					$ca = $value->bankcode;
-					$result = $this->payment_voucher->update_checks($ca,$cno);
-				}
+				$cno = $getnextCheckno->checknum;
+				$ca = $getnextCheckno->bankcode;
+				$result = $this->payment_voucher->update_checks($ca,$cno);
 			}
 			
 			if(empty($errmsg))
@@ -492,6 +490,11 @@ class controller extends wc_controller
 			$updateTempRecord			= $this->payment_voucher->editData($update_info,"paymentvoucher",$update_condition);
 			$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_details",$update_condition);
 			$updateTempRecord			= $this->payment_voucher->editData($update_info,"pv_application",$update_condition);
+
+			$getnextCheckno 			= $this->payment_voucher->get_check_no($voucherno);
+			$cno = $getnextCheckno->checknum;
+			$ca = $getnextCheckno->bankcode;
+			$result = $this->payment_voucher->update_checks($ca,$cno);
 
 			$this->update_app($data_validate["h_check_rows_"]);
 
