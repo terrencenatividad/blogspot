@@ -287,10 +287,11 @@ class controller extends wc_controller
 			'stat'
 		);
 		$file_uniq_id = uniqid();
+		$rand = rand();
 		$posted_data 	= $this->input->post($arrays);
 		$posted_data['stat'] = 'open';
 		$posted_data['nextchequeno'] = $posted_data['firstchequeno'];
-		$posted_data['code'] = $file_uniq_id;
+		$posted_data['code'] = $file_uniq_id . $rand;
 		$result  		= $this->bank->insertCheck($posted_data);
 		$firstchequeno 	= $posted_data['firstchequeno'];
 		$lastchequeno	= $posted_data['lastchequeno'];
