@@ -509,9 +509,9 @@ class controller extends wc_controller {
 				->setHeader(array('Item Code', 'Description', 'Qty', 'UOM', 'Price','Tax','Amount'))
 				->setRowAlign(array('L', 'L', 'R', 'L', 'R','R','R'))
 				->setSummaryWidth(array('120', '50', '30'))
-				->setSummaryAlign(array('L','R','R'));
+				->setSummaryAlign(array('L','R','R'))
+				->drawHeader();
 
-		$detail_height = 20;
 		$notes = preg_replace('!\s+!', ' ', $header->notes);
 		$vatable_sales	= 0;
 		$vat_exempt		= 0;
@@ -519,13 +519,14 @@ class controller extends wc_controller {
 		$discount		= 0;
 		$tax			= 0;
 		$total_amount 	= 0;
-		$notes = $header->notes; 
+		$notes 			= $header->notes; 
+
+		$details_length = count($details) - 1;
+		$print_height 	= 240;
 		foreach ($details as $key => $row) {
-			if ($key % $detail_height == 0) {
-				$print->drawHeader();
+			if ($key == $details_length) {
+				$print_height = 210;
 			}
-			// $vatable_sales	+= ($row->taxrate) ? $row->amount : 0;
-			// $vat_exempt		+= ($row->taxrate) ? 0 : $row->amount;
 			if($row->taxrate > 0.00 || $row->taxrate > 0 )	{
 				$vatable_sales += $row->amount;
 			}
@@ -560,7 +561,7 @@ class controller extends wc_controller {
 
 			$tmp_height = $tmp_y2 - $tmp_y;
 			$row_y 		= $print->GetY();
-			$row_height = 240 - $row_y;
+			$row_height = $print_height - $row_y;
 			
 
 
