@@ -631,6 +631,9 @@ $('#check_container').on('click', '.edit_check_series', function(){
 			$('#task').val(data.task);
 			$('#checkForm #code').val(data.code);
 			var task = data.task;
+			$('html, body').animate({
+				scrollTop: 0
+			}, 500);
 			if (task == 'update_check'){
 				$('#btnSave').hide();
 				$('#btnEdit').show();
@@ -650,6 +653,24 @@ $('#lastchequeno').on('blur', function() {
 				if(data.nextchequeno >= lastchequeno) {
 					row.closest('.form-group').addClass('has-error');
 					row.closest('.form-group').find('.help-block').html('Should be greater than next check number.');
+				} else {
+					row.closest('.form-group').removeClass('has-error');
+					row.closest('.form-group').find('.help-block').html('');
+				}
+			}
+		});
+	}
+});
+
+$('#firstchequeno').on('blur', function() {
+	var firstchequeno = $(this).val();
+	var row = $(this);
+	if($('#task').val() == 'update_check') {
+		$.post('<?=MODULE_URL?>ajax/ajax_get_nextcheck', '&code=' + $('#code').val(), function(data) {
+			if(data) {
+				if(data.nextchequeno < firstchequeno) {
+					row.closest('.form-group').addClass('has-error');
+					row.closest('.form-group').find('.help-block').html('Should be less than next check number.');
 				} else {
 					row.closest('.form-group').removeClass('has-error');
 					row.closest('.form-group').find('.help-block').html('');
