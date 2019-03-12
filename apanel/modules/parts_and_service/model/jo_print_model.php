@@ -19,6 +19,7 @@ class jo_print_model extends fpdf {
 	private $header_align		= array();
 	private $header				= array();
 	private $header1			= array();
+	// private $stat				= array();
 	private $row_align			= array();
 	private $header_fontsize  	= array();
 	public $next_page			= false;
@@ -309,11 +310,6 @@ class jo_print_model extends fpdf {
 		return $this;
 	}
 
-	public function setHeader1($header) {
-		$this->header1 = $header;
-		return $this;
-	}
-
 	public function setRowAlign($align) {
 		$this->row_align = $align;
 		return $this;
@@ -347,49 +343,13 @@ class jo_print_model extends fpdf {
 			if ($array_values[3] == '' || $array_values[10] == '') {
 				$this->setFont('Arial','B',9);
 				if($key == 2){
-					$this->setFont('Times','B',9);
+					$this->setFont('Arial','B',9);
 				}
 			}
 			else {
 				$this->setFont('Arial','',9);
 				if($key == 2){
-					$this->setFont('Times','',9);
-				}
-			}
-			$this->MultiCell($width, 6, $array_values[$key], 0, $align);
-			$y2 = $this->GetY();
-			if (($y2 - $y) > $h) {
-				$h = $y2 - $y;
-			}
-			$this->SetXY($x + $width, $y);
-		}
-		if (($y + $h + $this->footer_height) >= $this->summary_start) {
-			$this->next_page = true;
-		}
-		$this->SetY($y + $h - 6);
-		$this->Ln();
-	}
-
-	public function addRow1($row) {
-		$h 	=	6;
-		foreach($this->header1 as $key => $header) {
-			$x = $this->GetX();
-     		$y = $this->GetY();
-			$width			= isset($this->header_width[$key]) ? $this->header_width[$key] : 0;
-			$align			= isset($this->row_align[$key]) ? $this->row_align[$key] : 'L';
-			$array_values	= array_values((array) $row);
-			$data			= isset($row->$header) ? $row->$header : $array_values[$key];
-			$array_values[10] = isset($array_values[10]) ? $array_values['10'] : 1;
-			if ($array_values[3] == '' || $array_values[10] == '') {
-				$this->setFont('Arial','B',9);
-				if($key == 2){
-					$this->setFont('Times','B',9);
-				}
-			}
-			else {
-				$this->setFont('Arial','',9);
-				if($key == 2){
-					$this->setFont('Times','',9);
+					$this->setFont('Arial','',9);
 				}
 			}
 			$this->MultiCell($width, 6, $array_values[$key], 0, $align);
@@ -433,62 +393,6 @@ class jo_print_model extends fpdf {
 			$this->Cell($width, 6, $header, 1, 0, $align, true);
 		}
 		$this->SetFont('Arial', '', 9);
-		$this->Ln();
-	}
-
-	public function drawHeader1() {
-		$this->addPage();
-		$this->SetY($this->GetY() + 2);
-		$this->SetFillColor(230,230,230);
-		$this->Rect($this->margin_side, $this->GetY(), 216 - ($this->margin_side * 2), 279 - $this->GetY() - $this->margin_top - $this->footer_height - 2);
-		$this->SetFont('Arial', 'B', 9);
-		foreach($this->header1 as $key => $header) {
-			$width = isset($this->header_width[$key]) ? $this->header_width[$key] : 0;
-			$align = isset($this->header_align[$key]) ? $this->header_align[$key] : 'L';
-			$this->Cell($width, 6, $header, 1, 0, $align, true);
-		}
-		$this->SetFont('Arial', '', 9);
-		$this->Ln();
-	}
-
-	public function drawSummary1($summary) {
-		$summary_height	= count($summary) * 5;
-		$summary_start	= 279 - $this->margin_top - $this->footer_height - $summary_height - 2;
-		// $this->Line(8, $summary_start, 29, $summary_start);
-		$this->summary_start 	=	$summary_start;
-		$alignment		= $this->summary_align;
-		$font_style		= $this->summary_font_style;
-		$this->SetY($summary_start);
-		foreach($summary as $index => $summary_row) {
-			if (is_array($summary_row)) {
-				if (isset($this->summary_align[$index]) && is_array($this->summary_align[$index])) {
-					$alignment = $this->summary_align[$index];
-				}
-				if (isset($this->summary_font_style[$index]) && is_array($this->summary_font_style[$index])) {
-					$font_style = $this->summary_font_style[$index];
-				}
-				$y = $this->GetY();
-				$x = $this->GetX();
-				foreach($this->summary_width as $key => $width) {
-					$this->SetY($y);
-					$this->SetX($x);
-					$x += $width;
-					$align	= isset($alignment[$key]) ? $alignment[$key] : 'R';
-					$style	= isset($font_style[$key]) ? $font_style[$key] : 'B';
-					$data		= $summary_row[$key];
-					$this->SetFont('Arial', $style, 9);
-					$this->MultiCell($width, 5, $data, 0, $align);
-				}
-			} else {
-				$summary_content	= $summary_row;
-				$summary_label		= $index;
-				$this->SetFont('Arial', 'B', 9);
-				$this->Cell($this->summary_width[0], 5, $summary_label, 0, 0, 'R');
-				$this->SetFont('Arial', '', 9);
-				$this->Cell($this->summary_width[1], 5, $summary_content, 0, 0, 'R');
-				$this->Ln();
-			}
-		}
 		$this->Ln();
 	}
 
