@@ -1005,20 +1005,20 @@
 					<?endif;?>
 					&nbsp; -->
 					<?php
-						if($show_input):
-					
+					if($show_input):
+						
 						echo $ui->addSavePreview()
-								->addSaveNew()
-								->addSaveExit()
-								->drawSaveOption();
+						->addSaveNew()
+						->addSaveExit()
+						->drawSaveOption();
 
 						if($task == 'view') {
 							echo $ui->drawSubmit($show_input);
 						}
-					?>
+						?>
 						<input class = "form_iput" value = "" name = "submit" id = "submit" type = "hidden">
-					<?	
-						endif;
+						<?	
+					endif;
 					?>
 					&nbsp;
 					<?
@@ -1779,6 +1779,8 @@ var initial_clone 		 = $('#entriesTable tbody tr.clone:first');
 			var account = $(this).val();
 			var ischeck = $(this).closest('tr').find('.ischeck').val();
 			if(task == 'create' && index != 0 && account == "" || account == "" && index != 0 && ischeck == 'yes'){
+				$(this).closest('tr').remove();
+			} else if(task == 'edit' && index != 0 && account == "" || account == "" && index != 0 && ischeck == 'yes'){
 				$(this).closest('tr').remove();
 			}
 		});
@@ -2937,33 +2939,33 @@ function selectPayable(id,toggle){
 	var paymentamount_val = $('#payable_list_container #paymentamount'+id).attr('value');
 	var newbal  		= $('#payable_list_container #orig_bal'+id).attr('value');
 		// console.log("BALNACE = "+balance);
-	if(check.prop('checked' )){
-		if(toggle == 1){
-			check.prop('checked', false);
-			paymentamount.prop('disabled',true);
-			paymentamount.val('0.00');
-			discountamount.prop('disabled',true);
+		if(check.prop('checked' )){
+			if(toggle == 1){
+				check.prop('checked', false);
+				paymentamount.prop('disabled',true);
+				paymentamount.val('0.00');
+				discountamount.prop('disabled',true);
+			}else{
+				check.prop('checked', true);
+				paymentamount.prop('disabled',false);
+				paymentamount.val(balance);
+				discountamount.prop('disabled',false);
+			}
 		}else{
-			check.prop('checked', true);
-			paymentamount.prop('disabled',false);
-			paymentamount.val(balance);
-			discountamount.prop('disabled',false);
+			if(toggle == 1){
+				check.prop('checked', true);
+				paymentamount.prop('disabled',false);
+				paymentamount.val(balance);
+				discountamount.prop('disabled',false);
+			}else{
+				check.prop('checked', false);
+				paymentamount.prop('disabled',true);
+				paymentamount.val('0.00');
+				discountamount.prop('disabled',true);
+			}
 		}
-	}else{
-		if(toggle == 1){
-			check.prop('checked', true);
-			paymentamount.prop('disabled',false);
-			paymentamount.val(balance);
-			discountamount.prop('disabled',false);
-		}else{
-			check.prop('checked', false);
-			paymentamount.prop('disabled',true);
-			paymentamount.val('0.00');
-			discountamount.prop('disabled',true);
-		}
-	}
 
-	$('#payable_list_container #check'+id).iCheck('update');
+		$('#payable_list_container #check'+id).iCheck('update');
 
 	// Get number of checkboxes and assign to textarea
 	balance 	=	removeComma(balance);
@@ -2998,7 +3000,7 @@ function add_storage(id,balance,discount){
 				var discount 			=	(removeComma(newvalue.dis) > 0) ? removeComma(newvalue.dis) : 0;
 
 				var available_balance 	=	(parseFloat(balance) - parseFloat(original_discount)) - new_amount;
-					available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
+				available_balance 	=	((available_balance > 0) ? addCommas(available_balance.toFixed(2)) : 0);
 				
 				// console.log("Balance = "+balance);
 				// console.log("Original Discount = "+original_discount);
@@ -3006,7 +3008,7 @@ function add_storage(id,balance,discount){
 				// console.log("Available Balance = "+available_balance);
 
 				var discounted_amount 	=	(parseFloat(new_amount) + parseFloat(original_discount)) - discount;
-					discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
+				discounted_amount 	=	addCommas(discounted_amount.toFixed(2));
 				
 				// console.log("New Amount = "+new_amount);
 				// console.log("Original Discount = "+original_discount);
@@ -3072,7 +3074,7 @@ function checkBalance(val,id){
 	var condition = "";
 	var input 	  = "";
 	var error 	  = 0;
-		condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
+	condition 		= (parseFloat(newval) || parseFloat(discount) == 0 || (parseFloat(discount) > parseFloat(dueamount) || parseFloat(discount) > parseFloat(current_payment) ) ) ;
 	
 	var excess_payment 	= 0;
 	var ind_excess 		= 0;
@@ -3110,8 +3112,8 @@ function checkBalance(val,id){
 				$('#payable_list_container #paymentamount'+id).closest('div').removeClass('has-error');
 			}
 		} else if (discount == 0) {
-				$("#discountAmtError").addClass('hidden');
-				$('#payable_list_container #discountamount'+id).closest('div').removeClass('has-error');
+			$("#discountAmtError").addClass('hidden');
+			$('#payable_list_container #discountamount'+id).closest('div').removeClass('has-error');
 		}
 
 		// $('#payable_list_container #overpayment_'+id).attr('data-value',ind_excess);
