@@ -34,22 +34,6 @@
 							?>
 						</div>
 					</div>
-					<div class="row">
-						<div class="col-md-12">
-							<label class="col-md-2 control-label">
-								Dashboard View
-							</label>
-							<?php
-								echo $ui->formField('checkbox')
-									->setName("dashboard")
-									->setId("dashboard")
-									->setSwitch()
-									->setDefault('1')
-									->setValue($dashboard)
-									->draw($show_input);
-							?>
-						</div>
-					</div>
 					<input type="hidden" name="status" value="<?php echo $status; ?>" >
 					<!-- <div class="row">
 						<div class="col-md-12">

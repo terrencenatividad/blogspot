@@ -57,7 +57,7 @@
 						'<input type="checkbox" class="checkall">',
 						array(
 							'class' => 'text-center',
-							'style' => 'width: 15px'
+							'style' => 'width: 40px'
 						)
 					)
 					->addHeader('Group Name', array('class' => 'col-md-4'), 'sort', 'groupname', 'asc')

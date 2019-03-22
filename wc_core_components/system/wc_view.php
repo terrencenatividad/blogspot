@@ -38,6 +38,7 @@ class wc_view {
 			if ($enclosed && ( ! defined('MODAL') || (defined('MODAL') && ! MODAL))) {
 				$header_nav		= $this->getNav();
 				$header_active	= $this->header_active;
+				$user_image 	= $this->getUserImage();
 				$include_css	= $this->css;
 				$include_js		= $this->js;
 				$page_title		= $this->title;
@@ -62,19 +63,33 @@ class wc_view {
 		if (PAGE_TYPE == 'backend') {
 			$db = new db();
 			$result = $db->setTable(PRE_TABLE . '_modules m')
-							->innerJoin(PRE_TABLE . '_module_access ma ON ma.module_name = m.module_name')
-							->setFields('module_link, m.module_name, module_group, label')
-							->setWhere('active AND show_nav AND (mod_add + mod_view + mod_edit + mod_delete + mod_list + mod_print) > 0')
-							->setGroupBy('module_name')
-							->setOrderBy('group_order, module_order, module_name')
-							->runSelect(false)
-							->getResult();
+			->innerJoin(PRE_TABLE . '_module_access ma ON ma.module_name = m.module_name')
+			->setFields('module_link, m.module_name, module_group, label')
+			->setWhere('active AND show_nav AND (mod_add + mod_view + mod_edit + mod_delete + mod_list + mod_print) > 0')
+			->setGroupBy('module_name')
+			->setOrderBy('group_order, module_order, module_name')
+			->runSelect(false)
+			->getResult();
 			foreach($result as $row) {
 				$nav[$row->label][$row->module_group][$row->module_name] = $row->module_link;
 			}
 			$db->close();
 		}
 		return $nav;
+	}
+
+	public function getUserImage() {
+		$this->session = new session();
+		$get = $this->session->get('login');
+		$username = $get['username'];
+		$db = new db();
+		$result = $db->setTable(PRE_TABLE . '_users')
+		->setFields('image')
+		->setWhere("username = '$username'")
+		->runSelect(false)
+		->getRow();
+		$db->close();
+		return $result;
 	}
 
 	public function enclose($val, $pre, $suf) {

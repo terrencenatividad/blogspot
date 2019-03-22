@@ -22,7 +22,7 @@
 	<body class="hold-transition login-page">
 		<div class="login-box">
 			<div class="login-logo">
-				<a href=""><b>Oojeema</b><i>Prime</i></a>
+				<a href=""><b>Ter</b><i>Blog</i></a>
 			</div>
 			<div class="login-box-body">
 				<?php if ( ! empty($error_msg)): ?>

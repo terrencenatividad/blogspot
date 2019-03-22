@@ -10,7 +10,6 @@ class controller extends wc_controller {
 		$this->fields 	= array(
 			'groupname',
 			'description',
-			'dashboard',
 			'status'
 		);
 		$this->access_list = array(

@@ -20,7 +20,7 @@ class controller extends wc_controller {
 			'middleinitial',
 			'phone',
 			'mobile',
-			'position'
+			'image'
 		);
 		$this->csv_header		= array(
 			'First Name',
@@ -48,7 +48,6 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->AddLabel('');
 		$data = $this->input->post($this->fields);
 		$data['ui'] = $this->ui;
-		$data['position_list'] = $this->user_model->getPositionList('');
 		$data['group_list'] = $this->user_model->getGroupList('');
 		$data['ajax_task'] = 'ajax_create';
 		$data['ajax_post'] = '';
@@ -60,7 +59,6 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->EditLabel('');
 		$data = (array) $this->user_model->getUserById($this->fields, $username);
 		$data['ui'] = $this->ui;
-		$data['position_list'] = $this->user_model->getPositionList('');
 		$data['group_list'] = $this->user_model->getGroupList('');
 		$data['ajax_task'] = 'ajax_edit';
 		$data['ajax_post'] = "&username_ref=$username";
@@ -72,7 +70,7 @@ class controller extends wc_controller {
 		$this->view->title = $this->ui->ViewLabel('');
 		$data = (array) $this->user_model->getUserById($this->fields, $username);
 		$data['ui'] = $this->ui;
-		$data['position_list'] = $this->user_model->getPositionList('');
+		$data['ajax_task'] = 'ajax_view';
 		$data['group_list'] = $this->user_model->getGroupList('');
 		$data['show_input'] = false;
 		$this->view->load('user/user', $data);
@@ -154,6 +152,11 @@ class controller extends wc_controller {
 
 	private function ajax_create() {
 		$data = $this->input->post($this->fields);
+		$image_uploader = new image_uploader();
+		$filename = $image_uploader->setSize(array('large','thumb'))
+		->setFolderName('../uploads/items')
+		->getImage('item_image');
+		$data['image'] = $filename;
 		$data['stat'] = 'active';
 		$result = $this->user_model->saveUser($data);
 		return array(
@@ -163,7 +166,18 @@ class controller extends wc_controller {
 	}
 
 	private function ajax_edit() {
+		$image_uploader = new image_uploader();
+		$filename = $image_uploader->setSize(array('large','thumb'))
+		->setFolderName('../uploads/items')
+		->getImage('item_image');
 		$data = $this->input->post($this->fields);
+
+		if(empty($filename)) {
+			$image_name = $this->input->post('image-edit');
+			$data['image'] = $image_name;
+		} else {
+			$data['image'] = $filename;
+		}
 		$data['stat'] = 'active';
 		$username = $this->input->post('username_ref');
 		$result = $this->user_model->updateUser($data, $username);
