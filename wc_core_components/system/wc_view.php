@@ -81,15 +81,17 @@ class wc_view {
 	public function getUserImage() {
 		$this->session = new session();
 		$get = $this->session->get('login');
-		$username = $get['username'];
-		$db = new db();
-		$result = $db->setTable(PRE_TABLE . '_users')
-		->setFields('image')
-		->setWhere("username = '$username'")
-		->runSelect(false)
-		->getRow();
-		$db->close();
-		return $result;
+		if (PAGE_TYPE == 'backend') {
+			$username = $get['username'];
+			$db = new db();
+			$result = $db->setTable(PRE_TABLE . '_users')
+			->setFields('image')
+			->setWhere("username = '$username'")
+			->runSelect(false)
+			->getRow();
+			$db->close();
+			return $result;
+		}
 	}
 
 	public function enclose($val, $pre, $suf) {
