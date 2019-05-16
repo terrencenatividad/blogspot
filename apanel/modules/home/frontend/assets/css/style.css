@@ -1,7 +1,37 @@
 body, html {
 	background-color: #ededed;
+	/*font-family : Georgia, serif;*/
+	font-family: "Gill Sans", sans-serif;
 }
 
 nav {
 	border-radius: 0px !important;
+	box-shadow: 0px -5px 12px grey;
+}
+
+.navbar-default .navbar-nav>li>a {
+	color: #dbdbdb;
+}
+
+.navbar-default .navbar-nav>li {
+	padding-top : 10px;
+	padding-bottom : 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.navbar-default .navbar-nav>li[class = "active"]>a {
+	background-color: #f8f8f8;
+}
+
+.navbar-default .navbar-nav>li[class = "active"]:hover>a {
+	background-color: #f8f8f8;
+	color: black;
+}
+
+.navbar-nav{
+	float:none;
+	margin: 0 auto;
+	display: table;
+	table-layout: fixed;
 }
