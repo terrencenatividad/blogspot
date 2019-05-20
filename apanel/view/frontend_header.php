@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/font-awesome.min.css">
 	<link rel="stylesheet" href="<?= BASE_URL ?>assets/home/css/style.css">
+	<link rel="stylesheet" href="<?= BASE_URL ?>assets/home/css/boardz.min.css">
 	<script src="<?= BASE_URL ?>assets/js/jquery.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/bootstrap.min.js"></script>
 	<script src="<?= BASE_URL ?>assets/js/masonry.min.js"></script>
@@ -16,7 +17,7 @@
 	<div class="container">
 		<div class="row"></div>
 	</div>
-	<nav class="navbar navbar-default">
+	<nav class="navbar navbar-inverse">
 		<div class="container-fluid">
 			<div class="col-md-12 col-md-12 col-sm-12 col-xs-12">
 				<div class="navbar-header">
@@ -30,8 +31,11 @@
 					<ul class="nav navbar-nav">
 						<li class="active"><a href="#">HOME</a></li>
 						<li><a href="#">BLOGS</a></li>
-						<li><a href="#">ABOUT</a></li>
 						<li><a href="#">CONTACT US</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="https://www.facebook.com"><img src="<?=BASE_URL?>assets/images/facebook.png" style = "height: 30px; border;"></a></li>
+						<li><a href="https://www.twitter.com"><img src="<?=BASE_URL?>assets/images/twitter.png" style = "height: 30px; border;"></a></li>
 					</ul>
 				</div>
 			</div>

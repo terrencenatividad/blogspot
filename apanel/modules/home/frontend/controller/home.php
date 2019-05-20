@@ -7,7 +7,7 @@ class controller extends wc_controller {
 	}
 
 	public function index() {
-		$this->view->title = 'Dashboard';
+		$this->view->title = 'My Blog Site';
 		$data						= array();
 		$this->view->load('home', $data);
 	}
